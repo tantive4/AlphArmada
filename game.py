@@ -7,10 +7,17 @@ class armada:
     def __init__(self):
         self.player_edge = 90 # cm
         self.short_edge = 90 # cm
+        self.ship = [] # max 4 per player
+        self.squadron = [] # max 6 per player
+
+        self.round = 0
+        self.roundphase = ""
 
 
 class ship:
-    def __init__(self, ship_dict) :
+    def __init__(self, ship_dict, Player) :
+        self.Player = Player
+
         self.Hull = ship_dict.get('hull')
         self.Size = ship_dict.get('size')
         self.CommandValue = ship_dict.get('command')
@@ -35,7 +42,9 @@ class ship:
         self.shield = [self.maxshield[0], self.maxshield[1], self.maxshield[2], self.maxshield[1]] # [Front, Right, Rear, Left]
 
 class squadron:
-    def __init__(self, squad_dict):
+    def __init__(self, squad_dict, Player):
+        self.Player = Player
+        
         self.Hull = squad_dict.get('hull')
         self.Speed = squad_dict.get('speed')
         self.Point = squad_dict.get('point')
@@ -46,17 +55,17 @@ class squadron:
         self.Swarm = squad_dict.get('swarm')
 
 
-Victory = ship(Victory_2_dict)
-CR90 = ship(CR90A_dict)
-Nebulon = ship(Neb_escort_dict)
+Victory = ship(Victory_2_dict, -1)
+CR90 = ship(CR90A_dict, 1)
+Nebulon = ship(Neb_escort_dict, 1)
 
-TIE1 = squadron(TIE_fighter_dict)
-TIE2 = squadron(TIE_fighter_dict)
-TIE3 = squadron(TIE_fighter_dict)
-TIE4 = squadron(TIE_fighter_dict)
-TIE5 = squadron(TIE_fighter_dict)
-TIE6 = squadron(TIE_fighter_dict)
-X1 = squadron(xwing_dict)
-X2 = squadron(xwing_dict)
-X3 = squadron(xwing_dict)
-X4 = squadron(xwing_dict)
+TIE1 = squadron(TIE_fighter_dict, -1)
+TIE2 = squadron(TIE_fighter_dict, -1)
+TIE3 = squadron(TIE_fighter_dict, -1)
+TIE4 = squadron(TIE_fighter_dict, -1)
+TIE5 = squadron(TIE_fighter_dict, -1)
+TIE6 = squadron(TIE_fighter_dict, -1)
+X1 = squadron(xwing_dict, 1)
+X2 = squadron(xwing_dict, 1)
+X3 = squadron(xwing_dict, 1)
+X4 = squadron(xwing_dict, 1)
