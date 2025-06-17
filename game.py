@@ -5,25 +5,40 @@ import numpy as np
 
 class armada:
     def __init__(self):
-        self.player_edge = 90 # cm
-        self.short_edge = 90 # cm
-        self.ship = [] # max 4 per player
+        self.player_edge = 30 # 3cm
+        self.short_edge = 30 # 3cm
+        self.ship = [] # max 2 per player
         self.squadron = [] # max 6 per player
 
         self.round = 0
-        self.roundphase = ""
+        self.roundphase = 0  
+        """
+          1: ship activation, 2: squadron activation, 
+          3: choose command, 4: command token conversion, 5: squadron command, 6: engineering command,
+          7: set target, 8: add concentrate fire dice, 9: reroll concentrate fire, 10: spend accuracy, 11: spend defense token,
+          12: decide maneuver,
+          13: squadron movement, 13: squadron set target
+        """
 
+    def deploy_ship(self, ship, x, y, direction, speed):
+        self.ship.append(ship)
+        ship.deploy(x, y, direction, speed)
+
+    def deplay_squadron(self, squadron, x, y):
+        self.squadorn.append(squadron)
+        squadron.deplay(x, y)
 
 class ship:
     def __init__(self, ship_dict, Player) :
         self.Player = Player
+        self.destroyed = False
 
-        self.Hull = ship_dict.get('hull')
+        self.MaxHull = ship_dict.get('hull')
         self.Size = ship_dict.get('size')
         self.CommandValue = ship_dict.get('command')
         self.SquadronValue = ship_dict.get('squadron')
         self.EngineeringValue = ship_dict.get('engineering')
-        self.DefenseToken = {i : [ship_dict.get('DefenseToken')[i], 1] for i in range(len(ship_dict.get('DefenseToken')))}
+        self.DefenseToken = [ship_dict.get('DefenseToken').count(i) for i in ['brace', 'redirect', 'evade']]
         self.AntiSquad = ship_dict.get('anti_squad')
         self.FrontDice = ship_dict.get('battery')[0]
         self.LeftDice = ship_dict.get('battery')[1]
@@ -33,13 +48,14 @@ class ship:
         self.MaxShield = ship_dict.get('shield')
         self.Point = ship_dict.get('point')
 
-
-    def deployship(self, x, y, direction, speed):
+    def deploy(self, x, y, direction, speed):
         self.x = x
         self.y = y
         self.direction = direction
         self.speed = speed
+        self.hull = self.MaxHull
         self.shield = [self.maxshield[0], self.maxshield[1], self.maxshield[2], self.maxshield[1]] # [Front, Right, Rear, Left]
+        self.unactivated = False
 
 class squadron:
     def __init__(self, squad_dict, Player):
@@ -53,6 +69,10 @@ class squadron:
         self.Escort = squad_dict.get('escort')
         self.Bomber = squad_dict.get('bomber')
         self.Swarm = squad_dict.get('swarm')
+
+    def deplay(self, x, y):
+        self.x = x
+        self.y = y
 
 
 Victory = ship(Victory_2_dict, -1)
@@ -69,3 +89,6 @@ X1 = squadron(xwing_dict, 1)
 X2 = squadron(xwing_dict, 1)
 X3 = squadron(xwing_dict, 1)
 X4 = squadron(xwing_dict, 1)
+
+game = armada()
+player = 1

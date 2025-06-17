@@ -18,7 +18,7 @@ CR90A_dict = {
     'command' : 1,
     'squadron' : 1,
     'engineering' : 2,
-    'defDefenseTokenense' : ['evade', 'evade', 'redirect'],
+    'DefenseToken' : ['evade', 'evade', 'redirect'],
     'anti_squad' : [0, 1, 0],
     'shield' : [2, 2, 1],
     'battery' : [[0, 1, 2], [0, 1, 1], [0, 0, 1]],
