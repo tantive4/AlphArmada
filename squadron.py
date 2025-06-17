@@ -1,4 +1,4 @@
-TIE_fighter_dict = {
+tie_fighter_dict = {
     'hull' : 3,
     'speed' : 4,
     'anti_squad' : [0, 3, 0],
