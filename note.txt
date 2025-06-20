@@ -11,7 +11,7 @@ engineering point spend	17	< move 4 * 3 + recover 4 + repair 1 (ignore critical)
 
 set attacking hull	4	
 set target	13	< squadron or ship hull 12
-add dice	3	
+add dice	3	1
 reroll dice	12	< each dice with eye
 spend accuracy	6	< each type, is exhausted
 set attacking hull	4	
@@ -28,3 +28,9 @@ decide maneuver	6	< with caution, each speed joint
 squadron speed	10	< 0.5 distance
 squadron direction	20	< 30deg (hmm... )
 squadron set target	22	< ship hull 12 + squad 10
+
+1. ship activation
+2. set target
+3. maneuver (+- 1)
+
+no squad, no command, no attack sequence
