@@ -12,13 +12,7 @@ class armada:
 
         self.round = 0
         self.roundphase = 0  
-        """
-          1: ship activation, 2: squadron activation, 
-          3: choose command, 4: command token conversion, 5: squadron command, 6: engineering command, 7: engineering point spend
-          7: set target, 8: add concentrate fire dice, 9: reroll concentrate fire, 10: spend accuracy, 11: spend defense token,
-          12: decide maneuver (speed 1, 2, 3, 4),
-          13: squadron movement, 13: squadron set target
-        """
+
 
     def deploy_ship(self, ship, x, y, direction, speed):
         self.ship.append(ship)
@@ -69,39 +63,10 @@ class ship:
         self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
         self.unactivated = False
         
-    
-
-class squadron:
-    def __init__(self, squad_dict, Player):
-        self.Player = Player
-        
-        self.hull = squad_dict.get('hull')
-        self.speed = squad_dict.get('speed')
-        self.point = squad_dict.get('point')
-        self.anti_squad = squad_dict.get('anti_squad')
-        self.battery = squad_dict.get('battery')
-        self.escort = squad_dict.get('escort')
-        self.bomber = squad_dict.get('bomber')
-        self.swarm = squad_dict.get('swarm')
-
-    def deplay(self, x, y):
-        self.x = x
-        self.y = y
 
 victory = ship(Victory_2_dict, -1)
 cr90 = ship(CR90A_dict, 1)
 nebulon = ship(Neb_escort_dict, 1)
-
-tie1 = squadron(tie_fighter_dict, -1)
-tie2 = squadron(tie_fighter_dict, -1)
-tie3 = squadron(tie_fighter_dict, -1)
-tie4 = squadron(tie_fighter_dict, -1)
-tie5 = squadron(tie_fighter_dict, -1)
-tie6 = squadron(tie_fighter_dict, -1)
-x1 = squadron(xwing_dict, 1)
-x2 = squadron(xwing_dict, 1)
-x3 = squadron(xwing_dict, 1)
-x4 = squadron(xwing_dict, 1)
 
 game = armada()
 player = 1

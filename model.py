@@ -1,31 +1,39 @@
 import random
 import numpy as np
 
-def master_model(state):
-    formatted_state = [random.random() for _ in range(len(state))]
-    return formatted_state
+# 얘네는 좀 이따 생각하고 일단 랜덤 함수로 만들어놓자고
+# 게임 모델부터 완성이 되어야 뭐가 좀 될듯
 
-def ship_activation(formatted_state):
-    policy = [random.random() for _ in range(3)]
-    policy /= np.sum(policy)
-    return policy
+def shared_encoder(state):
+    # return encoded gamestate for H-DL
+    pass
 
-def squadron_activation(formatted_state):
-    policy = [random.random() for _ in range(10)]
-    policy /= np.sum(policy)
-    return policy
+def ship_activation(encoded_state):
+    # return which ship to activate (3 ships)
+    pass
 
-def set_command(formatted_state):
-    policy = [random.random() for _ in range(4)]
-    policy /= np.sum(policy)
-    return policy
+def choose_attacker(encoded_state):
+    # return which hull to perform attack (4 hulls)
+    pass
 
-def squadron_command(formatted_state):
-    policy = [random.random() for _ in range(2)]
-    policy /= np.sum(policy)
-    return policy
+def choose_defender(encoded_stat, attacker):
+    # return defending hull zone (12 hulls)
+    pass
 
-def engineer_command(formatted_state):
-    policy = [random.random() for _ in range(2)]
-    policy /= np.sum(policy)
-    return policy
+def choose_speed(encoded_state):
+    # return speed
+    pass
+
+def choose_yaw(encoded_state, speed):
+    # return yaw (-2 ~ 2)
+    pass
+
+def use_accuracy(state):
+    # return which defense token to block
+    # hand coded model
+    pass
+
+def use_defense_token(state):
+    # return which defense token to use and how
+    #hand coded model
+    pass
