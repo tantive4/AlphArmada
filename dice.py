@@ -68,10 +68,10 @@ def roll_dice(dice):
             results["red_hit"] += 1
         elif roll == "critical":
             results["red_critical"] += 1
-        elif roll == "accuracy":
-            results["red_accuracy"] += 1
         elif roll == "double":
             results["red_double"] += 1
+        elif roll == "accuracy":
+            results["red_accuracy"] += 1
 
     output_list = [
         results["black_blank"],
@@ -83,8 +83,8 @@ def roll_dice(dice):
         results["red_blank"],
         results["red_hit"],
         results["red_critical"],
-        results["red_accuracy"],
-        results["red_double"]
+        results["red_double"],
+        results["red_accuracy"]
     ]
 
     return output_list
