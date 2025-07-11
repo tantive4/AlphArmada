@@ -18,7 +18,7 @@ Victory_2_dict = {
 
 CR90A_dict = {
     'hull' : 4,
-    'size' : 'small',
+    'size' : 'small', # 43 x 71
     'command' : 1,
     'squadron' : 1,
     'engineering' : 2,
