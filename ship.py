@@ -4,6 +4,7 @@ import numpy as np
 import math
 from dice import *
 import model
+from visualizer import visualize_board
 
 class Ship:
     def __init__(self, ship_dict, player) :
@@ -21,7 +22,7 @@ class Ship:
         self.point = ship_dict.get('point')
 
         self.front_arc = (ship_dict.get('front_arc_center'), ship_dict.get('front_arc_end')) 
-        self.rear_arc = (ship_dict.get('front_arc_center'), ship_dict.get('front_arc_end'))
+        self.rear_arc = (ship_dict.get('rear_arc_center'), ship_dict.get('rear_arc_end'))
 
     def _get_coordination(self, vector) :
         x, y = self.x, self.y
@@ -44,19 +45,24 @@ class Ship:
         self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
+        
+        if self.game:
+            self.game.visualization_counter += 1
+            visualize_board(self.game.ships, self.game.player_edge, self.game.short_edge, self.game.visualization_counter)
+
     def deploy(self, game, x, y, orientation, speed, ship_index):
         self.game = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
         self.orientation = orientation
-        self.set_coordination()
+        
         self.speed = speed
         self.hull = self.max_hull
         self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
         self.activated = False
         self.destroyed = False
         self.ship_id = ship_index
-
+        self.set_coordination()
         print(f'{self.name} is deployed.')
 
     def measure_arc_and_range(self, from_hull, to_ship, to_hull, extension_factor=1e4) :
@@ -194,11 +200,12 @@ class Ship:
         while total_damage > 0:
             if self.shield[defend_hull] > 0 :
                 self.shield[defend_hull] -= 1
-            else : self.hull -= 1
             total_damage -= 1
-            
-        critical = sum(attack_pool[i] for i in CRIT_INDICES)
-        if critical : self.hull -= 1 # 크리티컬은 모두 Structural Damage
+
+        if total_damage > 0 :
+            self.hull -= total_damage
+            critical = sum(attack_pool[i] for i in CRIT_INDICES)
+            if critical : self.hull -= 1 # 크리티컬은 모두 Structural Damage
 
         print(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
 

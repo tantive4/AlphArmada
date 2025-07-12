@@ -13,6 +13,7 @@ class Armada:
 
         self.round = 1
         self.winner = None
+        self.visualization_counter = 0
 
 
     def deploy_ship(self, ship, x, y, orientation, speed):
