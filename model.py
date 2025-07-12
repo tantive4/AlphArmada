@@ -16,22 +16,22 @@ def shared_encoder(state):
     # return encoded gamestate for H-DL
     pass
 
-def ship_activation(encoded_state):
+def ship_activation(encoded_state = None):
     # return which ship to activate (3 ships)
     return random_model(3)
 
-def choose_attacker(encoded_state):
+def choose_attacker(encoded_state = None):
     # return which hull to perform attack (4 hulls)
     return random_model(4)
 
-def choose_defender(encoded_stat, attacker):
+def choose_defender(attacker, encoded_stat = None):
     # return defending hull zone (12 hulls)
     return random_model(12)
 
-def choose_speed(encoded_state):
+def choose_speed(encoded_state = None):
     # return speed
     return random_model(5)
 
-def choose_yaw(encoded_state, speed):
+def choose_yaw(speed, encoded_state = None):
     # return yaw (-2 ~ 2)
     return random_model(5)

@@ -8,6 +8,7 @@ import model
 class Ship:
     def __init__(self, ship_dict, Player) :
         self.Player = Player
+        self.game = None
         self.destroyed = False
 
         self.max_hull = ship_dict.get('hull')
@@ -42,7 +43,8 @@ class Ship:
         self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
-    def deploy(self, x, y, orientation, speed, ship_index):
+    def deploy(self, game, x, y, orientation, speed, ship_index):
+        self.game = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
         self.orientation = orientation
@@ -52,7 +54,7 @@ class Ship:
         self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
         self.activated = False
         self.destroyed = False
-        self.ship_index = ship_index
+        self.ship_id = ship_index
 
     def measure_arc_and_range(self, from_hull, to_ship, to_hull, extension_factor=1e4) :
         """Measures the range and validity of a firing arc to a target.
@@ -201,17 +203,39 @@ class Ship:
         self.set_coordination()
 
     def activate(self) :
-        attacked_hull = [False, False, False, False]
-        
+        attack_count = 0
+        attack_possible = [True, True, True, True]
+        while attack_count < 2 and sum(attack_possible) > 0 :
 
-        attack_hull_value = model.choose_attacker()
-        for i in range(4) :
-            if attacked_hull[i] :
-                attack_hull_value[i] = model.MASK_VALUE
-        attack_hull_policy = model.softmax(attack_hull_value)
-        attack_hull = np.argmax(attack_hull_policy)
+            attack_hull_value = model.choose_attacker()
+            for i in range(4) :
+                if not attack_possible[i] :
+                    attack_hull_value[i] = model.MASK_VALUE
+            attack_hull_policy = model.softmax(attack_hull_value)
+            attack_hull = np.argmax(attack_hull_policy)
         
+            defend_hull_value = model.choose_defender(self)
+            
+            for ship_index in range(self.game.get_ship_count()) :
+                for hull_index in range(4) :
+                    if ship_index == self.ship_id : defend_hull_value[ship_index * 4 + hull_index] = model.MASK_VALUE
+                    range = self.measure_arc_and_range(attack_hull, self.game.ships[ship_index], hull_index)
+                    if range == -1 or range == 3 : defend_hull_value[ship_index * 4 + hull_index] = model.MASK_VALUE
 
+            if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
+                attack_possible[attack_hull] = False
+                continue
+
+            defend_hull_policy = model.softmax(defend_hull_value)
+            defender = np.argmax(defend_hull_policy)
+
+            self.attack(attack_hull, self.game.ships[defender // 4], defender % 4)
+            attack_possible[attack_hull] = False
+            attack_count += 1
+        
+        self.maneuver(None) #under construction
+        
+        self.activated = True
 
 
 Victory_2_dict = {
