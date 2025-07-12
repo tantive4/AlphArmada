@@ -1,4 +1,6 @@
 import random
+CRIT_INDICES = [2, 4, 8]
+DAMAGE_INDICES = [0, 1, 2, 1, 1, 0, 0, 1, 1, 2, 0]
 
 def roll_dice(dice):
     """
