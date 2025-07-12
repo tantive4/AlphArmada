@@ -16,7 +16,7 @@ def shared_encoder(state):
     # return encoded gamestate for H-DL
     pass
 
-def ship_activation(encoded_state = None):
+def choose_ship_activate(encoded_state = None):
     # return which ship to activate (3 ships)
     return random_model(3)
 

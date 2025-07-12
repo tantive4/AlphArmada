@@ -36,10 +36,10 @@ def roll_dice(dice):
     }
 
     black_faces = ["blank", "hit", "double"]
-    black_weights = [1, 2, 1]
+    black_weights = [2, 4, 2]
 
     blue_faces = ["hit", "critical", "accuracy"]
-    blue_weights = [2, 1, 1]
+    blue_weights = [4, 2, 2]
 
     red_faces = ["blank", "hit", "critical", "accuracy", "double"]
     red_weights = [2, 2, 2, 1, 1]
@@ -88,7 +88,12 @@ def roll_dice(dice):
         results["red_double"],
         results["red_accuracy"]
     ]
-
+    print(f'''
+          Dice Rolled!
+          Black [Blank, Hit, Double] : {output_list[:3]}
+          Blue [Hit, Critical, Accuracy] : {output_list[3:6]}
+          Red [Blank, Hit, Critical, Double, Accuracy] : {output_list[6:]}
+        ''')
     return output_list
 
 def reroll_dice(dice_result, dice_to_reroll):

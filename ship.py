@@ -6,10 +6,11 @@ from dice import *
 import model
 
 class Ship:
-    def __init__(self, ship_dict, Player) :
-        self.Player = Player
+    def __init__(self, ship_dict, player) :
+        self.player = player
         self.game = None
-        self.destroyed = False
+        self.name = ship_dict.get('name')
+        self.point = ship_dict.get('point')
 
         self.max_hull = ship_dict.get('hull')
         self.size = ship_dict.get('size')
@@ -56,6 +57,8 @@ class Ship:
         self.destroyed = False
         self.ship_id = ship_index
 
+        print(f'{self.name} is deployed.')
+
     def measure_arc_and_range(self, from_hull, to_ship, to_hull, extension_factor=1e4) :
         """Measures the range and validity of a firing arc to a target.
 
@@ -75,6 +78,8 @@ class Ship:
                  2: Long range.
                  3: Extreme range.
         """
+        if to_ship.destroyed : return -1
+
         if from_hull == 0 or from_hull == 1 :
             arc1 = (self.front_arc_center, self.front_right_arc)
         else : 
@@ -164,11 +169,14 @@ class Ship:
             else : return 3 # extreme range
 
     def attack(self, attack_hull, defender, defend_hull) :
+
         attack_range = self.measure_arc_and_range(attack_hull, defender, defend_hull)
         
         if attack_range == -1 : return # not in arc or invalid range
 
-        attack_pool = self.battery[attack_hull].copy()
+        print(f'{self.name} attacks {defender.name}! {['Front', 'Right', 'Rear', 'Left'][attack_hull]} to {['Front', 'Right', 'Rear', 'Left'][defend_hull]}! Range : {['close', 'medium', 'long'][attack_range]}')
+
+        attack_pool = list(self.battery[attack_hull])
         for i in range(3) :
             if i < attack_range: attack_pool[i] = 0
 
@@ -180,6 +188,9 @@ class Ship:
 
     def defend(self, defend_hull, attack_pool):
         total_damage = sum([damage * dice for damage, dice in zip(DAMAGE_INDICES, attack_pool)]) # [black, blue, red] (dice module)
+        
+        print(f'{self.name} is defending. Total Damge is {total_damage}')
+
         while total_damage > 0:
             if self.shield[defend_hull] > 0 :
                 self.shield[defend_hull] -= 1
@@ -189,6 +200,8 @@ class Ship:
         critical = sum(attack_pool[i] for i in CRIT_INDICES)
         if critical : self.hull -= 1 # 크리티컬은 모두 Structural Damage
 
+        print(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
+
         if self.hull <= 0 : self.destroy()
 
     def destroy(self):
@@ -196,31 +209,35 @@ class Ship:
         self.hull = 0
         self.shield = [0,0,0,0]
         self.battery = tuple((0, 0, 0) for _ in range(4))
+        print(f'{self.name} is destroyed!')
         
     def maneuver(self, yaw) :
         # under construction , just speed 2 straight maneuver
-        (self.x, self.y) = self._get_coordination((0, 150))
+        (self.x, self.y) = self._get_coordination((0, 75))
         self.set_coordination()
+        
+        print(f'{self.name} executes maneuver. {self.x, self.y}')
 
     def activate(self) :
+        print(f'{self.name} is activated.')
         attack_count = 0
         attack_possible = [True, True, True, True]
         while attack_count < 2 and sum(attack_possible) > 0 :
 
             attack_hull_value = model.choose_attacker()
-            for i in range(4) :
-                if not attack_possible[i] :
-                    attack_hull_value[i] = model.MASK_VALUE
+            for hull_index in range(4) :
+                if not attack_possible[hull_index] :
+                    attack_hull_value[hull_index] = model.MASK_VALUE
             attack_hull_policy = model.softmax(attack_hull_value)
             attack_hull = np.argmax(attack_hull_policy)
         
             defend_hull_value = model.choose_defender(self)
             
-            for ship_index in range(self.game.get_ship_count()) :
+            for ship in self.game.ships :
                 for hull_index in range(4) :
-                    if ship_index == self.ship_id : defend_hull_value[ship_index * 4 + hull_index] = model.MASK_VALUE
-                    range = self.measure_arc_and_range(attack_hull, self.game.ships[ship_index], hull_index)
-                    if range == -1 or range == 3 : defend_hull_value[ship_index * 4 + hull_index] = model.MASK_VALUE
+                    if ship.ship_id == self.ship_id : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+                    attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], hull_index)
+                    if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
 
             if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
                 attack_possible[attack_hull] = False
@@ -239,6 +256,7 @@ class Ship:
 
 
 Victory_2_dict = {
+    'name' : 'Victory SD',
     'hull' : 8,
     'size' : 'medium', # 61 x 102
     'command' : 3,
@@ -257,6 +275,7 @@ Victory_2_dict = {
     }
 
 CR90A_dict = {
+    'name' : 'CR90 corvette',
     'hull' : 4,
     'size' : 'small', # 43 x 71
     'command' : 1,
@@ -275,6 +294,7 @@ CR90A_dict = {
     }
 
 Neb_escort_dict = {
+    'name' : 'Nebulon-B frigate',
     'hull' : 5,
     'size' : 'small',
     'command' : 2,
