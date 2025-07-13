@@ -4,7 +4,7 @@ import numpy as np
 import math
 from dice import *
 import model
-from visualizer import visualize_board
+
 
 class Ship:
     def __init__(self, ship_dict, player) :
@@ -46,9 +46,7 @@ class Ship:
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
         
-        if self.game:
-            self.game.visualization_counter += 1
-            visualize_board(self.game.ships, self.game.player_edge, self.game.short_edge, self.game.visualization_counter)
+
 
     def deploy(self, game, x, y, orientation, speed, ship_index):
         self.game = game
