@@ -88,12 +88,7 @@ def roll_dice(dice):
         results["red_double"],
         results["red_accuracy"]
     ]
-    print(f'''
-          Dice Rolled!
-          Black [Blank, Hit, Double] : {output_list[:3]}
-          Blue [Hit, Critical, Accuracy] : {output_list[3:6]}
-          Red [Blank, Hit, Critical, Double, Accuracy] : {output_list[6:]}
-        ''')
+
     return output_list
 
 def reroll_dice(dice_result, dice_to_reroll):

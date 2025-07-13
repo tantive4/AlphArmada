@@ -61,7 +61,7 @@ class Ship:
         self.destroyed = False
         self.ship_id = ship_index
         self.set_coordination()
-        print(f'{self.name} is deployed.')
+        self.game.visualize(f'{self.name} is deployed.')
 
     def measure_arc_and_range(self, from_hull, to_ship, to_hull, extension_factor=1e4) :
         """Measures the range and validity of a firing arc to a target.
@@ -163,13 +163,13 @@ class Ship:
             range_measure = LineString(shapely.ops.nearest_points(from_hull_polygon[from_hull], to_hull_in_arc))
 
             for hull_index in range(4) :
-                if hull_index != to_hull and  range_measure.intersects(to_hull_polygon[hull_index]) :
+                if hull_index != to_hull and  range_measure.crosses(to_hull_polygon[hull_index]) :
                     return -1 # range not valid
             distance = range_measure.length
 
             if distance <= 123.3 : return 0 # close range
             elif distance <= 186.5 : return 1 # medium range
-            elif distance <= 30.48 : return 2 # long range
+            elif distance <= 304.8 : return 2 # long range
             else : return 3 # extreme range
 
     def attack(self, attack_hull, defender, defend_hull) :
@@ -178,7 +178,7 @@ class Ship:
         
         if attack_range == -1 : return # not in arc or invalid range
 
-        print(f'{self.name} attacks {defender.name}! {['Front', 'Right', 'Rear', 'Left'][attack_hull]} to {['Front', 'Right', 'Rear', 'Left'][defend_hull]}! Range : {['close', 'medium', 'long'][attack_range]}')
+        self.game.visualize(f'{self.name} attacks {defender.name}! {['Front', 'Right', 'Rear', 'Left'][attack_hull]} to {['Front', 'Right', 'Rear', 'Left'][defend_hull]}! Range : {['close', 'medium', 'long'][attack_range]}')
 
         attack_pool = list(self.battery[attack_hull])
         for i in range(3) :
@@ -187,25 +187,32 @@ class Ship:
         if sum(attack_pool) == 0 : return # empty attack pool
 
         attack_pool = roll_dice(attack_pool)
-
+        self.game.visualize((f'''
+          Dice Rolled!
+          Black [Blank, Hit, Double] : {attack_pool[:3]}
+          Blue [Hit, Critical, Accuracy] : {attack_pool[3:6]}
+          Red [Blank, Hit, Critical, Double, Accuracy] : {attack_pool[6:]}
+        '''))
         defender.defend(defend_hull, attack_pool)
 
     def defend(self, defend_hull, attack_pool):
         total_damage = sum([damage * dice for damage, dice in zip(DAMAGE_INDICES, attack_pool)]) # [black, blue, red] (dice module)
         
-        print(f'{self.name} is defending. Total Damge is {total_damage}')
+        self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
 
-        while total_damage > 0:
-            if self.shield[defend_hull] > 0 :
-                self.shield[defend_hull] -= 1
-            total_damage -= 1
+        # Absorb damage with shields first
+        shield_damage = min(total_damage, self.shield[defend_hull])
+        self.shield[defend_hull] -= shield_damage
+        total_damage -= shield_damage
 
-        if total_damage > 0 :
+        # Apply remaining damage to the hull
+        if total_damage > 0:
             self.hull -= total_damage
             critical = sum(attack_pool[i] for i in CRIT_INDICES)
-            if critical : self.hull -= 1 # 크리티컬은 모두 Structural Damage
+            if critical:
+                self.hull -= 1 # Critical hits add one damage
 
-        print(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
+        self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
 
         if self.hull <= 0 : self.destroy()
 
@@ -214,17 +221,17 @@ class Ship:
         self.hull = 0
         self.shield = [0,0,0,0]
         self.battery = tuple((0, 0, 0) for _ in range(4))
-        print(f'{self.name} is destroyed!')
+        self.game.visualize(f'{self.name} is destroyed!')
         
     def maneuver(self, yaw) :
         # under construction , just speed 2 straight maneuver
         (self.x, self.y) = self._get_coordination((0, 75))
         self.set_coordination()
         
-        print(f'{self.name} executes maneuver. {self.x, self.y}')
+        self.game.visualize(f'{self.name} executes maneuver.')
 
     def activate(self) :
-        print(f'{self.name} is activated.')
+        self.game.visualize(f'{self.name} is activated.')
         attack_count = 0
         attack_possible = [True, True, True, True]
         while attack_count < 2 and sum(attack_possible) > 0 :
@@ -240,7 +247,10 @@ class Ship:
             
             for ship in self.game.ships :
                 for hull_index in range(4) :
-                    if ship.ship_id == self.ship_id : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+                    if ship.player == self.player :
+                        defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+                        continue # Skip to the next ship
+                    
                     attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], hull_index)
                     if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
 
@@ -314,5 +324,5 @@ Neb_escort_dict = {
     'front_arc_center' : 35,
     'front_arc_end' : 0,
     'rear_arc_center' : 35,
-    'rear_arc_end' : 0
+    'rear_arc_end' : 71
     }
