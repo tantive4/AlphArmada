@@ -1,14 +1,19 @@
 
 from armada import *
 import math
+import json
+
 
 
 
 game = Armada()
 
-cr90 = Ship(CR90A_dict, 1)
-nebulon = Ship(Neb_escort_dict, 1)
-victory = Ship(Victory_2_dict, -1)
+with open('ship_info.json', 'r') as f:
+    ship_data = json.load(f)
+    
+cr90 = Ship(ship_data['CR90_Corvette'], 1)
+nebulon = Ship(ship_data['NebulonB_Escort'], 1)
+victory = Ship(ship_data['Victory_SD'], -1)
 
 
 
