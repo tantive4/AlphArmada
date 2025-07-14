@@ -1,7 +1,6 @@
 import numpy as np
 MASK_VALUE = -10e8
-# 얘네는 좀 이따 생각하고 일단 랜덤 함수로 만들어놓자고
-# 게임 모델부터 완성이 되어야 뭐가 좀 될듯
+
 def random_model(output_dimension):
     return np.random.rand(output_dimension)
 
@@ -29,9 +28,19 @@ def choose_defender(attacker, encoded_stat = None):
     return random_model(12)
 
 def choose_speed(encoded_state = None):
-    # return speed
+    """
+    [speed 0, speed 1, speed 2, speed 3, speed 4]
+    """
     return random_model(5)
 
-def choose_yaw(speed, encoded_state = None):
-    # return yaw (-2 ~ 2)
+def choose_yaw(speed, currenent_joint, encoded_state = None):
+    """
+    [left 2, left 1, straight, right 1, right 2]
+    """
     return random_model(5)
+
+def choose_placement(course, encoded_state = None) :
+    """
+    [right side, left side]
+    """
+    return random_model(2)

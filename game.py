@@ -1,6 +1,6 @@
 
-from armada import *
-from ship import *
+from armada import Armada
+from ship import Ship
 import math
 import json
 

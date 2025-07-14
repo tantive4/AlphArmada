@@ -1,8 +1,6 @@
 import numpy as np
 import model
-from ship import *
-from squadron import *
-from dice import *
+from ship import Ship
 from PIL import Image, ImageDraw, ImageFont
 
 

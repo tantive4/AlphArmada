@@ -2,11 +2,17 @@ from shapely.geometry import Polygon, LineString
 import shapely.ops
 import numpy as np
 import math
-from armada import *
 from dice import *
 import model
+from enum import IntEnum
 
-BASE_SIZE = {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
+class HullSection(IntEnum):
+    FRONT = 0
+    RIGHT = 1
+    REAR = 2
+    LEFT = 3
+
+SHIP_BASE_SIZE = {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
 SHIP_TOKEN_SIZE = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
 
 class Ship:
@@ -17,8 +23,10 @@ class Ship:
         self.point = ship_dict.get('point')
 
         self.max_hull = ship_dict.get('hull')
-        self.size = ship_dict.get('size')
-        self.size_dimension = SHIP_TOKEN_SIZE.get(self.size)
+        self.size_class = ship_dict.get('size')
+        self.token_size = SHIP_TOKEN_SIZE.get(self.size_class)
+        self.base_size = SHIP_BASE_SIZE.get(self.size_class)
+
         self.battery = (ship_dict.get('battery')[0], ship_dict.get('battery')[1], ship_dict.get('battery')[2], ship_dict.get('battery')[1]) # (Front, Right, Rear, Left)
         self.navchart = ship_dict.get('navchart')
         self.max_shield = ship_dict.get('shield')
@@ -27,29 +35,33 @@ class Ship:
         self.front_arc = (ship_dict.get('front_arc_center'), ship_dict.get('front_arc_end')) 
         self.rear_arc = (ship_dict.get('rear_arc_center'), ship_dict.get('rear_arc_end'))
 
-    def _get_coordination(self, vector : tuple) -> tuple :
+    def _get_coordination(self, vector : tuple[float]) -> tuple :
         x, y = self.x, self.y
         add_x, add_y = vector
         rotated_add_x = add_x * math.cos(self.orientation) + add_y * math.sin(self.orientation)
         rotated_add_y = -add_x * math.sin(self.orientation) + add_y * math.cos(self.orientation)
         return (x + rotated_add_x, y + rotated_add_y)
     
-    def set_coordination(self) -> None: # 위치 이동이 있을 때마다 실행시켜서 위치 업뎃해줄 것
-        self.front_right_base = self._get_coordination((self.size_dimension[0] / 2,0))
-        self.front_left_base = self._get_coordination((- self.size_dimension[0] / 2,0))
-        self.rear_right_base = self._get_coordination((self.size_dimension[0] / 2, - self.size_dimension[1]))
-        self.rear_left_base = self._get_coordination((- self.size_dimension[0] / 2, - self.size_dimension[1]))
+    def set_coordination(self) -> None: # update when deployed/moved
+        self.front_right_token = self._get_coordination((self.token_size[0] / 2,0))
+        self.front_left_token = self._get_coordination((- self.token_size[0] / 2,0))
+        self.rear_right_token = self._get_coordination((self.token_size[0] / 2, - self.token_size[1]))
+        self.rear_left_token = self._get_coordination((- self.token_size[0] / 2, - self.token_size[1]))
 
-        self.front_right_arc = self._get_coordination((self.size_dimension[0]/2, - self.front_arc[1]))
-        self.front_left_arc = self._get_coordination((-self.size_dimension[0]/2, - self.front_arc[1]))
-        self.rear_right_arc = self._get_coordination((self.size_dimension[0]/2, - self.rear_arc[1]))
-        self.rear_left_arc = self._get_coordination((-self.size_dimension[0]/2, - self.rear_arc[1]))
+        self.front_right_arc = self._get_coordination((self.token_size[0]/2, - self.front_arc[1]))
+        self.front_left_arc = self._get_coordination((-self.token_size[0]/2, - self.front_arc[1]))
+        self.rear_right_arc = self._get_coordination((self.token_size[0]/2, - self.rear_arc[1]))
+        self.rear_left_arc = self._get_coordination((-self.token_size[0]/2, - self.rear_arc[1]))
 
         self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
+        self.front_right_base = self._get_coordination((self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2))
+        self.front_left_base = self._get_coordination((- self.base_size[0] / 2,(self.base_size[1] - self.token_size[1]) / 2))
+        self.rear_right_base = self._get_coordination((self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1]))
+        self.rear_left_base = self._get_coordination((- self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1]))
+        
         self._make_polygon()
-
 
     def deploy(self, game : "Armada", x : float, y : float, orientation : float, speed : int, ship_index : int) -> None:
         self.game = game
@@ -67,31 +79,45 @@ class Ship:
         self.game.visualize(f'{self.name} is deployed.')
 
     def _make_polygon(self) -> None:
+        self.ship_token = Polygon([
+            self.front_right_token,
+            self.front_left_token,
+            self.rear_left_token,
+            self.rear_right_token
+        ]).buffer(0)
+
+        self.ship_base = Polygon([
+            self.front_right_base,
+            self.front_left_base,
+            self.rear_left_base,
+            self.rear_right_base
+        ]).buffer(0)
+
         front_hull = Polygon([
-                    self.front_right_base,
-                    self.front_right_arc,
-                    self.front_arc_center,
-                    self.front_left_arc,
-                    self.front_left_base
+            self.front_right_token,
+            self.front_right_arc,
+            self.front_arc_center,
+            self.front_left_arc,
+            self.front_left_token
                 ]).buffer(0)
         right_hull = Polygon([
-                    self.front_arc_center,
-                    self.front_right_arc,
-                    self.rear_right_arc,
-                    self.rear_arc_center
+            self.front_arc_center,
+            self.front_right_arc,
+            self.rear_right_arc,
+            self.rear_arc_center
                 ]).buffer(0)
         rear_hull = Polygon([
-                    self.rear_right_arc,
-                    self.rear_right_base,
-                    self.rear_left_base,
-                    self.rear_left_arc,
-                    self.rear_arc_center
+            self.rear_right_arc,
+            self.rear_right_token,
+            self.rear_left_token,
+            self.rear_left_arc,
+            self.rear_arc_center
                 ]).buffer(0)
         left_hull = Polygon([
-                    self.front_arc_center,
-                    self.front_left_arc,
-                    self.rear_left_arc,
-                    self.rear_arc_center
+            self.front_arc_center,
+            self.front_left_arc,
+            self.rear_left_arc,
+            self.rear_arc_center
                 ]).buffer(0)
 
         self.hull_polygon = [front_hull, right_hull, rear_hull, left_hull]
@@ -117,12 +143,12 @@ class Ship:
         """
         if to_ship.destroyed : return -1
 
-        if from_hull == 0 or from_hull == 1 :
+        if from_hull == HullSection.FRONT or from_hull == HullSection.RIGHT :
             arc1 = (self.front_arc_center, self.front_right_arc)
         else : 
             arc1 = (self.rear_arc_center, self.rear_left_arc)
         
-        if from_hull == 1 or from_hull == 2 :
+        if from_hull == HullSection.RIGHT or from_hull == HullSection.REAR :
             arc2 = (self.rear_arc_center, self.rear_right_arc)
         else :
             arc2 = (self.front_arc_center, self.front_left_arc)
@@ -149,13 +175,13 @@ class Ship:
             elif distance <= 304.8 : return 2 # long range
             else : return 3 # extreme range
 
-    def attack(self, attack_hull : int, defender : "Ship", defend_hull : int) -> None :
+    def attack(self, attack_hull : HullSection, defender : "Ship", defend_hull : HullSection) -> None :
         
         attack_range = self.measure_arc_and_range(attack_hull, defender, defend_hull)
         
         if attack_range == -1 : return # not in arc or invalid range
 
-        self.game.visualize(f'{self.name} attacks {defender.name}! {['Front', 'Right', 'Rear', 'Left'][attack_hull]} to {['Front', 'Right', 'Rear', 'Left'][defend_hull]}! Range : {['close', 'medium', 'long'][attack_range]}')
+        self.game.visualize(f'{self.name} attacks {defender.name}! {attack_hull.name} to {defend_hull.name}! Range : {['close', 'medium', 'long'][attack_range]}')
 
         attack_pool = list(self.battery[attack_hull])
         for i in range(3) :
@@ -199,11 +225,58 @@ class Ship:
         self.shield = [0,0,0,0]
         self.battery = tuple((0, 0, 0) for _ in range(4))
         self.game.visualize(f'{self.name} is destroyed!')
+
+    def determine_course(self) -> tuple[list, int]:
+        # speed
+        speed_value = model.choose_speed()
+        for speed in range(5) :
+            if abs(speed - self.speed) > 1 or self.navchart.get(str(speed)) == None :
+                speed_value[speed] = model.MASK_VALUE
+        speed_policy = model.softmax(speed_value)
+        self.speed = np.argmax(speed_policy)
+
+        course = list(0 for _ in range(self.speed)) # [yaw at  joint 1, yaw at joint 2, ...]
         
-    def maneuver(self, yaw) :
-        # under construction , just speed 1 straight maneuver
-        (self.x, self.y) = self._get_coordination((0, 75))
-        self.set_coordination()
+        # yaw
+        for joint in range(self.speed) :
+            current_yaw_value = model.choose_yaw(self.speed, joint + 1)
+            for yaw in range(5) :
+                if abs(yaw - 2) > self.navchart.get(str(self.speed))[joint] : current_yaw_value[yaw] = model.MASK_VALUE
+            current_yaw_policy = model.softmax(current_yaw_value)
+            course[joint] = np.argmax(current_yaw_policy) - 2
+
+        # placement
+        placement_value = model.choose_placement(course)
+        if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
+        elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
+        else : 
+            if self.speed > 2 and self.size_class != 'small' :
+                if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
+                if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
+        placement_policy = model.softmax(placement_value)
+        placement = np.argmax(placement_policy)
+
+        return course, placement
+    
+    def simulate_maenuver(self, course : list[int], placement : int) -> bool :
+        pass
+
+    def is_overlap(self) -> bool :
+        pass
+
+
+    def maneuver(self, course, placement) :
+        original_x, original_y, original_orientaion = self.x, self.y, self.orientation
+        current_course = course
+
+        while len(current_course) > 0 :
+            self.simulate_maenuver(self, current_course, placement)
+
+            if not self.is_overlap() : break
+            
+            self.x, self.y, self.orientation = original_x, original_y, original_orientaion
+            self.set_coordination()
+            current_course = current_course[:-1]
         
         self.game.visualize(f'{self.name} executes maneuver.')
 
@@ -239,8 +312,11 @@ class Ship:
 
             defend_hull_policy = model.softmax(defend_hull_value)
             defender = np.argmax(defend_hull_policy)
+            attack_hull_section = HullSection(attack_hull)
+            defend_ship = self.game.ships[defender // 4]
+            defend_hull_section = HullSection(defender % 4)
 
-            self.attack(attack_hull, self.game.ships[defender // 4], defender % 4)
+            self.attack(attack_hull_section, defend_ship, defend_hull_section)
             attack_possible[attack_hull] = False
             attack_count += 1
         
@@ -248,5 +324,3 @@ class Ship:
         self.maneuver(None) #under construction
         
         self.activated = True
-
-
