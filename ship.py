@@ -48,7 +48,7 @@ class Ship:
         self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
-    def deploy(self, game : Armada, x : float, y : float, orientation : float, speed : int, ship_index : int) -> None:
+    def deploy(self, game : "Armada", x : float, y : float, orientation : float, speed : int, ship_index : int) -> None:
         self.game = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
@@ -62,7 +62,35 @@ class Ship:
         self.ship_id = ship_index
         self.set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
-
+    def _make_polygon(self) -> Polygon:
+        front_hull = Polygon([
+                    self.front_right_base,
+                    self.front_right_arc,
+                    self.front_arc_center,
+                    self.front_left_arc,
+                    self.front_left_base
+                ]).buffer(0)
+        right_hull = Polygon([
+                    self.front_arc_center,
+                    self.front_right_arc,
+                    self.rear_right_arc,
+                    self.rear_arc_center
+                ]).buffer(0)
+        rear_hull = Polygon([
+                    self.rear_right_arc,
+                    self.rear_right_base,
+                    self.rear_left_base,
+                    self.rear_left_arc,
+                    self.rear_arc_center
+                ]).buffer(0)
+        left_hull = Polygon([
+                    self.front_arc_center,
+                    self.front_left_arc,
+                    self.rear_left_arc,
+                    self.rear_arc_center
+                ]).buffer(0)
+        return (front_hull, right_hull, rear_hull, left_hull)
+    
     def measure_arc_and_range(self, from_hull : int, to_ship : "Ship", to_hull : int, extension_factor=1e4) -> int:
         """Measures the range and validity of a firing arc to a target.
 
@@ -93,77 +121,23 @@ class Ship:
             arc2 = (self.rear_arc_center, self.rear_right_arc)
         else :
             arc2 = (self.front_arc_center, self.front_left_arc)
-        from_hull_polygon = (
-                Polygon([ # front 0
-                    self.front_right_base,
-                    self.front_right_arc,
-                    self.front_arc_center,
-                    self.front_left_arc,
-                    self.front_left_base
-                ]),
-                Polygon([ # right 1
-                    self.front_arc_center,
-                    self.front_right_arc,
-                    self.rear_right_arc,
-                    self.rear_arc_center
-                ]),
-                Polygon([ # rear 2
-                    self.rear_right_arc,
-                    self.rear_right_base,
-                    self.rear_left_base,
-                    self.rear_left_arc,
-                    self.rear_arc_center
-                ]),
-                Polygon([ # left 3
-                    self.front_arc_center,
-                    self.front_left_arc,
-                    self.rear_left_arc,
-                    self.rear_arc_center
-                ])
-            )  
-        to_hull_polygon = (
-                Polygon([ # front 0
-                    to_ship.front_right_base,
-                    to_ship.front_right_arc,
-                    to_ship.front_arc_center,
-                    to_ship.front_left_arc,
-                    to_ship.front_left_base
-                ]),
-                Polygon([ # right 1
-                    to_ship.front_arc_center,
-                    to_ship.front_right_arc,
-                    to_ship.rear_right_arc,
-                    to_ship.rear_arc_center
-                ]),
-                Polygon([ # rear 2
-                    to_ship.rear_right_arc,
-                    to_ship.rear_right_base,
-                    to_ship.rear_left_base,
-                    to_ship.rear_left_arc,
-                    to_ship.rear_arc_center
-                ]),
-                Polygon([ # left 3
-                    to_ship.front_arc_center,
-                    to_ship.front_left_arc,
-                    to_ship.rear_left_arc,
-                    to_ship.rear_arc_center
-                ])
-            ) 
-        
+        from_ship_polygon = self._make_polygon()
+        to_ship_polygon = to_ship._make_polygon()
+
         arc1_vector = np.array(arc1[1]) - np.array(arc1[0])
         arc2_vector = np.array(arc2[1]) - np.array(arc2[0])
 
         arc_polygon = Polygon([arc1[0], arc1[1] + arc1_vector * extension_factor,
-                            arc2[1] + arc2_vector * extension_factor, arc2[0]])
-        to_hull_in_arc = to_hull_polygon[to_hull].intersection(arc_polygon)
+                            arc2[1] + arc2_vector * extension_factor, arc2[0]]).buffer(0)
+        to_hull_in_arc = to_ship_polygon[to_hull].intersection(arc_polygon)
 
         if to_hull_in_arc.is_empty or not isinstance(to_hull_in_arc, Polygon) :
             return -1 # not in arc
         else :
-            range_measure = LineString(shapely.ops.nearest_points(from_hull_polygon[from_hull], to_hull_in_arc))
+            range_measure = LineString(shapely.ops.nearest_points(from_ship_polygon[from_hull], to_hull_in_arc))
 
             for hull_index in range(4) :
-                if hull_index != to_hull and  range_measure.crosses(to_hull_polygon[hull_index]) :
+                if hull_index != to_hull and  range_measure.crosses(to_ship_polygon[hull_index]) :
                     return -1 # range not valid
             distance = range_measure.length
 

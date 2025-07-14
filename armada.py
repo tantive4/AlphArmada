@@ -20,7 +20,7 @@ class Armada:
 
 
 
-    def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
+    def deploy_ship(self, ship : "Ship", x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
 
