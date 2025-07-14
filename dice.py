@@ -2,7 +2,7 @@ import random
 CRIT_INDICES = [2, 4, 8]
 DAMAGE_INDICES = [0, 1, 2, 1, 1, 0, 0, 1, 1, 2, 0]
 
-def roll_dice(dice):
+def roll_dice(dice : list) -> list:
     """
     Simulates rolling Star Wars: Armada dice with specified probabilities.
 
@@ -91,7 +91,7 @@ def roll_dice(dice):
 
     return output_list
 
-def reroll_dice(dice_result, dice_to_reroll):
+def reroll_dice(dice_result : list, dice_to_reroll : list) -> list:
     dice_result = [x - y + z for x, y, z in zip(dice_result, dice_to_reroll, roll_dice([sum(dice_to_reroll[:2]), sum(dice_to_reroll[2:4]), sum(dice_to_reroll[4:])]))]
     return dice_result
 

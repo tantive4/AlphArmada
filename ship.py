@@ -2,12 +2,13 @@ from shapely.geometry import Polygon, LineString
 import shapely.ops
 import numpy as np
 import math
+from armada import *
 from dice import *
 import model
 
 
 class Ship:
-    def __init__(self, ship_dict, player) :
+    def __init__(self, ship_dict : dict, player : int) -> None:
         self.player = player
         self.game = None
         self.name = ship_dict.get('name')
@@ -24,14 +25,14 @@ class Ship:
         self.front_arc = (ship_dict.get('front_arc_center'), ship_dict.get('front_arc_end')) 
         self.rear_arc = (ship_dict.get('rear_arc_center'), ship_dict.get('rear_arc_end'))
 
-    def _get_coordination(self, vector) :
+    def _get_coordination(self, vector : tuple) -> tuple :
         x, y = self.x, self.y
         add_x, add_y = vector
         rotated_add_x = add_x * math.cos(self.orientation) + add_y * math.sin(self.orientation)
         rotated_add_y = -add_x * math.sin(self.orientation) + add_y * math.cos(self.orientation)
         return (x + rotated_add_x, y + rotated_add_y)
     
-    def set_coordination(self) : # 위치 이동이 있을 때마다 실행시켜서 위치 업뎃해줄 것
+    def set_coordination(self) -> None: # 위치 이동이 있을 때마다 실행시켜서 위치 업뎃해줄 것
         self.front_right_base = self._get_coordination((self.size_dimension[0] / 2,0))
         self.front_left_base = self._get_coordination((- self.size_dimension[0] / 2,0))
         self.rear_right_base = self._get_coordination((self.size_dimension[0] / 2, - self.size_dimension[1]))
@@ -45,10 +46,7 @@ class Ship:
         self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
-        
-
-
-    def deploy(self, game, x, y, orientation, speed, ship_index):
+    def deploy(self, game : Armada, x : float, y : float, orientation : float, speed : int, ship_index : int) -> None:
         self.game = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
@@ -63,7 +61,7 @@ class Ship:
         self.set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
 
-    def measure_arc_and_range(self, from_hull, to_ship, to_hull, extension_factor=1e4) :
+    def measure_arc_and_range(self, from_hull : int, to_ship : "Ship", to_hull : int, extension_factor=1e4) -> int:
         """Measures the range and validity of a firing arc to a target.
 
         This method checks if a target hull is within the firing ship's
@@ -172,8 +170,8 @@ class Ship:
             elif distance <= 304.8 : return 2 # long range
             else : return 3 # extreme range
 
-    def attack(self, attack_hull, defender, defend_hull) :
-
+    def attack(self, attack_hull : int, defender : "Ship", defend_hull : int) -> None :
+        
         attack_range = self.measure_arc_and_range(attack_hull, defender, defend_hull)
         
         if attack_range == -1 : return # not in arc or invalid range
@@ -195,7 +193,7 @@ class Ship:
         '''))
         defender.defend(defend_hull, attack_pool)
 
-    def defend(self, defend_hull, attack_pool):
+    def defend(self, defend_hull : int, attack_pool : list) -> None:
         total_damage = sum([damage * dice for damage, dice in zip(DAMAGE_INDICES, attack_pool)]) # [black, blue, red] (dice module)
         
         self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
@@ -216,7 +214,7 @@ class Ship:
 
         if self.hull <= 0 : self.destroy()
 
-    def destroy(self):
+    def destroy(self) -> None:
         self.destroyed = True
         self.hull = 0
         self.shield = [0,0,0,0]
@@ -230,7 +228,7 @@ class Ship:
         
         self.game.visualize(f'{self.name} executes maneuver.')
 
-    def activate(self) :
+    def activate(self) -> None:
         self.game.visualize(f'{self.name} is activated.')
         attack_count = 0
         attack_possible = [True, True, True, True]
