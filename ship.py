@@ -6,6 +6,8 @@ from armada import *
 from dice import *
 import model
 
+BASE_SIZE = {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
+SHIP_TOKEN_SIZE = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
 
 class Ship:
     def __init__(self, ship_dict : dict, player : int) -> None:
@@ -16,7 +18,7 @@ class Ship:
 
         self.max_hull = ship_dict.get('hull')
         self.size = ship_dict.get('size')
-        self.size_dimension = (76, 129) if self.size == 'large' else (61, 102) if self.size == 'medium' else (43, 71)
+        self.size_dimension = SHIP_TOKEN_SIZE.get(self.size)
         self.battery = (ship_dict.get('battery')[0], ship_dict.get('battery')[1], ship_dict.get('battery')[2], ship_dict.get('battery')[1]) # (Front, Right, Rear, Left)
         self.navchart = ship_dict.get('navchart')
         self.max_shield = ship_dict.get('shield')
