@@ -48,6 +48,9 @@ class Ship:
         self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
         self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
 
+        self._make_polygon()
+
+
     def deploy(self, game : "Armada", x : float, y : float, orientation : float, speed : int, ship_index : int) -> None:
         self.game = game
         self.x = x # 위치는 맨 앞 중앙
@@ -62,7 +65,8 @@ class Ship:
         self.ship_id = ship_index
         self.set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
-    def _make_polygon(self) -> Polygon:
+
+    def _make_polygon(self) -> None:
         front_hull = Polygon([
                     self.front_right_base,
                     self.front_right_arc,
@@ -89,7 +93,8 @@ class Ship:
                     self.rear_left_arc,
                     self.rear_arc_center
                 ]).buffer(0)
-        return (front_hull, right_hull, rear_hull, left_hull)
+
+        self.hull_polygon = [front_hull, right_hull, rear_hull, left_hull]
     
     def measure_arc_and_range(self, from_hull : int, to_ship : "Ship", to_hull : int, extension_factor=1e4) -> int:
         """Measures the range and validity of a firing arc to a target.
@@ -121,23 +126,21 @@ class Ship:
             arc2 = (self.rear_arc_center, self.rear_right_arc)
         else :
             arc2 = (self.front_arc_center, self.front_left_arc)
-        from_ship_polygon = self._make_polygon()
-        to_ship_polygon = to_ship._make_polygon()
 
         arc1_vector = np.array(arc1[1]) - np.array(arc1[0])
         arc2_vector = np.array(arc2[1]) - np.array(arc2[0])
 
         arc_polygon = Polygon([arc1[0], arc1[1] + arc1_vector * extension_factor,
                             arc2[1] + arc2_vector * extension_factor, arc2[0]]).buffer(0)
-        to_hull_in_arc = to_ship_polygon[to_hull].intersection(arc_polygon)
+        to_hull_in_arc = to_ship.hull_polygon[to_hull].intersection(arc_polygon)
 
         if to_hull_in_arc.is_empty or not isinstance(to_hull_in_arc, Polygon) :
             return -1 # not in arc
         else :
-            range_measure = LineString(shapely.ops.nearest_points(from_ship_polygon[from_hull], to_hull_in_arc))
+            range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull], to_hull_in_arc))
 
             for hull_index in range(4) :
-                if hull_index != to_hull and  range_measure.crosses(to_ship_polygon[hull_index]) :
+                if hull_index != to_hull and  range_measure.crosses(to_ship.hull_polygon[hull_index]) :
                     return -1 # range not valid
             distance = range_measure.length
 
@@ -198,7 +201,7 @@ class Ship:
         self.game.visualize(f'{self.name} is destroyed!')
         
     def maneuver(self, yaw) :
-        # under construction , just speed 2 straight maneuver
+        # under construction , just speed 1 straight maneuver
         (self.x, self.y) = self._get_coordination((0, 75))
         self.set_coordination()
         
@@ -206,6 +209,8 @@ class Ship:
 
     def activate(self) -> None:
         self.game.visualize(f'{self.name} is activated.')
+
+        # attack
         attack_count = 0
         attack_possible = [True, True, True, True]
         while attack_count < 2 and sum(attack_possible) > 0 :
@@ -239,6 +244,7 @@ class Ship:
             attack_possible[attack_hull] = False
             attack_count += 1
         
+        # maneuver
         self.maneuver(None) #under construction
         
         self.activated = True
