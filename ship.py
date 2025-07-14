@@ -258,27 +258,48 @@ class Ship:
 
         return course, placement
     
-    def simulate_maenuver(self, course : list[int], placement : int) -> bool :
+    def simulate_maenuver(self, course : list[int], placement : int) -> None :
         pass
 
-    def is_overlap(self) -> bool :
-        pass
+    def is_overlap(self) -> list[bool] :
+        overlap_list = []
+        for ship in self.game.ships:
+            if self.ship_id == ship.ship_id or ship.destroyed :
+                overlap_list.append(False)
+                continue
+            
+            if self.ship_base.intersects(ship.ship_base) and not self.ship_base.touches(ship.ship_base):
+                overlap_list.append(True)
+            else:
+                overlap_list.append(False)
+        return overlap_list
 
 
-    def maneuver(self, course, placement) :
+    def maneuver(self, course, placement) -> list[bool]:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
         current_course = course
 
+        overlap_list = [False for ship in self.game.ships]
+
         while len(current_course) > 0 :
             self.simulate_maenuver(self, current_course, placement)
+            current_overlap = self.is_overlap()
 
-            if not self.is_overlap() : break
+            if not any(current_overlap):
+                break
             
+            overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
+
             self.x, self.y, self.orientation = original_x, original_y, original_orientaion
             self.set_coordination()
             current_course = current_course[:-1]
         
         self.game.visualize(f'{self.name} executes maneuver.')
+    
+        return overlap_list
+
+    def overlap(self, overlap_list : list[bool]) -> None:
+        pass
 
     def activate(self) -> None:
         self.game.visualize(f'{self.name} is activated.')
