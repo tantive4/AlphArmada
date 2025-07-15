@@ -250,12 +250,13 @@ class Ship:
 
         # placement
         placement_value = model.choose_placement(course)
-        if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
-        elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
-        else : 
-            if self.speed >= 2 and self.size_class != 'small' :
-                if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
-                if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
+        if self.speed > 0 :
+            if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
+            elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
+            else : 
+                if self.speed >= 2 and self.size_class != 'small' :
+                    if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
+                    if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
         placement_policy = model.softmax(placement_value)
         placement = np.argmax(placement_policy)
         placement = placement * 2 - 1 # right 1, left -1
