@@ -253,7 +253,7 @@ class Ship:
         if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
         elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
         else : 
-            if self.speed > 2 and self.size_class != 'small' :
+            if self.speed >= 2 and self.size_class != 'small' :
                 if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
                 if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
         placement_policy = model.softmax(placement_value)
@@ -263,20 +263,26 @@ class Ship:
         return course, placement
 
     def tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[int]], list[int]] :
-        (tool_x, tool_y) = self._get_coordination(placement * (self.base_size[0] + TOOL_WIDTH) / 2,0)
+        (tool_x, tool_y) = self._get_coordination((placement * (self.base_size[0] + TOOL_WIDTH) / 2,0))
         tool_orientaion = self.orientation
 
-        joint_coordination = []
+        joint_coordination = [(tool_x, tool_y)]
         joint_orientation = []
 
+
         for joint in course :
-            tool_x, tool_y += math.sin(tool_orientaion) * TOOL_LENGTH, math.cos(tool_orientaion) * TOOL_LENGTH
+            tool_x += math.sin(tool_orientaion) * TOOL_LENGTH
+            tool_y += math.cos(tool_orientaion) * TOOL_LENGTH
+            joint_coordination.append((tool_x, tool_y))
+
             tool_orientaion += joint * math.pi / 8
-            tool_x, tool_y += math.sin(tool_orientaion) * TOOL_PART_LENGTH, math.cos(tool_orientaion) * TOOL_PART_LENGTH
-            
+
+            tool_x += math.sin(tool_orientaion) * TOOL_PART_LENGTH
+            tool_y += math.cos(tool_orientaion) * TOOL_PART_LENGTH
             joint_coordination.append((tool_x, tool_y))
             joint_orientation.append(tool_orientaion)
         
+
         return joint_coordination, joint_orientation
     
     def maneuver_coordination(self, placement : int, tool_coordination : tuple[int], tool_orientaion : float) -> None :
@@ -304,23 +310,24 @@ class Ship:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
 
         joint_coordination, joint_orientaion = self.tool_coordination(course, placement)
+
         overlap_list = [False for _ in self.game.ships]
 
-        while len(joint_coordination) > 0 :
+        while len(joint_orientaion) >= 2 :
             self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'{self.name} executes speed {len(joint_coordination)} maneuver.')
+            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion)} maneuver.', joint_coordination)
 
             current_overlap = self.is_overlap()
 
             if not any(current_overlap):
                 break
-            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_coordination)} maneuver.')
+            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_orientaion)} maneuver.')
 
             overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
 
             self.x, self.y, self.orientation = original_x, original_y, original_orientaion
             self.set_coordination()
-            del joint_coordination[-1]
+            del joint_coordination[-2 :]
             del joint_orientaion[-1] 
         
         if self.out_of_board() :
