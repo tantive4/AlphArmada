@@ -14,6 +14,9 @@ class HullSection(IntEnum):
 
 SHIP_BASE_SIZE = {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
 SHIP_TOKEN_SIZE = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
+TOOL_WIDTH = 15.25
+TOOL_LENGTH = 48.4 # not accurate
+TOOL_PART_LENGTH = 20 # not accurate
 
 class Ship:
     def __init__(self, ship_dict : dict, player : int) -> None:
@@ -63,7 +66,7 @@ class Ship:
         
         self._make_polygon()
 
-    def deploy(self, game : "Armada", x : float, y : float, orientation : float, speed : int, ship_index : int) -> None:
+    def deploy(self, game : "Armada", x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         self.game = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
@@ -74,7 +77,7 @@ class Ship:
         self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
         self.activated = False
         self.destroyed = False
-        self.ship_id = ship_index
+        self.ship_id = ship_id
         self.set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
 
@@ -255,11 +258,33 @@ class Ship:
                 if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
         placement_policy = model.softmax(placement_value)
         placement = np.argmax(placement_policy)
+        placement = placement * 2 - 1 # right 1, left -1
 
         return course, placement
+
+    def tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[int]], list[int]] :
+        (tool_x, tool_y) = self._get_coordination(placement * (self.base_size[0] + TOOL_WIDTH) / 2,0)
+        tool_orientaion = self.orientation
+
+        joint_coordination = []
+        joint_orientation = []
+
+        for joint in course :
+            tool_x, tool_y += math.sin(tool_orientaion) * TOOL_LENGTH, math.cos(tool_orientaion) * TOOL_LENGTH
+            tool_orientaion += joint * math.pi / 8
+            tool_x, tool_y += math.sin(tool_orientaion) * TOOL_PART_LENGTH, math.cos(tool_orientaion) * TOOL_PART_LENGTH
+            
+            joint_coordination.append((tool_x, tool_y))
+            joint_orientation.append(tool_orientaion)
+        
+        return joint_coordination, joint_orientation
     
-    def simulate_maenuver(self, course : list[int], placement : int) -> None :
-        pass
+    def maneuver_coordination(self, placement : int, tool_coordination : tuple[int], tool_orientaion : float) -> None :
+        self.x = tool_coordination[0] - placement * math.cos(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
+        self.y = tool_coordination[1] + placement * math.sin(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
+        self.orientation = tool_orientaion
+        self.set_coordination()
+        
 
     def is_overlap(self) -> list[bool] :
         overlap_list = []
@@ -275,31 +300,72 @@ class Ship:
         return overlap_list
 
 
-    def maneuver(self, course, placement) -> list[bool]:
+    def move_ship(self, course : list[int], placement : int) -> list[bool]:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
-        current_course = course
 
-        overlap_list = [False for ship in self.game.ships]
+        joint_coordination, joint_orientaion = self.tool_coordination(course, placement)
+        overlap_list = [False for _ in self.game.ships]
 
-        while len(current_course) > 0 :
-            self.simulate_maenuver(self, current_course, placement)
+        while len(joint_coordination) > 0 :
+            self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
+            self.game.visualize(f'{self.name} executes speed {len(joint_coordination)} maneuver.')
+
             current_overlap = self.is_overlap()
 
             if not any(current_overlap):
                 break
-            
+            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_coordination)} maneuver.')
+
             overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
 
             self.x, self.y, self.orientation = original_x, original_y, original_orientaion
             self.set_coordination()
-            current_course = current_course[:-1]
+            del joint_coordination[-1]
+            del joint_orientaion[-1] 
         
-        self.game.visualize(f'{self.name} executes maneuver.')
+        if self.out_of_board() :
+            self.game.visualize(f'{self.name} is out of board!')
+            self.destroy()
     
         return overlap_list
 
     def overlap(self, overlap_list : list[bool]) -> None:
-        pass
+        """
+        Determines which of the overlapping ships is closest and handles the collision.
+
+        Args:
+            overlap_list (list[bool]): A list indicating which ships were overlapped.
+        """
+        closest_ship = None
+        min_distance = float('inf')
+
+        for i, is_overlapped in enumerate(overlap_list):
+            if is_overlapped:
+                other_ship = self.game.ships[i]
+                
+                # Calculate the distance between the two ship bases.
+                distance = self.ship_base.distance(other_ship.ship_base)
+                
+                if distance < min_distance:
+                    min_distance = distance
+                    closest_ship = other_ship
+        
+        if closest_ship:
+            self.hull -= 1
+            closest_ship.hull -= 1
+            self.game.visualize(f"{self.name} overlaps to {closest_ship.name}.")
+            if self.hull <= 0 : self.destroy()
+            if closest_ship.hull <= 0 :closest_ship.destroy()
+
+
+    def out_of_board(self) -> bool:
+        """
+        Checks if the ship's base is completely within the game board.
+
+        Returns:
+            bool: True if the ship is out of the board, False otherwise.
+        """
+        return not self.ship_base.within(self.game.game_board)
 
     def activate(self) -> None:
         self.game.visualize(f'{self.name} is activated.')
@@ -342,6 +408,7 @@ class Ship:
             attack_count += 1
         
         # maneuver
-        self.maneuver(None) #under construction
+        course, placement = self.determine_course()
+        self.move_ship(course, placement)
         
         self.activated = True

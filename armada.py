@@ -2,7 +2,7 @@ import numpy as np
 import model
 from ship import Ship
 from PIL import Image, ImageDraw, ImageFont
-
+from shapely.geometry import Polygon
 
 
 
@@ -10,6 +10,12 @@ class Armada:
     def __init__(self) -> None:
         self.player_edge = 900
         self.short_edge = 900
+        self.game_board = Polygon([
+            (0,0),
+            (0,self.player_edge),
+            (self.short_edge, self.player_edge),
+            (self.short_edge, 0),
+        ])
         self.ships = []  # max 3 total, 2 + 1
 
         self.round = 1
@@ -19,8 +25,9 @@ class Armada:
 
 
     def deploy_ship(self, ship : "Ship", x : float, y : float, orientation : float, speed : int) -> None :
+        ship.deploy(self, x, y, orientation, speed, len(self.ships))
         self.ships.append(ship)
-        ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
+        
 
     def get_ship_count(self) -> int :
         """Counts only the ships that have not been destroyed."""
