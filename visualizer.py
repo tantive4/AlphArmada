@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+import ship as ship_module
 
 def visualize(game, title : str, maneuver_tool = None) -> None:
     """Creates and saves an image of the current game state with (0,0) at the bottom-left."""
@@ -72,6 +73,23 @@ def visualize(game, title : str, maneuver_tool = None) -> None:
             (ship.front_left_base[1] + ship.rear_left_base[1]) / 2
         )
         draw.text(transform_coord(left_shield_pos), str(ship.shield[3]), font=font, fill='blue')
+    
+    if maneuver_tool:
+        # Draw the maneuver tool path
+        transformed_tool_path = [transform_coord(p) for p in maneuver_tool]
+        draw.line(transformed_tool_path, fill='grey', width=int(ship_module.TOOL_WIDTH))
+        
+        # Draw the joints
+        radius = ship_module.TOOL_WIDTH / 2
+        for i, point in enumerate(maneuver_tool):
+            if i % 2 != 0:
+                transformed_point = transform_coord(point)
+                # Define the bounding box for the circle
+                bounding_box = [
+                    (transformed_point[0] - radius, transformed_point[1] - radius),
+                    (transformed_point[0] + radius, transformed_point[1] + radius)
+                ]
+                draw.ellipse(bounding_box, fill='darkgrey')
 
 
     img.save(f'game_visualizer/game_state_{game.image_counter}.png')

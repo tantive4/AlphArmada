@@ -233,7 +233,7 @@ class Ship:
         # speed
         speed_value = model.choose_speed()
         for speed in range(5) :
-            if abs(speed - self.speed) > 1 or self.navchart.get(str(speed)) == None :
+            if abs(speed - self.speed) > 1 or (self.navchart.get(str(speed)) == None and speed != 0) :
                 speed_value[speed] = model.MASK_VALUE
         speed_policy = model.softmax(speed_value)
         self.speed = np.argmax(speed_policy)
@@ -313,7 +313,7 @@ class Ship:
 
         overlap_list = [False for _ in self.game.ships]
 
-        while len(joint_orientaion) >= 2 :
+        while True :
             self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
             self.game.visualize(f'{self.name} executes speed {len(joint_orientaion)} maneuver.', joint_coordination)
 
@@ -329,6 +329,7 @@ class Ship:
             self.set_coordination()
             del joint_coordination[-2 :]
             del joint_orientaion[-1] 
+            if len(joint_coordination) == 1 : break
         
         if self.out_of_board() :
             self.game.visualize(f'{self.name} is out of board!')
