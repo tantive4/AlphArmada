@@ -194,52 +194,6 @@ class Ship:
             elif distance <= 304.8 : return 2 # long range
             else : return 3 # extreme range
 
-    def resolve_attack(self, attack_hull : HullSection, defender : "Ship", defend_hull : HullSection) -> None :
-        
-        attack_range = self.measure_arc_and_range(attack_hull, defender, defend_hull)
-        
-        if attack_range == -1 : return # not in arc or invalid range
-
-        self.game.visualize(f'{self.name} attacks {defender.name}! {attack_hull.name} to {defend_hull.name}! Range : {['close', 'medium', 'long'][attack_range]}')
-
-        attack_pool = list(self.battery[attack_hull])
-        for i in range(3) :
-            if i < attack_range: attack_pool[i] = 0
-
-        if sum(attack_pool) == 0 : return # empty attack pool
-
-        attack_pool = roll_dice(attack_pool)
-        self.game.visualize((f'''
-          Dice Rolled!
-          Black [Blank, Hit, Double] : {attack_pool[:3]}
-          Blue [Hit, Critical, Accuracy] : {attack_pool[3:6]}
-          Red [Blank, Hit, Critical, Double, Accuracy] : {attack_pool[6:]}
-        '''))
-        defender.defend(defend_hull, attack_pool)
-
-    def defend(self, defend_hull : int, attack_pool : list, standard_critical : bool) -> None:
-        total_damage = sum(
-            sum(damage * dice for damage, dice in zip(damage_values, dice_counts)) for damage_values, dice_counts in zip(DAMAGE_INDICES, attack_pool)
-            )
-        
-        self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
-
-        # Absorb damage with shields first
-        shield_damage = min(total_damage, self.shield[defend_hull])
-        self.shield[defend_hull] -= shield_damage
-        total_damage -= shield_damage
-
-        # Apply remaining damage to the hull
-        if total_damage > 0:
-            self.hull -= total_damage
-            if standard_critical:
-                self.hull -= 1 # Critical hits add one damage
-
-        self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
-
-        if self.hull <= 0 : self.destroy()
-
-
     def destroy(self) -> None:
         self.destroyed = True
         self.hull = 0
