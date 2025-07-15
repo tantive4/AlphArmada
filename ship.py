@@ -38,6 +38,35 @@ class Ship:
         self.front_arc = (ship_dict.get('front_arc_center'), ship_dict.get('front_arc_end')) 
         self.rear_arc = (ship_dict.get('rear_arc_center'), ship_dict.get('rear_arc_end'))
 
+    def deploy(self, game, x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
+        self.game = game
+        self.x = x # 위치는 맨 앞 중앙
+        self.y = y
+        self.orientation = orientation
+        
+        self.speed = speed
+        self.hull = self.max_hull
+        self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
+        self.activated = False
+        self.destroyed = False
+        self.ship_id = ship_id
+        self.set_coordination()
+        self.game.visualize(f'{self.name} is deployed.')
+
+    def activate(self) -> None:
+        self.game.visualize(f'{self.name} is activated.')
+
+        # attack
+        self.attack_count = 0
+        self.attack_possible_hull = [True, True, True, True]
+        while self.attack_count < 2 and sum(self.attack_possible_hull) > 0 :
+            self.attack()
+        
+        # maneuver
+        self.execute_maneuver()
+        
+        self.activated = True
+
     def _get_coordination(self, vector : tuple[float]) -> tuple :
         x, y = self.x, self.y
         add_x, add_y = vector
@@ -66,20 +95,7 @@ class Ship:
         
         self._make_polygon()
 
-    def deploy(self, game, x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
-        self.game = game
-        self.x = x # 위치는 맨 앞 중앙
-        self.y = y
-        self.orientation = orientation
-        
-        self.speed = speed
-        self.hull = self.max_hull
-        self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
-        self.activated = False
-        self.destroyed = False
-        self.ship_id = ship_id
-        self.set_coordination()
-        self.game.visualize(f'{self.name} is deployed.')
+
 
     def _make_polygon(self) -> None:
         self.ship_token = Polygon([
@@ -270,7 +286,7 @@ class Ship:
         tool_orientaion = self.orientation
 
         joint_coordination = [(tool_x, tool_y)]
-        joint_orientation = []
+        joint_orientation = [tool_orientaion]
 
 
         for joint in course :
@@ -318,7 +334,7 @@ class Ship:
 
         while True :
             self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion)} maneuver.', joint_coordination)
+            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion - 1)} maneuver.', joint_coordination)
 
             current_overlap = self.is_overlap()
 
@@ -332,8 +348,9 @@ class Ship:
             self.set_coordination()
             del joint_coordination[-2 :]
             del joint_orientaion[-1] 
+
             if len(joint_coordination) == 1 : break
-        
+
         if self.out_of_board() :
             self.game.visualize(f'{self.name} is out of board!')
             self.destroy()
@@ -486,16 +503,4 @@ class Ship:
             return (attack_hull, defend_ship, defend_hull)
         
 
-    def activate(self) -> None:
-        self.game.visualize(f'{self.name} is activated.')
 
-        # attack
-        self.attack_count = 0
-        self.attack_possible_hull = [True, True, True, True]
-        while self.attack_count < 2 :
-            self.attack()
-        
-        # maneuver
-        self.execute_maneuver()
-        
-        self.activated = True
