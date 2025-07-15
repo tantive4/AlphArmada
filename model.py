@@ -23,7 +23,7 @@ def choose_attacker(encoded_state = None):
     # return which hull to perform attack (4 hulls)
     return random_model(4)
 
-def choose_defender(attacker, encoded_stat = None):
+def choose_defender(attack_ship, attack_hull, encoded_stat = None):
     # return defending hull zone (12 hulls)
     return random_model(12)
 

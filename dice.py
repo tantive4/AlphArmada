@@ -1,8 +1,8 @@
 import random
-CRIT_INDICES = [2, 4, 8]
-DAMAGE_INDICES = [0, 1, 2, 1, 1, 0, 0, 1, 1, 2, 0]
+CRIT_INDICES = [1, 1, 2]
+DAMAGE_INDICES = [[0, 1, 2], [1, 1, 0], [0, 1, 1, 2, 0]]
 
-def roll_dice(dice : list) -> list:
+def roll_dice(dice : list[int]) -> list[list[int]]:
     """
     Simulates rolling Star Wars: Armada dice with specified probabilities.
 
@@ -11,10 +11,10 @@ def roll_dice(dice : list) -> list:
                             representing the number of each die type to roll.
 
     Returns:
-        list: A list representing the results in the order:
-              [black blank, black hit, black double,
-               blue hit, blue critical, blue accuracy,
-               red blank, red hit, red critical, red accuracy, red double]
+        list[list[int]]: A list representing the results in the order:
+              [[black blank, black hit, black double],
+               [blue hit, blue critical, blue accuracy],
+               [red blank, red hit, red critical, red accuracy, red double]]
     """
     
     black_dice = dice[0]
@@ -76,27 +76,46 @@ def roll_dice(dice : list) -> list:
             results["red_accuracy"] += 1
 
     output_list = [
-        results["black_blank"],
-        results["black_hit"],
-        results["black_double"],
-        results["blue_hit"],
-        results["blue_critical"],
-        results["blue_accuracy"],
-        results["red_blank"],
-        results["red_hit"],
-        results["red_critical"],
-        results["red_double"],
-        results["red_accuracy"]
+        [results["black_blank"], results["black_hit"], results["black_double"]],
+        [results["blue_hit"], results["blue_critical"], results["blue_accuracy"]],
+        [results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"]]
     ]
 
     return output_list
 
-def reroll_dice(dice_result : list, dice_to_reroll : list) -> list:
-    dice_result = [x - y + z for x, y, z in zip(dice_result, dice_to_reroll, roll_dice([sum(dice_to_reroll[:2]), sum(dice_to_reroll[2:4]), sum(dice_to_reroll[4:])]))]
-    return dice_result
+def reroll_dice(dice_result: list[list[int]], dice_to_reroll: list[list[int]]) -> list[list[int]]:
+    """
+    Rerolls a specified subset of dice from an initial result.
+
+    Args:
+        dice_result (list[list[int]]): The initial dice roll result.
+            Format: [[black_faces], [blue_faces], [red_faces]]
+        dice_to_reroll (list[list[int]]): The dice to be rerolled from the result.
+            The format is the same as dice_result.
+
+    Returns:
+        list[list[int]]: The new dice result after the reroll.
+    """
+    # 1. Determine how many dice of each color to reroll by summing the counts.
+    num_to_reroll = [sum(color) for color in dice_to_reroll]
+
+    # 2. Roll only the dice that are being replaced.
+    newly_rolled = roll_dice(num_to_reroll)
+
+    # 3. Calculate the final result.
+    #    For each face, this is (original count - rerolled count) + new count.
+    final_result = []
+    for i in range(len(dice_result)):
+        color_result = [
+            (dice_result[i][j] - dice_to_reroll[i][j]) + newly_rolled[i][j]
+            for j in range(len(dice_result[i]))
+        ]
+        final_result.append(color_result)
+
+    return final_result
 
 # input_dice_3 = [10, 2, 2]
 # roll_results_3 = roll_dice(input_dice_3)
 # print(f"Input: {input_dice_3}")
 # print(f"Output: {roll_results_3}")
-# print(reroll_dice(roll_results_3, [1,0,0,0,0,0,0,0,0,0,0]))
+# print(reroll_dice(roll_results_3, [[1,0,0],[0,0,0],[0,0,0,0,0]]))
