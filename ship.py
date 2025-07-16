@@ -5,7 +5,11 @@ import math
 from dice import *
 import model
 from enum import IntEnum
-from armada import Armada
+from typing import TYPE_CHECKING
+
+# Conditionally import Armada only for type checking
+if TYPE_CHECKING:
+    from armada import Armada
 
 
 
@@ -14,6 +18,9 @@ class HullSection(IntEnum):
     RIGHT = 1
     REAR = 2
     LEFT = 3
+
+class Critical(IntEnum) :
+    STANDARD = 0
 
 SHIP_BASE_SIZE : dict[str, tuple]= {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
 SHIP_TOKEN_SIZE :  dict[str, tuple] = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
@@ -39,7 +46,7 @@ class Ship:
         self.front_arc = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
 
-    def deploy(self, game : Armada, x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
+    def deploy(self, game : Armada , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         self.game : Armada = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
@@ -68,7 +75,7 @@ class Ship:
         
         self.activated = True
 
-    def _get_coordination(self, vector : tuple[float, float]) -> tuple :
+    def _get_coordination(self, vector : tuple[float, float]) -> tuple[float, float] :
         x, y = self.x, self.y
         add_x, add_y = vector
         rotated_add_x = add_x * math.cos(self.orientation) + add_y * math.sin(self.orientation)
@@ -211,7 +218,7 @@ class Ship:
         speed_policy = model.softmax(speed_value)
         self.speed = np.argmax(speed_policy)
 
-        course = list(0 for _ in range(self.speed)) # [yaw at  joint 1, yaw at joint 2, ...]
+        course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
         
         # yaw
         for joint in range(self.speed) :
@@ -219,7 +226,7 @@ class Ship:
             for yaw in range(5) :
                 if abs(yaw - 2) > self.navchart[str(self.speed)][joint] : current_yaw_value[yaw] = model.MASK_VALUE
             current_yaw_policy = model.softmax(current_yaw_value)
-            course[joint] = np.argmax(current_yaw_policy) - 2
+            course[joint] = int(np.argmax(current_yaw_policy)) - 2
 
         # placement
         placement_value = model.choose_placement(course)
@@ -231,12 +238,12 @@ class Ship:
                     if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
                     if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
         placement_policy = model.softmax(placement_value)
-        placement = np.argmax(placement_policy)
+        placement = int(np.argmax(placement_policy))
         placement = placement * 2 - 1 # right 1, left -1
 
         return course, placement
 
-    def tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[int]], list[int]] :
+    def tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]] :
         (tool_x, tool_y) = self._get_coordination((placement * (self.base_size[0] + TOOL_WIDTH) / 2,0))
         tool_orientaion = self.orientation
 
@@ -259,7 +266,7 @@ class Ship:
 
         return joint_coordination, joint_orientation
     
-    def maneuver_coordination(self, placement : int, tool_coordination : tuple[int], tool_orientaion : float) -> None :
+    def maneuver_coordination(self, placement : int, tool_coordination : tuple[float, float], tool_orientaion : float) -> None :
         self.x = tool_coordination[0] - placement * math.cos(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
         self.y = tool_coordination[1] + placement * math.sin(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
         self.orientation = tool_orientaion
@@ -354,6 +361,12 @@ class Ship:
         course, placement = self.determine_course()
         self.move_ship(course, placement)
 
+    def gather_dice(self, attack_hull : HullSection, attack_range : int) -> list[int] :
+        attack_pool = self.battery[attack_hull].copy()
+        for i in range(3) :
+            if i < attack_range: attack_pool[i] = 0
+        return attack_pool
+
     def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
 
         # gathering dice
@@ -362,11 +375,9 @@ class Ship:
 
         self.game.visualize(f'{self.name} attacks {defend_ship.name}! {attack_hull.name} to {defend_hull.name}! Range : {['close', 'medium', 'long'][attack_range]}')
 
-        attack_pool = list(self.battery[attack_hull])
-        for i in range(3) :
-            if i < attack_range: attack_pool[i] = 0
+        attack_pool = self.gather_dice(attack_hull, attack_range)
 
-        if sum(attack_pool) == 0 : return # empty attack pool
+        if sum(attack_pool) == 0 : return # cannot gather attack dice
 
         # rolling dice
         attack_pool = roll_dice(attack_pool)
@@ -383,13 +394,15 @@ class Ship:
         black_critical = bool(attack_pool[CRIT_INDICES[0]])
         blue_critical = bool(attack_pool[CRIT_INDICES[1]])
         red_critical = bool(attack_pool[CRIT_INDICES[2]])
-
-        defend_ship.defend(defend_hull, attack_pool, black_critical or blue_critical or red_critical)
-
-    def defend(self, defend_hull : HullSection, attack_pool : list, standard_critical : bool) -> None:
         total_damage = sum(
             sum(damage * dice for damage, dice in zip(damage_values, dice_counts)) for damage_values, dice_counts in zip(DAMAGE_INDICES, attack_pool)
             )
+        
+        if black_critical or blue_critical or red_critical :
+            critical = Critical.STANDARD
+        defend_ship.defend(defend_hull, total_damage, Critical.STANDARD)
+
+    def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None = None ) -> None:
         
         self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
 
@@ -401,8 +414,7 @@ class Ship:
         # Apply remaining damage to the hull
         if total_damage > 0:
             self.hull -= total_damage
-            if standard_critical:
-                self.hull -= 1 # Critical hits add one damage
+            if critical == Critical.STANDARD : self.hull -= 1 # Structural Damage
 
         self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
 
@@ -413,6 +425,9 @@ class Ship:
         if attack_target == None : return # there is no possible target
         (attack_hull, defend_ship, defend_hull) = attack_target
 
+        self.attack_count += 1
+        self.attack_possible_hull[attack_hull.value] = False
+
         attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
         if attack_pool == None : return # attack is canceled
 
@@ -420,8 +435,7 @@ class Ship:
         # defend_ship.spend_defense_token()
         self.resolve_damage(defend_ship, defend_hull, attack_pool)
 
-        self.attack_count += 1
-        self.attack_possible_hull[attack_hull.value] = False
+
 
     def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
 
@@ -448,6 +462,7 @@ class Ship:
                     
                     attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
                     if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+                    if sum(self.gather_dice(attack_hull, attack_range)) == 0 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
 
             if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
                 self.attack_possible_hull[attack_hull_index] = False
