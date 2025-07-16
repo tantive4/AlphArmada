@@ -46,9 +46,19 @@ class Ship:
         self.front_arc = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
 
-    def deploy(self, game : Armada , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
-        self.game : Armada = game
-        self.x = x # 위치는 맨 앞 중앙
+    def deploy(self, game : "Armada" , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
+        """
+        deploy the ship to the game board
+
+        Args:
+            game (Armada) : the game
+            (x, y) (float) : coordination of front center of the ship token
+            orientation (float) : ship orientation
+            speed (int) : ship speed
+            ship_id (int) : ship id
+        """
+        self.game : "Armada" = game
+        self.x = x 
         self.y = y
         self.orientation = orientation
         
@@ -61,8 +71,25 @@ class Ship:
         self.set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
 
+    def destroy(self) -> None:
+        self.destroyed = True
+        self.hull = 0
+        self.shield = [0,0,0,0]
+        self.battery = ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
+        self.game.visualize(f'{self.name} is destroyed!')
+
+
+
+# core activation method
+
     def activate(self) -> None:
+        """
+        Activate the Ship
+        """
         self.game.visualize(f'{self.name} is activated.')
+
+        # reveal command
+        self.reveal_command()
 
         # attack
         self.attack_count = 0
@@ -75,36 +102,225 @@ class Ship:
         
         self.activated = True
 
-    def _get_coordination(self, vector : tuple[float, float]) -> tuple[float, float] :
+
+
+# ship activation sequence
+
+    def reveal_command(self) :
+        pass
+
+    def attack(self) -> None:
+        attack_target = self.declare_target()
+        if attack_target == None : return # there is no possible target
+        (attack_hull, defend_ship, defend_hull) = attack_target
+
+        self.attack_count += 1
+        self.attack_possible_hull[attack_hull.value] = False
+
+        attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
+        if attack_pool == None : return # attack is canceled
+
+        self.resolve_attack_effect()
+        defend_ship.spend_defense_token()
+        self.resolve_damage(defend_ship, defend_hull, attack_pool)
+
+    def execute_maneuver(self) -> None:
+        course, placement = self.determine_course()
+        self.move_ship(course, placement)
+
+
+
+
+
+# attack sequence
+
+    def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
+
+        attack_hull_value = model.choose_attacker()
+
+        while sum(self.attack_possible_hull) > 0 :
+
+            # declare attacking hull
+            for hull_index in range(4) :
+                if not self.attack_possible_hull[hull_index] :
+                    attack_hull_value[hull_index] = model.MASK_VALUE
+            attack_hull_policy = model.softmax(attack_hull_value)
+            attack_hull_index = np.argmax(attack_hull_policy)
+            attack_hull = HullSection(attack_hull_index)
+
+            # declare defender
+            defend_hull_value = model.choose_defender(self, attack_hull)
+            
+            for ship in self.game.ships :
+                for hull_index in range(4) :
+                    if ship.player == self.player :
+                        defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+                        continue # Skip to the next ship
+                    
+                    attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
+                    if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+                    if sum(self.gather_dice(attack_hull, attack_range)) == 0 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+
+            if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
+                self.attack_possible_hull[attack_hull_index] = False
+                continue
+
+            defend_hull_policy = model.softmax(defend_hull_value)
+            defender_index = np.argmax(defend_hull_policy)
+            
+            defend_ship = self.game.ships[defender_index // 4]
+            defend_hull = HullSection(defender_index % 4)
+
+            return (attack_hull, defend_ship, defend_hull)
+
+    def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
+
+        # gathering dice
+        attack_range = self.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
+        if attack_range == -1 : return # attack is canceled
+
+        self.game.visualize(f'{self.name} attacks {defend_ship.name}! {attack_hull.name} to {defend_hull.name}! Range : {['close', 'medium', 'long'][attack_range]}')
+
+        attack_pool = self.gather_dice(attack_hull, attack_range)
+
+        if sum(attack_pool) == 0 : return # cannot gather attack dice
+
+        # rolling dice
+        attack_pool = roll_dice(attack_pool)
+        self.game.visualize((f'''
+          Dice Rolled!
+          Black [Blank, Hit, Double] : {attack_pool[0]}
+          Blue [Hit, Critical, Accuracy] : {attack_pool[1]}
+          Red [Blank, Hit, Critical, Double, Accuracy] : {attack_pool[2]}
+        '''))
+        return attack_pool
+
+    def resolve_attack_effect(self):
+        pass
+
+    def spend_defense_token(self):
+        pass
+
+    def resolve_damage(self, defend_ship : "Ship", defend_hull : HullSection, attack_pool : list[list[int]]) -> None :
+        black_critical = bool(attack_pool[CRIT_INDICES[0]])
+        blue_critical = bool(attack_pool[CRIT_INDICES[1]])
+        red_critical = bool(attack_pool[CRIT_INDICES[2]])
+        total_damage = sum(
+            sum(damage * dice for damage, dice in zip(damage_values, dice_counts)) for damage_values, dice_counts in zip(DAMAGE_INDICES, attack_pool)
+            )
+        
+        if black_critical or blue_critical or red_critical :
+            critical = Critical.STANDARD
+        defend_ship.defend(defend_hull, total_damage, critical)
+
+
+
+
+# execute maneuver sequence
+
+    def determine_course(self) -> tuple[list, int]:
+        # speed
+        speed_value = model.choose_speed()
+        for speed in range(5) :
+            if abs(speed - self.speed) > 1 or (self.navchart.get(str(speed)) == None and speed != 0) :
+                speed_value[speed] = model.MASK_VALUE
+        speed_policy = model.softmax(speed_value)
+        self.speed = np.argmax(speed_policy)
+
+        course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
+        
+        # yaw
+        for joint in range(self.speed) :
+            current_yaw_value = model.choose_yaw(self.speed, joint + 1)
+            for yaw in range(5) :
+                if abs(yaw - 2) > self.navchart[str(self.speed)][joint] : current_yaw_value[yaw] = model.MASK_VALUE
+            current_yaw_policy = model.softmax(current_yaw_value)
+            course[joint] = int(np.argmax(current_yaw_policy)) - 2
+
+        # placement
+        placement_value = model.choose_placement(course)
+        if self.speed > 0 :
+            if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
+            elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
+            else : 
+                if self.speed >= 2 and self.size_class != 'small' :
+                    if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
+                    if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
+        placement_policy = model.softmax(placement_value)
+        placement = int(np.argmax(placement_policy))
+        placement = placement * 2 - 1 # right 1, left -1
+
+        return course, placement
+
+    def move_ship(self, course : list[int], placement : int) -> list[bool]:
+        original_x, original_y, original_orientaion = self.x, self.y, self.orientation
+
+        joint_coordination, joint_orientaion = self.tool_coordination(course, placement)
+
+        overlap_list = [False for _ in self.game.ships]
+
+        while True :
+            self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
+            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
+
+            current_overlap = self.is_overlap()
+
+            if not any(current_overlap):
+                break
+            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_orientaion)} maneuver.')
+
+            overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
+
+            self.x, self.y, self.orientation = original_x, original_y, original_orientaion
+            self.set_coordination()
+            del joint_coordination[-2 :]
+            del joint_orientaion[-1] 
+
+            if len(joint_coordination) == 1 : break
+
+        if self.out_of_board() :
+            self.game.visualize(f'{self.name} is out of board!')
+            self.destroy()
+    
+        return overlap_list
+
+
+# sub method for ship dimension
+
+    def _get_coordination(self, add_x : float, add_y : float) -> tuple[float, float] :
+        """
+        Args:
+            vector (tuple): (x, y) transition tuple
+        Returns:
+            (x, y) point after transition from top center of the ship, considering current orientation
+        """
         x, y = self.x, self.y
-        add_x, add_y = vector
         rotated_add_x = add_x * math.cos(self.orientation) + add_y * math.sin(self.orientation)
         rotated_add_y = -add_x * math.sin(self.orientation) + add_y * math.cos(self.orientation)
         return (x + rotated_add_x, y + rotated_add_y)
     
     def set_coordination(self) -> None: # update when deployed/moved
-        self.front_right_token = self._get_coordination((self.token_size[0] / 2,0))
-        self.front_left_token = self._get_coordination((- self.token_size[0] / 2,0))
-        self.rear_right_token = self._get_coordination((self.token_size[0] / 2, - self.token_size[1]))
-        self.rear_left_token = self._get_coordination((- self.token_size[0] / 2, - self.token_size[1]))
+        self.front_right_token = self._get_coordination(self.token_size[0] / 2,0)
+        self.front_left_token = self._get_coordination(- self.token_size[0] / 2,0)
+        self.rear_right_token = self._get_coordination(self.token_size[0] / 2, - self.token_size[1])
+        self.rear_left_token = self._get_coordination(- self.token_size[0] / 2, - self.token_size[1])
 
-        self.front_right_arc = self._get_coordination((self.token_size[0]/2, - self.front_arc[1]))
-        self.front_left_arc = self._get_coordination((-self.token_size[0]/2, - self.front_arc[1]))
-        self.rear_right_arc = self._get_coordination((self.token_size[0]/2, - self.rear_arc[1]))
-        self.rear_left_arc = self._get_coordination((-self.token_size[0]/2, - self.rear_arc[1]))
+        self.front_right_arc = self._get_coordination(self.token_size[0]/2, - self.front_arc[1])
+        self.front_left_arc = self._get_coordination(-self.token_size[0]/2, - self.front_arc[1])
+        self.rear_right_arc = self._get_coordination(self.token_size[0]/2, - self.rear_arc[1])
+        self.rear_left_arc = self._get_coordination(-self.token_size[0]/2, - self.rear_arc[1])
 
-        self.front_arc_center = self._get_coordination((0, -self.front_arc[0]))
-        self.rear_arc_center = self._get_coordination((0, -self.rear_arc[0]))
+        self.front_arc_center = self._get_coordination(0, -self.front_arc[0])
+        self.rear_arc_center = self._get_coordination(0, -self.rear_arc[0])
 
-        self.front_right_base = self._get_coordination((self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2))
-        self.front_left_base = self._get_coordination((- self.base_size[0] / 2,(self.base_size[1] - self.token_size[1]) / 2))
-        self.rear_right_base = self._get_coordination((self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1]))
-        self.rear_left_base = self._get_coordination((- self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1]))
+        self.front_right_base = self._get_coordination(self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2)
+        self.front_left_base = self._get_coordination(- self.base_size[0] / 2,(self.base_size[1] - self.token_size[1]) / 2)
+        self.rear_right_base = self._get_coordination(self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1])
+        self.rear_left_base = self._get_coordination(- self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1])
         
         self._make_polygon()
 
-
-
+        
     def _make_polygon(self) -> None:
         self.ship_token = Polygon([
             self.front_right_token,
@@ -148,7 +364,10 @@ class Ship:
                 ]).buffer(0)
 
         self.hull_polygon = [front_hull, right_hull, rear_hull, left_hull]
-    
+
+
+# sub method for attack
+
     def measure_arc_and_range(self, from_hull : HullSection, to_ship : "Ship", to_hull : HullSection, extension_factor=1e4) -> int:
         """Measures the range and validity of a firing arc to a target.
 
@@ -202,49 +421,50 @@ class Ship:
             elif distance <= 304.8 : return 2 # long range
             else : return 3 # extreme range
 
-    def destroy(self) -> None:
-        self.destroyed = True
-        self.hull = 0
-        self.shield = [0,0,0,0]
-        self.battery = ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
-        self.game.visualize(f'{self.name} is destroyed!')
+    def gather_dice(self, attack_hull : HullSection, attack_range : int) -> list[int] :
+        attack_pool = self.battery[attack_hull].copy()
+        for i in range(3) :
+            if i < attack_range: attack_pool[i] = 0
+        return attack_pool
 
-    def determine_course(self) -> tuple[list, int]:
-        # speed
-        speed_value = model.choose_speed()
-        for speed in range(5) :
-            if abs(speed - self.speed) > 1 or (self.navchart.get(str(speed)) == None and speed != 0) :
-                speed_value[speed] = model.MASK_VALUE
-        speed_policy = model.softmax(speed_value)
-        self.speed = np.argmax(speed_policy)
-
-        course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
+    def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None = None ) -> None:
         
-        # yaw
-        for joint in range(self.speed) :
-            current_yaw_value = model.choose_yaw(self.speed, joint + 1)
-            for yaw in range(5) :
-                if abs(yaw - 2) > self.navchart[str(self.speed)][joint] : current_yaw_value[yaw] = model.MASK_VALUE
-            current_yaw_policy = model.softmax(current_yaw_value)
-            course[joint] = int(np.argmax(current_yaw_policy)) - 2
+        self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
 
-        # placement
-        placement_value = model.choose_placement(course)
-        if self.speed > 0 :
-            if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
-            elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
-            else : 
-                if self.speed >= 2 and self.size_class != 'small' :
-                    if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
-                    if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
-        placement_policy = model.softmax(placement_value)
-        placement = int(np.argmax(placement_policy))
-        placement = placement * 2 - 1 # right 1, left -1
+        # Absorb damage with shields first
+        shield_damage = min(total_damage, self.shield[defend_hull.value])
+        self.shield[defend_hull.value] -= shield_damage
+        total_damage -= shield_damage
 
-        return course, placement
+        # Apply remaining damage to the hull
+        if total_damage > 0:
+            self.hull -= total_damage
+            if critical == Critical.STANDARD : self.hull -= 1 # Structural Damage
+
+        self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
+
+        if self.hull <= 0 : self.destroy()
+
+
+# sub method for execute maneuver
 
     def tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]] :
-        (tool_x, tool_y) = self._get_coordination((placement * (self.base_size[0] + TOOL_WIDTH) / 2,0))
+        """Calculates the coordinates and orientations along a maneuver tool's path.
+
+        This method simulates the placement of the maneuver tool against the
+        ship's base and calculates the series of points and angles that define
+        the maneuver course.
+
+        Args:
+            course (list[int]): A list of yaw adjustments for each joint of the maneuver tool. The length corresponds to the maneuver speed.
+            placement (int): The side of the ship to place the tool. `1` for the right side, `-1` for the left side.
+
+        Returns:
+            A tuple containing two lists:
+            - A list of (x, y) tuples representing the coordinates of each joint along the tool's path.
+            - A list of orientations in radians at each joint along the tool's path.
+        """
+        (tool_x, tool_y) = self._get_coordination(placement * (self.base_size[0] + TOOL_WIDTH) / 2,0)
         tool_orientaion = self.orientation
 
         joint_coordination = [(tool_x, tool_y)]
@@ -267,13 +487,26 @@ class Ship:
         return joint_coordination, joint_orientation
     
     def maneuver_coordination(self, placement : int, tool_coordination : tuple[float, float], tool_orientaion : float) -> None :
+        """
+        move the ship to given toolool coordination
+
+        Args:
+            placement (int): 1 for right, -1 for left
+            tool_coordination (tuple) : endpoint of maneuver tool
+            tool_orientaion (float) : orientation of maneuver tool
+        """
         self.x = tool_coordination[0] - placement * math.cos(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
         self.y = tool_coordination[1] + placement * math.sin(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
         self.orientation = tool_orientaion
         self.set_coordination()
         
-
     def is_overlap(self) -> list[bool] :
+        """
+        determines which ship overlaps to this ship at current location
+        
+        Returns:
+            overlap_list (list[bool]): A list indicating which ships were overlapped.
+        """
         overlap_list = []
         for ship in self.game.ships:
             if self.ship_id == ship.ship_id or ship.destroyed :
@@ -284,39 +517,6 @@ class Ship:
                 overlap_list.append(True)
             else:
                 overlap_list.append(False)
-        return overlap_list
-
-
-    def move_ship(self, course : list[int], placement : int) -> list[bool]:
-        original_x, original_y, original_orientaion = self.x, self.y, self.orientation
-
-        joint_coordination, joint_orientaion = self.tool_coordination(course, placement)
-
-        overlap_list = [False for _ in self.game.ships]
-
-        while True :
-            self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
-
-            current_overlap = self.is_overlap()
-
-            if not any(current_overlap):
-                break
-            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_orientaion)} maneuver.')
-
-            overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
-
-            self.x, self.y, self.orientation = original_x, original_y, original_orientaion
-            self.set_coordination()
-            del joint_coordination[-2 :]
-            del joint_orientaion[-1] 
-
-            if len(joint_coordination) == 1 : break
-
-        if self.out_of_board() :
-            self.game.visualize(f'{self.name} is out of board!')
-            self.destroy()
-    
         return overlap_list
 
     def overlap(self, overlap_list : list[bool]) -> None:
@@ -347,7 +547,6 @@ class Ship:
             if self.hull <= 0 : self.destroy()
             if closest_ship.hull <= 0 :closest_ship.destroy()
 
-
     def out_of_board(self) -> bool:
         """
         Checks if the ship's base is completely within the game board.
@@ -356,125 +555,3 @@ class Ship:
             bool: True if the ship is out of the board, False otherwise.
         """
         return not self.ship_base.within(self.game.game_board)
-
-    def execute_maneuver(self) -> None:
-        course, placement = self.determine_course()
-        self.move_ship(course, placement)
-
-    def gather_dice(self, attack_hull : HullSection, attack_range : int) -> list[int] :
-        attack_pool = self.battery[attack_hull].copy()
-        for i in range(3) :
-            if i < attack_range: attack_pool[i] = 0
-        return attack_pool
-
-    def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
-
-        # gathering dice
-        attack_range = self.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
-        if attack_range == -1 : return # attack is canceled
-
-        self.game.visualize(f'{self.name} attacks {defend_ship.name}! {attack_hull.name} to {defend_hull.name}! Range : {['close', 'medium', 'long'][attack_range]}')
-
-        attack_pool = self.gather_dice(attack_hull, attack_range)
-
-        if sum(attack_pool) == 0 : return # cannot gather attack dice
-
-        # rolling dice
-        attack_pool = roll_dice(attack_pool)
-        self.game.visualize((f'''
-          Dice Rolled!
-          Black [Blank, Hit, Double] : {attack_pool[0]}
-          Blue [Hit, Critical, Accuracy] : {attack_pool[1]}
-          Red [Blank, Hit, Critical, Double, Accuracy] : {attack_pool[2]}
-        '''))
-        return attack_pool
-
-    
-    def resolve_damage(self, defend_ship : "Ship", defend_hull : HullSection, attack_pool : list[list[int]]) -> None :
-        black_critical = bool(attack_pool[CRIT_INDICES[0]])
-        blue_critical = bool(attack_pool[CRIT_INDICES[1]])
-        red_critical = bool(attack_pool[CRIT_INDICES[2]])
-        total_damage = sum(
-            sum(damage * dice for damage, dice in zip(damage_values, dice_counts)) for damage_values, dice_counts in zip(DAMAGE_INDICES, attack_pool)
-            )
-        
-        if black_critical or blue_critical or red_critical :
-            critical = Critical.STANDARD
-        defend_ship.defend(defend_hull, total_damage, Critical.STANDARD)
-
-    def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None = None ) -> None:
-        
-        self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
-
-        # Absorb damage with shields first
-        shield_damage = min(total_damage, self.shield[defend_hull.value])
-        self.shield[defend_hull.value] -= shield_damage
-        total_damage -= shield_damage
-
-        # Apply remaining damage to the hull
-        if total_damage > 0:
-            self.hull -= total_damage
-            if critical == Critical.STANDARD : self.hull -= 1 # Structural Damage
-
-        self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
-
-        if self.hull <= 0 : self.destroy()
-
-    def attack(self) -> None:
-        attack_target = self.declare_target()
-        if attack_target == None : return # there is no possible target
-        (attack_hull, defend_ship, defend_hull) = attack_target
-
-        self.attack_count += 1
-        self.attack_possible_hull[attack_hull.value] = False
-
-        attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
-        if attack_pool == None : return # attack is canceled
-
-        # self.reslove_attack_effect()
-        # defend_ship.spend_defense_token()
-        self.resolve_damage(defend_ship, defend_hull, attack_pool)
-
-
-
-    def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
-
-        attack_hull_value = model.choose_attacker()
-
-        while sum(self.attack_possible_hull) > 0 :
-
-            # declare attacking hull
-            for hull_index in range(4) :
-                if not self.attack_possible_hull[hull_index] :
-                    attack_hull_value[hull_index] = model.MASK_VALUE
-            attack_hull_policy = model.softmax(attack_hull_value)
-            attack_hull_index = np.argmax(attack_hull_policy)
-            attack_hull = HullSection(attack_hull_index)
-
-            # declare defender
-            defend_hull_value = model.choose_defender(self, attack_hull)
-            
-            for ship in self.game.ships :
-                for hull_index in range(4) :
-                    if ship.player == self.player :
-                        defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-                        continue # Skip to the next ship
-                    
-                    attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
-                    if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-                    if sum(self.gather_dice(attack_hull, attack_range)) == 0 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-
-            if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
-                self.attack_possible_hull[attack_hull_index] = False
-                continue
-
-            defend_hull_policy = model.softmax(defend_hull_value)
-            defender_index = np.argmax(defend_hull_policy)
-            
-            defend_ship = self.game.ships[defender_index // 4]
-            defend_hull = HullSection(defender_index % 4)
-
-            return (attack_hull, defend_ship, defend_hull)
-        
-
-

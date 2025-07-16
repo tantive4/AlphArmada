@@ -18,8 +18,12 @@
     "front_arc_center": 47,
     "front_arc_end": 20.25,
     "rear_arc_center": 47,
-    "rear_arc_end": 78
+    "rear_arc_end": 78,
+    "front_targeting_point" : 11.4,
+    "rear_targeting_point" : 90.5,
+    "side_targetting_point" : [19.55, 51.5]
   },
+
   "CR90_Corvette": {
     "name": "CR90 corvette",
     "hull": 4,
@@ -41,8 +45,12 @@
     "front_arc_center": 43.5,
     "front_arc_end": 21.5,
     "rear_arc_center": 42.75,
-    "rear_arc_end": 64.75
+    "rear_arc_end": 64.75,
+    "front_targeting_point" : 7.5,
+    "rear_targeting_point" : 62.75,
+    "side_targetting_point" : [11.5, 43]
   },
+
   "NebulonB_Escort": {
     "name": "Nebulon-B frigate",
     "hull": 5,
@@ -63,6 +71,9 @@
     "front_arc_center": 36,
     "front_arc_end": 0,
     "rear_arc_center": 35,
-    "rear_arc_end": 70.25
+    "rear_arc_end": 70.25,
+    "front_targeting_point" : 7.75,
+    "rear_targeting_point" : 63,
+    "side_targetting_point" : [12, 35.25]
   }
 }
