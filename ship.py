@@ -5,6 +5,9 @@ import math
 from dice import *
 import model
 from enum import IntEnum
+from armada import Armada
+
+
 
 class HullSection(IntEnum):
     FRONT = 0
@@ -12,34 +15,32 @@ class HullSection(IntEnum):
     REAR = 2
     LEFT = 3
 
-SHIP_BASE_SIZE = {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
-SHIP_TOKEN_SIZE = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
-TOOL_WIDTH = 15.25
-TOOL_LENGTH = 48.4 # not accurate
-TOOL_PART_LENGTH = 20 # not accurate
+SHIP_BASE_SIZE : dict[str, tuple]= {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
+SHIP_TOKEN_SIZE :  dict[str, tuple] = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
+TOOL_WIDTH : float= 15.25
+TOOL_LENGTH : float= 48.4 # not accurate
+TOOL_PART_LENGTH : float = 20 # not accurate
 
 class Ship:
     def __init__(self, ship_dict : dict, player : int) -> None:
-        self.player = player
-        self.game = None
-        self.name = ship_dict.get('name')
-        self.point = ship_dict.get('point')
+        self.player : int = player
+        self.name : str = ship_dict['name']
 
-        self.max_hull = ship_dict.get('hull')
-        self.size_class = ship_dict.get('size')
-        self.token_size = SHIP_TOKEN_SIZE.get(self.size_class)
-        self.base_size = SHIP_BASE_SIZE.get(self.size_class)
+        self.max_hull : int = ship_dict['hull']
+        self.size_class : str = ship_dict['size']
+        self.token_size : tuple [float, float] = SHIP_TOKEN_SIZE[self.size_class]
+        self.base_size : tuple [float, float] = SHIP_BASE_SIZE[self.size_class]
 
-        self.battery = (ship_dict.get('battery')[0], ship_dict.get('battery')[1], ship_dict.get('battery')[2], ship_dict.get('battery')[1]) # (Front, Right, Rear, Left)
-        self.navchart = ship_dict.get('navchart')
-        self.max_shield = ship_dict.get('shield')
-        self.point = ship_dict.get('point')
+        self.battery :  tuple[list[int], list[int], list[int], list[int]] = (ship_dict['battery'][0], ship_dict['battery'][1], ship_dict['battery'][2], ship_dict['battery'][1]) # (Front, Right, Rear, Left)
+        self.navchart : dict[str, list[int]] = ship_dict['navchart']
+        self.max_shield : list[int] = ship_dict['shield']
+        self.point : int = ship_dict['point']
 
-        self.front_arc = (ship_dict.get('front_arc_center'), ship_dict.get('front_arc_end')) 
-        self.rear_arc = (ship_dict.get('rear_arc_center'), ship_dict.get('rear_arc_end'))
+        self.front_arc = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
+        self.rear_arc = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
 
-    def deploy(self, game, x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
-        self.game = game
+    def deploy(self, game : Armada, x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
+        self.game : Armada = game
         self.x = x # 위치는 맨 앞 중앙
         self.y = y
         self.orientation = orientation
@@ -67,7 +68,7 @@ class Ship:
         
         self.activated = True
 
-    def _get_coordination(self, vector : tuple[float]) -> tuple :
+    def _get_coordination(self, vector : tuple[float, float]) -> tuple :
         x, y = self.x, self.y
         add_x, add_y = vector
         rotated_add_x = add_x * math.cos(self.orientation) + add_y * math.sin(self.orientation)
@@ -198,7 +199,7 @@ class Ship:
         self.destroyed = True
         self.hull = 0
         self.shield = [0,0,0,0]
-        self.battery = tuple((0, 0, 0) for _ in range(4))
+        self.battery = ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
         self.game.visualize(f'{self.name} is destroyed!')
 
     def determine_course(self) -> tuple[list, int]:
@@ -216,7 +217,7 @@ class Ship:
         for joint in range(self.speed) :
             current_yaw_value = model.choose_yaw(self.speed, joint + 1)
             for yaw in range(5) :
-                if abs(yaw - 2) > self.navchart.get(str(self.speed))[joint] : current_yaw_value[yaw] = model.MASK_VALUE
+                if abs(yaw - 2) > self.navchart[str(self.speed)][joint] : current_yaw_value[yaw] = model.MASK_VALUE
             current_yaw_policy = model.softmax(current_yaw_value)
             course[joint] = np.argmax(current_yaw_policy) - 2
 
@@ -288,7 +289,7 @@ class Ship:
 
         while True :
             self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion - 1)} maneuver.', joint_coordination)
+            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
 
             current_overlap = self.is_overlap()
 
@@ -353,8 +354,9 @@ class Ship:
         course, placement = self.determine_course()
         self.move_ship(course, placement)
 
-    def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]]:
+    def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
 
+        # gathering dice
         attack_range = self.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
         if attack_range == -1 : return # attack is canceled
 
@@ -366,6 +368,7 @@ class Ship:
 
         if sum(attack_pool) == 0 : return # empty attack pool
 
+        # rolling dice
         attack_pool = roll_dice(attack_pool)
         self.game.visualize((f'''
           Dice Rolled!
@@ -411,6 +414,8 @@ class Ship:
         (attack_hull, defend_ship, defend_hull) = attack_target
 
         attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
+        if attack_pool == None : return # attack is canceled
+
         # self.reslove_attack_effect()
         # defend_ship.spend_defense_token()
         self.resolve_damage(defend_ship, defend_hull, attack_pool)
@@ -418,7 +423,7 @@ class Ship:
         self.attack_count += 1
         self.attack_possible_hull[attack_hull.value] = False
 
-    def declare_target(self) -> tuple[HullSection, "Ship"] :
+    def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
 
         attack_hull_value = model.choose_attacker()
 
@@ -441,7 +446,7 @@ class Ship:
                         defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
                         continue # Skip to the next ship
                     
-                    attack_range = self.measure_arc_and_range(attack_hull_index, self.game.ships[ship.ship_id], hull_index)
+                    attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
                     if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
 
             if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):

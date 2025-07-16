@@ -10,7 +10,7 @@ import json
 game = Armada()
 
 with open('ship_info.json', 'r') as f:
-    ship_data = json.load(f)
+    ship_data : dict[str, dict[str, str | int | list]]= json.load(f)
     
 cr90 = Ship(ship_data['CR90_Corvette'], 1)
 nebulon = Ship(ship_data['NebulonB_Escort'], 1)

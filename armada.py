@@ -17,10 +17,10 @@ class Armada:
             (self.short_edge, self.player_edge),
             (self.short_edge, 0),
         ])
-        self.ships = []  # max 3 total, 2 + 1
+        self.ships : list[Ship] = []  # max 3 total, 2 + 1
 
         self.round = 1
-        self.winner = None
+        self.winner : int | None = None
         self.image_counter = 0
 
 
