@@ -43,8 +43,15 @@ class Ship:
         self.max_shield : list[int] = ship_dict['shield']
         self.point : int = ship_dict['point']
 
-        self.front_arc = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
-        self.rear_arc = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
+        self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
+        self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
+
+        self.targeting_point_dict : dict[str, tuple[float, float]] = {
+            'front' : (0, ship_dict['front_targeting_point']),
+            'right' : (ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1]),
+            'rear' : (0, ship_dict['rear_targeting_point']),
+            'left' : (- ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1])}
+        
 
     def deploy(self, game : "Armada" , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         """
@@ -68,7 +75,7 @@ class Ship:
         self.activated = False
         self.destroyed = False
         self.ship_id = ship_id
-        self.set_coordination()
+        self._set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
 
     def destroy(self) -> None:
@@ -86,6 +93,7 @@ class Ship:
         """
         Activate the Ship
         """
+
         self.game.visualize(f'{self.name} is activated.')
 
         # reveal command
@@ -156,10 +164,20 @@ class Ship:
                     if ship.player == self.player :
                         defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
                         continue # Skip to the next ship
-                    
+
+                    # line_of_sight is blocked
+                    blocked, obstructed = self.measure_line_of_sight(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
+                    if blocked : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+
                     attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
+
+                    # invalid attack range
                     if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-                    if sum(self.gather_dice(attack_hull, attack_range)) == 0 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+
+                    # cannot gather attack dice
+                    if sum(self.gather_dice(attack_hull, attack_range)) <= int(obstructed) : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+
+
 
             if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
                 self.attack_possible_hull[attack_hull_index] = False
@@ -255,12 +273,12 @@ class Ship:
     def move_ship(self, course : list[int], placement : int) -> list[bool]:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
 
-        joint_coordination, joint_orientaion = self.tool_coordination(course, placement)
+        joint_coordination, joint_orientaion = self._tool_coordination(course, placement)
 
         overlap_list = [False for _ in self.game.ships]
 
         while True :
-            self.maneuver_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
+            self._maneuver_to_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
             self.game.visualize(f'{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
 
             current_overlap = self.is_overlap()
@@ -272,7 +290,7 @@ class Ship:
             overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
 
             self.x, self.y, self.orientation = original_x, original_y, original_orientaion
-            self.set_coordination()
+            self._set_coordination()
             del joint_coordination[-2 :]
             del joint_orientaion[-1] 
 
@@ -299,7 +317,12 @@ class Ship:
         rotated_add_y = -add_x * math.sin(self.orientation) + add_y * math.cos(self.orientation)
         return (x + rotated_add_x, y + rotated_add_y)
     
-    def set_coordination(self) -> None: # update when deployed/moved
+    def _set_coordination(self) -> None: 
+        """
+        define coordination for ship measuring points
+
+        update when ship is moved
+        """
         self.front_right_token = self._get_coordination(self.token_size[0] / 2,0)
         self.front_left_token = self._get_coordination(- self.token_size[0] / 2,0)
         self.rear_right_token = self._get_coordination(self.token_size[0] / 2, - self.token_size[1])
@@ -320,7 +343,12 @@ class Ship:
         
         self._make_polygon()
 
-        
+        self.targeting_point = [
+            self._get_coordination(self.targeting_point_dict['front'][0], -self.targeting_point_dict['front'][1]),
+            self._get_coordination(self.targeting_point_dict['rear'][0], -self.targeting_point_dict['rear'][1]),
+            self._get_coordination(self.targeting_point_dict['right'][0], -self.targeting_point_dict['right'][1]),
+            self._get_coordination(self.targeting_point_dict['left'][0], -self.targeting_point_dict['left'][1])]
+
     def _make_polygon(self) -> None:
         self.ship_token = Polygon([
             self.front_right_token,
@@ -404,15 +432,15 @@ class Ship:
 
         arc_polygon = Polygon([arc1[0], arc1[1] + arc1_vector * extension_factor,
                             arc2[1] + arc2_vector * extension_factor, arc2[0]]).buffer(0)
-        to_hull_in_arc = to_ship.hull_polygon[to_hull].intersection(arc_polygon)
+        to_hull_in_arc = to_ship.hull_polygon[to_hull.value].intersection(arc_polygon)
 
-        if to_hull_in_arc.is_empty or not isinstance(to_hull_in_arc, Polygon) :
+        if to_hull_in_arc.is_empty or not isinstance(to_hull_in_arc, Polygon):
             return -1 # not in arc
         else :
-            range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull], to_hull_in_arc))
+            range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull.value], to_hull_in_arc))
 
             for hull_index in range(4) :
-                if hull_index != to_hull and  range_measure.crosses(to_ship.hull_polygon[hull_index]) :
+                if hull_index != to_hull.value and  range_measure.crosses(to_ship.hull_polygon[hull_index]) :
                     return -1 # range not valid
             distance = range_measure.length
 
@@ -420,6 +448,46 @@ class Ship:
             elif distance <= 186.5 : return 1 # medium range
             elif distance <= 304.8 : return 2 # long range
             else : return 3 # extreme range
+
+    def measure_line_of_sight(self, from_hull : HullSection, to_ship : "Ship", to_hull : HullSection) -> tuple[bool, bool] :
+        """
+        Checks if the line of sight between two ships is obstructed.
+
+        Args:
+            from_hull (HullSection): The firing hull section of the attacking ship.
+            to_ship (Ship): The target ship.
+            to_hull (HullSection): The targeted hull section of the defending ship.
+
+        Returns:
+            (bool, bool): A tuple where:
+                - The first boolean is True if blocked by another hull of the target ship.
+                - The second boolean is True if obstructed by another ship.
+        """
+        line_of_sight = LineString([self.targeting_point[from_hull.value], to_ship.targeting_point[to_hull.value]])
+
+        blocked_line_of_sight = False
+
+        for i, hull_polygon in enumerate(to_ship.hull_polygon):
+            if i == to_hull.value:
+                continue
+
+            if line_of_sight.crosses(hull_polygon):
+                blocked_line_of_sight = True
+                break 
+
+        obstructed_line_of_sight = False
+        for ship in self.game.ships:
+
+            if ship.ship_id == self.ship_id or ship.ship_id == to_ship.ship_id:
+                continue
+            if ship.destroyed:
+                continue
+
+            if line_of_sight.crosses(ship.ship_token):
+                obstructed_line_of_sight = True
+                break
+
+        return blocked_line_of_sight, obstructed_line_of_sight
 
     def gather_dice(self, attack_hull : HullSection, attack_range : int) -> list[int] :
         attack_pool = self.battery[attack_hull].copy()
@@ -448,7 +516,7 @@ class Ship:
 
 # sub method for execute maneuver
 
-    def tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]] :
+    def _tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]] :
         """Calculates the coordinates and orientations along a maneuver tool's path.
 
         This method simulates the placement of the maneuver tool against the
@@ -486,7 +554,7 @@ class Ship:
 
         return joint_coordination, joint_orientation
     
-    def maneuver_coordination(self, placement : int, tool_coordination : tuple[float, float], tool_orientaion : float) -> None :
+    def _maneuver_to_coordination(self, placement : int, tool_coordination : tuple[float, float], tool_orientaion : float) -> None :
         """
         move the ship to given toolool coordination
 
@@ -498,7 +566,7 @@ class Ship:
         self.x = tool_coordination[0] - placement * math.cos(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
         self.y = tool_coordination[1] + placement * math.sin(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
         self.orientation = tool_orientaion
-        self.set_coordination()
+        self._set_coordination()
         
     def is_overlap(self) -> list[bool] :
         """

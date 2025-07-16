@@ -34,6 +34,16 @@ def visualize(game, title : str, maneuver_tool = None) -> None:
         draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_left_arc)], fill='red')
         draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_right_arc)], fill='red')
 
+        # Transform and draw the targeting points
+        for point in ship.targeting_point:
+            p_transformed = transform_coord(point)
+            dot_size = 1
+            bounding_box = [
+                (p_transformed[0] - dot_size, p_transformed[1] - dot_size),
+                (p_transformed[0] + dot_size, p_transformed[1] + dot_size)
+            ]
+            draw.ellipse(bounding_box, fill='yellow', outline='yellow')
+
         # --- Text Labels ---
         # Positions are defined in game coordinates (y-up) and then transformed.
 
