@@ -159,21 +159,11 @@ class Ship:
         valid_attack_hull = self.get_valid_attack_hull()
         if valid_attack_hull == [] : return # there is no possible target
 
-
-        if APPLY_MCTS :
-            mcts_prop = mcts.search()
-            attack_hull = valid_attack_hull[np.argmax(mcts_prop)]
-        else :
-            attack_hull = random.choice(valid_attack_hull)
+        attack_hull = random.choice(valid_attack_hull)
         
         valid_target = self.get_valid_target(attack_hull)
 
-        if APPLY_MCTS :
-            mcts_prop = mcts.search_target()
-            defend_index = np.argmax(mcts_prop)
-            defend_ship, defend_hull = valid_target[defend_index]
-        else :
-            defend_ship, defend_hull = random.choice(valid_target)
+        defend_ship, defend_hull = random.choice(valid_target)
 
         return attack_hull, defend_ship, defend_hull
 
@@ -232,11 +222,7 @@ class Ship:
     def determine_course(self) -> tuple[list, int]:
         # speed
         valid_speed = self.get_valid_speed()
-        if APPLY_MCTS :
-            mcts_prop = mcts.search_speed()
-            speed = valid_speed[np.argmax(mcts_prop)]
-        else :
-            speed = random.choice(valid_speed)
+        speed = random.choice(valid_speed)
         self.speed = speed
 
         course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
@@ -245,22 +231,14 @@ class Ship:
         for joint in range(self.speed) :
             valid_yaw = self.get_valid_yaw(self.speed, joint)
 
-            if APPLY_MCTS :
-                mcts_prop = mcts.search_yaw(joint)
-                yaw = valid_yaw[np.argmax(mcts_prop)]
-            else :
-                yaw = random.choice(valid_yaw)
+            yaw = random.choice(valid_yaw)
 
             course[joint] = yaw - 2
 
 
         # placement
         valid_placement = self.get_valid_placement(course)
-        if APPLY_MCTS :
-            mcts_prop = mcts.search_placement()
-            placement = valid_placement[np.argmax(mcts_prop)]
-        else :
-            placement = random.choice(valid_placement)
+        placement = random.choice(valid_placement)
 
         return course, placement
 
