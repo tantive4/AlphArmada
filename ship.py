@@ -6,12 +6,13 @@ from dice import *
 import model
 from enum import IntEnum
 from typing import TYPE_CHECKING
+import random
 
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:
     from armada import Armada
 
-
+APPLY_MCTS = False
 
 class HullSection(IntEnum):
     FRONT = 0
@@ -115,9 +116,18 @@ class Ship:
 # ship activation sequence
 
     def reveal_command(self) :
+        """pass"""
         pass
 
     def attack(self) -> None:
+        """
+        perform one attack sequence
+            1: declare target
+            2: roll attack dice
+            3: resolve attack effect
+            4: spend defense token
+            5: resolve damage
+        """
         attack_target = self.declare_target()
         if attack_target == None : return # there is no possible target
         (attack_hull, defend_ship, defend_hull) = attack_target
@@ -133,6 +143,9 @@ class Ship:
         self.resolve_damage(defend_ship, defend_hull, attack_pool)
 
     def execute_maneuver(self) -> None:
+        """
+        determine course and move the ship
+        """
         course, placement = self.determine_course()
         self.move_ship(course, placement)
 
@@ -143,53 +156,27 @@ class Ship:
 # attack sequence
 
     def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
-
-        attack_hull_value = model.choose_attacker()
-
-        while sum(self.attack_possible_hull) > 0 :
-
-            # declare attacking hull
-            for hull_index in range(4) :
-                if not self.attack_possible_hull[hull_index] :
-                    attack_hull_value[hull_index] = model.MASK_VALUE
-            attack_hull_policy = model.softmax(attack_hull_value)
-            attack_hull_index = np.argmax(attack_hull_policy)
-            attack_hull = HullSection(attack_hull_index)
-
-            # declare defender
-            defend_hull_value = model.choose_defender(self, attack_hull)
-            
-            for ship in self.game.ships :
-                for hull_index in range(4) :
-                    if ship.player == self.player :
-                        defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-                        continue # Skip to the next ship
-
-                    # line_of_sight is blocked
-                    blocked, obstructed = self.measure_line_of_sight(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
-                    if blocked : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-
-                    attack_range = self.measure_arc_and_range(attack_hull, self.game.ships[ship.ship_id], HullSection(hull_index))
-
-                    # invalid attack range
-                    if attack_range == -1 or attack_range == 3 : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
-
-                    # cannot gather attack dice
-                    if sum(self.gather_dice(attack_hull, attack_range)) <= int(obstructed) : defend_hull_value[ship.ship_id * 4 + hull_index] = model.MASK_VALUE
+        
+        valid_attack_hull = self.get_valid_attack_hull()
+        if valid_attack_hull == [] : return # there is no possible target
 
 
+        if APPLY_MCTS :
+            mcts_prop = mcts.search()
+            attack_hull = valid_attack_hull[np.argmax(mcts_prop)]
+        else :
+            attack_hull = random.choice(valid_attack_hull)
+        
+        valid_target = self.get_valid_target(attack_hull)
 
-            if np.sum(defend_hull_value == model.MASK_VALUE) == len(defend_hull_value):
-                self.attack_possible_hull[attack_hull_index] = False
-                continue
+        if APPLY_MCTS :
+            mcts_prop = mcts.search_target()
+            defend_index = np.argmax(mcts_prop)
+            defend_ship, defend_hull = valid_target[defend_index]
+        else :
+            defend_ship, defend_hull = random.choice(valid_target)
 
-            defend_hull_policy = model.softmax(defend_hull_value)
-            defender_index = np.argmax(defend_hull_policy)
-            
-            defend_ship = self.game.ships[defender_index // 4]
-            defend_hull = HullSection(defender_index % 4)
-
-            return (attack_hull, defend_ship, defend_hull)
+        return attack_hull, defend_ship, defend_hull
 
     def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
 
@@ -214,12 +201,21 @@ class Ship:
         return attack_pool
 
     def resolve_attack_effect(self):
+        """pass"""
         pass
 
     def spend_defense_token(self):
+        """pass"""
         pass
 
     def resolve_damage(self, defend_ship : "Ship", defend_hull : HullSection, attack_pool : list[list[int]]) -> None :
+        """
+        Resolve the damage dealt to the defending ship.
+        Args:
+            defend_ship (Ship): The defending ship.
+            defend_hull (HullSection): The hull section being attacked.
+            attack_pool (list[list[int]]): The rolled attack dice.
+        """
         black_critical = bool(attack_pool[CRIT_INDICES[0]])
         blue_critical = bool(attack_pool[CRIT_INDICES[1]])
         red_critical = bool(attack_pool[CRIT_INDICES[2]])
@@ -232,41 +228,40 @@ class Ship:
         defend_ship.defend(defend_hull, total_damage, critical)
 
 
-
-
 # execute maneuver sequence
 
     def determine_course(self) -> tuple[list, int]:
         # speed
-        speed_value = model.choose_speed()
-        for speed in range(5) :
-            if abs(speed - self.speed) > 1 or (self.navchart.get(str(speed)) == None and speed != 0) :
-                speed_value[speed] = model.MASK_VALUE
-        speed_policy = model.softmax(speed_value)
-        self.speed = np.argmax(speed_policy)
+        valid_speed = self.get_valid_speed()
+        if APPLY_MCTS :
+            mcts_prop = mcts.search_speed()
+            speed = valid_speed[np.argmax(mcts_prop)]
+        else :
+            speed = random.choice(valid_speed)
+        self.speed = speed
 
         course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
         
         # yaw
         for joint in range(self.speed) :
-            current_yaw_value = model.choose_yaw(self.speed, joint + 1)
-            for yaw in range(5) :
-                if abs(yaw - 2) > self.navchart[str(self.speed)][joint] : current_yaw_value[yaw] = model.MASK_VALUE
-            current_yaw_policy = model.softmax(current_yaw_value)
-            course[joint] = int(np.argmax(current_yaw_policy)) - 2
+            valid_yaw = self.get_valid_yaw(self.speed, joint)
+
+            if APPLY_MCTS :
+                mcts_prop = mcts.search_yaw(joint)
+                yaw = valid_yaw[np.argmax(mcts_prop)]
+            else :
+                yaw = random.choice(valid_yaw)
+
+            course[joint] = yaw - 2
+
 
         # placement
-        placement_value = model.choose_placement(course)
-        if self.speed > 0 :
-            if course[-1] > 0 : placement_value[0] = model.MASK_VALUE
-            elif course[-1] < 0 : placement_value[1] = model.MASK_VALUE
-            else : 
-                if self.speed >= 2 and self.size_class != 'small' :
-                    if course[-2] > 0 : placement_value[0] = model.MASK_VALUE
-                    if course[-2] < 0 : placement_value[1] = model.MASK_VALUE
-        placement_policy = model.softmax(placement_value)
-        placement = int(np.argmax(placement_policy))
-        placement = placement * 2 - 1 # right 1, left -1
+        valid_placement = self.get_valid_placement(course)
+        if APPLY_MCTS :
+            mcts_prop = mcts.search_placement()
+            placement = valid_placement[np.argmax(mcts_prop)]
+        else :
+            placement = random.choice(valid_placement)
 
         return course, placement
 
@@ -301,6 +296,10 @@ class Ship:
             self.destroy()
     
         return overlap_list
+
+
+
+
 
 
 # sub method for ship dimension
@@ -345,8 +344,8 @@ class Ship:
 
         self.targeting_point = [
             self._get_coordination(self.targeting_point_dict['front'][0], -self.targeting_point_dict['front'][1]),
-            self._get_coordination(self.targeting_point_dict['rear'][0], -self.targeting_point_dict['rear'][1]),
             self._get_coordination(self.targeting_point_dict['right'][0], -self.targeting_point_dict['right'][1]),
+            self._get_coordination(self.targeting_point_dict['rear'][0], -self.targeting_point_dict['rear'][1]),
             self._get_coordination(self.targeting_point_dict['left'][0], -self.targeting_point_dict['left'][1])]
 
     def _make_polygon(self) -> None:
@@ -513,6 +512,51 @@ class Ship:
 
         if self.hull <= 0 : self.destroy()
 
+    def get_valid_target(self, attack_hull : HullSection) -> list[tuple["Ship", HullSection]]:
+        """
+        Get a list of valid targets for the given attacking hull section.
+
+        Args:
+            attack_hull (HullSection): The attacking hull section.
+
+        Returns:
+            valid_targets (list[tuple[Ship, HullSection]]): A list of tuples containing the target ship and the targeted hull section.
+        """
+        valid_targets = []
+
+        for ship in self.game.ships:
+            if ship.player == self.player or ship.destroyed:
+                continue
+            for target_hull in HullSection:
+
+                # line of sight
+                blocked, obstructed = self.measure_line_of_sight(attack_hull, ship, target_hull)
+                if blocked : continue
+
+                # arc and range
+                attack_range = self.measure_arc_and_range(attack_hull, ship, target_hull)
+                if attack_range == -1: continue  
+
+                # gather attack dice
+                if sum(self.gather_dice(attack_hull, attack_range)) <= int(obstructed): continue 
+
+                valid_targets.append((ship, target_hull))
+        return valid_targets
+
+    def get_valid_attack_hull(self) -> list[HullSection]:
+        """
+        Get a list of valid attacking hull sections for the ship.
+
+        Returns:
+            valid_attacker (list[HullSection]): A list of valid attacking hull sections.
+        """
+        valid_attacker = []
+        for hull in HullSection:
+            if self.attack_possible_hull[hull.value] and self.get_valid_target(hull):
+                valid_attacker.append(hull)
+            else :
+                self.attack_possible_hull[hull.value] = False 
+        return valid_attacker
 
 # sub method for execute maneuver
 
@@ -623,3 +667,62 @@ class Ship:
             bool: True if the ship is out of the board, False otherwise.
         """
         return not self.ship_base.within(self.game.game_board)
+    
+    def get_valid_speed(self) -> list[int]:
+        """
+        Get a list of valid speeds for the ship based on its navchart.
+
+        Returns:
+            list[int]: A list of valid speeds.
+        """
+        valid_speed = []
+
+        for speed in range(5):
+            if abs(speed - self.speed) > 1:
+                continue
+            if self.navchart.get(str(speed)) is not None or speed == 0:
+                valid_speed.append(speed)
+
+        return valid_speed
+    
+    def get_valid_yaw(self, speed : int, joint : int) -> list[int]:
+        """
+        Get a list of valid yaw adjustments for the ship based on its navchart.
+
+        Args:
+            speed (int): The current speed of the ship.
+            joint (int): The joint index for which to get valid yaw adjustments.
+
+        Returns:
+            list[int]: A list of valid yaw adjustments.
+        """
+        valid_yaw = []
+        
+        for yaw in range(5):
+            if abs(yaw - 2) > self.navchart[str(speed)][joint]:
+                continue
+            valid_yaw.append(yaw)
+
+        return valid_yaw
+    
+    def get_valid_placement(self, course : list[int]) -> list[int]:
+        """
+        Get a list of valid placements for the ship based on its navchart.
+
+        Args:
+            course (list[int]): The course of the ship.
+
+        Returns:
+            list[int]: A list of valid placements. 
+                1 for right, -1 for left
+        """
+        
+        valid_placement = [-1, 1]
+        if self.speed > 0 :
+            if course[-1] > 0 : valid_placement.remove(-1)
+            elif course[-1] < 0 : valid_placement.remove(1)
+            else : 
+                if self.speed >= 2 and self.size_class != 'small' :
+                    if course[-2] > 0 : valid_placement.remove(-1)
+                    elif course[-2] < 0 : valid_placement.remove(1)
+        return valid_placement
