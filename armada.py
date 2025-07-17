@@ -1,7 +1,7 @@
 import numpy as np
 import model
 from ship import Ship
-
+import random
 from shapely.geometry import Polygon
 import visualizer
 
@@ -37,30 +37,32 @@ class Armada:
 
     def ship_phase(self) -> None :
         player = 1
-        activation_count = 0
 
-        while activation_count < self.get_ship_count() :
-            ship_activate_value = model.choose_ship_activate()
-
-            for ship in self.ships :
-                if ship.player != player or ship.activated or ship.destroyed :
-                    ship_activate_value[ship.ship_id] = model.MASK_VALUE
-
-            if np.sum(ship_activate_value == model.MASK_VALUE) == len(ship_activate_value):
+        while True :
+            valid_activations = self.get_valid_activation(player)
+            opponent_activations = self.get_valid_activation(-player)
+            if not valid_activations and not opponent_activations:
+                break
+            if not valid_activations:
                 player *= -1
                 continue
-
-            ship_activate_policy = model.softmax(ship_activate_value)
-            ship_to_activate = self.ships[np.argmax(ship_activate_policy)]
+            
+            ship_to_activate = random.choice(valid_activations)
             ship_to_activate.activate()
-            activation_count += 1
+
             player *= -1
 
     def total_destruction(self, player : int) -> bool:
         player_ship_count = sum(1 for ship in self.ships if ship.player == player and not ship.destroyed)
         return player_ship_count == 0
 
-
+    def get_valid_activation(self, player : int) -> list[Ship] :
+        """
+        Returns a list of ships that can be activated by the given player.
+        A ship can be activated if it is not destroyed, not already activated, and belongs to the player.
+        """
+        return [ship for ship in self.ships if ship.player == player and not ship.destroyed and not ship.activated]
+    
     def status_phase(self) -> None :
         for ship in self.ships :
             if not ship.destroyed : ship.activated = False
