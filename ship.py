@@ -3,7 +3,6 @@ import shapely.ops
 import numpy as np
 import math
 from dice import *
-import model
 from enum import IntEnum
 from typing import TYPE_CHECKING
 import random

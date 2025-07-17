@@ -1,5 +1,4 @@
 import numpy as np
-import model
 from ship import Ship
 import random
 from shapely.geometry import Polygon
@@ -46,7 +45,7 @@ class Armada:
             if not valid_activations:
                 player *= -1
                 continue
-            
+
             ship_to_activate = random.choice(valid_activations)
             ship_to_activate.activate()
 
