@@ -14,14 +14,14 @@ class Node:
     Represents a node in the Monte Carlo Search Tree.
     Each node corresponds to a specific decision point in the game.
     """
-    def __init__(self, state : dict[str, "str | Armada | Ship | int | list[int] | None"], parent=None, action=None):
+    def __init__(self, state : dict[str, "str | Armada | Ship | int | list[int] | None"], parent : "Node | None" =None, action=None):
         self.parent = parent
         self.state = state  # The state dictionary, including game, phase, etc.
         self.action = action  # The action that led to this state
         self.children = []
         self.wins = 0
         self.visits = 0
-        self.untried_actions = None
+        self.untried_actions : list | None = None
 
     def uct_select_child(self, exploration_constant=1.414):
         """
@@ -67,7 +67,7 @@ class MCTS:
         """
         for _ in range(iterations):
             node = self.root
-            state : dict[str, Armada | str] = copy.deepcopy(node.state)
+            state : dict = copy.deepcopy(node.state)
 
             # 1. Selection
             while node.untried_actions is not None and not node.untried_actions and node.children:
@@ -102,12 +102,12 @@ class MCTS:
         """
         actions = []
         game : Armada = state['game']
-        player = state['current_player']
-        phase = state['decision_phase']
+        player : int = state['current_player']
+        phase : str = state['decision_phase']
         
-        active_ship : Ship = next((s for s in game.ships if s.ship_id == state['active_ship_id']), None)
+        active_ship : Ship | None = game.ships[state['active_ship_id']] if state['active_ship_id'] is not None else None
 
-        if phase == "activation":
+        if phase == "activation" or active_ship is None :
             valid_ships = game.get_valid_activation(player)
             for ship in valid_ships:
                 actions.append(("activate_ship", ship.ship_id))
@@ -151,9 +151,9 @@ class MCTS:
         """
         action_type = action[0]
         game : Armada = state['game']
-        active_ship : Ship= next((s for s in game.ships if s.ship_id == state['active_ship_id']), None)
+        active_ship : Ship | None = game.ships[state['active_ship_id']] if state['active_ship_id'] is not None else None
 
-        if action_type == "activate_ship":
+        if action_type == "activate_ship" or active_ship is None:
             state['decision_phase'] = "attack"
             state['active_ship_id'] = action[1]
 
@@ -231,35 +231,41 @@ class MCTS:
         """
         sim_state = copy.deepcopy(state)
         sim_game = sim_state['game']
+        
+        max_simulation_steps = 500 # A generous safety net to prevent infinite loops
+        steps = 0
 
-        for _ in range(50): 
-            if sim_game.winner is not None: break
-            
+        # Run until the game has a winner OR we hit the safety limit
+        while sim_game.winner is None and steps < max_simulation_steps:
             possible_actions = self._get_possible_actions(sim_state)
+            
             if not possible_actions:
+                # If no actions, try to advance the game state (e.g., end of round)
                 self._end_activation(sim_state)
-                sim_game = sim_state['game']
-                if not self._get_possible_actions(sim_state): break
+                # If still no actions, the game is truly stuck or over.
+                if not self._get_possible_actions(sim_state):
+                    break
                 continue
 
             random_action = random.choice(possible_actions)
             sim_state = self._apply_action(sim_state, random_action)
-            sim_game = sim_state['game']
+            sim_game = sim_state['game'] # Ensure we're referencing the updated game object
+            steps += 1
 
         if sim_game.winner is None:
             p1_points = sim_game.get_point(1)
             p2_points = sim_game.get_point(-1)
             if p1_points > p2_points: sim_game.winner = 1
             elif p2_points > p1_points: sim_game.winner = -1
-            else: sim_game.winner = 0
+            else: sim_game.winner = 0 # Draw
         return sim_game.winner
 
     def get_best_action(self):
         """
         Returns the single best action from the root based on the most visits.
         """
-        if not self.root.children:
-            return None
+        # if not self.root.children:
+        #     return None
         # Find the child with the most visits (the "best" next move)
         best_child = max(self.root.children, key=lambda c: c.visits)
         return best_child.action

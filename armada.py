@@ -28,7 +28,7 @@ class Armada:
 
 
 
-    def deploy_ship(self, ship : "Ship", x : float, y : float, orientation : float, speed : int) -> None :
+    def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
 
@@ -140,7 +140,16 @@ class Armada:
         """
         # === 1. CHOOSE SHIP TO ACTIVATE ===
         print("MCTS is thinking about phase: activation")
-        state = { "game": self, "current_player": self.current_player, "decision_phase": "activation", "active_ship_id": None, "attack_count": 0, "maneuver_speed": None, "maneuver_course": [], "maneuver_joint_index": 0 }
+        state = {
+            "game": self, 
+            "current_player": self.current_player, 
+            "decision_phase": "activation", 
+            "active_ship_id": None, 
+            "attack_count": 0, 
+            "maneuver_speed": None, 
+            "maneuver_course": [], 
+            "maneuver_joint_index": 0 
+            }
         mcts_state_copy = copy.deepcopy(state)
         mcts_state_copy['game'].simulation_mode = True
         mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
@@ -152,7 +161,7 @@ class Armada:
             return
         
         active_ship_id = action[1]
-        active_ship = next(s for s in self.ships if s.ship_id == active_ship_id)
+        active_ship = self.ships[active_ship_id]
         print(f"MCTS chose action: {action}")
 
         # === 2. ATTACK PHASE ===
@@ -242,10 +251,6 @@ class Armada:
             
             attack_hull = random.choice(valid_hulls)
             valid_targets = ship_to_activate.get_valid_target(attack_hull)
-            
-            if not valid_targets:
-                ship_to_activate.attack_possible_hull[attack_hull.value] = False
-                continue
             
             defend_ship, defend_hull = random.choice(valid_targets)
             

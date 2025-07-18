@@ -11,7 +11,6 @@ import random
 if TYPE_CHECKING:
     from armada import Armada
 
-APPLY_MCTS = False
 
 class HullSection(IntEnum):
     FRONT = 0
@@ -25,8 +24,8 @@ class Critical(IntEnum) :
 SHIP_BASE_SIZE : dict[str, tuple]= {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
 SHIP_TOKEN_SIZE :  dict[str, tuple] = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
 TOOL_WIDTH : float= 15.25
-TOOL_LENGTH : float= 48.4 # not accurate
-TOOL_PART_LENGTH : float = 20 # not accurate
+TOOL_LENGTH : float= 46.13 
+TOOL_PART_LENGTH : float = 22.27
 
 class Ship:
     def __init__(self, ship_dict : dict, player : int) -> None:
@@ -143,9 +142,9 @@ class Ship:
     #     self.resolve_damage(defend_ship, defend_hull, attack_pool)
 
     # def execute_maneuver(self) -> None:
-        """
-        determine course and move the ship
-        """
+        # """
+        # determine course and move the ship
+        # """
         # course, placement = self.determine_course()
         # self.move_ship(course, placement)
 
