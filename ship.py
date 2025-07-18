@@ -75,6 +75,7 @@ class Ship:
         self.activated = False
         self.destroyed = False
         self.ship_id = ship_id
+        self.attack_possible_hull = [True, True, True, True]
         self._set_coordination()
         self.game.visualize(f'{self.name} is deployed.')
 
@@ -89,26 +90,26 @@ class Ship:
 
 # core activation method
 
-    def activate(self) -> None:
-        """
-        Activate the Ship
-        """
+    # def activate(self) -> None:
+        # """
+        # Activate the Ship
+        # """
 
-        self.game.visualize(f'{self.name} is activated.')
+        # self.game.visualize(f'{self.name} is activated.')
 
-        # reveal command
-        self.reveal_command()
+        # # reveal command
+        # self.reveal_command()
 
-        # attack
-        self.attack_count = 0
-        self.attack_possible_hull = [True, True, True, True]
-        while self.attack_count < 2 and sum(self.attack_possible_hull) > 0 :
-            self.attack()
+        # # attack
+        # self.attack_count = 0
+        # self.attack_possible_hull = [True, True, True, True]
+        # while self.attack_count < 2 and sum(self.attack_possible_hull) > 0 :
+        #     self.attack()
         
-        # maneuver
-        self.execute_maneuver()
+        # # maneuver
+        # self.execute_maneuver()
         
-        self.activated = True
+        # self.activated = True
 
 
 
@@ -118,35 +119,35 @@ class Ship:
         """pass"""
         pass
 
-    def attack(self) -> None:
-        """
-        perform one attack sequence
-            1: declare target
-            2: roll attack dice
-            3: resolve attack effect
-            4: spend defense token
-            5: resolve damage
-        """
-        attack_target = self.declare_target()
-        if attack_target == None : return # there is no possible target
-        (attack_hull, defend_ship, defend_hull) = attack_target
+    # def attack(self) -> None:
+    #     """
+    #     perform one attack sequence
+    #         1: declare target
+    #         2: roll attack dice
+    #         3: resolve attack effect
+    #         4: spend defense token
+    #         5: resolve damage
+    #     """
+    #     attack_target = self.declare_target()
+    #     if attack_target == None : return # there is no possible target
+    #     (attack_hull, defend_ship, defend_hull) = attack_target
 
-        self.attack_count += 1
-        self.attack_possible_hull[attack_hull.value] = False
+    #     self.attack_count += 1
+    #     self.attack_possible_hull[attack_hull.value] = False
 
-        attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
-        if attack_pool == None : return # attack is canceled
+    #     attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
+    #     if attack_pool == None : return # attack is canceled
 
-        self.resolve_attack_effect()
-        defend_ship.spend_defense_token()
-        self.resolve_damage(defend_ship, defend_hull, attack_pool)
+    #     self.resolve_attack_effect()
+    #     defend_ship.spend_defense_token()
+    #     self.resolve_damage(defend_ship, defend_hull, attack_pool)
 
-    def execute_maneuver(self) -> None:
+    # def execute_maneuver(self) -> None:
         """
         determine course and move the ship
         """
-        course, placement = self.determine_course()
-        self.move_ship(course, placement)
+        # course, placement = self.determine_course()
+        # self.move_ship(course, placement)
 
 
 
@@ -154,7 +155,7 @@ class Ship:
 
 # attack sequence
 
-    def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
+    # def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
         
         valid_attack_hull = self.get_valid_attack_hull()
         if valid_attack_hull == [] : return # there is no possible target
@@ -219,28 +220,28 @@ class Ship:
 
 # execute maneuver sequence
 
-    def determine_course(self) -> tuple[list, int]:
-        # speed
-        valid_speed = self.get_valid_speed()
-        speed = random.choice(valid_speed)
-        self.speed = speed
+    # def determine_course(self) -> tuple[list, int]:
+        # # speed
+        # valid_speed = self.get_valid_speed()
+        # speed = random.choice(valid_speed)
+        # self.speed = speed
 
-        course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
+        # course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
         
-        # yaw
-        for joint in range(self.speed) :
-            valid_yaw = self.get_valid_yaw(self.speed, joint)
+        # # yaw
+        # for joint in range(self.speed) :
+        #     valid_yaw = self.get_valid_yaw(self.speed, joint)
 
-            yaw = random.choice(valid_yaw)
+        #     yaw = random.choice(valid_yaw)
 
-            course[joint] = yaw - 2
+        #     course[joint] = yaw - 2
 
 
-        # placement
-        valid_placement = self.get_valid_placement(course)
-        placement = random.choice(valid_placement)
+        # # placement
+        # valid_placement = self.get_valid_placement(course)
+        # placement = random.choice(valid_placement)
 
-        return course, placement
+        # return course, placement
 
     def move_ship(self, course : list[int], placement : int) -> list[bool]:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
@@ -693,13 +694,13 @@ class Ship:
             list[int]: A list of valid placements. 
                 1 for right, -1 for left
         """
-        
+        speed = len(course)
         valid_placement = [-1, 1]
-        if self.speed > 0 :
+        if speed > 0 :
             if course[-1] > 0 : valid_placement.remove(-1)
             elif course[-1] < 0 : valid_placement.remove(1)
             else : 
-                if self.speed >= 2 and self.size_class != 'small' :
+                if speed >= 2 and self.size_class != 'small' :
                     if course[-2] > 0 : valid_placement.remove(-1)
                     elif course[-2] < 0 : valid_placement.remove(1)
         return valid_placement
