@@ -27,28 +27,23 @@ class Armada:
         self.current_player = 1
         self.simulation_mode = False
 
+    def get_data(self) -> dict :
+        """
+        Returns the current date in a list format.
+        """
+        game_data = {
+            "round": self.round,
+            "winner": self.winner,
+            "ship" : [ship.get_data() for ship in self.ships],
+        }
+        return game_data
 
 
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
 
-    # def ship_phase(self) -> None :
-        # player = 1
 
-        # while True :
-        #     valid_activations = self.get_valid_activation(player)
-        #     opponent_activations = self.get_valid_activation(-player)
-        #     if not valid_activations and not opponent_activations:
-        #         break
-        #     if not valid_activations:
-        #         player *= -1
-        #         continue
-
-        #     ship_to_activate = random.choice(valid_activations)
-        #     ship_to_activate.activate()
-
-        #     player *= -1
 
     def total_destruction(self, player : int) -> bool:
         player_ship_count = sum(1 for ship in self.ships if ship.player == player and not ship.destroyed)
@@ -67,59 +62,67 @@ class Armada:
         if self.total_destruction(1) : self.winner = -1
         if self.total_destruction(-1) : self.winner = 1
         if not self.simulation_mode : print(f"End of Round {self.round}.")
-        self.round += 1
-        self.current_player = 1 # Player 1 always starts the new round.
+        
 
     def get_point(self, player : int) -> int :
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
-    
+
+    def play_round(self) -> None:
+        """
+        Plays a single round of the game, alternating between players.
+        Each player activates their ships, attacks, and maneuvers.
+        """
+        self.ship_phase()
+        self.status_phase()
+        self.round += 1
+
+
+    def ship_phase(self) -> None:
+        """
+        The ship phase is where players activate their ships, attack, and maneuver.
+        This method is called at the start of each round.
+        """
+        self.current_player = 1
+        while True:
+            p1_can_activate = any(self.get_valid_activation(1))
+            p2_can_activate = any(self.get_valid_activation(-1))
+
+            # If both players have activated all their ships, the round's activation phase is over.
+            if not p1_can_activate and not p2_can_activate:
+                break
+
+            # Check if the current player has any ships to activate. If not, they pass.
+            if not any(self.get_valid_activation(self.current_player)):
+                print(f"Player {self.current_player} has no ships to activate and passes the turn.")
+                self.current_player *= -1
+                continue
+            
+            # It's the current player's turn to make a move.
+            self.visualize(f'ROUND {self.round} | Player {self.current_player}\'s Turn')
+
+            # Player 1's Turn (MCTS)
+            if self.current_player == 1:
+                print("Player 1 (MCTS) is playing...")
+                self._execute_mcts_turn()
+
+            # # Player -1's Turn (Random)
+            elif self.current_player == -1:
+                print("Player -1 (Random) is playing...")
+                valid_activations = self.get_valid_activation(self.current_player)
+                if valid_activations:
+                    ship_to_activate = random.choice(valid_activations)
+                    self._execute_random_activation(ship_to_activate)
+
+            # Switch player for the next activation in the round
+            self.current_player *= -1
+
+
     def play(self) -> None :
         """
         The main game loop, structured by rounds and alternating player turns.
         """
         while self.round <= 6 and self.winner is None:
-            self.visualize(f'ROUND {self.round} START')
-            
-            # Ship Phase for the current round
-            while True:
-                p1_can_activate = any(self.get_valid_activation(1))
-                p2_can_activate = any(self.get_valid_activation(-1))
-
-                # If both players have activated all their ships, the round's activation phase is over.
-                if not p1_can_activate and not p2_can_activate:
-                    break
-
-                # Check if the current player has any ships to activate. If not, they pass.
-                if not any(self.get_valid_activation(self.current_player)):
-                    print(f"Player {self.current_player} has no ships to activate and passes the turn.")
-                    self.current_player *= -1
-                    continue
-                
-                # It's the current player's turn to make a move.
-                self.visualize(f'ROUND {self.round} | Player {self.current_player}\'s Turn')
-
-                # Player 1's Turn (MCTS)
-                if self.current_player == 1:
-                    print("Player 1 (MCTS) is playing...")
-                    self._execute_mcts_turn()
-
-                # # Player -1's Turn (Random)
-                elif self.current_player == -1:
-                    print("Player -1 (Random) is playing...")
-                    valid_activations = self.get_valid_activation(self.current_player)
-                    if valid_activations:
-                        ship_to_activate = random.choice(valid_activations)
-                        self._execute_random_activation(ship_to_activate)
-
-                # Switch player for the next activation in the round
-                self.current_player *= -1
-
-            # End of Round Status Phase
-            self.status_phase()
-            if self.winner is not None:
-                break # A player was eliminated, end the game.
-            
-
+            self.play_round()
 
         # End of Game: Determine winner if one wasn't already declared
         if self.winner is None:
@@ -146,9 +149,7 @@ class Armada:
             "current_player": self.current_player, 
             "decision_phase": "activation", 
             "active_ship_id": None, 
-            "maneuver_speed": None, 
-            "maneuver_course": [], 
-            "maneuver_joint_index": 0 
+            "maneuver": []
             }
         mcts_state_copy = copy.deepcopy(state)
         mcts_state_copy['game'].simulation_mode = True
@@ -159,7 +160,7 @@ class Armada:
         if action is None or action[0] != 'activate_ship':
             print(f"Player {self.current_player} chose not to activate. Passing turn.")
             return
-        \
+        
         active_ship_id : int = action[1]
         active_ship = self.ships[active_ship_id]
         print(f"Player {self.current_player} chose action: {action[0], active_ship.name}")
@@ -172,9 +173,7 @@ class Armada:
                 "current_player": self.current_player, 
                 "decision_phase": "attack", 
                 "active_ship_id": active_ship_id, 
-                "maneuver_speed": None, 
-                "maneuver_course": [], 
-                "maneuver_joint_index": 0 
+                "maneuver": []
                 }
             mcts_state_copy = copy.deepcopy(state)
             mcts_state_copy['game'].simulation_mode = True
@@ -195,74 +194,42 @@ class Armada:
                 active_ship.resolve_damage(defend_ship, defend_hull, attack_pool)
             active_ship.attack_possible_hull[attack_hull.value] = False
 
-        # === 3. MANEUVER PHASE ===
-        # 3a. Choose Speed
-        print(f"Player {self.current_player} is thinking about phase: maneuver_speed")
+        # === 3. MANEUVER PHASE (TRUE HIERARCHICAL MCTS) ===
+        print(f"Player {self.current_player} is thinking about phase: maneuver")
+        # Initial state for the hierarchical maneuver search
         state = {
             "game": self, 
             "current_player": self.current_player, 
-            "decision_phase": "maneuver_speed", 
+            "decision_phase": "maneuver", 
             "active_ship_id": active_ship_id,  
-            "maneuver_speed": None, 
-            "maneuver_course": [], 
-            "maneuver_joint_index": 0 
+            "maneuver": []  # Start with an empty maneuver path
             }
         mcts_state_copy = copy.deepcopy(state)
         mcts_state_copy['game'].simulation_mode = True
         mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        mcts.search(iterations=iterations)
-        speed_action = mcts.get_best_action()
-        print(f"Player {self.current_player} chose action: {speed_action}")
+        mcts.search(iterations=iterations) # A larger number of iterations might be needed now
+        
+        # The MCTS now returns the entire sequence of actions
+        full_maneuver = mcts.get_best_action()
+        print(f"Player {self.current_player} chose full maneuver: {full_maneuver}")
 
-        speed = speed_action[1]
-        active_ship.speed = speed
-        if speed == 0:
-            active_ship.move_ship([], 1)
+        if not full_maneuver:
+            print("MCTS could not determine a maneuver. Passing.")
             active_ship.activated = True
             return
 
-        # 3b. Choose Yaws
-        course = []
-        for joint_index in range(speed):
-            print(f"Player {self.current_player} is thinking about phase: maneuver_yaw (joint {joint_index+1}/{speed})")
-            state = { 
-                "game": self, 
-                "current_player": self.current_player,
-                "decision_phase": "maneuver_yaw", 
-                "active_ship_id": active_ship_id, 
-                "maneuver_speed": speed, 
-                "maneuver_course": course, 
-                "maneuver_joint_index": joint_index 
-                }
-            mcts_state_copy = copy.deepcopy(state)
-            mcts_state_copy['game'].simulation_mode = True
-            mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-            mcts.search(iterations=iterations)
-            yaw_action = mcts.get_best_action()
-            print(f"Player {self.current_player} chose action: {yaw_action[0]}\n{yaw_action[1] - 2} at joint {joint_index+1}/{speed}")
-            course.append(yaw_action[1] - 2)
+        # Deconstruct the returned maneuver and apply it to the REAL game
+        speed = full_maneuver[0][1]
+        active_ship.speed = speed
+        
+        if speed > 0:
+            # The course is all steps between the speed and the placement
+            course = [step[1] - 2 for step in full_maneuver[1:-1]]
+            placement = full_maneuver[-1][1]
+            active_ship.move_ship(course, placement)
+        else: # Speed 0 case
+            active_ship.move_ship([], 1) # Empty course, placement doesn't matter
 
-        # 3c. Choose Placement
-        print(f"Player {self.current_player} is thinking about phase: maneuver_placement")
-        state = { 
-            "game": self, 
-            "current_player": self.current_player, 
-            "decision_phase": "maneuver_placement", 
-            "active_ship_id": active_ship_id,  
-            "maneuver_speed": speed, 
-            "maneuver_course": course, 
-            "maneuver_joint_index": speed 
-            }
-        mcts_state_copy = copy.deepcopy(state)
-        mcts_state_copy['game'].simulation_mode = True
-        mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        mcts.search(iterations=iterations)
-        placement_action = mcts.get_best_action()
-        print(f"Player {self.current_player} chose action: {placement_action[0]} {"left" if placement_action[1] == -1 else "right"}")
-        
-        placement = placement_action[1]
-        active_ship.move_ship(course, placement)
-        
         # Finally, mark the ship as activated for this round.
         active_ship.activated = True
 
@@ -278,16 +245,14 @@ class Armada:
             if not valid_hulls: break
             
             attack_hull = random.choice(valid_hulls)
+            ship_to_activate.attack_possible_hull[attack_hull.value] = False
             valid_targets = ship_to_activate.get_valid_target(attack_hull)
-            
             defend_ship, defend_hull = random.choice(valid_targets)
-            
             attack_pool = ship_to_activate.roll_attack_dice(attack_hull, defend_ship, defend_hull)
             if attack_pool:
                 ship_to_activate.resolve_damage(defend_ship, defend_hull, attack_pool)
-            
             ship_to_activate.attack_count += 1
-            ship_to_activate.attack_possible_hull[attack_hull.value] = False
+            
 
         # 2. Maneuver Phase
         valid_speed = ship_to_activate.get_valid_speed()
