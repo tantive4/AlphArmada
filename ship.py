@@ -71,11 +71,10 @@ class Ship:
         self.speed = speed
         self.hull = self.max_hull
         self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
-        self.activated = False
         self.destroyed = False
         self.ship_id = ship_id
-        self.attack_possible_hull = [True, True, True, True]
         self._set_coordination()
+        self.refresh()
         self.game.visualize(f'{self.name} is deployed.')
 
     def destroy(self) -> None:
@@ -84,6 +83,12 @@ class Ship:
         self.shield = [0,0,0,0]
         self.battery = ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
         self.game.visualize(f'{self.name} is destroyed!')
+
+    def refresh(self) -> None:
+        self.activated = False
+        self.attack_possible_hull = [True, True, True, True]
+        self.attack_count = 0
+
 
 
 

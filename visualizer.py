@@ -1,7 +1,12 @@
 from PIL import Image, ImageDraw, ImageFont
+import numpy as np
 import ship as ship_module
-
-def visualize(game, title : str, maneuver_tool = None) -> None:
+from typing import TYPE_CHECKING
+# Conditionally import Armada only for type checking
+if TYPE_CHECKING:
+    from armada import Armada
+    
+def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
     """Creates and saves an image of the current game state with (0,0) at the bottom-left."""
     img = Image.new('RGB', (game.player_edge, game.short_edge), 'black')
     draw = ImageDraw.Draw(img)
@@ -29,8 +34,8 @@ def visualize(game, title : str, maneuver_tool = None) -> None:
         draw.polygon(base_coords, outline='white')
 
         # Transform and draw the firing arcs
-        draw.line([transform_coord(ship.front_arc_center), transform_coord(ship.front_left_arc)], fill='yellow')
-        draw.line([transform_coord(ship.front_arc_center), transform_coord(ship.front_right_arc)], fill='yellow')
+        draw.line([transform_coord(ship.front_arc_center), transform_coord(ship.front_left_arc)], fill='red')
+        draw.line([transform_coord(ship.front_arc_center), transform_coord(ship.front_right_arc)], fill='red')
         draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_left_arc)], fill='red')
         draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_right_arc)], fill='red')
 
@@ -47,42 +52,42 @@ def visualize(game, title : str, maneuver_tool = None) -> None:
         # --- Text Labels ---
         # Positions are defined in game coordinates (y-up) and then transformed.
 
-        # Ship Name (Positioned above the ship's center)
-        name_pos = (ship.x - 20, ship.y + 40)
+        # Ship Name (Positioned above the ship's center, offset for clarity)
+        name_pos = np.array(ship._get_coordination(0, 20)) + np.array((-15.0, 5.0))
         draw.text(transform_coord(name_pos), ship.name, font=font, fill='cyan')
         
         # Hull (Positioned near the ship's center)
-        hull_pos = (ship.x - 5, ship.y + 10)
+        hull_pos = ship._get_coordination(0, -15)
         draw.text(transform_coord(hull_pos), str(ship.hull), font=font, fill='green')
         
         # Shields
         # Front (Positioned "above" the front edge)
         front_shield_pos = (
             (ship.front_left_base[0] + ship.front_right_base[0]) / 2, 
-            (ship.front_left_base[1] + ship.front_right_base[1]) / 2 + 15
+            (ship.front_left_base[1] + ship.front_right_base[1]) / 2
         )
-        draw.text(transform_coord(front_shield_pos), str(ship.shield[0]), font=font, fill='blue')
+        draw.text(transform_coord(front_shield_pos), str(ship.shield[0]), font=font, fill='cyan')
         
         # Right (Positioned to the right of the side edge)
         right_shield_pos = (
-            (ship.front_right_base[0] + ship.rear_right_base[0]) / 2 + 5, 
+            (ship.front_right_base[0] + ship.rear_right_base[0]) / 2, 
             (ship.front_right_base[1] + ship.rear_right_base[1]) / 2
         )
-        draw.text(transform_coord(right_shield_pos), str(ship.shield[1]), font=font, fill='blue')
+        draw.text(transform_coord(right_shield_pos), str(ship.shield[1]), font=font, fill='cyan')
 
         # Rear (Positioned "below" the rear edge)
         rear_shield_pos = (
             (ship.rear_left_base[0] + ship.rear_right_base[0]) / 2, 
-            (ship.rear_left_base[1] + ship.rear_right_base[1]) / 2 - 15
+            (ship.rear_left_base[1] + ship.rear_right_base[1]) / 2
         )
-        draw.text(transform_coord(rear_shield_pos), str(ship.shield[2]), font=font, fill='blue')
+        draw.text(transform_coord(rear_shield_pos), str(ship.shield[2]), font=font, fill='cyan')
         
         # Left (Positioned to the left of the side edge)
         left_shield_pos = (
-            (ship.front_left_base[0] + ship.rear_left_base[0]) / 2 - 15, 
+            (ship.front_left_base[0] + ship.rear_left_base[0]) / 2, 
             (ship.front_left_base[1] + ship.rear_left_base[1]) / 2
         )
-        draw.text(transform_coord(left_shield_pos), str(ship.shield[3]), font=font, fill='blue')
+        draw.text(transform_coord(left_shield_pos), str(ship.shield[3]), font=font, fill='cyan')
     
     if maneuver_tool:
         # Draw the maneuver tool path
@@ -103,4 +108,5 @@ def visualize(game, title : str, maneuver_tool = None) -> None:
 
 
     img.save(f'game_visualizer/game_state_{game.image_counter}.png')
+
     game.image_counter += 1
