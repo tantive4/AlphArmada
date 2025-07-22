@@ -5,7 +5,6 @@ import math
 from dice import *
 from enum import IntEnum
 from typing import TYPE_CHECKING
-import random
 
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:
@@ -96,25 +95,6 @@ class Ship:
 # core activation method
 
     # def activate(self) -> None:
-        # """
-        # Activate the Ship
-        # """
-
-        # self.game.visualize(f'{self.name} is activated.')
-
-        # # reveal command
-        # self.reveal_command()
-
-        # # attack
-        # self.attack_count = 0
-        # self.attack_possible_hull = [True, True, True, True]
-        # while self.attack_count < 2 and sum(self.attack_possible_hull) > 0 :
-        #     self.attack()
-        
-        # # maneuver
-        # self.execute_maneuver()
-        
-        # self.activated = True
 
 
 
@@ -125,34 +105,8 @@ class Ship:
         pass
 
     # def attack(self) -> None:
-    #     """
-    #     perform one attack sequence
-    #         1: declare target
-    #         2: roll attack dice
-    #         3: resolve attack effect
-    #         4: spend defense token
-    #         5: resolve damage
-    #     """
-    #     attack_target = self.declare_target()
-    #     if attack_target == None : return # there is no possible target
-    #     (attack_hull, defend_ship, defend_hull) = attack_target
-
-    #     self.attack_count += 1
-    #     self.attack_possible_hull[attack_hull.value] = False
-
-    #     attack_pool = self.roll_attack_dice(attack_hull, defend_ship, defend_hull)
-    #     if attack_pool == None : return # attack is canceled
-
-    #     self.resolve_attack_effect()
-    #     defend_ship.spend_defense_token()
-    #     self.resolve_damage(defend_ship, defend_hull, attack_pool)
 
     # def execute_maneuver(self) -> None:
-        # """
-        # determine course and move the ship
-        # """
-        # course, placement = self.determine_course()
-        # self.move_ship(course, placement)
 
 
 
@@ -161,20 +115,11 @@ class Ship:
 # attack sequence
 
     # def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
-        
-        # valid_attack_hull = self.get_valid_attack_hull()
-        # if valid_attack_hull == [] : return # there is no possible target
-
-        # attack_hull = random.choice(valid_attack_hull)
-        
-        # valid_target = self.get_valid_target_hull(attack_hull)
-
-        # defend_ship, defend_hull = random.choice(valid_target)
-
-        # return attack_hull, defend_ship, defend_hull
 
     def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
-
+        self.attack_count += 1
+        self.attack_possible_hull[attack_hull.value] = False
+        
         # gathering dice
         attack_range = self.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
         if attack_range == -1 : return # attack is canceled
@@ -226,27 +171,6 @@ class Ship:
 # execute maneuver sequence
 
     # def determine_course(self) -> tuple[list, int]:
-        # # speed
-        # valid_speed = self.get_valid_speed()
-        # speed = random.choice(valid_speed)
-        # self.speed = speed
-
-        # course : list[int] = [0 for _ in range(self.speed)] # [yaw at  joint 1, yaw at joint 2, ...]
-        
-        # # yaw
-        # for joint in range(self.speed) :
-        #     valid_yaw = self.get_valid_yaw(self.speed, joint)
-
-        #     yaw = random.choice(valid_yaw)
-
-        #     course[joint] = yaw - 2
-
-
-        # # placement
-        # valid_placement = self.get_valid_placement(course)
-        # placement = random.choice(valid_placement)
-
-        # return course, placement
 
     def move_ship(self, course : list[int], placement : int) -> list[bool]:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
