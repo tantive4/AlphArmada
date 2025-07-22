@@ -27,18 +27,6 @@ class Armada:
         self.current_player = 1
         self.simulation_mode = False
 
-    def get_data(self) -> dict :
-        """
-        Returns the current date in a list format.
-        """
-        game_data = {
-            "round": self.round,
-            "winner": self.winner,
-            "ship" : [ship.get_data() for ship in self.ships],
-        }
-        return game_data
-
-
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
@@ -142,96 +130,136 @@ class Armada:
         Executes a full ship activation for the MCTS player by breaking it down
         into sequential decisions.
         """
-        # === 1. CHOOSE SHIP TO ACTIVATE ===
-        print(f"Player {self.current_player} is thinking about phase: activation")
-        state : MCTSState = {
-            "game": self, 
-            "current_player": self.current_player, 
-            "decision_phase": "activation", 
-            "active_ship_id": None, 
-            "maneuver": []
-            }
-        mcts_state_copy = copy.deepcopy(state)
-        mcts_state_copy['game'].simulation_mode = True
-        mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        mcts.search(iterations=iterations)
-        action = mcts.get_best_action()
+        # # === 1. CHOOSE SHIP TO ACTIVATE ===
+        # print(f"Player {self.current_player} is thinking about phase: activation")
+        # state : MCTSState = {
+        #     "game": self, 
+        #     "current_player": self.current_player, 
+        #     "decision_phase": "activation", 
+        #     "active_ship_id": 0, 
+        #     "maneuver_speed": None, "maneuver_course": [], "maneuver_joint_index": 0,
+        #     "attack_hull": None, "defend_ship_id": None, "defend_hull": None}
+        # mcts_state_copy = copy.deepcopy(state)
+        # mcts_state_copy['game'].simulation_mode = True
+        # mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
+        # mcts.search(iterations=iterations)
+        # action = mcts.get_best_action()
 
-        if action is None or action[0] != 'activate_ship':
-            print(f"Player {self.current_player} chose not to activate. Passing turn.")
-            return
+        # if action is None or action[0] != 'activate_ship':
+        #     print(f"Player {self.current_player} chose not to activate. Passing turn.")
+        #     return
         
-        active_ship_id : int = action[1]
-        active_ship = self.ships[active_ship_id]
-        print(f"Player {self.current_player} chose action: {action[0], active_ship.name}")
+        # active_ship_id : int = action[1]
+        # active_ship = self.ships[active_ship_id]
+        # print(f"Player {self.current_player} chose action: {action[0], active_ship.name}")
 
-        # === 2. ATTACK PHASE ===
+        active_ship = random.choice(self.get_valid_activation(self.current_player))
+        active_ship_id = active_ship.ship_id
+
+        # === 2. ATTACK PHASE (HIERARCHICAL) ===
+        # The AI will now decide on the best sequence of up to two attacks.
         for attack_num in range(2):
-            print(f"Player {self.current_player} is thinking about phase: attack ({attack_num + 1}/2)")
-            state = { 
+            print(f"Player {self.current_player} is thinking about attack #{attack_num + 1}...")
+            
+            # Set up the state for the top-level attack decision
+            state : MCTSState= {
                 "game": self,
-                "current_player": self.current_player, 
-                "decision_phase": "attack", 
-                "active_ship_id": active_ship_id, 
-                "maneuver": []
-                }
+                "current_player": self.current_player,
+                "decision_phase": "attack", # The entry point for the attack macro-action
+                "active_ship_id": active_ship_id,
+                "maneuver_speed": None, "maneuver_course": [], "maneuver_joint_index": 0,
+                "attack_hull": None, "defend_ship_id": None, "defend_hull": None
+            }
             mcts_state_copy = copy.deepcopy(state)
             mcts_state_copy['game'].simulation_mode = True
+
+            # Run MCTS to decide whether to attack or skip
             mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-            mcts.search(iterations=iterations)
-            attack_action = mcts.get_best_action()
-            if attack_action is None or attack_action[0] == 'skip_to_maneuver':
+            mcts.search(iterations=100) # A high-level search to decide if an attack is worthwhile
+            best_initial_action = mcts.get_best_action()
+
+            # If the AI decides to skip, break the attack loop
+            if best_initial_action is None or best_initial_action[0] == 'skip_to_maneuver':
                 print(f"Player {self.current_player} skips remaining attacks.")
                 break
+
+            # If the AI decides to attack, determine the optimal target
+            print(f"Player {self.current_player} has decided to attack. Determining optimal target...")
             
+            # Run the expert sub-search to get the full, optimal attack sequence
+            # We start from the state *after* deciding to begin the attack sequence
+            attack_setup_state = mcts._apply_action(mcts_state_copy, ("begin_attack_sequence",))
+            best_attack_path, _ = mcts._run_sub_search(attack_setup_state, iterations=50)
 
-            # Execute the chosen attack
-            _, (attack_hull, target_ship_id, defend_hull) = attack_action
+            if not best_attack_path:
+                print("MCTS could not find a valid attack path. Skipping.")
+                break
+
+            # Decode the optimal attack path
+            attacking_hull = best_attack_path[0][1]
+            target_ship_id = best_attack_path[1][1]
+            defending_hull = best_attack_path[2][1]
             defend_ship = self.ships[target_ship_id]
-            print(f"Player {self.current_player} chose action: {attack_action[0]}\n {active_ship.name} attacks {defend_ship.name} {attack_hull.name} to {defend_hull.name}")
-            attack_pool = active_ship.roll_attack_dice(attack_hull, defend_ship, defend_hull)
-            if attack_pool:
-                active_ship.resolve_damage(defend_ship, defend_hull, attack_pool)
-            active_ship.attack_possible_hull[attack_hull.value] = False
 
-        # === 3. MANEUVER PHASE (TRUE HIERARCHICAL MCTS) ===
-        print(f"Player {self.current_player} is thinking about phase: maneuver")
-        # Initial state for the hierarchical maneuver search
-        state = {
-            "game": self, 
-            "current_player": self.current_player, 
-            "decision_phase": "maneuver", 
-            "active_ship_id": active_ship_id,  
-            "maneuver": []  # Start with an empty maneuver path
-            }
+            # Execute the chosen attack in the REAL game
+            print(f"Player {self.current_player} executes optimal attack: {active_ship.name} ({attacking_hull.name}) -> {defend_ship.name} ({defending_hull.name})")
+            
+            # Roll the dice and resolve the attack in the actual game state
+            attack_pool = active_ship.roll_attack_dice(attacking_hull, defend_ship, defending_hull)
+            if attack_pool:
+                active_ship.resolve_damage(defend_ship, defending_hull, attack_pool)
+            
+            # Update the real ship's state to reflect that this attack has been made
+            active_ship.attack_count += 1
+            active_ship.attack_possible_hull[attacking_hull.value] = False
+
+
+        # === 3. MANEUVER PHASE (HIERARCHICAL) ===
+        print(f"Player {self.current_player} is thinking about the full maneuver...")
+
+        # 1. Set up the initial state for the top-level maneuver decision.
+        state : MCTSState = {
+            "game": self,
+            "current_player": self.current_player,
+            "decision_phase": "maneuver_speed", # The entry point to the maneuver macro-action
+            "active_ship_id": active_ship_id,
+            "maneuver_speed": None, "maneuver_course": [], "maneuver_joint_index": 0,
+            "attack_hull": None, "defend_ship_id": None, "defend_hull": None
+        }
         mcts_state_copy = copy.deepcopy(state)
         mcts_state_copy['game'].simulation_mode = True
+
+        # 2. Create and run ONE MCTS search for the entire maneuver.
         mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        mcts.search(iterations=iterations) # A larger number of iterations might be needed now
-        
-        # The MCTS now returns the entire sequence of actions
-        full_maneuver = mcts.get_best_action()
-        print(f"Player {self.current_player} chose full maneuver: {full_maneuver}")
+        mcts.search(iterations=100)
 
-        if not full_maneuver:
-            print("MCTS could not determine a maneuver. Passing.")
+        # 3. Get the best *first* action (the speed) from the search.
+        best_speed_action = mcts.get_best_action()
+        if best_speed_action is None:
             active_ship.activated = True
-            return
+            return # No possible maneuver
 
-        # Deconstruct the returned maneuver and apply it to the REAL game
-        speed = full_maneuver[0][1]
-        active_ship.speed = speed
-        
-        if speed > 0:
-            # The course is all steps between the speed and the placement
-            course = [step[1] - 2 for step in full_maneuver[1:-1]]
-            placement = full_maneuver[-1][1]
+        speed = best_speed_action[1]
+        print(f"Player {self.current_player} decided the best speed is: {speed}")
+
+        if speed == 0:
+            active_ship.move_ship([], 1)
+        else:
+            # 4. Determine the full optimal path for the chosen speed.
+            print(f"Player {self.current_player} is determining the optimal course...")
+            final_maneuver_state = mcts._apply_action(mcts_state_copy, best_speed_action)
+            best_path_actions, _ = mcts._run_sub_search(final_maneuver_state, iterations=50)
+
+            # 5. Decode and apply the maneuver to the real ship.
+            course = [action[1] - 2 for action in best_path_actions if action[0] == 'set_yaw']
+            placement = best_path_actions[-1][1]
+            print(f"Player {self.current_player} chose final maneuver: Course {course}, Placement {'left' if placement == -1 else 'right'}")
             active_ship.move_ship(course, placement)
-        else: # Speed 0 case
-            active_ship.move_ship([], 1) # Empty course, placement doesn't matter
 
-        # Finally, mark the ship as activated for this round.
+        # End of activation
         active_ship.activated = True
+        
+
 
 
     def _execute_random_activation(self, ship_to_activate: Ship):
@@ -246,8 +274,8 @@ class Armada:
             
             attack_hull = random.choice(valid_hulls)
             ship_to_activate.attack_possible_hull[attack_hull.value] = False
-            valid_targets = ship_to_activate.get_valid_target(attack_hull)
-            defend_ship, defend_hull = random.choice(valid_targets)
+            defend_ship = random.choice(ship_to_activate.get_valid_target_ship(attack_hull))
+            defend_hull = random.choice(ship_to_activate.get_valid_target_hull(attack_hull, defend_ship))
             attack_pool = ship_to_activate.roll_attack_dice(attack_hull, defend_ship, defend_hull)
             if attack_pool:
                 ship_to_activate.resolve_damage(defend_ship, defend_hull, attack_pool)

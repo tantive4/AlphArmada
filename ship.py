@@ -50,7 +50,7 @@ class Ship:
             'right' : (ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1]),
             'rear' : (0, ship_dict['rear_targeting_point']),
             'left' : (- ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1])}
-        
+    
 
     def deploy(self, game : "Armada" , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         """
@@ -87,6 +87,7 @@ class Ship:
     def refresh(self) -> None:
         self.activated = False
         self.attack_possible_hull = [True, True, True, True]
+        self.target_exist_hull = [True, True, True, True]
         self.attack_count = 0
 
 
@@ -161,16 +162,16 @@ class Ship:
 
     # def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
         
-        valid_attack_hull = self.get_valid_attack_hull()
-        if valid_attack_hull == [] : return # there is no possible target
+        # valid_attack_hull = self.get_valid_attack_hull()
+        # if valid_attack_hull == [] : return # there is no possible target
 
-        attack_hull = random.choice(valid_attack_hull)
+        # attack_hull = random.choice(valid_attack_hull)
         
-        valid_target = self.get_valid_target(attack_hull)
+        # valid_target = self.get_valid_target_hull(attack_hull)
 
-        defend_ship, defend_hull = random.choice(valid_target)
+        # defend_ship, defend_hull = random.choice(valid_target)
 
-        return attack_hull, defend_ship, defend_hull
+        # return attack_hull, defend_ship, defend_hull
 
     def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
 
@@ -178,7 +179,7 @@ class Ship:
         attack_range = self.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
         if attack_range == -1 : return # attack is canceled
 
-        self.game.visualize(f'{self.name} attacks {defend_ship.name}! {attack_hull.name} to {defend_hull.name}! Range : {['close', 'medium', 'long'][attack_range]}')
+        self.game.visualize(f'{self.name} attacks {defend_ship.name}! {attack_hull.name} to {defend_hull.name}! Range : {["close", "medium", "long"][attack_range]}')
 
         attack_pool = self.gather_dice(attack_hull, attack_range)
 
@@ -494,36 +495,54 @@ class Ship:
 
         if self.hull <= 0 : self.destroy()
 
-    def get_valid_target(self, attack_hull : HullSection) -> list[tuple["Ship", HullSection]]:
+    def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : "Ship") -> list[ HullSection]:
         """
         Get a list of valid targets for the given attacking hull section.
 
         Args:
             attack_hull (HullSection): The attacking hull section.
+            defend_ship (Ship): The defending ship.
 
         Returns:
-            valid_targets (list[tuple[Ship, HullSection]]): A list of tuples containing the target ship and the targeted hull section.
+            valid_targets (list[HullSection]): A list of tuples containing the target ship and the targeted hull section.
         """
         valid_targets = []
 
-        for ship in self.game.ships:
-            if ship.player == self.player or ship.destroyed:
-                continue
-            for target_hull in HullSection:
 
-                # line of sight
-                blocked, obstructed = self.measure_line_of_sight(attack_hull, ship, target_hull)
-                if blocked : continue
+        for target_hull in HullSection:
 
-                # arc and range
-                attack_range = self.measure_arc_and_range(attack_hull, ship, target_hull)
-                if attack_range == -1: continue  
+            # line of sight
+            blocked, obstructed = self.measure_line_of_sight(attack_hull, defend_ship, target_hull)
+            if blocked : continue
 
-                # gather attack dice
-                if sum(self.gather_dice(attack_hull, attack_range)) <= int(obstructed): continue 
+            # arc and range
+            attack_range = self.measure_arc_and_range(attack_hull, defend_ship, target_hull)
+            if attack_range == -1: continue  
 
-                valid_targets.append((ship, target_hull))
+            # gather attack dice
+            if sum(self.gather_dice(attack_hull, attack_range)) <= int(obstructed): continue 
+
+            valid_targets.append(target_hull)
         return valid_targets
+
+    def get_valid_target_ship(self, attack_hull : HullSection) -> list["Ship"]:
+        """
+        Get a list of valid target ships for the given attacking hull section.
+
+        Args:
+            attack_hull (HullSection): The attacking hull section.
+
+        Returns:
+            valid_targets (list[Ship]): A list of valid target ships.
+        """
+        valid_targets = []
+        for ship in self.game.ships:
+            if ship.ship_id == self.ship_id or ship.destroyed or ship.player == self.player: continue
+            if self.get_valid_target_hull(attack_hull, ship):
+                valid_targets.append(ship)
+
+        return valid_targets
+    
 
     def get_valid_attack_hull(self) -> list[HullSection]:
         """
@@ -534,10 +553,12 @@ class Ship:
         """
         valid_attacker = []
         for hull in HullSection:
-            if self.attack_possible_hull[hull.value] and self.get_valid_target(hull):
+            if not self.attack_possible_hull[hull.value] : continue
+
+            if self.target_exist_hull[hull.value] and self.get_valid_target_ship(hull):
                 valid_attacker.append(hull)
             else :
-                self.attack_possible_hull[hull.value] = False 
+                self.target_exist_hull[hull.value] = False 
         return valid_attacker
 
 # sub method for execute maneuver
