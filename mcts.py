@@ -2,6 +2,7 @@ import math
 import random
 import copy
 from typing import TYPE_CHECKING, TypedDict, List, NotRequired, TypeAlias, Tuple, Literal, Optional
+import itertools
 
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:
@@ -20,15 +21,18 @@ class MCTSState(TypedDict):
     declare_target: Optional[tuple[HullSection, int, HullSection]]
 
 class ActionType :
-    ActiveShipAction: TypeAlias = Tuple[Literal["active_ship"], int]
+    ActiveShipAction: TypeAlias = Tuple[Literal["activate_ship"], int]
     DeclareTargetAction: TypeAlias = Tuple[Literal["declare_target"], Tuple[HullSection, int, HullSection]]
     DetermineCourseAction: TypeAlias = Tuple[Literal["determine_course"], Tuple[List[int], int]]
     AttackDiceAction: TypeAlias = Tuple[Literal["attack_dice"], List[List[int]]]
+    PassAction: TypeAlias = Tuple[Literal["pass_activation"] | Literal["pass_attack"], None]
+
     Action: TypeAlias = (
         ActiveShipAction | 
         DeclareTargetAction | 
         DetermineCourseAction | 
-        AttackDiceAction
+        AttackDiceAction | 
+        PassAction
     )
 
 class Node:
@@ -220,7 +224,7 @@ class MCTS:
         return outcome_state
 
     def _get_possible_actions(self, state: MCTSState) -> list[ActionType.Action]:
-        actions = []
+        actions : List[ActionType.Action] = []
         game = state['game']
         player = state['current_player']
         phase = state['decision_phase']
@@ -231,7 +235,7 @@ class MCTS:
             for ship in valid_ships:
                 actions.append(("activate_ship", ship.ship_id))
             if not valid_ships:
-                actions.append(("pass_activation",))
+                actions.append(("pass_activation", None))
 
         if state['active_ship_id'] is None :
             raise ValueError('Active Ship must be chosen')
@@ -240,76 +244,47 @@ class MCTS:
 
         if phase == "declare_target":
             if active_ship.attack_count < 2:
-                valid_hulls = active_ship.get_valid_attack_hull()
-                for hull in valid_hulls:
-                    actions.append(("choose_attack_hull", hull))
-            actions.append(("skip_to_maneuver",))
+                for hull in active_ship.get_valid_attack_hull():
+                    for defend_ship in active_ship.get_valid_target_ship(hull) :
+                        for defend_hull in active_ship.get_valid_target_hull(hull, defend_ship):
+                            actions.append(("declare_target", (hull, defend_ship.ship_id, defend_hull)))
+            actions.append(("pass_attack", None))
 
         elif phase == "determine_course":
-            valid_speeds = active_ship.get_valid_speed()
-            for speed in valid_speeds:
-                actions.append(("set_speed", speed))
-
-
+            for speed in active_ship.get_valid_speed():
+                if speed == 0:
+                    continue
+                yaw_options_per_joint = [active_ship.get_valid_yaw(speed, joint) for joint in range(speed)]
+                for yaw_tuple in itertools.product(*yaw_options_per_joint):
+                    course = [yaw - 2 for yaw in yaw_tuple]
+                    for placement in active_ship.get_valid_placement(course):
+                        actions.append(("determine_course", (course, placement)))
         return actions
 
-    def _apply_action(self, state: MCTSState, action: tuple) -> MCTSState:
-        action_type = action[0]
-        game : Armada = state['game']
-        active_ship : Ship | None = game.ships[state['active_ship_id']] if state['active_ship_id'] is not None else None
+    def _apply_action(self, state: MCTSState, action: ActionType.Action) -> MCTSState:
+        game = state['game']
+        if state['active_ship_id'] is None :
+            raise ValueError('Active Ship must be chosen to apply action')
+        
+        active_ship = game.ships[state['active_ship_id']]
 
-        if action_type == "activate_ship":
+        if action[0] == "activate_ship":
             state['active_ship_id'] = action[1]
-            state['decision_phase'] = "attack"
-            state['attack_hull'] = None
-            state['defend_ship_id'] = None
-            state['defend_hull'] = None
+            state['decision_phase'] = "declare_target"
 
-        elif action_type == "choose_attack_hull":
-            state['attack_hull'] = action[1]
-            state['decision_phase'] = "attack_choose_target_ship"
+        elif action[0] == "declare_target":
+            attack_pool = active_ship.roll_attack_dice(action[1][0], game.ships[action[1][1]], action[1][2])
+            if attack_pool:
+                active_ship.resolve_damage(game.ships[action[1][1]], action[1][2], attack_pool)
 
-        elif action_type == "choose_target_ship":
-            state['defend_ship_id'] = action[1]
-            state['decision_phase'] = "attack_choose_target_hull"
-
-        elif action_type == "declare_full_attack":
-            state['defend_hull'] = action[1]
-            
-        elif action_type == "skip_to_maneuver":
+        elif action[0] == "skip_to_maneuver":
             state['decision_phase'] = "maneuver_speed"
 
-        elif action_type == "set_speed":
-            speed = action[1]
-            state['maneuver_speed'] = speed
-            if speed == 0:
-                if active_ship: active_ship.speed = 0
-                self._end_activation(state)
-            else:
-                state['decision_phase'] = "maneuver_yaw"
-                state['maneuver_joint_index'] = 0
-                state['maneuver_course'] = []
-
-        elif action_type == "set_yaw":
-            yaw = action[1]
-            state['maneuver_course'].append(yaw - 2)
-            state['maneuver_joint_index'] += 1
-            if state['maneuver_speed'] is None:
-                raise ValueError("Maneuver speed must be set before setting yaw.")
-            if state['maneuver_joint_index'] >= state['maneuver_speed']:
-                state['decision_phase'] = "maneuver_placement"
-
-        elif action_type == "set_placement":
-            if state['maneuver_speed'] is None:
-                raise ValueError("Maneuver speed must be set before setting yaw.")
-            placement = action[1]
-            course = state['maneuver_course']
-            if active_ship:
-                active_ship.speed = state['maneuver_speed']
-                active_ship.move_ship(course, placement)
+        elif action[0] == "determine_course":
+            active_ship.move_ship(*action[1])
             self._end_activation(state)
             
-        elif action_type == "pass_activation":
+        elif action[0] == "pass_activation":
              self._end_activation(state)
 
         return state
@@ -322,17 +297,11 @@ class MCTS:
 
         state['decision_phase'] = "activation"
         state['active_ship_id'] = None
-        # Reset maneuver state
-        state['maneuver_speed'] = None
-        state['maneuver_course'] = []
-        state['maneuver_joint_index'] = 0
-        # Reset attack state
-        state['attack_hull'] = None
-        state['defend_ship_id'] = None
-        state['defend_hull'] = None
+        state['declare_target'] = None
 
         if game.get_valid_activation(-state['current_player']):
             state['current_player'] *= -1
+
         elif not game.get_valid_activation(state['current_player']):
             game.status_phase()
             if not game.winner:
