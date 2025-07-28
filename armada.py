@@ -22,7 +22,7 @@ class Armada:
         self.ships : list[Ship] = []  # max 3 total, 2 + 1
 
         self.round = 1
-        self.winner : int | None = None
+        self.winner : float | None = None
         self.image_counter = 0
         self.current_player = 1
         self.simulation_mode = False
@@ -44,12 +44,37 @@ class Armada:
         """
         return [ship for ship in self.ships if ship.player == player and not ship.destroyed and not ship.activated]
     
-    def status_phase(self) -> None :
-        for ship in self.ships :
-            if not ship.destroyed : ship.refresh()
-        if self.total_destruction(1) : self.winner = -1
-        if self.total_destruction(-1) : self.winner = 1
-        if not self.simulation_mode : print(f"End of Round {self.round}.")
+# In armada.py, replace the entire status_phase method with this one:
+
+    def status_phase(self) -> None:
+        # 1. Refresh all active ships for the next round
+        for ship in self.ships:
+            if not ship.destroyed:
+                ship.refresh()
+
+        # 2. Check for game-ending conditions
+        player_1_eliminated = self.total_destruction(1)
+        player_2_eliminated = self.total_destruction(-1)
+        is_game_over = player_1_eliminated or player_2_eliminated or self.round == 6
+
+        # 3. If the game is over, determine the winner
+        if is_game_over:
+            # This check is important to ensure the winner is only set once
+            if self.winner is None:
+                p1_points = self.get_point(1)
+                p2_points = self.get_point(-1)
+                margin_of_victory = p1_points - p2_points
+
+                # Set a non-zero winner value based on the margin
+                self.winner = margin_of_victory / 100
+            return # Stop the function here; do not advance the round
+
+        # 4. If the game is not over, advance to the next round
+        else:
+            self.round += 1
+            self.current_player = 1
+            if not self.simulation_mode:
+                print(f"End of Round {self.round}.")
         
 
     def get_point(self, player : int) -> int :
@@ -62,70 +87,48 @@ class Armada:
         """
         self.ship_phase()
         self.status_phase()
-        self.round += 1
 
 
     def ship_phase(self) -> None:
         """
         The ship phase is where players activate their ships, attack, and maneuver.
-        This method is called at the start of each round.
         """
-        self.current_player = 1
-        while True:
-            p1_can_activate = any(self.get_valid_activation(1))
-            p2_can_activate = any(self.get_valid_activation(-1))
+        # Continue as long as any ship can be activated by any player
+        while any(self.get_valid_activation(1)) or any(self.get_valid_activation(-1)):
 
-            # If both players have activated all their ships, the round's activation phase is over.
-            if not p1_can_activate and not p2_can_activate:
-                break
-
-            # Check if the current player has any ships to activate. If not, they pass.
+            # If the current player has no ships left to activate, pass the turn to the opponent.
             if not any(self.get_valid_activation(self.current_player)):
-                print(f"Player {self.current_player} has no ships to activate and passes the turn.")
                 self.current_player *= -1
-                continue
-            
+                continue # Restart the loop for the other player's turn
+
             # It's the current player's turn to make a move.
             self.visualize(f'ROUND {self.round} | Player {self.current_player}\'s Turn')
 
-            # Player 1's Turn (MCTS)
+            # --- MCTS Execution ---
             if self.current_player == 1:
                 print("Player 1 (MCTS) is playing...")
-                self._execute_mcts_turn()
-
-            # # Player -1's Turn (Random)
+                self._execute_mcts_turn(iterations=2000)
             elif self.current_player == -1:
-                print("Player -1 (Random) is playing...")
-                valid_activations = self.get_valid_activation(self.current_player)
-                if valid_activations:
-                    ship_to_activate = random.choice(valid_activations)
-                    self._execute_random_activation(ship_to_activate)
+                print("Player -1 (MCTS) is playing...")
+                self._execute_mcts_turn(iterations=100)
 
-            # Switch player for the next activation in the round
-            self.current_player *= -1
+            # --- Switch Player for the next activation ---
+            # IMPORTANT: Only switch if the opponent can still activate.
+            if any(self.get_valid_activation(-self.current_player)):
+                self.current_player *= -1
 
 
     def play(self) -> None :
         """
         The main game loop, structured by rounds and alternating player turns.
         """
-        while self.round <= 6 and self.winner is None:
+        while self.winner is None:
             self.play_round()
 
-        # End of Game: Determine winner if one wasn't already declared
-        if self.winner is None:
-            print("Game ends after 6 rounds. Calculating points...")
-            p1_points = self.get_point(1)
-            p2_points = self.get_point(-1)
-            print(f"Player 1 Points: {p1_points} | Player -1 Points: {p2_points}")
-            if p1_points > p2_points: self.winner = 1
-            elif p2_points > p1_points: self.winner = -1
-            else: self.winner = 0 # Draw
+        self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
+        print(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
 
-        self.visualize(f'Player {self.winner} has won!')
-        print(f'Player {self.winner} has won!')
-
-    def _execute_mcts_turn(self, iterations : int = 200):
+    def _execute_mcts_turn(self, iterations : int = 1000):
         """
         Executes a full ship activation for the MCTS player by breaking it down
         into sequential decisions.
@@ -145,7 +148,7 @@ class Armada:
         mcts.search(iterations=iterations)
         action = mcts.get_best_action()
 
-        if action is None or action[0] != 'activate_ship':
+        if action is None or action[0] != 'activate_ship_action':
             raise ValueError('MCTS must choose ship to activate')
         
         active_ship_id : int = action[1]
@@ -173,14 +176,15 @@ class Armada:
             action = mcts.get_best_action()
 
             # If the AI decides to skip, break the attack loop
-            if action is None or (action[0] != 'declare_target' and action[0] != 'skip_to_maneuver'):
+            if action is None or (action[0] != 'declare_target_action' and action[0] != 'pass_attack'):
                 raise ValueError('MCTS must choose declare target or pass to maneuver')
-            if action[0] == 'skip_to_maneuver':
+            if action[0] == 'pass_attack':
                 print(f"Player {self.current_player} skips to move ship step")
                 break
 
             print(f"Player {self.current_player} has decided to attack. Determining optimal target...")
-
+            if action[1] is None :
+                raise ValueError('Action must contain target information')
 
             # Decode the optimal attack path
             attacking_hull = action[1][0]
@@ -216,7 +220,7 @@ class Armada:
         mcts.search(iterations=iterations)
 
         action = mcts.get_best_action()
-        if action is None or action[0] != 'determine_course' :
+        if action is None or action[0] != 'determine_course_action' :
             raise ValueError('MCTS must choose course')
         
         course = action[1][0]
@@ -274,4 +278,9 @@ class Armada:
         if self.simulation_mode:
             return
         visualizer.visualize(self, title, maneuver_tool)
-        sleep(1)
+        # sleep(1)
+
+    def refresh_ship_links(self) -> None:
+        """Ensures all ship objects refer to this game instance."""
+        for ship in self.ships:
+            ship.game = self

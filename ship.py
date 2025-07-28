@@ -172,7 +172,7 @@ class Ship:
 
     # def determine_course(self) -> tuple[list, int]:
 
-    def move_ship(self, course : list[int], placement : int) -> list[bool]:
+    def move_ship(self, course : list[int], placement : int) -> None:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
 
         joint_coordination, joint_orientaion = self._tool_coordination(course, placement)
@@ -187,7 +187,7 @@ class Ship:
 
             if not any(current_overlap):
                 break
-            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_orientaion)} maneuver.')
+            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_orientaion) - 1} maneuver.')
 
             overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
 
@@ -201,8 +201,10 @@ class Ship:
         if self.out_of_board() :
             self.game.visualize(f'{self.name} is out of board!')
             self.destroy()
-    
-        return overlap_list
+
+        self.overlap(overlap_list)
+
+
 
 
 

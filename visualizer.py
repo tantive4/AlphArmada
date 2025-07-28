@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     
 def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
     """Creates and saves an image of the current game state with (0,0) at the bottom-left."""
-    img = Image.new('RGB', (game.player_edge, game.short_edge), 'black')
+    img = Image.new('RGB', (game.player_edge, game.short_edge), (0,0,0)) # type: ignore
     draw = ImageDraw.Draw(img)
 
     # Helper function to transform a coordinate from game space (0,0 at bottom-left)
@@ -17,7 +17,7 @@ def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
         return (coord[0], game.short_edge - coord[1])
 
     try:
-        font = ImageFont.truetype("arial.ttf", 15)
+        font = ImageFont.truetype("arial.ttf", 18)
     except IOError:
         font = ImageFont.load_default()
 
@@ -105,8 +105,12 @@ def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
                     (transformed_point[0] + radius, transformed_point[1] + radius)
                 ]
                 draw.ellipse(bounding_box, fill='darkgrey')
+    import os
 
-
-    img.save(f'game_visualizer/game_state_{game.image_counter}.png')
-
+    # Create a directory to store visuals if it doesn't exist
+    output_dir = "game_visuals"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Save the image inside that directory
+    img.save(os.path.join(output_dir, f'game_state_{game.image_counter}.png'))
     game.image_counter += 1
