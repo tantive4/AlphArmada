@@ -44,7 +44,6 @@ class Armada:
         """
         return [ship for ship in self.ships if ship.player == player and not ship.destroyed and not ship.activated]
     
-# In armada.py, replace the entire status_phase method with this one:
 
     def status_phase(self) -> None:
         # 1. Refresh all active ships for the next round
@@ -74,7 +73,7 @@ class Armada:
             self.round += 1
             self.current_player = 1
             if not self.simulation_mode:
-                print(f"End of Round {self.round}.")
+                with open('simulation_log.txt', 'a') as f: f.write(f"\nEnd of Round {self.round}.")
         
 
     def get_point(self, player : int) -> int :
@@ -106,11 +105,11 @@ class Armada:
 
             # --- MCTS Execution ---
             if self.current_player == 1:
-                print("Player 1 (MCTS) is playing...")
-                self._execute_mcts_turn(iterations=2000)
+                with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer 1 (MCTS) is playing...")
+                self._execute_mcts_turn(iterations=1500)
             elif self.current_player == -1:
-                print("Player -1 (MCTS) is playing...")
-                self._execute_mcts_turn(iterations=100)
+                with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer -1 (MCTS) is playing...")
+                self._execute_mcts_turn(iterations=500)
 
             # --- Switch Player for the next activation ---
             # IMPORTANT: Only switch if the opponent can still activate.
@@ -126,7 +125,7 @@ class Armada:
             self.play_round()
 
         self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
-        print(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
+        with open('simulation_log.txt', 'a') as f: f.write(f"Player {1 if self.winner is not None and self.winner > 0 else -1} has won!")
 
     def _execute_mcts_turn(self, iterations : int = 1000):
         """
@@ -134,13 +133,14 @@ class Armada:
         into sequential decisions.
         """
         # === 1. CHOOSE SHIP TO ACTIVATE ===
-        print(f"Player {self.current_player} is thinking about phase: activation")
+        with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} is thinking about phase: activation")
         state : MCTSState = {
             "game": self, 
             "current_player": self.current_player, 
             "decision_phase": "ship_activation",
             "active_ship_id": None, 
             "declare_target": None,
+            "course": None
             }
         mcts_state_copy = copy.deepcopy(state)
         mcts_state_copy['game'].simulation_mode = True
@@ -153,13 +153,13 @@ class Armada:
         
         active_ship_id : int = action[1]
         active_ship = self.ships[active_ship_id]
-        print(f"Player {self.current_player} chose action: {action[0], active_ship.name}")
+        with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} chose action: {action[0], active_ship.name}")
 
 
         # === 2. ATTACK PHASE ===
 
         while active_ship.attack_count < 2 :
-            print(f"Player {self.current_player} is thinking about attack #{active_ship.attack_count + 1}...")
+            with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} is thinking about attack #{active_ship.attack_count + 1}...")
             
 
             state : MCTSState = {
@@ -167,7 +167,8 @@ class Armada:
                 "current_player": self.current_player, 
                 "decision_phase": "declare_target", 
                 "active_ship_id": active_ship_id, 
-                "declare_target": None
+                "declare_target": None,
+                "course": None,
                 }
             mcts_state_copy = copy.deepcopy(state)
             mcts_state_copy['game'].simulation_mode = True
@@ -179,10 +180,10 @@ class Armada:
             if action is None or (action[0] != 'declare_target_action' and action[0] != 'pass_attack'):
                 raise ValueError('MCTS must choose declare target or pass to maneuver')
             if action[0] == 'pass_attack':
-                print(f"Player {self.current_player} skips to move ship step")
+                with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} skips to move ship step")
                 break
 
-            print(f"Player {self.current_player} has decided to attack. Determining optimal target...")
+            with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} has decided to attack. Determining optimal target...")
             if action[1] is None :
                 raise ValueError('Action must contain target information')
 
@@ -192,7 +193,7 @@ class Armada:
             defending_hull = action[1][2]
 
             # Execute the chosen attack in the REAL game
-            print(f"Player {self.current_player} executes optimal attack: {active_ship.name} ({attacking_hull.name}) -> {defend_ship.name} ({defending_hull.name})")
+            with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} executes optimal attack: {active_ship.name} ({attacking_hull.name}) -> {defend_ship.name} ({defending_hull.name})")
             
             # Roll the dice and resolve the attack in the actual game state
             attack_pool = active_ship.roll_attack_dice(attacking_hull, defend_ship, defending_hull)
@@ -201,33 +202,83 @@ class Armada:
 
 
 
-        # === 3. MOVE SHIP PHASE ===
-        print(f"Player {self.current_player} is thinking about the full maneuver...")
+        # # === 3. MOVE SHIP PHASE ===
+        # with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} is thinking about the full maneuver...")
 
-        # 1. Set up the initial state
-        state : MCTSState = {
-            "game": self,
-            "current_player": self.current_player,
-            "decision_phase": "determine_course",
-            "active_ship_id": active_ship_id,
-            "declare_target": None
-            }
+        # # 1. Set up the initial state
+        # state : MCTSState = {
+        #     "game": self,
+        #     "current_player": self.current_player,
+        #     "decision_phase": "determine_course",
+        #     "active_ship_id": active_ship_id,
+        #     "declare_target": None,
+        #     "course": None
+        #     }
+        # mcts_state_copy = copy.deepcopy(state)
+        # mcts_state_copy['game'].simulation_mode = True
+
+        # # 2. Create and run MCTS
+        # mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
+        # mcts.search(iterations=iterations)
+
+        # action = mcts.get_best_action()
+        # if action is None or action[0] != 'determine_course_action' :
+        #     raise ValueError('MCTS must choose course')
+        
+        # course = action[1][0]
+        # placement = action[1][1]
+        # active_ship.speed = len(course)
+
+        # with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} chose final maneuver: Course {course}, Placement {'left' if placement == -1 else 'right'}")
+        # active_ship.move_ship(course, placement)
+
+
+        # === 3. HIERARCHICAL MANEUVER PHASE (Single Search, Walk Down) ===
+        with open('simulation_log.txt', 'a') as f: f.write(f"\nPhase: Maneuver Planning")
+        state = {
+            "game": self, "current_player": self.current_player, "decision_phase": "determine_speed",
+            "active_ship_id": active_ship_id, "declare_target": None, "course": None
+        }
         mcts_state_copy = copy.deepcopy(state)
         mcts_state_copy['game'].simulation_mode = True
-
-        # 2. Create and run MCTS
         mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
         mcts.search(iterations=iterations)
 
-        action = mcts.get_best_action()
-        if action is None or action[0] != 'determine_course_action' :
-            raise ValueError('MCTS must choose course')
-        
-        course = action[1][0]
-        placement = action[1][1]
-        active_ship.speed = len(course)
 
-        print(f"Player {self.current_player} chose final maneuver: Course {course}, Placement {'left' if placement == -1 else 'right'}")
+        # --- Walk down the tree to get the full maneuver ---
+        # Get Speed
+        best_node = mcts.get_best_child()
+        with open('simulation_log.txt', 'a') as f: f.write(f"\nTotal Win {round(best_node.wins)}. Best Action {best_node.action} \n{[(node.action, round(node.wins), node.visits) for node in best_node.children]}")
+
+        speed_action = best_node.action
+        if speed_action is None or speed_action[0] != 'determine_speed_action': raise ValueError("MCTS failed to return a speed action.")
+        speed = speed_action[1]
+        active_ship.speed = speed
+
+        course = []
+        if speed > 0:
+            # Get Yaws by walking down the tree
+            for joint_index in range(speed):
+                best_node = max(best_node.children, key=lambda c: c.visits)
+                with open('simulation_log.txt', 'a') as f: f.write(f"\nTotal Win {round(best_node.wins)}. Best Action {best_node.action} \n{[(node.action, round(node.wins), node.visits) for node in best_node.children]}")
+                
+                yaw_action = best_node.action
+                if yaw_action is None or yaw_action[0] != 'determine_yaw_action': raise ValueError("MCTS failed to return a yaw action.")
+                course.append(yaw_action[1])
+
+            # Get Placement
+            best_node = max(best_node.children, key=lambda c: c.visits)
+            with open('simulation_log.txt', 'a') as f: f.write(f"\nTotal Win {round(best_node.wins)}. Best Action {best_node.action} \n{[(node.action, round(node.wins), node.visits) for node in best_node.children]}")
+            placement_action = best_node.action
+            if placement_action is None or placement_action[0] != 'determine_placement_action': raise ValueError("MCTS failed to return a placement action.")
+            placement = placement_action[1]
+        else:
+            placement = 1 # Default placement for speed 0
+        
+        placement_str = 'left' if placement == -1 else 'right'
+
+        # --- Execute the final maneuver ---
+        with open('simulation_log.txt', 'a') as f: f.write(f"\nAction: Execute Maneuver {course, placement_str}")
         active_ship.move_ship(course, placement)
         
 
