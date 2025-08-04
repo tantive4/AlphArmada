@@ -623,14 +623,14 @@ class Ship:
             joint (int): The joint index for which to get valid yaw adjustments.
 
         Returns:
-            list[int]: A list of valid yaw adjustments.
+            list[int]: A list of valid yaw adjustments. -2 ~ 2
         """
         valid_yaw = []
         
         for yaw in range(5):
             if abs(yaw - 2) > self.navchart[str(speed)][joint]:
                 continue
-            valid_yaw.append(yaw)
+            valid_yaw.append(yaw -2)
 
         return valid_yaw
     

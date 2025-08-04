@@ -1,7 +1,7 @@
 import math
 import random
 import copy
-from typing import TYPE_CHECKING, TypedDict, List, NotRequired, TypeAlias, Tuple, Literal, Optional
+from typing import TYPE_CHECKING, TypedDict, List, NotRequired, TypeAlias, Tuple, Literal, Optional, cast
 import itertools
 from ship import Ship, HullSection
 from time import sleep
@@ -20,20 +20,30 @@ class MCTSState(TypedDict):
     decision_phase: str
     active_ship_id: Optional[int]
     declare_target: Optional[tuple[HullSection, int, HullSection]]
+    course: Optional[list[Optional[int]]]
 
 class ActionType :
     ActiveShipAction: TypeAlias = Tuple[Literal["activate_ship_action"], int]
     DeclareTargetAction: TypeAlias = Tuple[Literal["declare_target_action"], Tuple[HullSection, int, HullSection]]
-    DetermineCourseAction: TypeAlias = Tuple[Literal["determine_course_action"], Tuple[List[int], int]]
+
     AttackDiceAction: TypeAlias = Tuple[Literal["attack_dice_roll"], List[List[int]]]
     PassAction: TypeAlias = Tuple[Literal["pass_activation"] | Literal["pass_attack"], None]
+
+    # DetermineCourseAction: TypeAlias = Tuple[Literal["determine_course_action"], Tuple[List[int], int]]
+    DetermineSpeedAction: TypeAlias = Tuple[Literal["determine_speed_action"], int]
+    DetermineYawAction: TypeAlias = Tuple[Literal["determine_yaw_action"], int]
+    DeterminePlacementAction: TypeAlias = Tuple[Literal["determine_placement_action"], int]
+
 
     Action: TypeAlias = (
         ActiveShipAction | 
         DeclareTargetAction | 
-        DetermineCourseAction | 
         AttackDiceAction | 
-        PassAction
+        PassAction |
+        # DetermineCourseAction | 
+        DetermineSpeedAction |
+        DetermineYawAction |
+        DeterminePlacementAction
     )
 
 class Node:
@@ -52,7 +62,7 @@ class Node:
         self.chance_node = chance_node
 
 
-    def uct_select_child(self, owner_player : int, exploration_constant=1.414,) -> "Node":
+    def uct_select_child(self, owner_player : int, exploration_constant=2,) -> "Node":
         """
         Selects a child node using the UCT formula with random tie-breaking.
         """
@@ -119,22 +129,28 @@ class MCTS:
         self.player = player
 
     def search(self, iterations: int):
-        possible_actions = self._get_possible_actions(self.root.state)
-        if len(possible_actions) == 1:
-            print("MCTS Thinking... [Only one move, skipping search.]")
-            action = possible_actions[0]
-            child_state = self._apply_action(copy.deepcopy(self.root.state), action)
-            self.root.add_child(action, child_state)
-            return
+
+
+        # single decision optimization
+        current_phase = self.root.state['decision_phase']
+        is_maneuver_phase = current_phase in ["determine_speed", "determine_yaw", "determine_placement"]
+
+        if not is_maneuver_phase:
+            possible_actions = self._get_possible_actions(self.root.state)
+            if len(possible_actions) == 1:
+                if not self.root.state['game'].simulation_mode:
+                    print(f"MCTS Info: Only one move for phase '{current_phase}', skipping search.")
+                action = possible_actions[0]
+                child_state = self._apply_action(copy.deepcopy(self.root.state), action)
+                self.root.add_child(action, child_state)
+                return
 
         for i in range(iterations):
             node = self.root
             state = copy.deepcopy(node.state)
 
             # 1. Selection
-            depth = 1
             while (node.untried_actions is not None and not node.untried_actions and node.children) or node.chance_node:
-                depth += 1
                 if node.chance_node:
                     # For a chance node, sample a random outcome instead of using UCT.
                     if state['active_ship_id'] is None or state['declare_target'] is None :
@@ -175,6 +191,7 @@ class MCTS:
             if not state['game'].winner :
                 if node.untried_actions is None:
                     node.untried_actions = self._get_possible_actions(state)
+                    random.shuffle(node.untried_actions)
 
                 if node.untried_actions:
                     action = node.untried_actions.pop()
@@ -187,40 +204,32 @@ class MCTS:
                         node.chance_node = True
 
             # 3. Simulation
-            normalized_margin_of_victory = self._simulate(state)
+            simulation_result = self._simulate(state)
 
-            # 4. Backpropagation
-            my_win_prob = 0.0
-            if self.player == 1:
-                my_win_prob = (normalized_margin_of_victory + 1) / 2
-            else:  # If the MCTS owner is Player -1
-                # Their win probability is the inverse of Player 1's
-                my_win_prob = (-normalized_margin_of_victory + 1) / 2
-            
+            # 4. Backpropagation (Updated for -1 to 1 scoring)
             temp_node = node
             while temp_node is not None:
-                # The perspective for updating a node's stats is determined by the player
-                # who made the decision at that node's PARENT.
-                # If there's no parent, it's the root, and the perspective is the MCTS owner's.
+                # The result must be from the perspective of the player who made the move at the parent node.
                 perspective_player = temp_node.parent.state['current_player'] if temp_node.parent else self.player
                 
-                if perspective_player != self.player:
-                    # This node is a result of the opponent's choice, so update with their win prob
-                    temp_node.update(1 - my_win_prob)
-                else:
-                    # This node is a result of our choice, so update with our win prob
-                    temp_node.update(my_win_prob)
-
+                # The simulation_result is always from Player 1's perspective.
+                # If the current node's move was made by Player -1, we flip the score.
+                result_for_node = simulation_result if perspective_player == 1 else -simulation_result
+                
+                temp_node.update(result_for_node)
                 temp_node = temp_node.parent
             
             # if (i+1) % 20 == 0:
                 # print(f"MCTS Iteration {i + 1}/{iterations} complete. Current best action: {self.get_best_action()} best wins: {int(self.get_best_child().wins)}, best visits: {self.get_best_child().visits}, depth: {depth}")
-            print(f"{i+1}iteration. Total Win {round(self.root.wins)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins), node.visits) for node in self.root.children]}")
+            with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
 
 
 
     def _simulate(self, state: MCTSState) -> float:
-
+        """
+        simulate random game from current state and return the winner
+        winner is the MoV value, normalized as -1 ~ 1
+        """
         sim_state = copy.deepcopy(state)
         
         # Random rollout continues from the resulting state.
@@ -259,7 +268,7 @@ class MCTS:
             steps += 1
         if sim_game.winner is None:
             raise RuntimeError("Simulation exceeded maximum steps without a winner.")
-
+        with open('simulation_log.txt', 'a') as f: f.write(f"\nsimulation ends : {sim_game.winner}")
         return sim_game.winner
 
     def _apply_dice_outcome(self, state: MCTSState, outcome: list) -> MCTSState:
@@ -277,7 +286,7 @@ class MCTS:
         
         # After one attack, the next decision is the start of the next attack
         if active_ship_copy.attack_count < 2 : outcome_state['decision_phase'] = 'declare_target'
-        else : outcome_state['decision_phase'] = 'determine_course'
+        else : outcome_state['decision_phase'] = 'determine_speed'
 
         return outcome_state
 
@@ -312,16 +321,48 @@ class MCTS:
                             actions.append(("declare_target_action", (hull, defend_ship.ship_id, defend_hull)))
             actions.append(("pass_attack", None))
 
-        elif phase == "determine_course":
+        # elif phase == "determine_course":
+        #     for speed in active_ship.get_valid_speed():
+        #         if speed == 0:
+        #             actions.append(("determine_course_action", ([], 1)))
+        #             continue
+        #         yaw_options_per_joint = [active_ship.get_valid_yaw(speed, joint) for joint in range(speed)]
+        #         for yaw_tuple in itertools.product(*yaw_options_per_joint):
+        #             course = [yaw for yaw in yaw_tuple]
+        #             for placement in active_ship.get_valid_placement(course):
+        #                 actions.append(("determine_course_action", (course, placement)))
+
+
+        # Hierarchical Maneuver Decision
+
+        elif phase == "determine_speed":
+            state['course'] = None
             for speed in active_ship.get_valid_speed():
-                if speed == 0:
-                    actions.append(("determine_course_action", ([], 1)))
-                    continue
-                yaw_options_per_joint = [active_ship.get_valid_yaw(speed, joint) for joint in range(speed)]
-                for yaw_tuple in itertools.product(*yaw_options_per_joint):
-                    course = [yaw - 2 for yaw in yaw_tuple]
-                    for placement in active_ship.get_valid_placement(course):
-                        actions.append(("determine_course_action", (course, placement)))
+                actions.append(("determine_speed_action", speed))
+
+        elif phase == "determine_yaw":
+            course = state['course']
+            if course is None:
+                raise ValueError("Course must be initialized to determine yaw.")
+            
+            # Find the first 'None' to determine which joint we are deciding
+            try:
+                joint_index = course.index(None)
+                speed = len(course)
+                for yaw in active_ship.get_valid_yaw(speed, joint_index):
+                    actions.append(("determine_yaw_action", yaw))
+            except ValueError:
+                # This case should not be reached if logic is correct, as phase should have changed
+                raise ValueError("Attempted to determine yaw for a fully defined course.")
+
+        elif phase == "determine_placement":
+            course = state['course']
+            if course is None or None in course:
+                 raise ValueError("Course must be fully defined to determine placement.")
+            # We need to cast away the 'Optional' since we've confirmed no Nones exist
+            course = cast(List[int], course)
+            for placement in active_ship.get_valid_placement(course):
+                actions.append(("determine_placement_action", placement))
         
         else :
             raise ValueError(f"Unknown decision phase: {phase}")
@@ -348,14 +389,54 @@ class MCTS:
             state['decision_phase'] = "attack_dice_roll"
 
         elif action[0] == "pass_attack":
-            state['decision_phase'] = "determine_course"
+            state['decision_phase'] = "determine_speed"
+            
 
-        elif action[0] == "determine_course_action":
-            active_ship.move_ship(*action[1])
+        # elif action[0] == "determine_course_action":
+        #     active_ship.move_ship(*action[1])
+        #     self._end_ship_activation(state)
+
+        # --- HIERARCHICAL MANEUVER STATE TRANSITIONS ---
+        elif action[0] == "determine_speed_action":
+            speed = action[1]
+            if speed == 0:
+                # Speed 0 is a complete maneuver. Execute and end activation.
+                active_ship.move_ship([], 1)
+                self._end_ship_activation(state)
+            else:
+                # Initialize the course list with Nones and move to yaw decision.
+                state['course'] = [None for _ in range(speed)]
+                state['decision_phase'] = "determine_yaw"
+        
+        elif action[0] == "determine_yaw_action":
+            yaw = action[1]
+            course = state['course']
+            if course is None:
+                raise ValueError("Cannot apply yaw action, course is not initialized.")
+            
+            # Find the first None and replace it with the chosen yaw.
+            joint_index = course.index(None)
+            course[joint_index] = yaw
+            
+            # If there are no more Nones, the course is complete. Move to placement.
+            if None not in course:
+                state['decision_phase'] = "determine_placement"
+                
+        elif action[0] == "determine_placement_action":
+            placement = action[1]
+            course = state['course']
+            if course is None or None in course:
+                raise ValueError("Cannot apply placement, course is not fully defined.")
+            
+            # We cast the type because we've confirmed there are no 'None' values.
+            final_course = cast(List[int], course)
+            active_ship.move_ship(final_course, placement)
             self._end_ship_activation(state)
 
-        else :
-            raise ValueError(f"Unknown action type: {action[0]}")
+        elif action[0] == "attack_dice_roll":
+            raise ValueError("Chance node action should not be applied in _apply_action")
+        else:
+            raise ValueError(f"Unknown action type in _apply_action: {action[0]}")
 
         return state
 
@@ -368,6 +449,7 @@ class MCTS:
         state['decision_phase'] = "ship_activation"
         state['active_ship_id'] = None
         state['declare_target'] = None
+        state['course'] = None
 
         if game.get_valid_activation(-state['current_player']):
             state['current_player'] *= -1
