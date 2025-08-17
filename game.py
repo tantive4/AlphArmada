@@ -4,6 +4,7 @@ import math
 import json
 from mcts import MCTS, MCTSState
 import copy
+import random
 
 with open('ship_info.json', 'r') as f:
     ship_data : dict[str, dict[str, str | int | list]]= json.load(f)

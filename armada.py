@@ -32,7 +32,7 @@ class Armada:
         self.image_counter = 0
         self.simulation_mode = False
 
-    def get_possible_action(self) -> list[ActionType.Action]:
+    def get_possible_actions(self) -> list[ActionType.Action]:
         """
         Returns a list of possible actions based on the current game phase.
         """
@@ -62,12 +62,12 @@ class Armada:
                     actions = [('pass_ship_activation', None)]
 
             case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
-                if active_ship.attack_count < 2:
+                if active_ship.attack_count < 2 :
                     actions = [('declare_target_action', (attack_hull, defend_ship.ship_id, defend_hull))
                         for attack_hull in active_ship.get_valid_attack_hull()
                         for defend_ship in active_ship.get_valid_target_ship(attack_hull)
                         for defend_hull in active_ship.get_valid_target_hull(attack_hull, defend_ship)]
-                actions.append(('pass_attack', None))
+                if not actions : actions = [('pass_attack', None)]
             
             case GamePhase.SHIP_ATTACK_GATHER_DICE :
                 if attack_info.obstructed:
@@ -110,6 +110,8 @@ class Armada:
         """
         Applies the given action to the game state.
         """
+        self.visualize(f"\n{self.phase.name}, Player {self.current_player}\n{action}")
+
         if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
             if self.active_ship is None:
                 raise ValueError("No active ship for the current game phase.")
@@ -162,6 +164,7 @@ class Armada:
                 if black_critical or blue_critical or red_critical :
                     critical = dice.Critical.STANDARD
                 self.ships[attack_info.defend_ship_id].defend(attack_info.defend_hull, total_damage, critical)
+                self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
 
             case 'pass_attack':
                 self.attack_info = None
@@ -223,8 +226,6 @@ class Armada:
 
         # 4. If the game is not over, advance to the next round
         else:
-            if not self.simulation_mode:
-                with open('simulation_log.txt', 'a') as f: f.write(f"\nEnd of Round {self.round}.")
             self.round += 1
             self.current_player = 1
 
@@ -242,13 +243,18 @@ class Armada:
         The main game loop, structured by rounds and alternating player turns.
         """
         while self.winner is None:
-            actions : list[ActionType.Action] = self.get_possible_action()
-            action : ActionType.Action = random.choice(actions)
+            actions : list[ActionType.Action] = self.get_possible_actions()
+            if self.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
+                if self.attack_info is None :
+                    raise ValueError("No attack info for the current game phase.") 
+                dice_roll = dice.roll_dice(self.attack_info.attack_pool)
+                action = ('roll_dice_action', dice_roll)
+            else :
+                action : ActionType.Action = random.choice(actions)
             self.apply_action(action)
             print(self.current_player)
 
         self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
-        with open('simulation_log.txt', 'a') as f: f.write(f"Player {1 if self.winner is not None and self.winner > 0 else -1} has won!")
 
 
 

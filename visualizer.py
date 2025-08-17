@@ -17,7 +17,7 @@ def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
         return (coord[0], game.short_edge - coord[1])
 
     try:
-        font = ImageFont.truetype("arial.ttf", 18)
+        font = ImageFont.truetype("Arial.ttf", 18)
     except IOError:
         font = ImageFont.load_default()
 
