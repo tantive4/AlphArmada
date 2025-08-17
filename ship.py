@@ -73,7 +73,7 @@ class Ship:
         self.ship_id = ship_id
         self._set_coordination()
         self.refresh()
-        self.game.visualize(f'{self.name} is deployed.')
+
 
     def destroy(self) -> None:
         self.destroyed = True
@@ -89,88 +89,6 @@ class Ship:
         self.attack_count = 0
 
 
-
-
-# core activation method
-
-    # def activate(self) -> None:
-
-
-
-# ship activation sequence
-
-    def reveal_command(self) :
-        """pass"""
-        pass
-
-    # def attack(self) -> None:
-
-    # def execute_maneuver(self) -> None:
-
-
-
-
-
-# attack sequence
-
-    # def declare_target(self) -> tuple[HullSection, "Ship", HullSection] | None :
-
-    def roll_attack_dice(self, attack_hull : HullSection, defend_ship : "Ship", defend_hull : HullSection) -> list[list[int]] | None :
-        self.attack_count += 1
-        self.attack_possible_hull[attack_hull.value] = False
-        
-        # gathering dice
-        attack_range = self.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
-        if attack_range == -1 : return # attack is canceled
-
-        self.game.visualize(f'{self.name} attacks {defend_ship.name}! {attack_hull.name} to {defend_hull.name}! Range : {["close", "medium", "long"][attack_range]}')
-
-        attack_pool = self.gather_dice(attack_hull, attack_range)
-
-        if sum(attack_pool) == 0 : return # cannot gather attack dice
-
-        # rolling dice
-        attack_pool = roll_dice(attack_pool)
-        self.game.visualize((f'''
-          Dice Rolled!
-          Black [Blank, Hit, Double] : {attack_pool[0]}
-          Blue [Hit, Critical, Accuracy] : {attack_pool[1]}
-          Red [Blank, Hit, Critical, Double, Accuracy] : {attack_pool[2]}
-        '''))
-        return attack_pool
-
-    def resolve_attack_effect(self):
-        """pass"""
-        pass
-
-    def spend_defense_token(self):
-        """pass"""
-        pass
-
-    def resolve_damage(self, defend_ship : "Ship", defend_hull : HullSection, attack_pool : list[list[int]]) -> None :
-        """
-        Resolve the damage dealt to the defending ship.
-        Args:
-            defend_ship (Ship): The defending ship.
-            defend_hull (HullSection): The hull section being attacked.
-            attack_pool (list[list[int]]): The rolled attack dice.
-        """
-        black_critical = bool(attack_pool[CRIT_INDICES[0]])
-        blue_critical = bool(attack_pool[CRIT_INDICES[1]])
-        red_critical = bool(attack_pool[CRIT_INDICES[2]])
-        total_damage = sum(
-            sum(damage * dice for damage, dice in zip(damage_values, dice_counts)) for damage_values, dice_counts in zip(DAMAGE_INDICES, attack_pool)
-            )
-        
-        if black_critical or blue_critical or red_critical :
-            critical = Critical.STANDARD
-        defend_ship.defend(defend_hull, total_damage, critical)
-
-
-# execute maneuver sequence
-
-    # def determine_course(self) -> tuple[list, int]:
-
     def move_ship(self, course : list[int], placement : int) -> None:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
 
@@ -180,13 +98,13 @@ class Ship:
 
         while True :
             self._maneuver_to_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
+            self.game.visualize(f'\n{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
 
             current_overlap = self.is_overlap()
 
             if not any(current_overlap):
                 break
-            self.game.visualize(f'{self.name} overlaps ships at speed {len(joint_orientaion) - 1} maneuver.')
+            self.game.visualize(f'\n{self.name} overlaps ships at speed {len(joint_orientaion) - 1} maneuver.')
 
             overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
 
@@ -198,7 +116,7 @@ class Ship:
             if len(joint_coordination) == 1 : break
 
         if self.out_of_board() :
-            self.game.visualize(f'{self.name} is out of board!')
+            self.game.visualize(f'\n{self.name} is out of board!')
             self.destroy()
 
         self.overlap(overlap_list)
@@ -404,7 +322,7 @@ class Ship:
 
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None = None ) -> None:
         
-        self.game.visualize(f'{self.name} is defending. Total Damge is {total_damage}')
+        self.game.visualize(f'\n{self.name} is defending. Total Damge is {total_damage}')
 
         # Absorb damage with shields first
         shield_damage = min(total_damage, self.shield[defend_hull.value])
@@ -583,7 +501,7 @@ class Ship:
         if closest_ship:
             self.hull -= 1
             closest_ship.hull -= 1
-            self.game.visualize(f"{self.name} overlaps to {closest_ship.name}.")
+            self.game.visualize(f"\n{self.name} overlaps to {closest_ship.name}.")
             if self.hull <= 0 : self.destroy()
             if closest_ship.hull <= 0 :closest_ship.destroy()
 

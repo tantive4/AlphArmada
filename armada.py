@@ -186,6 +186,7 @@ class Armada:
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
+        self.visualize(f'\n{ship.name} is deployed.')
 
 
 
@@ -243,13 +244,13 @@ class Armada:
         The main game loop, structured by rounds and alternating player turns.
         """
         while self.winner is None:
-            actions : list[ActionType.Action] = self.get_possible_actions()
             if self.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
                 if self.attack_info is None :
                     raise ValueError("No attack info for the current game phase.") 
                 dice_roll = dice.roll_dice(self.attack_info.attack_pool)
                 action = ('roll_dice_action', dice_roll)
             else :
+                actions : list[ActionType.Action] = self.get_possible_actions()
                 action : ActionType.Action = random.choice(actions)
             self.apply_action(action)
             print(self.current_player)
