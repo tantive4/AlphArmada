@@ -3,7 +3,7 @@ import shapely.ops
 import numpy as np
 import math
 from dice import *
-from enum import IntEnum
+from enum import Enum
 from typing import TYPE_CHECKING
 
 # Conditionally import Armada only for type checking
@@ -11,14 +11,13 @@ if TYPE_CHECKING:
     from armada import Armada
 
 
-class HullSection(IntEnum):
+class HullSection(Enum):
     FRONT = 0
     RIGHT = 1
     REAR = 2
     LEFT = 3
 
-class Critical(IntEnum) :
-    STANDARD = 0
+
 
 SHIP_BASE_SIZE : dict[str, tuple]= {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
 SHIP_TOKEN_SIZE :  dict[str, tuple] = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
@@ -398,7 +397,7 @@ class Ship:
         return blocked_line_of_sight, obstructed_line_of_sight
 
     def gather_dice(self, attack_hull : HullSection, attack_range : int) -> list[int] :
-        attack_pool = self.battery[attack_hull].copy()
+        attack_pool = self.battery[attack_hull.value].copy()
         for i in range(3) :
             if i < attack_range: attack_pool[i] = 0
         return attack_pool

@@ -5,10 +5,11 @@ from typing import TYPE_CHECKING, TypedDict, List, NotRequired, TypeAlias, Tuple
 import itertools
 from ship import Ship, HullSection
 from time import sleep
+from game_phase import GamePhase, ActionType
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:
     from armada import Armada
-    
+
 
 class MCTSState(TypedDict):
     """
@@ -22,29 +23,7 @@ class MCTSState(TypedDict):
     declare_target: Optional[tuple[HullSection, int, HullSection]]
     course: Optional[list[Optional[int]]]
 
-class ActionType :
-    ActiveShipAction: TypeAlias = Tuple[Literal["activate_ship_action"], int]
-    DeclareTargetAction: TypeAlias = Tuple[Literal["declare_target_action"], Tuple[HullSection, int, HullSection]]
 
-    AttackDiceAction: TypeAlias = Tuple[Literal["attack_dice_roll"], List[List[int]]]
-    PassAction: TypeAlias = Tuple[Literal["pass_activation"] | Literal["pass_attack"], None]
-
-    # DetermineCourseAction: TypeAlias = Tuple[Literal["determine_course_action"], Tuple[List[int], int]]
-    DetermineSpeedAction: TypeAlias = Tuple[Literal["determine_speed_action"], int]
-    DetermineYawAction: TypeAlias = Tuple[Literal["determine_yaw_action"], int]
-    DeterminePlacementAction: TypeAlias = Tuple[Literal["determine_placement_action"], int]
-
-
-    Action: TypeAlias = (
-        ActiveShipAction | 
-        DeclareTargetAction | 
-        AttackDiceAction | 
-        PassAction |
-        # DetermineCourseAction | 
-        DetermineSpeedAction |
-        DetermineYawAction |
-        DeterminePlacementAction
-    )
 
 class Node:
     """

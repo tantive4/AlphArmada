@@ -1,13 +1,13 @@
 import numpy as np
-from ship import Ship
+from ship import Ship, HullSection
 import random
 from shapely.geometry import Polygon
 import visualizer
+import dice
 import copy
-from mcts import MCTS, MCTSState, ActionType
-from time import sleep
-
-
+from mcts import MCTS, MCTSState
+import itertools
+from game_phase import GamePhase, ActionType
 
 class Armada:
     def __init__(self) -> None:
@@ -19,13 +19,166 @@ class Armada:
             (self.short_edge, self.player_edge),
             (self.short_edge, 0),
         ])
-        self.ships : list[Ship] = []  # max 3 total, 2 + 1
+        self.ships : list[Ship] = []
 
         self.round = 1
+        self.phase = GamePhase.SHIP_PHASE
+        self.current_player = 1
+        self.active_ship : Ship | None = None
+        self.attack_info : AttackInfo | None = None
+        self.determine_course : list[int | None] | None = None
+
         self.winner : float | None = None
         self.image_counter = 0
-        self.current_player = 1
         self.simulation_mode = False
+
+    def get_possible_action(self) -> list[ActionType.Action]:
+        """
+        Returns a list of possible actions based on the current game phase.
+        """
+
+        actions : list[ActionType.Action] = []
+
+        if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
+            if self.active_ship is None:
+                raise ValueError('No active ship for the current game phase.')
+            active_ship : Ship = self.active_ship
+        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
+            if self.attack_info is None:
+                raise ValueError('No attack info for the current game phase.')
+            attack_info : AttackInfo = self.attack_info
+
+
+
+        match self.phase:
+            case GamePhase.SHIP_PHASE :
+                if self.winner is not None:
+                    raise ValueError('Game has already ended.')
+                
+                valid_ships = self.get_valid_activation(self.current_player)
+                if valid_ships : 
+                    actions = [('activate_ship_action', ship.ship_id) for ship in valid_ships]
+                else :
+                    actions = [('pass_ship_activation', None)]
+
+            case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
+                if active_ship.attack_count < 2:
+                    actions = [('declare_target_action', (attack_hull, defend_ship.ship_id, defend_hull))
+                        for attack_hull in active_ship.get_valid_attack_hull()
+                        for defend_ship in active_ship.get_valid_target_ship(attack_hull)
+                        for defend_hull in active_ship.get_valid_target_hull(attack_hull, defend_ship)]
+                actions.append(('pass_attack', None))
+            
+            case GamePhase.SHIP_ATTACK_GATHER_DICE :
+                if attack_info.obstructed:
+                    for index, value in enumerate(attack_info.attack_pool):
+                        if value > 0:
+                            new_pool = attack_info.attack_pool.copy()
+                            new_pool[index] -= 1
+                            actions.append(('gather_dice_action', new_pool))
+                else:
+                    actions = [('gather_dice_action', attack_info.attack_pool)]
+            
+            case GamePhase.SHIP_ATTACK_ROLL_DICE :
+                actions = [('roll_dice_action', dice_roll) for dice_roll in dice.generate_all_dice_outcomes(attack_info.attack_pool)]
+                
+
+            case GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE :
+                actions = [('resolve_damage_action', None)]
+
+
+            case GamePhase.SHIP_MANEUVER_DETERMINE_COURSE :
+                for speed in active_ship.get_valid_speed():
+                    if speed == 0:
+                        actions.append(('determine_course_action', ([], 1)))
+                        continue
+                    yaw_options_per_joint = [active_ship.get_valid_yaw(speed, joint) for joint in range(speed)]
+                    for yaw_tuple in itertools.product(*yaw_options_per_joint):
+                        course = [yaw for yaw in yaw_tuple]
+                        for placement in active_ship.get_valid_placement(course):
+                            actions.append(('determine_course_action', (course, placement)))
+
+            case GamePhase.STATUS_PHASE :
+                actions = [('status_phase', None)]
+
+            case _ :
+                raise ValueError(f'Unknown game phase: {self.phase}')
+    
+        return actions
+    
+    def apply_action(self, action : ActionType.Action) -> None:
+        """
+        Applies the given action to the game state.
+        """
+        if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
+            if self.active_ship is None:
+                raise ValueError("No active ship for the current game phase.")
+            active_ship : Ship = self.active_ship
+        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
+            if self.attack_info is None:
+                raise ValueError("No attack info for the current game phase.")
+            attack_info : AttackInfo = self.attack_info
+        if self.phase > GamePhase.SHIP_ATTACK_ROLL_DICE and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
+            if attack_info.attack_pool_result is None:
+                raise ValueError("No attack pool result for the current game phase.")
+            attack_pool_result = attack_info.attack_pool_result
+        
+        match action[0]:
+            case 'activate_ship_action':
+                ship_id = action[1]
+                self.active_ship = self.ships[ship_id]
+                self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
+
+            case 'pass_ship_activation':
+                if self.get_valid_activation(-self.current_player):
+                    self.current_player *= -1
+                else :
+                    self.phase = GamePhase.STATUS_PHASE
+                    self.active_ship = None
+            
+            case 'declare_target_action':
+                active_ship.attack_count += 1
+                active_ship.attack_possible_hull[action[1][0].value] = False
+                self.attack_info = AttackInfo(active_ship, action[1][0], self.ships[action[1][1]], action[1][2])
+                self.phase = GamePhase.SHIP_ATTACK_GATHER_DICE
+            
+            case 'gather_dice_action':
+                attack_info.attack_pool = action[1]
+                self.phase = GamePhase.SHIP_ATTACK_ROLL_DICE
+
+            case 'roll_dice_action':
+                attack_info.attack_pool_result = action[1]
+                self.phase = GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE
+
+            case 'resolve_damage_action':
+                black_critical = bool(attack_pool_result[dice.CRIT_INDICES[0]])
+                blue_critical = bool(attack_pool_result[dice.CRIT_INDICES[1]])
+                red_critical = bool(attack_pool_result[dice.CRIT_INDICES[2]])
+                total_damage = sum(
+                    sum(damage * dice for damage, dice in zip(damage_values, dice_counts)) for damage_values, dice_counts in zip(dice.DAMAGE_INDICES, attack_pool_result)
+                    )
+                
+                critical = None
+                if black_critical or blue_critical or red_critical :
+                    critical = dice.Critical.STANDARD
+                self.ships[attack_info.defend_ship_id].defend(attack_info.defend_hull, total_damage, critical)
+
+            case 'pass_attack':
+                self.attack_info = None
+                self.phase = GamePhase.SHIP_MANEUVER_DETERMINE_COURSE
+
+            case 'determine_course_action':
+                course, placement = action[1]
+                active_ship.move_ship(course, placement)
+                active_ship.activated = True
+                self.active_ship = None
+                self.phase = GamePhase.SHIP_PHASE
+                self.current_player *= -1
+                
+            case 'status_phase':
+                self.status_phase()
+                if self.winner is None :
+                    self.phase = GamePhase.SHIP_PHASE
 
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
@@ -70,51 +223,18 @@ class Armada:
 
         # 4. If the game is not over, advance to the next round
         else:
-            self.round += 1
-            self.current_player = 1
             if not self.simulation_mode:
                 with open('simulation_log.txt', 'a') as f: f.write(f"\nEnd of Round {self.round}.")
+            self.round += 1
+            self.current_player = 1
+
         
 
     def get_point(self, player : int) -> int :
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
 
-    def play_round(self) -> None:
-        """
-        Plays a single round of the game, alternating between players.
-        Each player activates their ships, attacks, and maneuvers.
-        """
-        self.ship_phase()
-        self.status_phase()
 
 
-    def ship_phase(self) -> None:
-        """
-        The ship phase is where players activate their ships, attack, and maneuver.
-        """
-        # Continue as long as any ship can be activated by any player
-        while any(self.get_valid_activation(1)) or any(self.get_valid_activation(-1)):
-
-            # If the current player has no ships left to activate, pass the turn to the opponent.
-            if not any(self.get_valid_activation(self.current_player)):
-                self.current_player *= -1
-                continue # Restart the loop for the other player's turn
-
-            # It's the current player's turn to make a move.
-            self.visualize(f'ROUND {self.round} | Player {self.current_player}\'s Turn')
-
-            # --- MCTS Execution ---
-            if self.current_player == 1:
-                with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer 1 (MCTS) is playing...")
-                self._execute_mcts_turn(iterations=1500)
-            elif self.current_player == -1:
-                with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer -1 (MCTS) is playing...")
-                self._execute_mcts_turn(iterations=500)
-
-            # --- Switch Player for the next activation ---
-            # IMPORTANT: Only switch if the opponent can still activate.
-            if any(self.get_valid_activation(-self.current_player)):
-                self.current_player *= -1
 
 
     def play(self) -> None :
@@ -122,216 +242,34 @@ class Armada:
         The main game loop, structured by rounds and alternating player turns.
         """
         while self.winner is None:
-            self.play_round()
+            actions : list[ActionType.Action] = self.get_possible_action()
+            action : ActionType.Action = random.choice(actions)
+            self.apply_action(action)
+            print(self.current_player)
 
         self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
         with open('simulation_log.txt', 'a') as f: f.write(f"Player {1 if self.winner is not None and self.winner > 0 else -1} has won!")
 
-    def _execute_mcts_turn(self, iterations : int = 1000):
-        """
-        Executes a full ship activation for the MCTS player by breaking it down
-        into sequential decisions.
-        """
-        # === 1. CHOOSE SHIP TO ACTIVATE ===
-        with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} is thinking about phase: activation")
-        state : MCTSState = {
-            "game": self, 
-            "current_player": self.current_player, 
-            "decision_phase": "ship_activation",
-            "active_ship_id": None, 
-            "declare_target": None,
-            "course": None
-            }
-        mcts_state_copy = copy.deepcopy(state)
-        mcts_state_copy['game'].simulation_mode = True
-        mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        mcts.search(iterations=iterations)
-        action = mcts.get_best_action()
 
-        if action is None or action[0] != 'activate_ship_action':
-            raise ValueError('MCTS must choose ship to activate')
-        
-        active_ship_id : int = action[1]
-        active_ship = self.ships[active_ship_id]
-        with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} chose action: {action[0], active_ship.name}")
-
-
-        # === 2. ATTACK PHASE ===
-
-        while active_ship.attack_count < 2 :
-            with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} is thinking about attack #{active_ship.attack_count + 1}...")
-            
-
-            state : MCTSState = {
-                "game": self, 
-                "current_player": self.current_player, 
-                "decision_phase": "declare_target", 
-                "active_ship_id": active_ship_id, 
-                "declare_target": None,
-                "course": None,
-                }
-            mcts_state_copy = copy.deepcopy(state)
-            mcts_state_copy['game'].simulation_mode = True
-            mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-            mcts.search(iterations=iterations)
-            action = mcts.get_best_action()
-
-            # If the AI decides to skip, break the attack loop
-            if action is None or (action[0] != 'declare_target_action' and action[0] != 'pass_attack'):
-                raise ValueError('MCTS must choose declare target or pass to maneuver')
-            if action[0] == 'pass_attack':
-                with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} skips to move ship step")
-                break
-
-            with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} has decided to attack. Determining optimal target...")
-            if action[1] is None :
-                raise ValueError('Action must contain target information')
-
-            # Decode the optimal attack path
-            attacking_hull = action[1][0]
-            defend_ship = self.ships[action[1][1]]
-            defending_hull = action[1][2]
-
-            # Execute the chosen attack in the REAL game
-            with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} executes optimal attack: {active_ship.name} ({attacking_hull.name}) -> {defend_ship.name} ({defending_hull.name})")
-            
-            # Roll the dice and resolve the attack in the actual game state
-            attack_pool = active_ship.roll_attack_dice(attacking_hull, defend_ship, defending_hull)
-            if attack_pool:
-                active_ship.resolve_damage(defend_ship, defending_hull, attack_pool)
-
-
-
-        # # === 3. MOVE SHIP PHASE ===
-        # with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} is thinking about the full maneuver...")
-
-        # # 1. Set up the initial state
-        # state : MCTSState = {
-        #     "game": self,
-        #     "current_player": self.current_player,
-        #     "decision_phase": "determine_course",
-        #     "active_ship_id": active_ship_id,
-        #     "declare_target": None,
-        #     "course": None
-        #     }
-        # mcts_state_copy = copy.deepcopy(state)
-        # mcts_state_copy['game'].simulation_mode = True
-
-        # # 2. Create and run MCTS
-        # mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        # mcts.search(iterations=iterations)
-
-        # action = mcts.get_best_action()
-        # if action is None or action[0] != 'determine_course_action' :
-        #     raise ValueError('MCTS must choose course')
-        
-        # course = action[1][0]
-        # placement = action[1][1]
-        # active_ship.speed = len(course)
-
-        # with open('simulation_log.txt', 'a') as f: f.write(f"\nPlayer {self.current_player} chose final maneuver: Course {course}, Placement {'left' if placement == -1 else 'right'}")
-        # active_ship.move_ship(course, placement)
-
-
-        # === 3. HIERARCHICAL MANEUVER PHASE (Single Search, Walk Down) ===
-        with open('simulation_log.txt', 'a') as f: f.write(f"\nPhase: Maneuver Planning")
-        state = {
-            "game": self, "current_player": self.current_player, "decision_phase": "determine_speed",
-            "active_ship_id": active_ship_id, "declare_target": None, "course": None
-        }
-        mcts_state_copy = copy.deepcopy(state)
-        mcts_state_copy['game'].simulation_mode = True
-        mcts = MCTS(initial_state=mcts_state_copy, player=self.current_player)
-        mcts.search(iterations=iterations)
-
-
-        # --- Walk down the tree to get the full maneuver ---
-        # Get Speed
-        best_node = mcts.get_best_child()
-        with open('simulation_log.txt', 'a') as f: f.write(f"\nTotal Win {round(best_node.wins)}. Best Action {best_node.action} \n{[(node.action, round(node.wins), node.visits) for node in best_node.children]}")
-
-        speed_action = best_node.action
-        if speed_action is None or speed_action[0] != 'determine_speed_action': raise ValueError("MCTS failed to return a speed action.")
-        speed = speed_action[1]
-        active_ship.speed = speed
-
-        course = []
-        if speed > 0:
-            # Get Yaws by walking down the tree
-            for joint_index in range(speed):
-                best_node = max(best_node.children, key=lambda c: c.visits)
-                with open('simulation_log.txt', 'a') as f: f.write(f"\nTotal Win {round(best_node.wins)}. Best Action {best_node.action} \n{[(node.action, round(node.wins), node.visits) for node in best_node.children]}")
-                
-                yaw_action = best_node.action
-                if yaw_action is None or yaw_action[0] != 'determine_yaw_action': raise ValueError("MCTS failed to return a yaw action.")
-                course.append(yaw_action[1])
-
-            # Get Placement
-            best_node = max(best_node.children, key=lambda c: c.visits)
-            with open('simulation_log.txt', 'a') as f: f.write(f"\nTotal Win {round(best_node.wins)}. Best Action {best_node.action} \n{[(node.action, round(node.wins), node.visits) for node in best_node.children]}")
-            placement_action = best_node.action
-            if placement_action is None or placement_action[0] != 'determine_placement_action': raise ValueError("MCTS failed to return a placement action.")
-            placement = placement_action[1]
-        else:
-            placement = 1 # Default placement for speed 0
-        
-        placement_str = 'left' if placement == -1 else 'right'
-
-        # --- Execute the final maneuver ---
-        with open('simulation_log.txt', 'a') as f: f.write(f"\nAction: Execute Maneuver {course, placement_str}")
-        active_ship.move_ship(course, placement)
-        
-
-        # End of activation
-        active_ship.activated = True
-
-
-
-
-    def _execute_random_activation(self, ship_to_activate: Ship):
-        """
-        Executes a full, random activation for a given ship (for the non-MCTS player).
-        """
-        
-        # 1. Attack Phase
-        while ship_to_activate.attack_count < 2:
-            valid_hulls = ship_to_activate.get_valid_attack_hull()
-            if not valid_hulls: break
-            
-            attack_hull = random.choice(valid_hulls)
-            defend_ship = random.choice(ship_to_activate.get_valid_target_ship(attack_hull))
-            defend_hull = random.choice(ship_to_activate.get_valid_target_hull(attack_hull, defend_ship))
-            attack_pool = ship_to_activate.roll_attack_dice(attack_hull, defend_ship, defend_hull)
-            if attack_pool:
-                ship_to_activate.resolve_damage(defend_ship, defend_hull, attack_pool)
-
-
-        # 2. Maneuver Phase
-        valid_speed = ship_to_activate.get_valid_speed()
-        speed = random.choice(valid_speed)
-        ship_to_activate.speed = speed
-
-        course = []
-        for joint in range(speed):
-            valid_yaw = ship_to_activate.get_valid_yaw(speed, joint)
-            yaw = random.choice(valid_yaw)
-            course.append(yaw - 2)
-        
-        if speed > 0:
-            valid_placement = ship_to_activate.get_valid_placement(course)
-            placement = random.choice(valid_placement)
-            ship_to_activate.move_ship(course, placement)
-        
-        ship_to_activate.activated = True
 
 
     def visualize(self, title : str, maneuver_tool = None) -> None:
         if self.simulation_mode:
             return
         visualizer.visualize(self, title, maneuver_tool)
-        # sleep(1)
 
     def refresh_ship_links(self) -> None:
         """Ensures all ship objects refer to this game instance."""
         for ship in self.ships:
             ship.game = self
+
+class AttackInfo :
+    def __init__(self, attack_ship : Ship, attack_hull : HullSection, defend_ship : Ship, defend_hull : HullSection) -> None:
+        self.attack_ship_id : int = attack_ship.ship_id
+        self.attack_hull : HullSection = attack_hull
+        self.defend_ship_id : int = defend_ship.ship_id
+        self.defend_hull : HullSection = defend_hull
+        self.attack_range :int = attack_ship.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
+        self.obstructed : bool = attack_ship.measure_line_of_sight(attack_hull, defend_ship, defend_hull)[1]
+        self.attack_pool : list[int] = attack_ship.gather_dice(attack_hull, self.attack_range)
+        self.attack_pool_result : list[list[int]] | None = None

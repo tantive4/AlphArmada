@@ -1,4 +1,9 @@
 import random
+import itertools
+from collections import Counter
+from enum import Enum
+
+
 CRIT_INDICES = [1, 1, 2]
 DAMAGE_INDICES = [[0, 1, 2], [1, 1, 0], [0, 1, 1, 2, 0]]
 
@@ -114,8 +119,86 @@ def reroll_dice(dice_result: list[list[int]], dice_to_reroll: list[list[int]]) -
 
     return final_result
 
-# input_dice_3 = [10, 2, 2]
-# roll_results_3 = roll_dice(input_dice_3)
-# print(f"Input: {input_dice_3}")
-# print(f"Output: {roll_results_3}")
-# print(reroll_dice(roll_results_3, [[1,0,0],[0,0,0],[0,0,0,0,0]]))
+
+
+
+
+def _generate_outcomes_for_color(dice_count: int, num_faces: int) -> list[list[int]]:
+    """
+    Generates all possible result combinations for a single color of dice.
+  
+    Args:
+        dice_count (int): The number of dice of this color.
+        num_faces (int): The number of unique faces on the die.
+
+    Returns:
+        List[List[int]]: A list of all possible outcomes for this color.
+    """
+    if dice_count == 0:
+        return [[0] * num_faces]
+
+    face_indices = range(num_faces)
+    outcomes = []
+    
+    # Generate all combinations of face indices with replacement
+    for combo in itertools.combinations_with_replacement(face_indices, dice_count):
+        # Count how many times each face index appears in the combination
+        counts = Counter(combo)
+        # Create the result list in the correct order of faces
+        result = [counts[i] for i in face_indices]
+        outcomes.append(result)
+        
+    return outcomes
+
+def generate_all_dice_outcomes(dice: list[int]) -> list[list[list[int]]]:
+    """
+    Creates a list of every possible dice outcome for a given set of dice.
+
+    Args:
+        dice (list): A list [black, blue, red]
+                     representing the number of each die type.
+
+    Returns:
+        list[list[list[int]]]: A list of all unique outcomes. Each outcome
+        is formatted like the output of the original `roll_dice` function:
+        [[black_faces], [blue_faces], [red_faces]]
+    """
+    num_black, num_blue, num_red = dice
+
+    # Define the number of unique faces for each die color
+    # Black: blank, hit, double
+    # Blue: hit, critical, accuracy
+    # Red: blank, hit, critical, double, accuracy
+
+    
+    # Generate all possible outcomes for each color pile
+    black_outcomes = _generate_outcomes_for_color(num_black, len(DAMAGE_INDICES[0]))
+    blue_outcomes = _generate_outcomes_for_color(num_blue, len(DAMAGE_INDICES[1]))
+    red_outcomes = _generate_outcomes_for_color(num_red, len(DAMAGE_INDICES[2]))
+    
+    # Combine the outcomes of each color using a Cartesian product
+    # This pairs every black outcome with every blue outcome and every red outcome.
+    all_combinations = itertools.product(black_outcomes, blue_outcomes, red_outcomes)
+    
+    # Format the final list
+    final_outcomes = [[black, blue, red] for black, blue, red in all_combinations]
+    
+    return final_outcomes
+
+
+if __name__ == "__main__":
+    # --- Example Usage ---
+    # Input: 1 black die, 1 blue die, 0 red dice
+    dice_pool = [1, 1, 0]
+    all_possible_outcomes = generate_all_dice_outcomes(dice_pool)
+
+    print(f"Dice Pool: {dice_pool}")
+    print(f"Total Unique Outcomes: {len(all_possible_outcomes)}\n")
+
+    # Print each outcome for clarity
+    for i, outcome in enumerate(all_possible_outcomes):
+        print(f"Outcome {i+1}: {outcome}")
+
+
+class Critical(Enum) :
+    STANDARD = 0
