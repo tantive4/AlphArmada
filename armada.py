@@ -8,6 +8,7 @@ import copy
 from mcts import MCTS
 import itertools
 from game_phase import GamePhase, ActionType
+from typing import Callable
 
 class Armada:
     def __init__(self) -> None:
@@ -24,7 +25,7 @@ class Armada:
         self.round : int = 1
         self.phase = GamePhase.SHIP_PHASE
         self.current_player : int = 1
-        self.decision_player : int | None = None
+        self.decision_player : int | None = 1
         self.active_ship : Ship | None = None
         self.attack_info : AttackInfo | None = None
         self.determine_course : list[int | None] | None = None
@@ -36,29 +37,51 @@ class Armada:
 
 
 
-    def play(self) -> None :
+    def play(self, 
+             player1 : Callable[[], ActionType.Action] | None = None, 
+             player2 : Callable[[], ActionType.Action] | None = None, 
+             max_simulation_step : int | None = None) -> float :
         """
-        The main game loop
+        The main game loop with two players defined by functions.
+        Each player function should return an action based on the current game state.
         """
+        if player1 is None : 
+            player1 = self.random_decision
+        if player2 is None : 
+            player2 = self.random_decision
+        simulation_counter = 0
+
+        
         while self.winner is None:
-            
-            
             if self.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
                 if self.attack_info is None :
                     raise ValueError("No attack info for the current game phase.") 
                 dice_roll = dice.roll_dice(self.attack_info.attack_pool)
                 action = ('roll_dice_action', dice_roll)
-            elif self.decision_player is None :
-                action : ActionType.Action = self.get_possible_actions()[0]
+
+            elif self.decision_player == 1 : 
+                action : ActionType.Action = player1()
+            elif self.decision_player == -1 :
+                action : ActionType.Action = player2()
+
             else :
-                action : ActionType.Action = random.choice(self.get_possible_actions())
-                action : ActionType.Action = self.execute_mcts()
+                action : ActionType.Action = self.get_possible_actions()[0]
             self.apply_action(action)
-            print(self.current_player)
 
-        self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
+            simulation_counter += 1
+            if max_simulation_step is not None and simulation_counter >= max_simulation_step:
+                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}')
+        return self.winner
 
-    def execute_mcts(self, iterations : int = 1000) -> ActionType.Action:
+    def random_decision(self) -> ActionType.Action:
+        """
+        A simple strategy that returns a random action from the list of possible actions.
+        """
+        actions = self.get_possible_actions()
+        return random.choice(actions)
+
+
+    def mcts_decision(self, iterations : int = 1000) -> ActionType.Action:
         game_copy : Armada = copy.deepcopy(self)
         game_copy.simulation_mode = True
         mcts = MCTS(game_copy)
@@ -168,7 +191,9 @@ class Armada:
 
             case _ :
                 raise ValueError(f'Unknown game phase: {self.phase}')
-    
+            
+        if not actions:
+            raise ValueError(f'No valid actions available in phase {self.phase}')
         return actions
     
     def apply_action(self, action : ActionType.Action) -> None:
@@ -207,10 +232,12 @@ class Armada:
             case 'declare_target_action':
                 active_ship.attack_count += 1
                 active_ship.attack_possible_hull[action[1][0].value] = False
+                # gather initial dice pool here
                 self.attack_info = AttackInfo(active_ship, action[1][0], self.ships[action[1][1]], action[1][2])
                 self.phase = GamePhase.SHIP_ATTACK_GATHER_DICE
             
             case 'gather_dice_action':
+                # update dice pool considering obstruction.etc
                 attack_info.attack_pool = action[1]
                 self.phase = GamePhase.SHIP_ATTACK_ROLL_DICE
 
@@ -331,15 +358,6 @@ class Armada:
 
     def get_point(self, player : int) -> int :
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
-
-
-
-
-
-
-
-
-
 
     def visualize(self, title : str, maneuver_tool = None) -> None:
         if self.simulation_mode:
