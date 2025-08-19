@@ -1,11 +1,11 @@
-import numpy as np
+from __future__ import annotations
 from ship import Ship, HullSection
 import random
 from shapely.geometry import Polygon
 import visualizer
 import dice
 import copy
-from mcts import MCTS, MCTSState
+from mcts import MCTS
 import itertools
 from game_phase import GamePhase, ActionType
 
@@ -21,22 +21,87 @@ class Armada:
         ])
         self.ships : list[Ship] = []
 
-        self.round = 1
+        self.round : int = 1
         self.phase = GamePhase.SHIP_PHASE
-        self.current_player = 1
+        self.current_player : int = 1
+        self.decision_player : int | None = None
         self.active_ship : Ship | None = None
         self.attack_info : AttackInfo | None = None
         self.determine_course : list[int | None] | None = None
 
         self.winner : float | None = None
-        self.image_counter = 0
-        self.simulation_mode = False
+        self.image_counter : int = 0
+        self.simulation_mode : bool = False
+        
+
+
+
+    def play(self) -> None :
+        """
+        The main game loop
+        """
+        while self.winner is None:
+            
+            
+            if self.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
+                if self.attack_info is None :
+                    raise ValueError("No attack info for the current game phase.") 
+                dice_roll = dice.roll_dice(self.attack_info.attack_pool)
+                action = ('roll_dice_action', dice_roll)
+            elif self.decision_player is None :
+                action : ActionType.Action = self.get_possible_actions()[0]
+            else :
+                action : ActionType.Action = random.choice(self.get_possible_actions())
+                action : ActionType.Action = self.execute_mcts()
+            self.apply_action(action)
+            print(self.current_player)
+
+        self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
+
+    def execute_mcts(self, iterations : int = 1000) -> ActionType.Action:
+        game_copy : Armada = copy.deepcopy(self)
+        game_copy.simulation_mode = True
+        mcts = MCTS(game_copy)
+        mcts.search(iterations)
+        action : ActionType.Action = mcts.get_best_action()
+        return action
+
+    def update_decision_player(self) -> None:
+        """
+        Returns a list of possible actions based on the current game phase.
+        """
+
+        match self.phase:
+            case GamePhase.SHIP_PHASE :
+                self.decision_player = self.current_player
+
+            case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
+                self.decision_player = self.current_player
+            
+            case GamePhase.SHIP_ATTACK_GATHER_DICE :
+                self.decision_player = self.current_player
+
+            case GamePhase.SHIP_ATTACK_ROLL_DICE :
+                self.decision_player = None
+
+            case GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE :
+                self.decision_player = self.current_player
+
+            case GamePhase.SHIP_MANEUVER_DETERMINE_COURSE :
+                self.decision_player = self.current_player
+
+            case GamePhase.STATUS_PHASE :
+                self.decision_player = None
+
+            case _ :
+                raise ValueError(f'Unknown game phase: {self.phase}')
+    
 
     def get_possible_actions(self) -> list[ActionType.Action]:
         """
         Returns a list of possible actions based on the current game phase.
         """
-
+        self.update_decision_player()
         actions : list[ActionType.Action] = []
 
         if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
@@ -110,7 +175,8 @@ class Armada:
         """
         Applies the given action to the game state.
         """
-        self.visualize(f"\n{self.phase.name}, Player {self.current_player}\n{action}")
+        action_str : str = self._get_action_string(action)
+        self.visualize(f"\n{self.phase.name}, Player {self.current_player}\n{action_str}")
 
         if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
             if self.active_ship is None:
@@ -183,6 +249,37 @@ class Armada:
                 if self.winner is None :
                     self.phase = GamePhase.SHIP_PHASE
 
+        self.update_decision_player()
+
+    def _get_action_string(self, action : ActionType.Action) -> str:
+        """
+        Returns a string representation of the action for visualization.
+        """
+        match action[0]:
+            case 'activate_ship_action':
+                return f'Activating {self.ships[action[1]].name}'
+            case 'pass_ship_activation':
+                return 'Passing ship activation'
+            case 'declare_target_action':
+                attack_hull, defend_ship_id, defend_hull = action[1]
+                defend_ship = self.ships[defend_ship_id]
+                return f'Declaring target: from {attack_hull.name} to {defend_ship.name} {defend_hull.name}'
+            case 'gather_dice_action':
+                return f'Gathering dice: {action[1]}'
+            case 'roll_dice_action':
+                return f'Rolling dice: {action[1]}'
+            case 'resolve_damage_action':
+                return 'Resolving damage'
+            case 'pass_attack':
+                return 'Passing attack'
+            case 'determine_course_action':
+                course, placement = action[1]
+                return f'Determining course: {course}, Placement: {placement}'
+            case 'status_phase':
+                return 'Status phase'
+            case _:
+                raise ValueError(f'Unknown action type: {action[0]}')
+
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
@@ -239,23 +336,7 @@ class Armada:
 
 
 
-    def play(self) -> None :
-        """
-        The main game loop, structured by rounds and alternating player turns.
-        """
-        while self.winner is None:
-            if self.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
-                if self.attack_info is None :
-                    raise ValueError("No attack info for the current game phase.") 
-                dice_roll = dice.roll_dice(self.attack_info.attack_pool)
-                action = ('roll_dice_action', dice_roll)
-            else :
-                actions : list[ActionType.Action] = self.get_possible_actions()
-                action : ActionType.Action = random.choice(actions)
-            self.apply_action(action)
-            print(self.current_player)
 
-        self.visualize(f'Player {1 if self.winner is not None and self.winner > 0 else -1} has won!')
 
 
 
@@ -272,6 +353,7 @@ class Armada:
 
 class AttackInfo :
     def __init__(self, attack_ship : Ship, attack_hull : HullSection, defend_ship : Ship, defend_hull : HullSection) -> None:
+        self.attack_player : int = attack_ship.player
         self.attack_ship_id : int = attack_ship.ship_id
         self.attack_hull : HullSection = attack_hull
         self.defend_ship_id : int = defend_ship.ship_id
