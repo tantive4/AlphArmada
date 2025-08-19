@@ -2,9 +2,9 @@ from shapely.geometry import Polygon, LineString
 import shapely.ops
 import numpy as np
 import math
-from dice import *
 from enum import Enum
 from typing import TYPE_CHECKING
+from dice import Critical
 
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:

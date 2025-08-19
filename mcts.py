@@ -52,26 +52,30 @@ class Node:
         log_parent_visits = math.log(self.visits)
         
         best_score = -float('inf')
-        best_children = [] # Use a list to hold all children with the best score
+        tie_count : int = 0
 
         for child in self.children:
             # Exploit term (win rate)
             if child.visits == 0:
                 return child
-            win_rate = child.wins / (child.visits + 1e-7)
+            win_rate = child.wins / (child.visits)
 
             # Explore term
-            exploration = exploration_constant * math.sqrt(log_parent_visits / (child.visits + 1e-7))
+            exploration = exploration_constant * math.sqrt(log_parent_visits / (child.visits))
             
             uct_score = win_rate + exploration
 
             if uct_score > best_score:
                 best_score = uct_score
-                best_children = [child] # Found a new best, start a new list
+                best_child = child
+                tie_count : int = 1  # Reset the count for the new best score
             elif uct_score == best_score:
-                best_children.append(child) # It's a tie, add to the list
+                tie_count += 1
+                # Reservoir sampling: with a 1/tie_count probability, replace the best child
+                if random.randint(1, tie_count) == 1:
+                    best_child = child
 
-        return random.choice(best_children) # Randomly choose from the best options
+        return best_child # Randomly choose from the best options
 
     def add_child(self, action : ActionType.Action, game : Armada) -> Node :
         """

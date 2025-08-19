@@ -33,7 +33,7 @@ class Armada:
         self.winner : float | None = None
         self.image_counter : int = 0
         self.simulation_mode : bool = False
-        
+
 
 
 

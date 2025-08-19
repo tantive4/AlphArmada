@@ -22,7 +22,8 @@ game.deploy_ship(victory,450, 725, math.pi, 2) # 1
 game.deploy_ship(nebulon, 300, 175, 0, 2) # 2
 
 player1 = game.mcts_decision
-player2 = game.random_decision
+player2 = lambda: game.mcts_decision(iterations=200)
+# player2 = game.random_decision
 game.play(player1=player1, player2=player2)
 
 # zip -r game_visuals.zip game_visuals
