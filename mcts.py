@@ -6,7 +6,6 @@ import copy
 from typing import TYPE_CHECKING
 import dice
 from game_phase import GamePhase, ActionType
-# Conditionally import Armada only for type checking
 if TYPE_CHECKING:
     from armada import Armada
 

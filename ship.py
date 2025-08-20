@@ -1,3 +1,4 @@
+from __future__ import annotations
 from shapely.geometry import Polygon, LineString
 import shapely.ops
 import numpy as np
@@ -5,8 +6,7 @@ import math
 from enum import Enum
 from typing import TYPE_CHECKING
 from dice import Critical
-
-# Conditionally import Armada only for type checking
+from defense_token import DefenseToken
 if TYPE_CHECKING:
     from armada import Armada
 
@@ -16,6 +16,9 @@ class HullSection(Enum):
     RIGHT = 1
     REAR = 2
     LEFT = 3
+
+
+
 
 
 
@@ -36,6 +39,7 @@ class Ship:
         self.base_size : tuple [float, float] = SHIP_BASE_SIZE[self.size_class]
 
         self.battery :  tuple[list[int], list[int], list[int], list[int]] = (ship_dict['battery'][0], ship_dict['battery'][1], ship_dict['battery'][2], ship_dict['battery'][1]) # (Front, Right, Rear, Left)
+        self.defense_tokens : list[DefenseToken] = [DefenseToken(token_type) for token_type in ship_dict['defense_token']]
         self.navchart : dict[str, list[int]] = ship_dict['navchart']
         self.max_shield : list[int] = ship_dict['shield']
         self.point : int = ship_dict['point']
@@ -50,7 +54,7 @@ class Ship:
             'left' : (- ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1])}
     
 
-    def deploy(self, game : "Armada" , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
+    def deploy(self, game : Armada , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         """
         deploy the ship to the game board
 
@@ -61,8 +65,8 @@ class Ship:
             speed (int) : ship speed
             ship_id (int) : ship id
         """
-        self.game : "Armada" = game
-        self.x = x 
+        self.game : Armada = game
+        self.x = x
         self.y = y
         self.orientation = orientation
         
@@ -80,6 +84,8 @@ class Ship:
         self.hull = 0
         self.shield = [0,0,0,0]
         self.battery = ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
+        for token in self.defense_tokens :
+            token.discard()
         self.game.visualize(f'{self.name} is destroyed!')
 
     def refresh(self) -> None:
@@ -87,7 +93,9 @@ class Ship:
         self.attack_possible_hull = [True, True, True, True]
         self.target_exist_hull = [True, True, True, True]
         self.attack_count = 0
-
+        for token in self.defense_tokens:
+            if not token.discarded:
+                token.ready()
 
     def move_ship(self, course : list[int], placement : int) -> None:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
@@ -337,6 +345,21 @@ class Ship:
         self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
 
         if self.hull <= 0 : self.destroy()
+
+    def get_valid_redirect_hulls(self, defend_hull : HullSection) -> list[list[HullSection]]:
+        """
+        Get a list of valid hull sections to redirect damage to.
+
+        Args:
+            defend_hull (HullSection): The hull section being attacked.
+
+        Returns:
+            valid_redirects (list[list[HullSection]]): A list of lists containing valid hull sections for redirection.
+        """
+        valid_redirects = [[hull_zone] for hull_zone in HullSection if abs(hull_zone.value-defend_hull.value) == 1]
+        return valid_redirects
+    
+
 
     def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : "Ship") -> list[ HullSection]:
         """

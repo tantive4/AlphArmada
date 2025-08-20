@@ -1,7 +1,8 @@
 from enum import IntEnum
 from typing import TypeAlias, Literal
 from ship import HullSection
-
+from defense_token import DefenseToken
+from dice import Dice
 class GamePhase(IntEnum):
     '''
     A single enum to track the entire hierarchical game state.
@@ -25,7 +26,8 @@ class GamePhase(IntEnum):
     SHIP_ATTACK_ROLL_DICE = 2203
     SHIP_ATTACK_RESOLVE_EFFECTS = 2204
     SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 2205
-    SHIP_ATTACK_RESOLVE_DAMAGE = 2206
+    SHIP_ATTACK_USE_CRITICAL_EFFECT = 2206
+    SHIP_ATTACK_RESOLVE_DAMAGE = 2207
     # Note: Additional squadron target is part of the same sequence
     
     # Ship Phase -> Execute Maneuver (23xx)
@@ -45,16 +47,19 @@ class ActionType :
     DeclareTargetAction: TypeAlias = tuple[Literal['declare_target_action'], tuple[HullSection, int, HullSection]]
 
     GatherDiceAction: TypeAlias = tuple[Literal['gather_dice_action'], list[int]]
-    # AttackDiceAction: TypeAlias = tuple[Literal['attack_dice_roll'], list[list[int]]]
     RollDiceAction: TypeAlias = tuple[Literal['roll_dice_action'], list[list[int]]]
 
-    NoneValueAction: TypeAlias = tuple[Literal['pass_ship_activation', 'pass_attack', 'status_phase'], None]
+    SpendAccuracyAction : TypeAlias = tuple[Literal['spend_accuracy_action'], tuple[Dice, DefenseToken]]
+    ResolveAttackEffectAction : TypeAlias = (
+        SpendAccuracyAction
+    )
+
+    SpendDefenseTokenAction: TypeAlias = tuple[Literal['spend_defense_token_action'], tuple[DefenseToken, None | list[list[int]] | list[HullSection]]]
+
 
     DetermineCourseAction: TypeAlias = tuple[Literal['determine_course_action'], tuple[list[int], int]]
-    # DetermineSpeedAction: TypeAlias = tuple[Literal['determine_speed_action'], int]
-    # DetermineYawAction: TypeAlias = tuple[Literal['determine_yaw_action'], int]
-    # DeterminePlacementAction: TypeAlias = tuple[Literal['determine_placement_action'], int]
 
+    NoneValueAction: TypeAlias = tuple[Literal['pass_ship_activation', 'pass_attack', 'pass_attack_effect', 'pass_defense_token', 'status_phase'], None]
     UnderConstructionAction: TypeAlias = tuple[Literal['resolve_damage_action'], None]
 
     Action: TypeAlias = (
@@ -62,10 +67,9 @@ class ActionType :
         DeclareTargetAction | 
         GatherDiceAction |
         RollDiceAction | 
+        SpendDefenseTokenAction |
+        ResolveAttackEffectAction |
         NoneValueAction |
         DetermineCourseAction |
         UnderConstructionAction
-        # DetermineSpeedAction |
-        # DetermineYawAction |
-        # DeterminePlacementAction
     )

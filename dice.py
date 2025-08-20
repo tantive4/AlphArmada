@@ -3,9 +3,18 @@ import itertools
 from collections import Counter
 from enum import Enum
 
-
-CRIT_INDICES = [1, 1, 2]
+# Black = [blank, hit, double]
+# Blue = [hit, critical, accuracy]
+# Red = [blank, hit, critical, accuracy, double]
+CRIT_INDICE = [1, 1, 2]
+ACCURACY_INDICE = [None, 2, 3]
 DAMAGE_INDICES = [[0, 1, 2], [1, 1, 0], [0, 1, 1, 2, 0]]
+
+class Dice(Enum) :
+    BLACK = 0
+    BLUE = 1
+    RED = 2
+
 
 def roll_dice(dice : list[int]) -> list[list[int]]:
     """
