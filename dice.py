@@ -6,17 +6,26 @@ from enum import Enum
 # Black = [blank, hit, double]
 # Blue = [hit, critical, accuracy]
 # Red = [blank, hit, critical, accuracy, double]
-CRIT_INDICE = [1, 1, 2]
-ACCURACY_INDICE = [None, 2, 3]
-DAMAGE_INDICES = [[0, 1, 2], [1, 1, 0], [0, 1, 1, 2, 0]]
+
+
 
 class Dice(Enum) :
     BLACK = 0
     BLUE = 1
     RED = 2
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+    
+CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
+ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 3}
+DAMAGE_INDICES = {
+    Dice.BLACK: [0, 1, 2],
+    Dice.BLUE:  [1, 1, 0],
+    Dice.RED:   [0, 1, 1, 0, 2]
+}
 
-
-def roll_dice(dice : list[int]) -> list[list[int]]:
+def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
     """
     Simulates rolling Star Wars: Armada dice with specified probabilities.
 
@@ -25,15 +34,15 @@ def roll_dice(dice : list[int]) -> list[list[int]]:
                             representing the number of each die type to roll.
 
     Returns:
-        list[list[int]]: A list representing the results in the order:
-              [[black blank, black hit, black double],
-               [blue hit, blue critical, blue accuracy],
-               [red blank, red hit, red critical, red accuracy, red double]]
+        dict: A list representing the results in the order:
+              {BLACK : [black blank, black hit, black double],
+               BLUE : [blue hit, blue critical, blue accuracy],
+               RED : [red blank, red hit, red critical, red accuracy, red double]}
     """
     
-    black_dice = dice[0]
-    blue_dice = dice[1]
-    red_dice = dice[2]
+    black_dice = dice_pool[Dice.BLACK]
+    blue_dice = dice_pool[Dice.BLUE]
+    red_dice = dice_pool[Dice.RED]
 
     results = {
         "black_blank": 0,
@@ -89,44 +98,15 @@ def roll_dice(dice : list[int]) -> list[list[int]]:
         elif roll == "accuracy":
             results["red_accuracy"] += 1
 
-    output_list = [
-        [results["black_blank"], results["black_hit"], results["black_double"]],
-        [results["blue_hit"], results["blue_critical"], results["blue_accuracy"]],
-        [results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"]]
-    ]
+    dice_result = {
+        Dice.BLACK : [results["black_blank"], results["black_hit"], results["black_double"]],
+        Dice.BLUE : [results["blue_hit"], results["blue_critical"], results["blue_accuracy"]],
+        Dice.RED : [results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"]]
+    }
 
-    return output_list
+    return dice_result
 
-def reroll_dice(dice_result: list[list[int]], dice_to_reroll: list[list[int]]) -> list[list[int]]:
-    """
-    Rerolls a specified subset of dice from an initial result.
 
-    Args:
-        dice_result (list[list[int]]): The initial dice roll result.
-            Format: [[black_faces], [blue_faces], [red_faces]]
-        dice_to_reroll (list[list[int]]): The dice to be rerolled from the result.
-            The format is the same as dice_result.
-
-    Returns:
-        list[list[int]]: The new dice result after the reroll.
-    """
-    # 1. Determine how many dice of each color to reroll by summing the counts.
-    num_to_reroll = [sum(color) for color in dice_to_reroll]
-
-    # 2. Roll only the dice that are being replaced.
-    newly_rolled = roll_dice(num_to_reroll)
-
-    # 3. Calculate the final result.
-    #    For each face, this is (original count - rerolled count) + new count.
-    final_result = []
-    for i in range(len(dice_result)):
-        color_result = [
-            (dice_result[i][j] - dice_to_reroll[i][j]) + newly_rolled[i][j]
-            for j in range(len(dice_result[i]))
-        ]
-        final_result.append(color_result)
-
-    return final_result
 
 
 
@@ -159,7 +139,7 @@ def _generate_outcomes_for_color(dice_count: int, num_faces: int) -> list[list[i
         
     return outcomes
 
-def generate_all_dice_outcomes(dice: list[int]) -> list[list[list[int]]]:
+def generate_all_dice_outcomes(dice_pool: dict[Dice,int]) -> list[dict[Dice, list[int]]]:
     """
     Creates a list of every possible dice outcome for a given set of dice.
 
@@ -168,37 +148,80 @@ def generate_all_dice_outcomes(dice: list[int]) -> list[list[list[int]]]:
                      representing the number of each die type.
 
     Returns:
-        list[list[list[int]]]: A list of all unique outcomes. Each outcome
-        is formatted like the output of the original `roll_dice` function:
-        [[black_faces], [blue_faces], [red_faces]]
+        list[dict]: A list of all unique outcomes. Each outcome
+        is formatted like the output of the original **roll_dice** function:
+        {Dice.BLACK : [black_faces], Dice.BLUE : [blue_faces], Dice.RED : [red_faces]}
     """
-    num_black, num_blue, num_red = dice
-
-    # Define the number of unique faces for each die color
-    # Black: blank, hit, double
-    # Blue: hit, critical, accuracy
-    # Red: blank, hit, critical, double, accuracy
-
-    
-    # Generate all possible outcomes for each color pile
-    black_outcomes = _generate_outcomes_for_color(num_black, len(DAMAGE_INDICES[0]))
-    blue_outcomes = _generate_outcomes_for_color(num_blue, len(DAMAGE_INDICES[1]))
-    red_outcomes = _generate_outcomes_for_color(num_red, len(DAMAGE_INDICES[2]))
+    black_outcomes = _generate_outcomes_for_color(dice_pool[Dice.BLACK], 3)
+    blue_outcomes = _generate_outcomes_for_color(dice_pool[Dice.BLUE], 3)
+    red_outcomes = _generate_outcomes_for_color(dice_pool[Dice.RED], 5)
     
     # Combine the outcomes of each color using a Cartesian product
     # This pairs every black outcome with every blue outcome and every red outcome.
     all_combinations = itertools.product(black_outcomes, blue_outcomes, red_outcomes)
     
     # Format the final list
-    final_outcomes = [[black, blue, red] for black, blue, red in all_combinations]
+    final_outcomes = [
+        {Dice.BLACK: black, Dice.BLUE: blue, Dice.RED: red}
+        for black, blue, red in all_combinations
+    ]
     
     return final_outcomes
 
+def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_modify: int) -> list[dict[Dice, list[int]]]:
+    """
+    Generates all possible outcomes of selecting a specific number of dice
+    from a larger pool by working directly with the counts of each die face.
+    This is more efficient than flattening the list.
+    """
+    
+    # We'll build the combinations using a recursive helper function
+    combinations = []
+    
+    def find_combos_recursive(current_combo : dict[Dice, list[int]], dice_left : int, start_color : Dice | None, start_face_idx : int):
+        if dice_left == 0:
+            combinations.append({k: v[:] for k, v in current_combo.items()})
+            return
+
+        if start_color is None:
+            return
+
+        # Determine the next position to check
+        next_face_idx = start_face_idx + 1
+        next_color = start_color
+        if next_face_idx >= len(attack_pool_result[start_color]):
+            next_face_idx = 0
+            # Move to the next color in the enum's defined order
+            next_color = Dice(start_color.value + 1) if start_color.value + 1 < len(Dice) else None
+
+        # Option 1: Skip the current die face and move to the next.
+        find_combos_recursive(current_combo, dice_left, next_color, next_face_idx)
+        
+        # Option 2: Take one or more dice of the current face type.
+        available_count = attack_pool_result[start_color][start_face_idx]
+        
+        for i in range(1, min(dice_left, available_count) + 1):
+            current_combo[start_color][start_face_idx] += i
+            find_combos_recursive(current_combo, dice_left - i, next_color, next_face_idx)
+            current_combo[start_color][start_face_idx] -= i
+        
+
+    # Kick off the recursion
+    initial_combo = {
+        Dice.BLACK: [0, 0, 0],
+        Dice.BLUE:  [0, 0, 0],
+        Dice.RED:   [0, 0, 0, 0, 0]
+    }
+    find_combos_recursive(initial_combo, dice_to_modify, Dice.BLACK, 0)
+    
+    return combinations
 
 if __name__ == "__main__":
     # --- Example Usage ---
     # Input: 1 black die, 1 blue die, 0 red dice
-    dice_pool = [1, 1, 0]
+    dice_pool = {Dice.BLACK : 2, Dice.BLUE : 1, Dice.RED : 0}
+
+    
     all_possible_outcomes = generate_all_dice_outcomes(dice_pool)
 
     print(f"Dice Pool: {dice_pool}")
@@ -208,6 +231,10 @@ if __name__ == "__main__":
     for i, outcome in enumerate(all_possible_outcomes):
         print(f"Outcome {i+1}: {outcome}")
 
+    dice_roll_result = roll_dice(dice_pool)
+    print(f'result : {dice_roll_result}')
+    for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
+        print(dice_choice)
 
 class Critical(Enum) :
     STANDARD = 0

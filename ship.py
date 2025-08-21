@@ -3,27 +3,32 @@ from shapely.geometry import Polygon, LineString
 import shapely.ops
 import numpy as np
 import math
-from enum import Enum
+from enum import IntEnum
 from typing import TYPE_CHECKING
-from dice import Critical
+from dice import Dice, Critical
 from defense_token import DefenseToken
+from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE
 if TYPE_CHECKING:
     from armada import Armada
 
 
-class HullSection(Enum):
+class HullSection(IntEnum):
     FRONT = 0
     RIGHT = 1
     REAR = 2
     LEFT = 3
 
+class SizeClass(IntEnum) :
+    SMALL = 1
+    MEDIUM = 2
+    LARGE = 3
+    HUGE = 4
 
 
 
 
-
-SHIP_BASE_SIZE : dict[str, tuple]= {'small' : (43, 71), 'medium' :(63, 102), 'large' : (77.5, 129)}
-SHIP_TOKEN_SIZE :  dict[str, tuple] = {'small' : (38.5, 70.25), 'medium' : (58.5, 101.5)}
+SHIP_BASE_SIZE : dict[SizeClass, tuple]= {SizeClass.SMALL : (43, 71), SizeClass.MEDIUM : (63, 102), SizeClass.LARGE : (77.5, 129)}
+SHIP_TOKEN_SIZE :  dict[SizeClass, tuple] = {SizeClass.SMALL : (38.5, 70.25), SizeClass.MEDIUM : (58.5, 101.5)}
 TOOL_WIDTH : float= 15.25
 TOOL_LENGTH : float= 46.13 
 TOOL_PART_LENGTH : float = 22.27
@@ -34,11 +39,14 @@ class Ship:
         self.name : str = ship_dict['name']
 
         self.max_hull : int = ship_dict['hull']
-        self.size_class : str = ship_dict['size']
+        self.size_class : SizeClass = SizeClass[ship_dict['size'].upper()]
         self.token_size : tuple [float, float] = SHIP_TOKEN_SIZE[self.size_class]
         self.base_size : tuple [float, float] = SHIP_BASE_SIZE[self.size_class]
 
-        self.battery :  tuple[list[int], list[int], list[int], list[int]] = (ship_dict['battery'][0], ship_dict['battery'][1], ship_dict['battery'][2], ship_dict['battery'][1]) # (Front, Right, Rear, Left)
+        self.battery :  dict[HullSection, list[int]] = {HullSection.FRONT : ship_dict['battery'][0], 
+                                                        HullSection.RIGHT : ship_dict['battery'][1], 
+                                                        HullSection.REAR : ship_dict['battery'][2], 
+                                                        HullSection.LEFT : ship_dict['battery'][1]}
         self.defense_tokens : list[DefenseToken] = [DefenseToken(token_type) for token_type in ship_dict['defense_token']]
         self.navchart : dict[str, list[int]] = ship_dict['navchart']
         self.max_shield : list[int] = ship_dict['shield']
@@ -72,7 +80,10 @@ class Ship:
         
         self.speed = speed
         self.hull = self.max_hull
-        self.shield = [self.max_shield[0], self.max_shield[1], self.max_shield[2], self.max_shield[1]] # [Front, Right, Rear, Left]
+        self.shield = {HullSection.FRONT : self.max_shield[0], 
+                       HullSection.RIGHT : self.max_shield[1], 
+                       HullSection.REAR : self.max_shield[2], 
+                       HullSection.LEFT : self.max_shield[1]} # [Front, Right, Rear, Left]
         self.destroyed = False
         self.ship_id = ship_id
         self._set_coordination()
@@ -83,7 +94,7 @@ class Ship:
         self.destroyed = True
         self.hull = 0
         self.shield = [0,0,0,0]
-        self.battery = ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
+        self.battery = {hull : [0,0,0] for hull in HullSection}
         for token in self.defense_tokens :
             token.discard()
         self.game.visualize(f'{self.name} is destroyed!')
@@ -176,11 +187,11 @@ class Ship:
         
         self._make_polygon()
 
-        self.targeting_point = [
-            self._get_coordination(self.targeting_point_dict['front'][0], -self.targeting_point_dict['front'][1]),
-            self._get_coordination(self.targeting_point_dict['right'][0], -self.targeting_point_dict['right'][1]),
-            self._get_coordination(self.targeting_point_dict['rear'][0], -self.targeting_point_dict['rear'][1]),
-            self._get_coordination(self.targeting_point_dict['left'][0], -self.targeting_point_dict['left'][1])]
+        self.targeting_point : dict[HullSection, tuple[float, float]]= {
+            HullSection.FRONT : self._get_coordination(self.targeting_point_dict['front'][0], -self.targeting_point_dict['front'][1]),
+            HullSection.RIGHT : self._get_coordination(self.targeting_point_dict['right'][0], -self.targeting_point_dict['right'][1]),
+            HullSection.REAR : self._get_coordination(self.targeting_point_dict['rear'][0], -self.targeting_point_dict['rear'][1]),
+            HullSection.LEFT : self._get_coordination(self.targeting_point_dict['left'][0], -self.targeting_point_dict['left'][1])}
 
     def _make_polygon(self) -> None:
         self.ship_token = Polygon([
@@ -224,12 +235,15 @@ class Ship:
             self.rear_arc_center
                 ]).buffer(0)
 
-        self.hull_polygon = [front_hull, right_hull, rear_hull, left_hull]
+        self.hull_polygon : dict[HullSection, Polygon]= {HullSection.FRONT : front_hull, 
+                                                         HullSection.RIGHT : right_hull, 
+                                                         HullSection.REAR : rear_hull, 
+                                                         HullSection.LEFT : left_hull}
 
 
 # sub method for attack
 
-    def measure_arc_and_range(self, from_hull : HullSection, to_ship : "Ship", to_hull : HullSection, extension_factor=1e4) -> int:
+    def measure_arc_and_range(self, from_hull : HullSection, to_ship : "Ship", to_hull : HullSection, extension_factor=1e4) -> AttackRange:
         """Measures the range and validity of a firing arc to a target.
 
         This method checks if a target hull is within the firing ship's
@@ -241,14 +255,14 @@ class Ship:
             to_hull (HullSection): The index of the target hull section (0-3).
 
         Returns:
-            int: An integer code representing the result.
+            AttackRange: An integer code representing the result.
                 -1: Not in arc or invalid range.
                  0: Close range.
                  1: Medium range.
                  2: Long range.
                  3: Extreme range.
         """
-        if to_ship.destroyed : return -1
+        if to_ship.destroyed : return AttackRange.INVALID
 
         if from_hull == HullSection.FRONT or from_hull == HullSection.RIGHT :
             arc1 = (self.front_arc_center, self.front_right_arc)
@@ -265,24 +279,24 @@ class Ship:
 
         arc_polygon = Polygon([arc1[0], arc1[1] + arc1_vector * extension_factor,
                             arc2[1] + arc2_vector * extension_factor, arc2[0]]).buffer(0)
-        to_hull_in_arc = to_ship.hull_polygon[to_hull.value].intersection(arc_polygon)
+        to_hull_in_arc = to_ship.hull_polygon[to_hull].intersection(arc_polygon)
 
         if to_hull_in_arc.is_empty or not isinstance(to_hull_in_arc, Polygon):
-            return -1 # not in arc
-        else :
-            range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull.value], to_hull_in_arc))
+            return AttackRange.INVALID # not in arc
 
-            for hull_index in range(4) :
-                if hull_index != to_hull.value and  range_measure.crosses(to_ship.hull_polygon[hull_index]) :
-                    return -1 # range not valid
-            distance = range_measure.length
+        range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull], to_hull_in_arc))
 
-            if distance <= 123.3 : return 0 # close range
-            elif distance <= 186.5 : return 1 # medium range
-            elif distance <= 304.8 : return 2 # long range
-            else : return 3 # extreme range
+        for hull in HullSection :
+            if hull != to_hull and range_measure.crosses(to_ship.hull_polygon[hull]) :
+                return AttackRange.INVALID # range not valid
+        distance = range_measure.length
 
-    def measure_line_of_sight(self, from_hull : HullSection, to_ship : "Ship", to_hull : HullSection) -> tuple[bool, bool] :
+        if distance <= CLOSE_RANGE : return AttackRange.CLOSE # close range
+        elif distance <= MEDIUM_RANGE : return AttackRange.MEDIUM # medium range
+        elif distance <= LONG_RANGE : return AttackRange.LONG # long range
+        else : return AttackRange.EXTREME # extreme range
+
+    def measure_line_of_sight(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection) -> tuple[bool, bool] :
         """
         Checks if the line of sight between two ships is obstructed.
 
@@ -296,15 +310,15 @@ class Ship:
                 - The first boolean is True if blocked by another hull of the target ship.
                 - The second boolean is True if obstructed by another ship.
         """
-        line_of_sight = LineString([self.targeting_point[from_hull.value], to_ship.targeting_point[to_hull.value]])
+        line_of_sight = LineString([self.targeting_point[from_hull], to_ship.targeting_point[to_hull]])
 
         blocked_line_of_sight = False
 
-        for i, hull_polygon in enumerate(to_ship.hull_polygon):
-            if i == to_hull.value:
+        for hull in HullSection:
+            if hull == to_hull:
                 continue
 
-            if line_of_sight.crosses(hull_polygon):
+            if line_of_sight.crosses(to_ship.hull_polygon[hull]):
                 blocked_line_of_sight = True
                 break 
 
@@ -322,10 +336,11 @@ class Ship:
 
         return blocked_line_of_sight, obstructed_line_of_sight
 
-    def gather_dice(self, attack_hull : HullSection, attack_range : int) -> list[int] :
-        attack_pool = self.battery[attack_hull.value].copy()
-        for i in range(3) :
-            if i < attack_range: attack_pool[i] = 0
+    def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> dict[Dice, int] :
+        attack_pool = self.battery[attack_hull].copy()
+        attack_pool = {dice_type : self.battery[attack_hull][dice_type.value] for dice_type in Dice}
+        for dice_type in Dice :
+            if dice_type.value < attack_range.value: attack_pool[dice_type] = 0
         return attack_pool
 
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None = None ) -> None:
@@ -333,8 +348,8 @@ class Ship:
         self.game.visualize(f'\n{self.name} is defending. Total Damge is {total_damage}')
 
         # Absorb damage with shields first
-        shield_damage = min(total_damage, self.shield[defend_hull.value])
-        self.shield[defend_hull.value] -= shield_damage
+        shield_damage = min(total_damage, self.shield[defend_hull])
+        self.shield[defend_hull] -= shield_damage
         total_damage -= shield_damage
 
         # Apply remaining damage to the hull
@@ -345,20 +360,7 @@ class Ship:
         self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
 
         if self.hull <= 0 : self.destroy()
-
-    def get_valid_redirect_hulls(self, defend_hull : HullSection) -> list[list[HullSection]]:
-        """
-        Get a list of valid hull sections to redirect damage to.
-
-        Args:
-            defend_hull (HullSection): The hull section being attacked.
-
-        Returns:
-            valid_redirects (list[list[HullSection]]): A list of lists containing valid hull sections for redirection.
-        """
-        valid_redirects = [[hull_zone] for hull_zone in HullSection if abs(hull_zone.value-defend_hull.value) == 1]
-        return valid_redirects
-    
+   
 
 
     def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : "Ship") -> list[ HullSection]:
@@ -383,10 +385,10 @@ class Ship:
 
             # arc and range
             attack_range = self.measure_arc_and_range(attack_hull, defend_ship, target_hull)
-            if attack_range == -1: continue  
+            if attack_range == AttackRange.INVALID: continue  
 
             # gather attack dice
-            if sum(self.gather_dice(attack_hull, attack_range)) <= int(obstructed): continue 
+            if sum(self.gather_dice(attack_hull, attack_range).values()) <= int(obstructed): continue 
 
             valid_targets.append(target_hull)
         return valid_targets
@@ -426,6 +428,13 @@ class Ship:
             else :
                 self.target_exist_hull[hull.value] = False 
         return valid_attacker
+
+    def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical | None] :
+        critical_list : list[Critical | None] = [None]
+        if black_crit or blue_crit or red_crit :
+            critical_list.append(Critical.STANDARD)
+        return critical_list
+
 
 # sub method for execute maneuver
 
@@ -591,7 +600,7 @@ class Ship:
             if course[-1] > 0 : valid_placement.remove(-1)
             elif course[-1] < 0 : valid_placement.remove(1)
             else : 
-                if speed >= 2 and self.size_class != 'small' :
+                if speed >= 2 and self.size_class > SizeClass.SMALL :
                     if course[-2] > 0 : valid_placement.remove(-1)
                     elif course[-2] < 0 : valid_placement.remove(1)
         return valid_placement

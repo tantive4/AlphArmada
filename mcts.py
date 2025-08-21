@@ -127,7 +127,7 @@ class MCTS:
                     if game.attack_info is None :
                         raise ValueError("Invalid game for chance node: missing attack/defend info.")
                     
-                    dice_roll = dice.roll_dice(game.attack_info.attack_pool)
+                    dice_roll = dice.roll_dice(game.attack_info.dice_to_roll)
                     action = ("roll_dice_action", dice_roll)
                     game.apply_action(action)
 

@@ -25,10 +25,22 @@ def protect_all_methods(cls):
 @protect_all_methods
 class DefenseToken:
     def __init__(self, token_type: str) -> None :
-        self.token_type: TokenType = TokenType[token_type]
+        self.type: TokenType = TokenType[token_type]
         self.readied : bool = True
         self.discarded : bool = False
         self.accuracy : bool = False
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Checks for equality by comparing the attribute dictionaries of the two objects.
+        This automatically includes any new attributes added to the class later.
+        """
+        # First, check if the objects are of the same class
+        if not isinstance(other, DefenseToken):
+            return NotImplemented
+        
+        # Compare their __dict__ attributes. This checks all attributes at once.
+        return self.__dict__ == other.__dict__
 
     def spend(self) -> None :
         if self.readied:
