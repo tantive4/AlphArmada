@@ -22,7 +22,7 @@ def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
         font = ImageFont.load_default()
 
     # Keep the title at the top-left of the image for readability
-    display_title = f"Round {game.round} | {title}"
+    display_title = title
     draw.text((10, 10), display_title, font=font, fill='white')
 
     for ship in game.ships:
@@ -40,7 +40,7 @@ def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
         draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_right_arc)], fill='red')
 
         # Transform and draw the targeting points
-        for point in ship.targeting_point:
+        for point in ship.targeting_point.values():
             p_transformed = transform_coord(point)
             dot_size = 1
             bounding_box = [
@@ -66,28 +66,28 @@ def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
             (ship.front_left_base[0] + ship.front_right_base[0]) / 2, 
             (ship.front_left_base[1] + ship.front_right_base[1]) / 2
         )
-        draw.text(transform_coord(front_shield_pos), str(ship.shield[0]), font=font, fill='cyan')
+        draw.text(transform_coord(front_shield_pos), str(ship.shield[ship_module.HullSection.FRONT]), font=font, fill='cyan')
         
         # Right (Positioned to the right of the side edge)
         right_shield_pos = (
             (ship.front_right_base[0] + ship.rear_right_base[0]) / 2, 
             (ship.front_right_base[1] + ship.rear_right_base[1]) / 2
         )
-        draw.text(transform_coord(right_shield_pos), str(ship.shield[1]), font=font, fill='cyan')
+        draw.text(transform_coord(right_shield_pos), str(ship.shield[ship_module.HullSection.RIGHT]), font=font, fill='cyan')
 
         # Rear (Positioned "below" the rear edge)
         rear_shield_pos = (
             (ship.rear_left_base[0] + ship.rear_right_base[0]) / 2, 
             (ship.rear_left_base[1] + ship.rear_right_base[1]) / 2
         )
-        draw.text(transform_coord(rear_shield_pos), str(ship.shield[2]), font=font, fill='cyan')
+        draw.text(transform_coord(rear_shield_pos), str(ship.shield[ship_module.HullSection.REAR]), font=font, fill='cyan')
         
         # Left (Positioned to the left of the side edge)
         left_shield_pos = (
             (ship.front_left_base[0] + ship.rear_left_base[0]) / 2, 
             (ship.front_left_base[1] + ship.rear_left_base[1]) / 2
         )
-        draw.text(transform_coord(left_shield_pos), str(ship.shield[3]), font=font, fill='cyan')
+        draw.text(transform_coord(left_shield_pos), str(ship.shield[ship_module.HullSection.LEFT]), font=font, fill='cyan')
     
     if maneuver_tool:
         # Draw the maneuver tool path

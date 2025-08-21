@@ -17,6 +17,9 @@ class HullSection(IntEnum):
     RIGHT = 1
     REAR = 2
     LEFT = 3
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
 
 class SizeClass(IntEnum) :
     SMALL = 1
@@ -60,7 +63,10 @@ class Ship:
             'right' : (ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1]),
             'rear' : (0, ship_dict['rear_targeting_point']),
             'left' : (- ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1])}
-    
+        
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
 
     def deploy(self, game : Armada , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         """
@@ -96,8 +102,8 @@ class Ship:
         self.shield = [0,0,0,0]
         self.battery = {hull : [0,0,0] for hull in HullSection}
         for token in self.defense_tokens :
-            token.discard()
-        self.game.visualize(f'{self.name} is destroyed!')
+            if not token.discarded : token.discard()
+        self.game.visualize(f'{self} is destroyed!')
 
     def refresh(self) -> None:
         self.activated = False
@@ -117,13 +123,13 @@ class Ship:
 
         while True :
             self._maneuver_to_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'\n{self.name} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
+            self.game.visualize(f'{self} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
 
             current_overlap = self.is_overlap()
 
             if not any(current_overlap):
                 break
-            self.game.visualize(f'\n{self.name} overlaps ships at speed {len(joint_orientaion) - 1} maneuver.')
+            self.game.visualize(f'{self} overlaps ships at speed {len(joint_orientaion) - 1} maneuver.')
 
             overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
 
@@ -135,7 +141,7 @@ class Ship:
             if len(joint_coordination) == 1 : break
 
         if self.out_of_board() :
-            self.game.visualize(f'\n{self.name} is out of board!')
+            self.game.visualize(f'{self} is out of board!')
             self.destroy()
 
         self.overlap(overlap_list)
@@ -343,9 +349,8 @@ class Ship:
             if dice_type.value < attack_range.value: attack_pool[dice_type] = 0
         return attack_pool
 
-    def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None = None ) -> None:
+    def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
         
-        self.game.visualize(f'\n{self.name} is defending. Total Damge is {total_damage}')
 
         # Absorb damage with shields first
         shield_damage = min(total_damage, self.shield[defend_hull])
@@ -357,7 +362,6 @@ class Ship:
             self.hull -= total_damage
             if critical == Critical.STANDARD : self.hull -= 1 # Structural Damage
 
-        self.game.visualize(f'{self.name} is defending. Remaining Hull : {max(0, self.hull)}, Remaining Sheid : {self.shield}')
 
         if self.hull <= 0 : self.destroy()
    
@@ -533,7 +537,7 @@ class Ship:
         if closest_ship:
             self.hull -= 1
             closest_ship.hull -= 1
-            self.game.visualize(f"\n{self.name} overlaps to {closest_ship.name}.")
+            self.game.visualize(f"\n{self} overlaps to {closest_ship}.")
             if self.hull <= 0 : self.destroy()
             if closest_ship.hull <= 0 :closest_ship.destroy()
 

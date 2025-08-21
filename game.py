@@ -2,7 +2,12 @@ from armada import Armada
 from ship import Ship
 import math
 import json
+import os, shutil
 
+
+
+
+if os.path.exists("game_visuals"): shutil.rmtree("game_visuals")
 
 with open('ship_info.json', 'r') as f:
     ship_data : dict[str, dict[str, str | int | list]]= json.load(f)
@@ -24,6 +29,6 @@ game.deploy_ship(nebulon, 300, 175, 0, 2) # 2
 player1 = game.mcts_decision
 player2 = lambda: game.mcts_decision(iterations=200)
 # player2 = game.random_decision
-game.play(player1=player1, player2=player2)
+game.play()
 
 # zip -r game_visuals.zip game_visuals

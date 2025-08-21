@@ -19,6 +19,11 @@ class Dice(Enum) :
     
 CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
 ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 3}
+ICON_INDICES = {
+    Dice.BLACK : ['○ ','• ','•¤ '],
+    Dice.BLUE : ['• ', '¤ ', '@ '],
+    Dice.RED : ['○ ', '• ', '¤ ', '@ ', '•• ']
+}
 DAMAGE_INDICES = {
     Dice.BLACK: [0, 1, 2],
     Dice.BLUE:  [1, 1, 0],
@@ -238,3 +243,6 @@ if __name__ == "__main__":
 
 class Critical(Enum) :
     STANDARD = 0
+    def __str__(self) :
+        return self.name
+    __repr__ = __str__

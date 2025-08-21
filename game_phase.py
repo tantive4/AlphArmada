@@ -58,8 +58,8 @@ class ActionType :
 
     SpendDefenseTokenAction: TypeAlias = (
         tuple[Literal['spend_defense_token_action'], DefenseToken] | 
-        tuple[Literal['spend_redicect_token_action'], DefenseToken, HullSection] | 
-        tuple[Literal['spend_evade_token_action'], DefenseToken, dict[Dice, list[int]]])
+        tuple[Literal['spend_redicect_token_action'], tuple[DefenseToken, HullSection]] | 
+        tuple[Literal['spend_evade_token_action'], tuple[DefenseToken, dict[Dice, list[int]]]])
 
     UseCriticalAction : TypeAlias = tuple[Literal['use_critical_action'], Critical | None]
     ResolveDamageAction: TypeAlias = tuple[Literal['resolve_damage_action'], list[tuple[HullSection,int]]]
@@ -72,7 +72,7 @@ class ActionType :
                                                'pass_attack_effect', 
                                                'pass_defense_token', 
                                                'pass_critical',
-                                               'status_phase'], None]
+                                               'status_phase'], None] 
 
 
     Action: TypeAlias = (
