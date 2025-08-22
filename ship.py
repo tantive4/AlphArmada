@@ -50,7 +50,7 @@ class Ship:
                                                         HullSection.RIGHT : ship_dict['battery'][1], 
                                                         HullSection.REAR : ship_dict['battery'][2], 
                                                         HullSection.LEFT : ship_dict['battery'][1]}
-        self.defense_tokens : list[DefenseToken] = [DefenseToken(token_type) for token_type in ship_dict['defense_token']]
+        self.defense_tokens : list[DefenseToken] = [DefenseToken(token_type, token_index) for token_index, token_type in enumerate(ship_dict['defense_token'])]
         self.navchart : dict[str, list[int]] = ship_dict['navchart']
         self.max_shield : list[int] = ship_dict['shield']
         self.point : int = ship_dict['point']
@@ -433,8 +433,8 @@ class Ship:
                 self.target_exist_hull[hull.value] = False 
         return valid_attacker
 
-    def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical | None] :
-        critical_list : list[Critical | None] = [None]
+    def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical] :
+        critical_list : list[Critical] = []
         if black_crit or blue_crit or red_crit :
             critical_list.append(Critical.STANDARD)
         return critical_list

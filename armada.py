@@ -79,8 +79,9 @@ class Armada:
         A simple strategy that returns a random action from the list of possible actions.
         """
         actions = self.get_possible_actions()
-        with open('simulation_log.txt', 'a') as f:
-            f.write(f"{actions}\n")
+        if not self.simulation_mode : 
+            with open('simulation_log.txt', 'a') as f:
+                f.write(f"{actions}\n")
         return random.choice(actions)
 
 
@@ -151,9 +152,6 @@ class Armada:
             if self.attack_info is None:
                 raise ValueError('No attack info for the current game phase.')
             attack_info : AttackInfo = self.attack_info
-        if self.phase > GamePhase.SHIP_ATTACK_ROLL_DICE and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
-            if attack_info.attack_pool_result is None:
-                raise ValueError('No attack pool result for the current game phase.')
             attack_pool_result = attack_info.attack_pool_result
 
 
@@ -206,10 +204,10 @@ class Armada:
                     checked_tokens.append(token)
                     if token.discarded or token.accuracy :
                         continue
-                    if blue_acc_count : actions.append(('spend_accuracy_action', (Dice.BLUE, token)))
-                    if red_acc_count : actions.append(('spend_accuracy_action', (Dice.RED, token)))
+                    if blue_acc_count : actions.append(('spend_accuracy_action', (Dice.BLUE, token.index)))
+                    if red_acc_count : actions.append(('spend_accuracy_action', (Dice.RED, token.index)))
 
-                actions.append(('pass_attack_effect', None))
+                if not actions : actions = [('pass_attack_effect', None)]
 
             case GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS :
                 attack_ship = self.ships[attack_info.attack_ship_id]
@@ -224,26 +222,26 @@ class Armada:
                             continue
                         checked_tokens.append(token)
                         if (not token.discarded and not token.accuracy
-                                and token not in attack_info.spent_tokens
+                                and token.index not in attack_info.spent_token_indices
                                 and token.type not in attack_info.spent_token_types):
                             
                             if token.type == TokenType.REDIRECT :
-                                actions.append(('spend_redicect_token_action',(token, HullSection((attack_info.defend_hull + 1) % 4))))
-                                actions.append(('spend_redicect_token_action',(token, HullSection((attack_info.defend_hull - 1) % 4))))
+                                actions.append(('spend_redicect_token_action',(token.index, HullSection((attack_info.defend_hull + 1) % 4))))
+                                actions.append(('spend_redicect_token_action',(token.index, HullSection((attack_info.defend_hull - 1) % 4))))
 
                             elif token.type == TokenType.EVADE :
                                 # choose 1 die to affect
                                 evade_dice_choices = dice_choice_combinations(attack_pool_result, 1)
                                 for dice_choice in evade_dice_choices :
-                                    actions.append(('spend_evade_token_action', (token, dice_choice)))
+                                    actions.append(('spend_evade_token_action', (token.index, dice_choice)))
                                 
                                 # if defender is smaller, may choose 2 dice
                                 if defend_ship.size_class < attack_ship.size_class :
                                     discard_evade_choices = dice_choice_combinations(attack_pool_result, 2)
                                     for dice_choice in discard_evade_choices :
-                                        actions.append(('spend_evade_token_action', (token, dice_choice)))
+                                        actions.append(('spend_evade_token_action', (token.index, dice_choice)))
 
-                            else : actions.append(('spend_defense_token_action', token))
+                            else : actions.append(('spend_defense_token_action', token.index))
                 actions.append(('pass_defense_token', None))
 
             case GamePhase.SHIP_ATTACK_USE_CRITICAL_EFFECT :
@@ -253,8 +251,10 @@ class Armada:
 
                 attack_ship = self.ships[attack_info.attack_ship_id]
                 critical_list = attack_ship.get_critical_effect(black_crit, blue_crit, red_crit)
-                actions = [('use_critical_action', critical) for critical in critical_list]
-
+                if critical_list :
+                    actions = [('use_critical_action', critical) for critical in critical_list]
+                else :
+                    actions = [('pass_critical', None)]
 
 
             case GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE:
@@ -316,13 +316,10 @@ class Armada:
         if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
             if self.attack_info is None:
                 raise ValueError("No attack info for the current game phase.")
-            attack_info : AttackInfo = self.attack_info
-        if self.phase > GamePhase.SHIP_ATTACK_ROLL_DICE and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
-            if attack_info.attack_pool_result is None:
-                raise ValueError("No attack pool result for the current game phase.")
+            attack_info= self.attack_info
             attack_pool_result = attack_info.attack_pool_result
 
-        self.visualize_action(action)        
+        self.visualize_action(action)
         
         match action[0]:
             case 'activate_ship_action':
@@ -362,7 +359,9 @@ class Armada:
                 else : self.phase = GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS
 
             case 'spend_accuracy_action':
-                dice, token = action[1]
+                dice, index = action[1]
+                defend_ship = self.ships[attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[index]
                 token.accuracy = True
                 if dice == Dice.BLUE:
                     attack_pool_result[Dice.BLUE][ACCURACY_INDEX[Dice.BLUE]] -= 1
@@ -375,24 +374,33 @@ class Armada:
                 self.phase = GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS
 
             case 'spend_defense_token_action':
-                token = action[1]
-                attack_info.spent_tokens.append(token)
+                index = action[1]
+                defend_ship = self.ships[attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[index]
+
+                attack_info.spent_token_indices.append(token.index)
                 attack_info.spent_token_types.append(token.type)
                 token.spend()
                 self.phase = GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS
 
             case 'spend_redicect_token_action' :
-                token = action[1][0]
-                attack_info.spent_tokens.append(token)
+                index = action[1][0]
+                defend_ship = self.ships[attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[index]
+
+                attack_info.spent_token_indices.append(token.index)
                 attack_info.spent_token_types.append(token.type)
                 token.spend()
                 attack_info.redirect_hulls.append(action[1][1])
                 self.phase = GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS
 
             case 'spend_evade_token_action' :
-                token = action[1][0]
+                index = action[1][0]
+                defend_ship = self.ships[attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[index]
+
                 evade_dice = action[1][1]
-                attack_info.spent_tokens.append(token)
+                attack_info.spent_token_indices.append(token.index)
                 attack_info.spent_token_types.append(token.type)
                 if sum([sum(evade_dice[dice_type]) for dice_type in Dice]) == 2:
                     token.discard()
@@ -418,6 +426,10 @@ class Armada:
 
             case 'use_critical_action' :
                 attack_info.critical = action[1]
+                attack_info.calculate_total_damage()
+                self.phase = GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE
+            
+            case 'pass_critical' :
                 attack_info.calculate_total_damage()
                 self.phase = GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE
 
@@ -462,12 +474,13 @@ class Armada:
 
     def visualize_action(self, action : ActionType.Action) -> None:
         """
-        Returns a string representation of the action for visualization.
+        get action string and call visualizer
         """
         maneuver_tool = None
         match action[0]:
             case 'activate_ship_action':
                 action_str = f'Activate Ship: {self.ships[action[1]].name}'
+
             case 'declare_target_action':
                 attack_hull, defend_ship_id, defend_hull = action[1]
                 defend_ship = self.ships[defend_ship_id]
@@ -475,9 +488,30 @@ class Armada:
             case 'roll_dice_action' :
                 dice_result = dice_icon(action[1])
                 action_str = f'Dice Roll {dice_result}'
+            case 'spend_accuracy_action' :
+                dice_type, index = action[1]
+                if self.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                defend_ship = self.ships[self.attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[index]
+                action_str = f'Spend {dice_type} Accuracy : {token}'
             case 'spend_evade_token_action' :
                 evade_dice = action[1][1]
-                action_str = f'Spend Evade Token {dice_icon(evade_dice)}'
+                action_str = f'{'Spend' if True else 'Discard'} Evade Token {dice_icon(evade_dice)}'
+            case 'spend_redicect_token_action' :
+                hull = action[1][1]
+                action_str = f'Spend Redirect Token to {hull}'
+            case 'spend_defense_token_action' :
+                index = action[1]
+                if self.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                defend_ship = self.ships[self.attack_info.defend_ship_id]
+                action_str = f'Spend {defend_ship.defense_tokens[index]} Token'
+            case 'resolve_damage_action' :
+                redirect_list = action[1]
+                if self.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                action_str = f'Resolve Total {self.attack_info.total_damage} Damage'
+                if redirect_list : action_str += f', Redirect {[f'{damage} to {hull}' for hull, damage in redirect_list]}'
+
+            
             case 'determine_course_action':
                 course, placement = action[1]
                 if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
@@ -485,8 +519,9 @@ class Armada:
                 action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'}'
 
             case _:
-                action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()}: {action[1] if action[1] else ''}'
-            
+                if 'pass' in action[0] : return
+                action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()} {f': {action[1]}' if action[1] else ''}'
+
         self.visualize(f"Round {self.round} | {self.phase.name.replace("_"," ").title()} | Player {self.current_player}\n{action_str}", maneuver_tool)
 
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
@@ -564,7 +599,7 @@ class AttackInfo :
 
         self.phase : GamePhase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
 
-        self.spent_tokens : list[DefenseToken] = []
+        self.spent_token_indices : list[int] = []
         self.spent_token_types : list[TokenType] = []
         self.redirect_hulls : list[HullSection] = []
 

@@ -24,8 +24,9 @@ def protect_all_methods(cls):
 
 @protect_all_methods
 class DefenseToken:
-    def __init__(self, token_type: str) -> None :
+    def __init__(self, token_type: str, token_index : int) -> None :
         self.type: TokenType = TokenType[token_type.upper()]
+        self.index = token_index
         self.readied : bool = True
         self.discarded : bool = False
         self.accuracy : bool = False

@@ -51,15 +51,15 @@ class ActionType :
     GatherDiceAction: TypeAlias = tuple[Literal['gather_dice_action'], dict[Dice, int]]
     RollDiceAction: TypeAlias = tuple[Literal['roll_dice_action'], dict[Dice, list[int]]]
 
-    SpendAccuracyAction : TypeAlias = tuple[Literal['spend_accuracy_action'], tuple[Dice, DefenseToken]]
+    SpendAccuracyAction : TypeAlias = tuple[Literal['spend_accuracy_action'], tuple[Dice, int]]
     ResolveAttackEffectAction : TypeAlias = (
         SpendAccuracyAction
     )
 
     SpendDefenseTokenAction: TypeAlias = (
-        tuple[Literal['spend_defense_token_action'], DefenseToken] | 
-        tuple[Literal['spend_redicect_token_action'], tuple[DefenseToken, HullSection]] | 
-        tuple[Literal['spend_evade_token_action'], tuple[DefenseToken, dict[Dice, list[int]]]])
+        tuple[Literal['spend_defense_token_action'], int] | 
+        tuple[Literal['spend_redicect_token_action'], tuple[int, HullSection]] | 
+        tuple[Literal['spend_evade_token_action'], tuple[int, dict[Dice, list[int]]]])
 
     UseCriticalAction : TypeAlias = tuple[Literal['use_critical_action'], Critical | None]
     ResolveDamageAction: TypeAlias = tuple[Literal['resolve_damage_action'], list[tuple[HullSection,int]]]
