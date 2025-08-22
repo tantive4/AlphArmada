@@ -18,17 +18,19 @@ class Dice(Enum) :
     __repr__ = __str__
     
 CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
-ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 3}
+ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 4}
 ICON_INDICES = {
-    Dice.BLACK : ['○ ','• ','•¤ '],
-    Dice.BLUE : ['• ', '¤ ', '@ '],
-    Dice.RED : ['○ ', '• ', '¤ ', '@ ', '•• ']
+    Dice.BLACK : ['_','○','○¤'],
+    Dice.BLUE : ['○', '¤', '@'],
+    Dice.RED : ['_', '○', '¤', '○○', '@']
 }
 DAMAGE_INDICES = {
     Dice.BLACK: [0, 1, 2],
     Dice.BLUE:  [1, 1, 0],
-    Dice.RED:   [0, 1, 1, 0, 2]
+    Dice.RED:   [0, 1, 1, 2, 1]
 }
+def dice_icon(dice_pool : dict[Dice, list[int]]) -> dict[Dice, str] :
+    return {dice_type : ' '.join([(f'{icon} ' * dice_count) for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type])]).replace('  ',' ').strip() for dice_type in Dice}
 
 def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
     """
@@ -224,22 +226,23 @@ def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_
 if __name__ == "__main__":
     # --- Example Usage ---
     # Input: 1 black die, 1 blue die, 0 red dice
-    dice_pool = {Dice.BLACK : 2, Dice.BLUE : 1, Dice.RED : 0}
+    dice_pool = {Dice.BLACK : 5, Dice.BLUE : 5, Dice.RED : 5}
 
     
-    all_possible_outcomes = generate_all_dice_outcomes(dice_pool)
+    # all_possible_outcomes = generate_all_dice_outcomes(dice_pool)
 
     print(f"Dice Pool: {dice_pool}")
-    print(f"Total Unique Outcomes: {len(all_possible_outcomes)}\n")
+    # print(f"Total Unique Outcomes: {len(all_possible_outcomes)}\n")
 
-    # Print each outcome for clarity
-    for i, outcome in enumerate(all_possible_outcomes):
-        print(f"Outcome {i+1}: {outcome}")
+    # # Print each outcome for clarity
+    # for i, outcome in enumerate(all_possible_outcomes):
+    #     print(f"Outcome {i+1}: {outcome}")
 
     dice_roll_result = roll_dice(dice_pool)
-    print(f'result : {dice_roll_result}')
-    for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
-        print(dice_choice)
+    print(dice_roll_result)
+    print(f'result : {dice_icon(dice_roll_result)}')
+    # for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
+    #     print(dice_choice)
 
 class Critical(Enum) :
     STANDARD = 0

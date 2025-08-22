@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from armada import Armada
     
-def visualize(game : "Armada", title : str, maneuver_tool = None) -> None:
+def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, float]] | None = None) -> None:
     """Creates and saves an image of the current game state with (0,0) at the bottom-left."""
     img = Image.new('RGB', (game.player_edge, game.short_edge), (0,0,0)) # type: ignore
     draw = ImageDraw.Draw(img)

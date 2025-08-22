@@ -3,7 +3,7 @@ from ship import Ship, HullSection
 import random
 from shapely.geometry import Polygon
 import visualizer
-from dice import Dice, ICON_INDICES, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
+from dice import Dice, ICON_INDICES, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, roll_dice, dice_icon, generate_all_dice_outcomes, Critical, dice_choice_combinations
 from measurement import AttackRange
 from defense_token import DefenseToken, TokenType
 import copy
@@ -321,6 +321,8 @@ class Armada:
             if attack_info.attack_pool_result is None:
                 raise ValueError("No attack pool result for the current game phase.")
             attack_pool_result = attack_info.attack_pool_result
+
+        self.visualize_action(action)        
         
         match action[0]:
             case 'activate_ship_action':
@@ -453,42 +455,39 @@ class Armada:
                     self.phase = GamePhase.SHIP_PHASE
 
 
-        action_str : str = self._get_action_string(action)
-        self.visualize(f"Round {self.round} | {self.phase.name.replace("_"," ").title()} | Player {self.current_player}\n{action_str}")
+
 
         # decision player for NEXT PHASE (after applying action)
         self.update_decision_player()
 
-    def _get_action_string(self, action : ActionType.Action) -> str:
+    def visualize_action(self, action : ActionType.Action) -> None:
         """
         Returns a string representation of the action for visualization.
         """
-        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
-            if self.attack_info is None:
-                raise ValueError("No attack info for the current game phase.")
-            attack_info : AttackInfo = self.attack_info
-        if self.phase > GamePhase.SHIP_ATTACK_ROLL_DICE and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
-            if attack_info.attack_pool_result is None:
-                raise ValueError("No attack pool result for the current game phase.")
-            attack_pool_result = attack_info.attack_pool_result
-
+        maneuver_tool = None
         match action[0]:
             case 'activate_ship_action':
-                return f'Activate Ship: {self.ships[action[1]].name}'
+                action_str = f'Activate Ship: {self.ships[action[1]].name}'
             case 'declare_target_action':
                 attack_hull, defend_ship_id, defend_hull = action[1]
-                attack_ship = self.ships[attack_info.attack_ship_id]
                 defend_ship = self.ships[defend_ship_id]
-                return f'Declare Target: from {attack_ship} {attack_hull} to {defend_ship} {defend_hull}'
+                action_str = f'Declare Target: from {self.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
             case 'roll_dice_action' :
-                dice_icon = {dice_type : ''.join([icon * dice_count for icon, dice_count in zip(ICON_INDICES[dice_type], attack_pool_result[dice_type])]) for dice_type in Dice}
-                return f'Dice Roll {dice_icon}'
+                dice_result = dice_icon(action[1])
+                action_str = f'Dice Roll {dice_result}'
+            case 'spend_evade_token_action' :
+                evade_dice = action[1][1]
+                action_str = f'Spend Evade Token {dice_icon(evade_dice)}'
             case 'determine_course_action':
                 course, placement = action[1]
-                return f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'}'
+                if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
+                maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
+                action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'}'
 
             case _:
-                return f'{action[0].replace('_action', '').replace('_', ' ').title().strip()}: {action[1] if action[1] else ''}'
+                action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()}: {action[1] if action[1] else ''}'
+            
+        self.visualize(f"Round {self.round} | {self.phase.name.replace("_"," ").title()} | Player {self.current_player}\n{action_str}", maneuver_tool)
 
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)
@@ -540,7 +539,7 @@ class Armada:
     def get_point(self, player : int) -> int :
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
 
-    def visualize(self, title : str, maneuver_tool = None) -> None:
+    def visualize(self, title : str, maneuver_tool : list[tuple[float, float]] | None = None) -> None:
         if self.simulation_mode:
             return
         visualizer.visualize(self, title, maneuver_tool)
