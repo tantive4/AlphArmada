@@ -6,8 +6,8 @@ Currently developing basic MCTS model, applying stochastic attack dice result.
 
 Developed so far...
 - Activate Ship
-- Declare Target
-- Determine Maneuver
+- Attack Step (/w defense tokens)
+- Execute Maneuver Step
 
 Next Move?
 - AI Structure
@@ -16,7 +16,5 @@ Next Move?
   - Information-Set MCTS structure
 
 - Game Mechanism
-  - Obstruction (Dice Remove)
-  - Defense Token
   - Squadron
   - Command Dial / Command Token

@@ -1,9 +1,8 @@
 from enum import IntEnum
 from typing import TypeAlias, Literal
-from ship import HullSection
+from ship import HullSection, Command
 from defense_token import DefenseToken
 from dice import Dice, Critical
-
 class GamePhase(IntEnum):
     '''
     A single enum to track the entire hierarchical game state.
@@ -19,6 +18,7 @@ class GamePhase(IntEnum):
     
     # Ship Phase -> Reveal Dial (21xx)
     SHIP_REVEAL_COMMAND_DIAL = 2100
+    SHIP_DISCARD_COMMAND_TOKEN = 2101
     
     # Ship Phase -> Attack (22xx)
     SHIP_ATTACK = 2200
@@ -44,7 +44,13 @@ class GamePhase(IntEnum):
 
     
 class ActionType :
+    SetCommandAction : TypeAlias = tuple[Literal['set_command_action'], tuple[int, Command]]
+
     ActiveShipAction: TypeAlias = tuple[Literal['activate_ship_action'], int]
+    GainCommandTokenAction : TypeAlias = tuple[Literal['gain_command_token_action'], Command]
+    ReavealCommandAction : TypeAlias = tuple[Literal['reveal_command_action'], Command]
+    DiscardCommandTokenAction : TypeAlias = tuple[Literal['discard_command_token_action'], Command]
+    ResolveCommandAction : TypeAlias = tuple[Literal['resolve_con-fire_command_action', 'resolve_nav_command_action'], tuple[bool, bool]]
 
 
     DeclareTargetAction: TypeAlias = tuple[Literal['declare_target_action'], tuple[HullSection, int, HullSection]]
@@ -52,8 +58,12 @@ class ActionType :
     RollDiceAction: TypeAlias = tuple[Literal['roll_dice_action'], dict[Dice, list[int]]]
 
     SpendAccuracyAction : TypeAlias = tuple[Literal['spend_accuracy_action'], tuple[Dice, int]]
+    UseConFireDialAction : TypeAlias = tuple[Literal['use_confire_dial_action'], dict[Dice, int]]
+    UseConFireTokenAction : TypeAlias = tuple[Literal['use_confire_token_action'], dict[Dice, list[int]]]
     ResolveAttackEffectAction : TypeAlias = (
-        SpendAccuracyAction
+        SpendAccuracyAction |
+        UseConFireDialAction | 
+        UseConFireTokenAction
     )
 
     SpendDefenseTokenAction: TypeAlias = (
@@ -68,6 +78,7 @@ class ActionType :
     DetermineCourseAction: TypeAlias = tuple[Literal['determine_course_action'], tuple[list[int], int]]
 
     NoneValueAction: TypeAlias = tuple[Literal['pass_ship_activation', 
+                                               'pass_command', 
                                                'pass_attack', 
                                                'pass_attack_effect', 
                                                'pass_defense_token', 
@@ -76,7 +87,12 @@ class ActionType :
 
 
     Action: TypeAlias = (
+        SetCommandAction |
         ActiveShipAction | 
+        GainCommandTokenAction |
+        ReavealCommandAction |
+        DiscardCommandTokenAction |
+        ResolveCommandAction |
         DeclareTargetAction | 
         GatherDiceAction |
         RollDiceAction | 

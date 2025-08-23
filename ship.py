@@ -3,11 +3,12 @@ from shapely.geometry import Polygon, LineString
 import shapely.ops
 import numpy as np
 import math
-from enum import IntEnum
+from enum import IntEnum, Enum
 from typing import TYPE_CHECKING
 from dice import Dice, Critical
 from defense_token import DefenseToken
 from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE
+import itertools
 if TYPE_CHECKING:
     from armada import Armada
 
@@ -27,7 +28,14 @@ class SizeClass(IntEnum) :
     LARGE = 3
     HUGE = 4
 
-
+class Command(Enum) :
+    NAVIGATION = 0
+    # SQUADRON = 1
+    # ENGINEERING = 2
+    CONCENTRATE_FIRE = 3
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
 
 
 SHIP_BASE_SIZE : dict[SizeClass, tuple]= {SizeClass.SMALL : (43, 71), SizeClass.MEDIUM : (63, 102), SizeClass.LARGE : (77.5, 129)}
@@ -54,6 +62,7 @@ class Ship:
         self.navchart : dict[str, list[int]] = ship_dict['navchart']
         self.max_shield : list[int] = ship_dict['shield']
         self.point : int = ship_dict['point']
+        self.command_value : int = ship_dict['command']
 
         self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
@@ -92,6 +101,13 @@ class Ship:
                        HullSection.LEFT : self.max_shield[1]} # [Front, Right, Rear, Left]
         self.destroyed = False
         self.ship_id = ship_id
+        self.command_stack : list[Command] = []
+        self.command_dial : list[Command] = []
+        self.command_token : list[Command] = []
+        self.resolved_command : list[Command] = []
+        self.attack_count : int = 0
+        self.attack_possible_hull = [True, True, True, True]
+        self.target_exist_hull = [True, True, True, True]
         self._set_coordination()
         self.refresh()
 
@@ -107,12 +123,17 @@ class Ship:
 
     def refresh(self) -> None:
         self.activated = False
-        self.attack_possible_hull = [True, True, True, True]
-        self.target_exist_hull = [True, True, True, True]
-        self.attack_count = 0
         for token in self.defense_tokens:
             if not token.discarded:
                 token.ready()
+
+    def end_activation(self) -> None :
+        self.activated = True
+        self.attack_possible_hull = [True, True, True, True]
+        self.target_exist_hull = [True, True, True, True]
+        self.attack_count = 0
+        self.command_dial = []
+        self.resolved_command = []
 
     def move_ship(self, course : list[int], placement : int) -> None:
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
@@ -362,9 +383,8 @@ class Ship:
             self.hull -= total_damage
             if critical == Critical.STANDARD : self.hull -= 1 # Structural Damage
 
-
         if self.hull <= 0 : self.destroy()
-   
+
 
 
     def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : "Ship") -> list[ HullSection]:
@@ -558,9 +578,10 @@ class Ship:
             list[int]: A list of valid speeds.
         """
         valid_speed = []
+        speed_change : int = int(Command.NAVIGATION in self.command_dial) + int(Command.NAVIGATION in self.command_token)
 
         for speed in range(5):
-            if abs(speed - self.speed) > 1:
+            if abs(speed - self.speed) > speed_change:
                 continue
             if self.navchart.get(str(speed)) is not None or speed == 0:
                 valid_speed.append(speed)
@@ -586,6 +607,109 @@ class Ship:
             valid_yaw.append(yaw -2)
 
         return valid_yaw
+    
+    def nav_command_used(self, course: list[int]) -> tuple[bool, bool] :
+            nav_dial_used = False
+            nav_token_used = False
+            new_speed = len(course)
+
+            # 1. SPEED CHANGE VALIDATION
+            speed_change = abs(new_speed - self.speed)
+
+            if speed_change > 2:
+                raise ValueError(f"Invalid speed change of {speed_change}. Maximum is 2.")
+
+            if speed_change == 1:
+                # Must use one NAVIGATE command from either dial or token
+                if Command.NAVIGATION in self.command_dial:
+                    nav_dial_used = True
+                elif Command.NAVIGATION in self.command_token:
+                    nav_token_used = True
+                else:
+                    raise ValueError("Speed change of 1 requires a NAVIGATE command from a dial or token.")
+
+            if speed_change == 2:
+                # Must use two NAVIGATE commands, one from each source
+                if Command.NAVIGATION in self.command_dial and Command.NAVIGATION in self.command_token:
+                    nav_dial_used = True
+                    nav_token_used = True
+                else:
+                    raise ValueError("Speed change of 2 requires NAVIGATE commands from BOTH a dial and a token.")
+
+            # 2. COURSE VALIDITY CHECK (for extra clicks)
+            is_standard = self.is_standard_course(course)
+            
+            if not is_standard:
+                # This is a special course that requires an extra click from the command dial.
+                if Command.NAVIGATION in self.command_dial:
+                    nav_dial_used = True
+                else:
+                    raise ValueError("This course requires an extra click, which needs a NAVIGATE command from the dial.")
+            return nav_dial_used, nav_token_used
+    
+    def is_standard_course(self, course:list[int]) -> bool :
+        """
+        Checks if a given course is a standard maneuver for a given speed,
+        without using any special abilities like adding a click.
+        """
+        speed = len(course)
+        if speed == 0 : return True
+
+        for joint, yaw in enumerate(course) :
+            if abs(yaw) > self.navchart[str(speed)][joint] : return False
+        return True
+
+    def get_all_possible_courses(self, speed: int) -> list[list[int]]:
+        """
+        Gets all possible maneuver courses for a given speed.
+
+        If can_add_click is True, it will also generate additional courses by modifying
+        a single joint of any originally valid course by one click (yaw).
+
+        Args:
+            speed (int): The maneuver speed.
+
+        Returns:
+            A list of all unique, valid course lists.
+        """
+        if speed == 0:
+            return [[]] # A speed 0 maneuver has an empty course
+
+        # 1. Get the base valid yaw options for each joint from the nav chart.
+        original_yaw_options = [self.get_valid_yaw(speed, joint) for joint in range(speed)]
+
+        # 2. Generate all standard courses using the Cartesian product.
+        # Using a set handles duplicates automatically.
+        all_courses = set(itertools.product(*original_yaw_options))
+
+        # 3. If the special condition isn't met, return the standard courses.
+        if not Command.NAVIGATION in self.command_dial:
+            return [list(course) for course in all_courses]
+
+        # 4. If the condition is met, generate new courses from the standard ones.
+        # We start with a copy of the original courses to iterate over.
+        standard_courses = all_courses.copy()
+        for course_tuple in standard_courses:
+            course_list = list(course_tuple)
+            # Iterate through each joint in the current standard course.
+            for i in range(len(course_list)):
+                original_yaw = course_list[i]
+
+                # Option A: Add one click to the current joint
+                modified_yaw_add = original_yaw + 1
+                if abs(modified_yaw_add) <= 2:
+                    new_course = list(course_list) # Create a copy
+                    new_course[i] = modified_yaw_add
+                    all_courses.add(tuple(new_course))
+
+                # Option B: Subtract one click from the current joint
+                modified_yaw_sub = original_yaw - 1
+                if abs(modified_yaw_sub) <= 2:
+                    new_course = list(course_list) # Create a copy
+                    new_course[i] = modified_yaw_sub
+                    all_courses.add(tuple(new_course))
+        
+        return [list(course) for course in all_courses]
     
     def get_valid_placement(self, course : list[int]) -> list[int]:
         """

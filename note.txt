@@ -34,3 +34,5 @@ squadron set target	22	< ship hull 12 + squad 10
 3. maneuver (+- 1)
 
 no squad, no command, no attack sequence
+
+

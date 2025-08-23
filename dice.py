@@ -5,7 +5,7 @@ from enum import Enum
 
 # Black = [blank, hit, double]
 # Blue = [hit, critical, accuracy]
-# Red = [blank, hit, critical, accuracy, double]
+# Red = [blank, hit, critical, double, accuracy]
 
 
 
@@ -44,12 +44,12 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
         dict: A list representing the results in the order:
               {BLACK : [black blank, black hit, black double],
                BLUE : [blue hit, blue critical, blue accuracy],
-               RED : [red blank, red hit, red critical, red accuracy, red double]}
+               RED : [red blank, red hit, red critical, red double, red accuracy]}
     """
     
-    black_dice = dice_pool[Dice.BLACK]
-    blue_dice = dice_pool[Dice.BLUE]
-    red_dice = dice_pool[Dice.RED]
+    black_dice = dice_pool.get(Dice.BLACK,0)
+    blue_dice = dice_pool.get(Dice.BLUE,0)
+    red_dice = dice_pool.get(Dice.RED,0)
 
     results = {
         "black_blank": 0,
@@ -61,8 +61,8 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
         "red_blank": 0,
         "red_hit": 0,
         "red_critical": 0,
-        "red_accuracy": 0,
-        "red_double": 0
+        "red_double": 0,
+        "red_accuracy": 0
     }
 
     black_faces = ["blank", "hit", "double"]
@@ -71,7 +71,7 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
     blue_faces = ["hit", "critical", "accuracy"]
     blue_weights = [4, 2, 2]
 
-    red_faces = ["blank", "hit", "critical", "accuracy", "double"]
+    red_faces = ["blank", "hit", "critical", "double", "accuracy"]
     red_weights = [2, 2, 2, 1, 1]
 
     for _ in range(black_dice):
@@ -101,9 +101,9 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
         elif roll == "critical":
             results["red_critical"] += 1
         elif roll == "double":
-            results["red_double"] += 1
-        elif roll == "accuracy":
             results["red_accuracy"] += 1
+        elif roll == "accuracy":
+            results["red_double"] += 1
 
     dice_result = {
         Dice.BLACK : [results["black_blank"], results["black_hit"], results["black_double"]],

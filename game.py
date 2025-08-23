@@ -27,10 +27,8 @@ game.deploy_ship(victory,450, 725, math.pi, 2) # 1
 game.deploy_ship(nebulon, 300, 175, 0, 2) # 2
 
 player1 = lambda: game.mcts_decision(iterations=400)
-player2 = lambda: game.mcts_decision(iterations=200)
+player2 = lambda: game.mcts_decision(iterations=100)
 # player2 = game.random_decision
-game.play(player1, player2)
+game.play()
 
 # zip -r game_visuals.zip game_visuals
-
-# NEED TO FIX DEFENSE TOKEN MECHANISM!!!

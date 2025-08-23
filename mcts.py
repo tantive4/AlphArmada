@@ -164,7 +164,7 @@ class MCTS:
 
             # 3. Simulation
             simulation_result = game.play(max_simulation_step=1000)
-            with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
+            # with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
 
             # 4. Backpropagation (Updated for -1 to 1 scoring)
             temp_node = node
@@ -184,7 +184,7 @@ class MCTS:
                 temp_node.update(result_for_node)
                 temp_node = temp_node.parent
             
-            with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
+            # with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
             if i % 100 == 99:
                 print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action: {self.get_best_action()}")
 
