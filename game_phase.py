@@ -1,8 +1,14 @@
+from __future__ import annotations
 from enum import IntEnum
-from typing import TypeAlias, Literal
+from typing import TypeAlias, Literal, TYPE_CHECKING
 from ship import HullSection, Command
 from defense_token import DefenseToken
-from dice import Dice, Critical
+from dice import Dice, Critical, dice_icon
+
+if TYPE_CHECKING:
+    from armada import Armada
+
+
 class GamePhase(IntEnum):
     '''
     A single enum to track the entire hierarchical game state.
@@ -103,3 +109,73 @@ class ActionType :
         DetermineCourseAction |
         ResolveDamageAction
     )
+
+    @staticmethod
+    def get_action_str(game : Armada, action : ActionType.Action) -> str | None:
+        action_str = None
+
+        match action[0]:
+            case 'set_command_action' :
+                action_str = f'Set {action[1][1]} Command on {game.ships[action[1][0]]}'
+
+            case 'activate_ship_action':
+                action_str = f'Activate Ship: {game.ships[action[1]].name}'
+
+            case 'gain_command_token_action' :
+                action_str = f'{game.active_ship} reveals {action[1]} Command and gain Token'
+            
+            case 'reveal_command_action' :
+                action_str = f'{game.active_ship} reveals {action[1]} Command'
+
+
+            case 'declare_target_action':
+                attack_hull, defend_ship_id, defend_hull = action[1]
+                defend_ship = game.ships[defend_ship_id]
+                action_str = f'Declare Target: from {game.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
+
+            case 'roll_dice_action' :
+                dice_result = dice_icon(action[1])
+                action_str = f'Dice Roll {dice_result}'
+
+            case 'spend_accuracy_action' :
+                dice_type, index = action[1]
+                if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                defend_ship = game.ships[game.attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[index]
+                action_str = f'Spend {dice_type} Accuracy : {token}'
+
+            case 'spend_evade_token_action' :
+                if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                defend_ship = game.ships[game.attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[action[1][0]]
+                evade_dice = action[1][1]
+                action_str = f'{'Spend' if sum([sum(evade_dice[dice_type]) for dice_type in Dice]) else 'Discard'} {token} Token {dice_icon(evade_dice)}'
+
+            case 'spend_redicect_token_action' :
+                if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                defend_ship = game.ships[game.attack_info.defend_ship_id]
+                token = defend_ship.defense_tokens[action[1][0]]
+                hull = action[1][1]
+                action_str = f'Spend {token} Token to {hull}'
+
+            case 'spend_defense_token_action' :
+                index = action[1]
+                if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                defend_ship = game.ships[game.attack_info.defend_ship_id]
+                action_str = f'Spend {defend_ship.defense_tokens[index]} Token'
+                
+            case 'resolve_damage_action' :
+                redirect_list = action[1]
+                if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                action_str = f'Resolve Total {game.attack_info.total_damage} Damage'
+                if redirect_list : action_str += f', Redirect {[f'{damage} to {hull}' for hull, damage in redirect_list]}'
+
+
+            case 'determine_course_action':
+                course, placement = action[1]
+                action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'}'
+
+            case _:
+                if 'pass' in action[0] : return
+                action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()} {f': {action[1]}' if action[1] else ''}'
+        return action_str

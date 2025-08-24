@@ -1,6 +1,6 @@
 {
-  "Victory_SD": {
-    "name": "Victory SD",
+  "Victory2_SD": {
+    "name": "VSD2",
     "hull": 8,
     "size": "medium",
     "command": 3,
@@ -24,8 +24,8 @@
     "side_targeting_point" : [19.55, 51.5]
   },
 
-  "CR90_Corvette": {
-    "name": "CR90 corvette",
+  "CR90A_Corvette": {
+    "name": "CR90A",
     "hull": 4,
     "size": "small",
     "command": 1,
@@ -52,7 +52,7 @@
   },
 
   "NebulonB_Escort": {
-    "name": "Nebulon-B frigate",
+    "name": "Neb-B Escort",
     "hull": 5,
     "size": "small",
     "command": 2,

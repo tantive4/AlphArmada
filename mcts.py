@@ -184,9 +184,10 @@ class MCTS:
                 temp_node.update(result_for_node)
                 temp_node = temp_node.parent
             
-            # with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
-            if i % 100 == 99:
-                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action: {self.get_best_action()}")
+            
+            if (i+1) % 400 == 0:
+                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action: {ActionType.get_action_str(self.game, self.get_best_action())}")
+                with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
 
     def get_best_action(self) -> ActionType.Action:
         if not self.root.children:

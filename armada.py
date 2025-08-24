@@ -9,6 +9,8 @@ from defense_token import DefenseToken, TokenType
 import copy
 from mcts import MCTS
 import itertools
+import math
+import json
 from game_phase import GamePhase, ActionType
 from typing import Callable
 
@@ -35,8 +37,7 @@ class Armada:
         self.winner : float | None = None
         self.image_counter : int = 0
         self.simulation_mode : bool = False
-
-
+        self.action_list : list[ActionType.Action] = []
 
 
     def play(self, 
@@ -165,8 +166,12 @@ class Armada:
             case GamePhase.COMMAND_PHASE :
                 if self.winner is not None:
                     raise ValueError('Game has already ended.')
-                ship_id = random.choice([ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value])
-                actions = [('set_command_action', (ship_id, command)) for command in Command]
+                ships_to_command = [ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value]
+                if ships_to_command : 
+                    ship_id = random.choice(ships_to_command)
+                    actions = [('set_command_action', (ship_id, command)) for command in Command]
+                else :
+                    actions = [('pass_command', None)]
             
             case GamePhase.SHIP_PHASE :
                 valid_ships = self.get_valid_activation(self.current_player)
@@ -223,6 +228,13 @@ class Armada:
                         continue
                     if blue_acc_count : actions.append(('spend_accuracy_action', (Dice.BLUE, token.index)))
                     if red_acc_count : actions.append(('spend_accuracy_action', (Dice.RED, token.index)))
+
+
+                # use con-fire command
+                if attack_info.con_fire_dial :
+                    actions.extend([('use_confire_dial_action', {dice: 1}) for dice in Dice if sum(attack_pool_result[dice])])
+
+                if not actions : actions= [('pass_attack_effect', None)] # Above actions are MUST USED actions
                 
                 # use con-fire command
                 if Command.CONCENTRATE_FIRE not in active_ship.resolved_command :
@@ -235,12 +247,11 @@ class Armada:
                         if not use_dial and not use_token:
                             continue  # Skip the (False, False) combination
                         actions.append(('resolve_con-fire_command_action', (use_dial, use_token)))
-                if attack_info.con_fire_dial :
-                    actions.extend([('use_confire_dial_action', {dice: 1}) for dice in Dice if sum(attack_pool_result[dice])])
+
                 if attack_info.con_fire_token :
                     actions.extend([('use_confire_token_action', dice) for dice in dice_choice_combinations(attack_pool_result, 1)])
 
-                if not actions : actions = [('pass_attack_effect', None)]
+                
 
             case GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS :
                 attack_ship = self.ships[attack_info.attack_ship_id]
@@ -339,6 +350,8 @@ class Armada:
         """
         Applies the given action to the game state.
         """
+        self.action_list.append(action)
+
         if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
             if self.active_ship is None:
                 raise ValueError("No active ship for the current game phase.")
@@ -365,6 +378,10 @@ class Armada:
                     else :
                         self.current_player = 1
                         self.phase = GamePhase.SHIP_PHASE
+            
+            case 'pass_command' :
+                self.current_player = 1
+                self.phase = GamePhase.SHIP_PHASE
 
             case 'activate_ship_action':
                 ship_id = action[1]
@@ -568,60 +585,16 @@ class Armada:
         """
         get action string and call visualizer
         """
+        if self.simulation_mode : return
+
+        action_str = ActionType.get_action_str(self, action)
+        if action_str is None : return
+
         maneuver_tool = None
-        match action[0]:
-            case 'set_command_action' :
-                action_str = f'Set {action[1][1]} Command on {self.ships[action[1][0]]}'
-
-            case 'activate_ship_action':
-                action_str = f'Activate Ship: {self.ships[action[1]].name}'
-
-            case 'gain_command_token_action' :
-                action_str = f'{self.active_ship} reveals {action[1]} Command and gain Token'
-            
-            case 'reveal_command_action' :
-                action_str = f'{self.active_ship} reveals {action[1]} Command'
-
-            case 'declare_target_action':
-                attack_hull, defend_ship_id, defend_hull = action[1]
-                defend_ship = self.ships[defend_ship_id]
-                action_str = f'Declare Target: from {self.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
-            case 'roll_dice_action' :
-                dice_result = dice_icon(action[1])
-                action_str = f'Dice Roll {dice_result}'
-            case 'spend_accuracy_action' :
-                dice_type, index = action[1]
-                if self.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
-                defend_ship = self.ships[self.attack_info.defend_ship_id]
-                token = defend_ship.defense_tokens[index]
-                action_str = f'Spend {dice_type} Accuracy : {token}'
-            case 'spend_evade_token_action' :
-                evade_dice = action[1][1]
-                action_str = f'{'Spend' if True else 'Discard'} Evade Token {dice_icon(evade_dice)}'
-            case 'spend_redicect_token_action' :
-                hull = action[1][1]
-                action_str = f'Spend Redirect Token to {hull}'
-            case 'spend_defense_token_action' :
-                index = action[1]
-                if self.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
-                defend_ship = self.ships[self.attack_info.defend_ship_id]
-                action_str = f'Spend {defend_ship.defense_tokens[index]} Token'
-            case 'resolve_damage_action' :
-                redirect_list = action[1]
-                if self.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
-                action_str = f'Resolve Total {self.attack_info.total_damage} Damage'
-                if redirect_list : action_str += f', Redirect {[f'{damage} to {hull}' for hull, damage in redirect_list]}'
-
-            
-            case 'determine_course_action':
-                course, placement = action[1]
-                if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
-                maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
-                action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'}'
-
-            case _:
-                if 'pass' in action[0] : return
-                action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()} {f': {action[1]}' if action[1] else ''}'
+        if action[0] == 'determine_course_action':
+            course, placement = action[1]
+            if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
+            maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
 
         self.visualize(f"Round {self.round} | {self.phase.name.replace("_"," ").title()} | Player {self.current_player}\n{action_str}", maneuver_tool)
 

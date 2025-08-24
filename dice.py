@@ -3,10 +3,10 @@ import itertools
 from collections import Counter
 from enum import Enum
 
-# Black = [blank, hit, double]
-# Blue = [hit, critical, accuracy]
-# Red = [blank, hit, critical, double, accuracy]
-
+# --- Global Cache ---
+# This dictionary will store the outcomes for a given number and color of dice
+# to avoid re-calculating them. The key will be a tuple like (Dice.BLACK, 3).
+_DICE_OUTCOME_CACHE = {}
 
 
 class Dice(Enum) :
@@ -114,57 +114,58 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
     return dice_result
 
 
-
-
-
-
-
-def _generate_outcomes_for_color(dice_count: int, num_faces: int) -> list[list[int]]:
+def _generate_outcomes_for_color(dice_count: int, num_faces: int, dice_type: Dice) -> list[list[int]]:
     """
     Generates all possible result combinations for a single color of dice.
-  
-    Args:
-        dice_count (int): The number of dice of this color.
-        num_faces (int): The number of unique faces on the die.
-
-    Returns:
-        List[List[int]]: A list of all possible outcomes for this color.
+    This function is used by the pre-computation step.
     """
     if dice_count == 0:
         return [[0] * num_faces]
 
+    # Create a unique key for the cache
+    cache_key = (dice_type, dice_count)
+    
+    # Check if the result is already in the cache (it will be after pre-computation)
+    if cache_key in _DICE_OUTCOME_CACHE:
+        return _DICE_OUTCOME_CACHE[cache_key]
+
+    # If not in cache (e.g., for > max_dice), calculate the outcomes on the fly
     face_indices = range(num_faces)
     outcomes = []
     
-    # Generate all combinations of face indices with replacement
     for combo in itertools.combinations_with_replacement(face_indices, dice_count):
-        # Count how many times each face index appears in the combination
         counts = Counter(combo)
-        # Create the result list in the correct order of faces
         result = [counts[i] for i in face_indices]
         outcomes.append(result)
-        
+    
+    # Store the result in the cache for future use
+    _DICE_OUTCOME_CACHE[cache_key] = outcomes
     return outcomes
+
+def precompute_dice_outcomes(max_dice: int = 8):
+    """
+    Calculates and caches all dice outcomes up to max_dice for each color.
+    This is run once when the module is imported for maximum performance.
+    """
+    print("Pre-computing all possible dice outcomes...")
+    for dice_type in Dice:
+        num_faces = len(ICON_INDICES[dice_type])
+        for i in range(1, max_dice + 1):
+            # This call will compute and store the results in the global cache
+            _generate_outcomes_for_color(i, num_faces, dice_type)
+    print("Dice outcome pre-computation complete.")
 
 def generate_all_dice_outcomes(dice_pool: dict[Dice,int]) -> list[dict[Dice, list[int]]]:
     """
-    Creates a list of every possible dice outcome for a given set of dice.
-
-    Args:
-        dice (list): A list [black, blue, red]
-                     representing the number of each die type.
-
-    Returns:
-        list[dict]: A list of all unique outcomes. Each outcome
-        is formatted like the output of the original **roll_dice** function:
-        {Dice.BLACK : [black_faces], Dice.BLUE : [blue_faces], Dice.RED : [red_faces]}
+    Creates a list of every possible dice outcome for a given set of dice
+    by combining pre-calculated outcomes for each color from the cache.
     """
-    black_outcomes = _generate_outcomes_for_color(dice_pool[Dice.BLACK], 3)
-    blue_outcomes = _generate_outcomes_for_color(dice_pool[Dice.BLUE], 3)
-    red_outcomes = _generate_outcomes_for_color(dice_pool[Dice.RED], 5)
+    # Get outcomes for each color (this will use the cache)
+    black_outcomes = _generate_outcomes_for_color(dice_pool.get(Dice.BLACK, 0), 3, Dice.BLACK)
+    blue_outcomes = _generate_outcomes_for_color(dice_pool.get(Dice.BLUE, 0), 3, Dice.BLUE)
+    red_outcomes = _generate_outcomes_for_color(dice_pool.get(Dice.RED, 0), 5, Dice.RED)
     
     # Combine the outcomes of each color using a Cartesian product
-    # This pairs every black outcome with every blue outcome and every red outcome.
     all_combinations = itertools.product(black_outcomes, blue_outcomes, red_outcomes)
     
     # Format the final list
@@ -249,3 +250,6 @@ class Critical(Enum) :
     def __str__(self) :
         return self.name
     __repr__ = __str__
+
+# --- Pre-compute and cache all common dice outcomes on module import ---
+precompute_dice_outcomes(max_dice=8)

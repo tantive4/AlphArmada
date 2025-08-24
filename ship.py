@@ -29,12 +29,12 @@ class SizeClass(IntEnum) :
     HUGE = 4
 
 class Command(Enum) :
-    NAVIGATION = 0
-    # SQUADRON = 1
-    # ENGINEERING = 2
-    CONCENTRATE_FIRE = 3
+    NAVIGATION = 'NAV'
+    # SQUADRON = 'SQAD'
+    # ENGINEERING = 'ENGINEER'
+    CONCENTRATE_FIRE = 'CONFIRE'
     def __str__(self):
-        return self.name
+        return self.value
     __repr__ = __str__
 
 
@@ -110,6 +110,10 @@ class Ship:
         self.target_exist_hull = [True, True, True, True]
         self._set_coordination()
         self.refresh()
+    
+    def asign_command(self, Command) -> None :
+        if len(self.command_stack) >= self.command_value : raise ValueError("Cannot asigne more command then Command Value")
+        self.command_stack.append(Command)
 
 
     def destroy(self) -> None:

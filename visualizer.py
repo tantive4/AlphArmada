@@ -1,5 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-import numpy as np
 import ship as ship_module
 from typing import TYPE_CHECKING
 # Conditionally import Armada only for type checking
@@ -53,7 +52,7 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
         # Positions are defined in game coordinates (y-up) and then transformed.
 
         # Ship Name (Positioned above the ship's center, offset for clarity)
-        name_pos = np.array(ship._get_coordination(0, 20)) + np.array((-15.0, 5.0))
+        name_pos = ship._get_coordination(-15, 25)
         draw.text(transform_coord(name_pos), ship.name, font=font, fill='cyan')
         
         # Hull (Positioned near the ship's center)
@@ -88,7 +87,61 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
             (ship.front_left_base[1] + ship.rear_left_base[1]) / 2
         )
         draw.text(transform_coord(left_shield_pos), str(ship.shield[ship_module.HullSection.LEFT]), font=font, fill='cyan')
-    
+        
+        # Defense Tokens
+        displayed_tokens = [t for t in ship.defense_tokens if not t.discarded]
+        if displayed_tokens:
+            first_token = displayed_tokens[0]
+            bbox = font.getbbox(first_token.type.name)
+            text_width = bbox[2] - bbox[0]
+            
+            x_offset = -text_width / 2
+            y_offset = -ship.base_size[1] * 1.3
+            start_pos_game = ship._get_coordination(x_offset, y_offset)
+            start_x_img, start_y_img = transform_coord(start_pos_game)
+
+            for i, token in enumerate(displayed_tokens):
+                token_text = token.type.name
+                bbox = font.getbbox(token_text)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+                
+                y_img = start_y_img + i * (text_height + 10)
+                x_img = start_x_img
+                token_pos_img = (x_img, y_img)
+                
+                bg_color = 'green' if token.readied else 'red'
+                
+                # Define background rectangle directly in image coordinates
+                bg_coords = [x_img - 2, y_img - 2, x_img + text_width + 2, y_img + text_height + 2]
+
+                draw.rectangle(bg_coords, fill=bg_color)
+                draw.text(token_pos_img, token_text, font=font, fill='white')
+
+
+        # Command Tokens
+        if ship.command_token:
+            first_command = ship.command_token[0]
+            bbox = font.getbbox(str(first_command))
+            text_width = bbox[2] - bbox[0]
+            
+            x_offset = ship.base_size[0] * 1.2
+            y_offset = -ship.base_size[1] * 1.2
+            start_pos_game = ship._get_coordination(x_offset, y_offset)
+            start_x_img, start_y_img = transform_coord(start_pos_game)
+            
+            for i, command in enumerate(ship.command_token):
+                token_text = str(command)
+                bbox = font.getbbox(token_text)
+                text_height = bbox[3] - bbox[1]
+                
+                y_img = start_y_img + i * (text_height + 10)
+                x_img = start_x_img
+                token_pos_img = (x_img, y_img)
+
+                draw.text(token_pos_img, token_text, font=font, fill='white')
+
+
     if maneuver_tool:
         # Draw the maneuver tool path
         transformed_tool_path = [transform_coord(p) for p in maneuver_tool]

@@ -32,7 +32,7 @@ class DefenseToken:
         self.accuracy : bool = False
 
     def __str__(self):
-        return self.type.name
+        return f'{'Readied' if self.readied else 'Exhausted'} {self.type.name}'
     __repr__ = __str__
 
     def __eq__(self, other: object) -> bool:
@@ -44,8 +44,15 @@ class DefenseToken:
         if not isinstance(other, DefenseToken):
             return NotImplemented
         
-        # Compare their __dict__ attributes. This checks all attributes at once.
-        return self.__dict__ == other.__dict__
+        self_dict = self.__dict__.copy()
+        other_dict = other.__dict__.copy()
+        
+        # Remove the 'index' key before comparison
+        self_dict.pop('index', None)
+        other_dict.pop('index', None)
+        
+        # Compare the modified dictionaries
+        return self_dict == other_dict
 
     def spend(self) -> None :
         if self.readied:
