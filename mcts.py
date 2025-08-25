@@ -186,7 +186,7 @@ class MCTS:
             
             
             if (i+1) % 400 == 0:
-                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action: {ActionType.get_action_str(self.game, self.get_best_action())}")
+                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action | {ActionType.get_action_str(self.game, self.get_best_action())}")
                 with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
 
 
@@ -268,8 +268,8 @@ class MCTS:
                             temp_node.update(result_for_node)
                             temp_node = temp_node.parent
                     
-                    if (i + 1) % (400 // num_processes) == 0:
-                        print(f"Iteration {(i + 1) * num_processes}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action: {ActionType.get_action_str(self.game, self.get_best_action())}")
+                    if (i + 1) % 100 == 0:
+                        print(f"Iteration {(i + 1) * num_processes}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action | {ActionType.get_action_str(self.game, self.get_best_action())}")
                         with open('simulation_log.txt', 'a') as f: f.write(f"\n{(i + 1) * num_processes} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
 
     def _run_simulation(self, game: Armada) -> float:

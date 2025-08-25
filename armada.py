@@ -628,7 +628,7 @@ class Armada:
 
     def status_phase(self) -> None:
         if not self.simulation_mode :
-            print(f'\n{'-' * 10} {self.round} Round Ended {'-' * 10}\n')
+            print(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n')
         # 1. Refresh all active ships for the next round
         for ship in self.ships:
             if not ship.destroyed:
