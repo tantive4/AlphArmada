@@ -138,6 +138,11 @@ class Ship:
         self.resolved_command = []
 
     def move_ship(self, course : list[int], placement : int) -> None:
+        # speed 0 maneuver
+        if not course :
+            self.game.visualize(f'{self} executes speed 0 maneuver.')
+            return
+
         original_x, original_y, original_orientaion = self.x, self.y, self.orientation
 
         joint_coordination, joint_orientaion = self._tool_coordination(course, placement)
@@ -259,7 +264,7 @@ class Ship:
 
         final_targeting_points = (self.template_targeting_points_and_maneuver_tool_insert @ rotation_matrix.T) + translation_vector
         self.targeting_point : dict[HullSection, tuple[int, int]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
-        self.tool_coords = {1 : tuple(final_targeting_points[4]),
+        self.tool_coords : dict[int, tuple[float, float]]  = {1 : tuple(final_targeting_points[4]),
                             -1: tuple(final_targeting_points[5])}
 
 
@@ -371,8 +376,6 @@ class Ship:
         return attack_pool
 
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
-        
-
         # Absorb damage with shields first
         shield_damage = min(total_damage, self.shield[defend_hull])
         self.shield[defend_hull] -= shield_damage

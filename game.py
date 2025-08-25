@@ -2,6 +2,7 @@ from armada import Armada
 from ship import Ship, Command
 import json
 import os
+import math
 import shutil
 import multiprocessing
 from dice import precompute_dice_outcomes  # <-- Add this import
@@ -24,7 +25,7 @@ def main():
 
     game.deploy_ship(cr90, 600, 175, 0, 2)
     game.deploy_ship(nebulon, 300, 175, 0, 2)
-    game.deploy_ship(victory, 450, 725, 3.14159, 2)
+    game.deploy_ship(victory, 450, 725, math.pi, 2)
 
     cr90.asign_command(Command.NAVIGATION)
     nebulon.asign_command(Command.NAVIGATION)
