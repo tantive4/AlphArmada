@@ -251,5 +251,3 @@ class Critical(Enum) :
         return self.name
     __repr__ = __str__
 
-# --- Pre-compute and cache all common dice outcomes on module import ---
-precompute_dice_outcomes(max_dice=8)

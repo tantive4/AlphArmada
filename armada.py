@@ -94,6 +94,15 @@ class Armada:
         action : ActionType.Action = mcts.get_best_action()
         return action
 
+    def mcts_decision_parallel(self, iterations: int = 1000, num_processes: int = 4) -> ActionType.Action:
+        game_copy: Armada = copy.deepcopy(self)
+        game_copy.simulation_mode = True
+        mcts = MCTS(game_copy)
+        mcts.search_parallel(iterations, num_processes)
+        action: ActionType.Action = mcts.get_best_action()
+        return action
+
+
     def update_decision_player(self) -> None:
         """
         Returns a list of possible actions based on the current game phase.
@@ -618,6 +627,8 @@ class Armada:
     
 
     def status_phase(self) -> None:
+        if not self.simulation_mode :
+            print(f'\n{'-' * 10} {self.round} Round Ended {'-' * 10}\n')
         # 1. Refresh all active ships for the next round
         for ship in self.ships:
             if not ship.destroyed:
