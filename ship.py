@@ -1,5 +1,7 @@
 from __future__ import annotations
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import Polygon, LineString, Point
+from shapely.affinity import translate, rotate
+from shapely.ops import unary_union
 import shapely.ops
 import numpy as np
 import math
@@ -66,12 +68,8 @@ class Ship:
 
         self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
-
-        self.targeting_point_dict : dict[str, tuple[float, float]] = {
-            'front' : (0, ship_dict['front_targeting_point']),
-            'right' : (ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1]),
-            'rear' : (0, ship_dict['rear_targeting_point']),
-            'left' : (- ship_dict['side_targeting_point'][0], ship_dict['side_targeting_point'][1])}
+        
+        self._create_template_geometries(ship_dict)
         
     def __str__(self):
         return self.name
@@ -83,7 +81,7 @@ class Ship:
 
         Args:
             game (Armada) : the game
-            (x, y) (float) : coordination of front center of the ship token
+            (x, y) (float) : coordination of front center of the **ship token**
             orientation (float) : ship orientation
             speed (int) : ship speed
             ship_id (int) : ship id
@@ -180,101 +178,94 @@ class Ship:
 
 # sub method for ship dimension
 
-    def _get_coordination(self, add_x : float, add_y : float) -> tuple[float, float] :
+    def _create_template_geometries(self, ship_dict : dict) -> None:
         """
-        Args:
-            vector (tuple): (x, y) transition tuple
-        Returns:
-            (x, y) point after transition from top center of the ship, considering current orientation
+        Creates template vertices (points) for all ship shapes, relative to a single
+        (0,0) pivot at the token's front-center.
         """
-        x, y = self.x, self.y
-        rotated_add_x = add_x * math.cos(self.orientation) + add_y * math.sin(self.orientation)
-        rotated_add_y = -add_x * math.sin(self.orientation) + add_y * math.cos(self.orientation)
-        return (x + rotated_add_x, y + rotated_add_y)
-    
-    def _set_coordination(self) -> None: 
-        """
-        define coordination for ship measuring points
+        token_half_w = self.token_size[0] / 2
 
-        update when ship is moved
-        """
-        self.front_right_token = self._get_coordination(self.token_size[0] / 2,0)
-        self.front_left_token = self._get_coordination(- self.token_size[0] / 2,0)
-        self.rear_right_token = self._get_coordination(self.token_size[0] / 2, - self.token_size[1])
-        self.rear_left_token = self._get_coordination(- self.token_size[0] / 2, - self.token_size[1])
+        base_half_w = self.base_size[0] / 2
+        base_front_y = (self.base_size[1] - self.token_size[1]) / 2
+        base_rear_y = base_front_y - self.base_size[1]
+        self.template_base_vertices = np.array([
+            [base_half_w, base_front_y], [-base_half_w, base_front_y],
+            [-base_half_w, base_rear_y], [base_half_w, base_rear_y]
+        ])
 
-        self.front_right_arc = self._get_coordination(self.token_size[0]/2, - self.front_arc[1])
-        self.front_left_arc = self._get_coordination(-self.token_size[0]/2, - self.front_arc[1])
-        self.rear_right_arc = self._get_coordination(self.token_size[0]/2, - self.rear_arc[1])
-        self.rear_left_arc = self._get_coordination(-self.token_size[0]/2, - self.rear_arc[1])
+        front_arc_center_pt = (0, -self.front_arc[0])
+        front_left_arc_pt = (-token_half_w, -self.front_arc[1])
+        front_right_arc_pt = (token_half_w, -self.front_arc[1])
+        rear_arc_center_pt = (0, -self.rear_arc[0])
+        rear_left_arc_pt = (-token_half_w, -self.rear_arc[1])
+        rear_right_arc_pt = (token_half_w, -self.rear_arc[1])
+        front_left_token_pt = (-token_half_w, 0)
+        front_right_token_pt = (token_half_w, 0)
+        rear_left_token_pt = (-token_half_w, -self.token_size[1])
+        rear_right_token_pt = (token_half_w, -self.token_size[1])
 
-        self.front_arc_center = self._get_coordination(0, -self.front_arc[0])
-        self.rear_arc_center = self._get_coordination(0, -self.rear_arc[0])
+        self.template_token_vertices = np.array([
+            front_right_token_pt, front_left_token_pt,
+            rear_left_token_pt, rear_right_token_pt
+        ])
 
-        self.front_right_base = self._get_coordination(self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2)
-        self.front_left_base = self._get_coordination(- self.base_size[0] / 2,(self.base_size[1] - self.token_size[1]) / 2)
-        self.rear_right_base = self._get_coordination(self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1])
-        self.rear_left_base = self._get_coordination(- self.base_size[0] / 2, (self.base_size[1] - self.token_size[1]) / 2 - self.base_size[1])
+        self.template_hull_vertices = {
+            HullSection.FRONT: np.array([
+                front_arc_center_pt, front_right_arc_pt, front_right_token_pt, 
+                front_left_token_pt, front_left_arc_pt
+            ]),
+            HullSection.RIGHT: np.array([
+                front_arc_center_pt, front_right_arc_pt, 
+                rear_right_arc_pt, rear_arc_center_pt
+            ]),
+            HullSection.REAR: np.array([
+                rear_arc_center_pt, rear_right_arc_pt, rear_right_token_pt,
+                rear_left_token_pt, rear_left_arc_pt
+            ]),
+            HullSection.LEFT: np.array([
+                front_arc_center_pt, front_left_arc_pt,
+                rear_left_arc_pt, rear_arc_center_pt
+            ])
+        }
         
-        self._make_polygon()
+        # 1~4 : targeting points
+        # 5,6 : Right/Left maneuver tool insert point
+        self.template_targeting_points_and_maneuver_tool_insert = np.array([
+            [0, -ship_dict['front_targeting_point']],
+            [ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
+            [0, -ship_dict['rear_targeting_point']],
+            [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
+            [ (self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2],
+            [-(self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2]
+        ])
 
-        self.targeting_point : dict[HullSection, tuple[float, float]]= {
-            HullSection.FRONT : self._get_coordination(self.targeting_point_dict['front'][0], -self.targeting_point_dict['front'][1]),
-            HullSection.RIGHT : self._get_coordination(self.targeting_point_dict['right'][0], -self.targeting_point_dict['right'][1]),
-            HullSection.REAR : self._get_coordination(self.targeting_point_dict['rear'][0], -self.targeting_point_dict['rear'][1]),
-            HullSection.LEFT : self._get_coordination(self.targeting_point_dict['left'][0], -self.targeting_point_dict['left'][1])}
+    
+    def _set_coordination(self) -> None:
+        """
+        Transforms template vertices using NumPy and creates final Polygon objects.
+        This is the fastest and safest method, avoiding both repeated calculations and the need for .buffer(0).
+        """
+        c, s = math.cos(-self.orientation), math.sin(-self.orientation)
+        rotation_matrix = np.array([[c, -s], [s, c]])
+        translation_vector = np.array([self.x, self.y])
 
-    def _make_polygon(self) -> None:
-        self.ship_token = Polygon([
-            self.front_right_token,
-            self.front_left_token,
-            self.rear_left_token,
-            self.rear_right_token
-        ]).buffer(0)
+        # Transform vertices and create final Polygon objects
+        self.ship_base = Polygon((self.template_base_vertices @ rotation_matrix.T) + translation_vector)
+        self.ship_token = Polygon((self.template_token_vertices @ rotation_matrix.T) + translation_vector)
 
-        self.ship_base = Polygon([
-            self.front_right_base,
-            self.front_left_base,
-            self.rear_left_base,
-            self.rear_right_base
-        ]).buffer(0)
+        self.hull_polygon : dict[HullSection, Polygon]= {}
+        for section, vertices in self.template_hull_vertices.items():
+            self.hull_polygon[section] = Polygon((vertices @ rotation_matrix.T) + translation_vector)
 
-        front_hull = Polygon([
-            self.front_right_token,
-            self.front_right_arc,
-            self.front_arc_center,
-            self.front_left_arc,
-            self.front_left_token
-                ]).buffer(0)
-        right_hull = Polygon([
-            self.front_arc_center,
-            self.front_right_arc,
-            self.rear_right_arc,
-            self.rear_arc_center
-                ]).buffer(0)
-        rear_hull = Polygon([
-            self.rear_right_arc,
-            self.rear_right_token,
-            self.rear_left_token,
-            self.rear_left_arc,
-            self.rear_arc_center
-                ]).buffer(0)
-        left_hull = Polygon([
-            self.front_arc_center,
-            self.front_left_arc,
-            self.rear_left_arc,
-            self.rear_arc_center
-                ]).buffer(0)
-
-        self.hull_polygon : dict[HullSection, Polygon]= {HullSection.FRONT : front_hull, 
-                                                         HullSection.RIGHT : right_hull, 
-                                                         HullSection.REAR : rear_hull, 
-                                                         HullSection.LEFT : left_hull}
+        final_targeting_points = (self.template_targeting_points_and_maneuver_tool_insert @ rotation_matrix.T) + translation_vector
+        self.targeting_point : dict[HullSection, tuple[int, int]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
+        self.tool_coords = {1 : tuple(final_targeting_points[4]),
+                            -1: tuple(final_targeting_points[5])}
 
 
 # sub method for attack
 
-    def measure_arc_and_range(self, from_hull : HullSection, to_ship : "Ship", to_hull : HullSection, extension_factor=1e4) -> AttackRange:
+    def measure_arc_and_range(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection, extension_factor=500) -> AttackRange:
         """Measures the range and validity of a firing arc to a target.
 
         This method checks if a target hull is within the firing ship's
@@ -295,30 +286,35 @@ class Ship:
         """
         if to_ship.destroyed : return AttackRange.INVALID
 
-        if from_hull == HullSection.FRONT or from_hull == HullSection.RIGHT :
-            arc1 = (self.front_arc_center, self.front_right_arc)
-        else : 
-            arc1 = (self.rear_arc_center, self.rear_left_arc)
-        
-        if from_hull == HullSection.RIGHT or from_hull == HullSection.REAR :
-            arc2 = (self.rear_arc_center, self.rear_right_arc)
+        hull_coords = self.hull_polygon[from_hull].exterior.coords
+        if from_hull in (HullSection.FRONT, HullSection.REAR) :
+            arc1_center, arc1_end = hull_coords[0], hull_coords[1]
+            arc2_center, arc2_end = hull_coords[-1], hull_coords[-2] # Grabs the last two unique points
         else :
-            arc2 = (self.front_arc_center, self.front_left_arc)
+            arc1_center, arc1_end = hull_coords[0], hull_coords[1]
+            arc2_center, arc2_end = hull_coords[-2], hull_coords[-3] # Grabs the last two unique points
 
-        arc1_vector = np.array(arc1[1]) - np.array(arc1[0])
-        arc2_vector = np.array(arc2[1]) - np.array(arc2[0])
+        # Build the arc polygon. This logic works for ALL hull sections.
+        vec1 = np.array(arc1_end) - np.array(arc1_center)
+        vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
+        arc_polygon = Polygon([
+            arc1_end,
+            np.array(arc1_end) + vec1 * extension_factor,
+            np.array(arc2_end) + vec2 * extension_factor,
+            arc2_end
+        ])
 
-        arc_polygon = Polygon([arc1[0], arc1[1] + arc1_vector * extension_factor,
-                            arc2[1] + arc2_vector * extension_factor, arc2[0]]).buffer(0)
-        to_hull_in_arc = to_ship.hull_polygon[to_hull].intersection(arc_polygon)
+        target_hull = to_ship.hull_polygon[to_hull].exterior
 
-        if to_hull_in_arc.is_empty or not isinstance(to_hull_in_arc, Polygon):
+        to_hull_in_arc = target_hull.intersection(arc_polygon)
+
+        if to_hull_in_arc.is_empty :
             return AttackRange.INVALID # not in arc
 
-        range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull], to_hull_in_arc))
+        range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull].exterior, to_hull_in_arc))
 
         for hull in HullSection :
-            if hull != to_hull and range_measure.crosses(to_ship.hull_polygon[hull]) :
+            if hull != to_hull and range_measure.crosses(to_ship.hull_polygon[hull].exterior) :
                 return AttackRange.INVALID # range not valid
         distance = range_measure.length
 
@@ -349,7 +345,7 @@ class Ship:
             if hull == to_hull:
                 continue
 
-            if line_of_sight.crosses(to_ship.hull_polygon[hull]):
+            if line_of_sight.crosses(to_ship.hull_polygon[hull].exterior):
                 blocked_line_of_sight = True
                 break 
 
@@ -361,7 +357,7 @@ class Ship:
             if ship.destroyed:
                 continue
 
-            if line_of_sight.crosses(ship.ship_token):
+            if line_of_sight.crosses(ship.ship_token.exterior):
                 obstructed_line_of_sight = True
                 break
 
@@ -482,7 +478,7 @@ class Ship:
             - A list of (x, y) tuples representing the coordinates of each joint along the tool's path.
             - A list of orientations in radians at each joint along the tool's path.
         """
-        (tool_x, tool_y) = self._get_coordination(placement * (self.base_size[0] + TOOL_WIDTH) / 2,0)
+        (tool_x, tool_y) = self.tool_coords[placement]
         tool_orientaion = self.orientation
 
         joint_coordination = [(tool_x, tool_y)]

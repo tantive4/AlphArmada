@@ -1,169 +1,147 @@
 from PIL import Image, ImageDraw, ImageFont
 import ship as ship_module
+import math
 from typing import TYPE_CHECKING
+import os
+
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:
     from armada import Armada
     
+def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) -> Image.Image:
+    """
+    Creates an image of a single ship with all its details on a transparent background.
+    The ship is drawn with its front-token-center pivot at the center of the template image.
+    """
+    # Use a fixed-size canvas for all templates
+    width, height = 400, 400
+    template_img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(template_img)
+    
+    # The "ZERO POINT" is the center of the template, corresponding to the ship's pivot
+    origin_x, origin_y = width / 2, height / 2
+
+    # Function to translate ship-local coordinates (y-up) to template image coordinates (y-down)
+    def to_template_coord(p):
+        """
+        Takes offset from **Front Center of Ship Token** as input\n
+        +y side is front side of ship
+        """
+        return (p[0] + origin_x, -p[1] + origin_y)
+
+    # Draw the ship's base and hull zones using the template vertices
+    base_coords = [to_template_coord(p) for p in ship.template_base_vertices]
+    draw.polygon(base_coords, outline='white')
+    for hull_vertices in ship.template_hull_vertices.values():
+        hull_coords = [to_template_coord(p) for p in hull_vertices]
+        draw.polygon(hull_coords, outline='red')
+
+    # Draw targeting points
+    for hull in ship_module.HullSection:
+        point = ship.template_targeting_points_and_maneuver_tool_insert[hull.value]
+        p_transformed = to_template_coord(point)
+        dot_size = 1
+        bounding_box = [
+            (p_transformed[0] - dot_size, p_transformed[1] - dot_size),
+            (p_transformed[0] + dot_size, p_transformed[1] + dot_size)
+        ]
+        draw.ellipse(bounding_box, fill='yellow', outline='yellow')
+
+    # --- Draw Text Labels (relative to the pivot) ---
+    draw.text(to_template_coord((0, 15)), ship.name, font=font, fill='white', anchor="ms")
+    draw.text(to_template_coord((0, -24)), str(ship.hull), font=font, fill='yellow', anchor="mm")
+    
+    # Shields
+    draw.text(to_template_coord((0, 2)), str(ship.shield[ship_module.HullSection.FRONT]), font=font, fill='cyan', anchor="mb")
+    draw.text(to_template_coord((0, -ship.token_size[1] - 12)), str(ship.shield[ship_module.HullSection.REAR]), font=font, fill='cyan', anchor="ms")
+    draw.text(to_template_coord((ship.token_size[0]/2 + 5, -ship.token_size[1]/2)), str(ship.shield[ship_module.HullSection.RIGHT]), font=font, fill='cyan', anchor="lm")
+    draw.text(to_template_coord((-ship.token_size[0]/2 - 5, -ship.token_size[1]/2)), str(ship.shield[ship_module.HullSection.LEFT]), font=font, fill='cyan', anchor="rm")
+    
+    draw.text(to_template_coord((ship.token_size[0]/2 - 10, -ship.token_size[1] + 5)), str(ship.speed), font=font,fill='white', anchor='ls')
+
+    # --- Draw Defense Tokens ---
+    start_x, start_y = to_template_coord((ship.base_size[0] / 2 + 5, -ship.base_size[1] - 5))
+    # Iterate backwards to stack from the bottom up
+    for i, token in enumerate(reversed(ship.defense_tokens)):
+        # If a token is discarded, skip drawing it, leaving a blank space
+        if token.discarded:
+            continue
+        
+        token_text = token.type.name
+        # Stack upwards from the starting position
+        pos_y = start_y - i * 12
+        bg_color = 'green' if token.readied else 'red'
+        
+        bbox = draw.textbbox((start_x, pos_y), token_text, font=font, anchor="ls")
+        draw.rectangle(bbox, fill=bg_color)
+        draw.text((start_x, pos_y), token_text, font=font, fill='white', anchor="ls")
+
+    # --- Draw Command Tokens ---
+    if ship.command_token:
+        start_x, start_y = to_template_coord((-ship.base_size[0] / 2, -ship.base_size[1] - 24))
+        for i, command in enumerate(ship.command_token):
+            token_text = str(command)
+            pos_y = start_y + i * 12
+            draw.text((start_x, pos_y), token_text, font=font, fill='white', anchor="ls")
+
+    return template_img
+
 def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, float]] | None = None) -> None:
-    """Creates and saves an image of the current game state with (0,0) at the bottom-left."""
-    img = Image.new('RGB', (game.player_edge, game.short_edge), (0,0,0)) # type: ignore
+    img = Image.new('RGB', (game.player_edge, game.short_edge), (0,0,0))
     draw = ImageDraw.Draw(img)
 
-    # Helper function to transform a coordinate from game space (0,0 at bottom-left)
-    # to image space (0,0 at top-left).
     def transform_coord(coord):
         return (coord[0], game.short_edge - coord[1])
 
-    try:
-        font = ImageFont.truetype("Arial.ttf", 18)
-    except IOError:
-        font = ImageFont.load_default()
 
-    # Keep the title at the top-left of the image for readability
-    display_title = title
-    draw.text((10, 10), display_title, font=font, fill='white')
+    font = ImageFont.truetype("ARIAL.TTF", 18)
+    font_small = ImageFont.truetype("ARIAL.TTF", 12)
+
+
+    draw.text((10, 10), title, font=font, fill='white')
+
+    ship_templates = {}
+    for ship in game.ships:
+        if ship.ship_id not in ship_templates:
+             ship_templates[ship.ship_id] = _draw_ship_template(ship, font_small)
 
     for ship in game.ships:
         if ship.destroyed:
             continue
 
-        # Transform and draw the ship's base
-        base_coords = [transform_coord(p) for p in [ship.front_left_base, ship.front_right_base, ship.rear_right_base, ship.rear_left_base]]
-        draw.polygon(base_coords, outline='white')
-
-        # Transform and draw the firing arcs
-        draw.line([transform_coord(ship.front_arc_center), transform_coord(ship.front_left_arc)], fill='red')
-        draw.line([transform_coord(ship.front_arc_center), transform_coord(ship.front_right_arc)], fill='red')
-        draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_left_arc)], fill='red')
-        draw.line([transform_coord(ship.rear_arc_center), transform_coord(ship.rear_right_arc)], fill='red')
-
-        # Transform and draw the targeting points
-        for point in ship.targeting_point.values():
-            p_transformed = transform_coord(point)
-            dot_size = 1
-            bounding_box = [
-                (p_transformed[0] - dot_size, p_transformed[1] - dot_size),
-                (p_transformed[0] + dot_size, p_transformed[1] + dot_size)
-            ]
-            draw.ellipse(bounding_box, fill='yellow', outline='yellow')
-
-        # --- Text Labels ---
-        # Positions are defined in game coordinates (y-up) and then transformed.
-
-        # Ship Name (Positioned above the ship's center, offset for clarity)
-        name_pos = ship._get_coordination(-15, 25)
-        draw.text(transform_coord(name_pos), ship.name, font=font, fill='cyan')
+        template = ship_templates[ship.ship_id]
         
-        # Hull (Positioned near the ship's center)
-        hull_pos = ship._get_coordination(0, -15)
-        draw.text(transform_coord(hull_pos), str(ship.hull), font=font, fill='green')
+        # Negate angle for Pillow's counter-clockwise rotation
+        angle_deg = -math.degrees(ship.orientation)
         
-        # Shields
-        # Front (Positioned "above" the front edge)
-        front_shield_pos = (
-            (ship.front_left_base[0] + ship.front_right_base[0]) / 2, 
-            (ship.front_left_base[1] + ship.front_right_base[1]) / 2
-        )
-        draw.text(transform_coord(front_shield_pos), str(ship.shield[ship_module.HullSection.FRONT]), font=font, fill='cyan')
+        # Rotate the template around its center (the pivot point)
+        rotated_template = template.rotate(angle_deg, expand=True, resample=Image.Resampling.BICUBIC)
+
+        # The ship's (x,y) is the pivot, so we transform it to image coordinates
+        img_pivot_x, img_pivot_y = transform_coord((ship.x, ship.y))
         
-        # Right (Positioned to the right of the side edge)
-        right_shield_pos = (
-            (ship.front_right_base[0] + ship.rear_right_base[0]) / 2, 
-            (ship.front_right_base[1] + ship.rear_right_base[1]) / 2
-        )
-        draw.text(transform_coord(right_shield_pos), str(ship.shield[ship_module.HullSection.RIGHT]), font=font, fill='cyan')
+        # Calculate the top-left corner for pasting by aligning the rotated template's center
+        # with the ship's transformed pivot point.
+        paste_x = int(img_pivot_x - rotated_template.width / 2)
+        paste_y = int(img_pivot_y - rotated_template.height / 2)
 
-        # Rear (Positioned "below" the rear edge)
-        rear_shield_pos = (
-            (ship.rear_left_base[0] + ship.rear_right_base[0]) / 2, 
-            (ship.rear_left_base[1] + ship.rear_right_base[1]) / 2
-        )
-        draw.text(transform_coord(rear_shield_pos), str(ship.shield[ship_module.HullSection.REAR]), font=font, fill='cyan')
-        
-        # Left (Positioned to the left of the side edge)
-        left_shield_pos = (
-            (ship.front_left_base[0] + ship.rear_left_base[0]) / 2, 
-            (ship.front_left_base[1] + ship.rear_left_base[1]) / 2
-        )
-        draw.text(transform_coord(left_shield_pos), str(ship.shield[ship_module.HullSection.LEFT]), font=font, fill='cyan')
-        
-        # Defense Tokens
-        displayed_tokens = [t for t in ship.defense_tokens if not t.discarded]
-        if displayed_tokens:
-            first_token = displayed_tokens[0]
-            bbox = font.getbbox(first_token.type.name)
-            text_width = bbox[2] - bbox[0]
-            
-            x_offset = -text_width / 2
-            y_offset = -ship.base_size[1] * 1.3
-            start_pos_game = ship._get_coordination(x_offset, y_offset)
-            start_x_img, start_y_img = transform_coord(start_pos_game)
-
-            for i, token in enumerate(displayed_tokens):
-                token_text = token.type.name
-                bbox = font.getbbox(token_text)
-                text_width = bbox[2] - bbox[0]
-                text_height = bbox[3] - bbox[1]
-                
-                y_img = start_y_img + i * (text_height + 10)
-                x_img = start_x_img
-                token_pos_img = (x_img, y_img)
-                
-                bg_color = 'green' if token.readied else 'red'
-                
-                # Define background rectangle directly in image coordinates
-                bg_coords = [x_img - 2, y_img - 2, x_img + text_width + 2, y_img + text_height + 2]
-
-                draw.rectangle(bg_coords, fill=bg_color)
-                draw.text(token_pos_img, token_text, font=font, fill='white')
-
-
-        # Command Tokens
-        if ship.command_token:
-            first_command = ship.command_token[0]
-            bbox = font.getbbox(str(first_command))
-            text_width = bbox[2] - bbox[0]
-            
-            x_offset = ship.base_size[0] * 1.2
-            y_offset = -ship.base_size[1] * 1.2
-            start_pos_game = ship._get_coordination(x_offset, y_offset)
-            start_x_img, start_y_img = transform_coord(start_pos_game)
-            
-            for i, command in enumerate(ship.command_token):
-                token_text = str(command)
-                bbox = font.getbbox(token_text)
-                text_height = bbox[3] - bbox[1]
-                
-                y_img = start_y_img + i * (text_height + 10)
-                x_img = start_x_img
-                token_pos_img = (x_img, y_img)
-
-                draw.text(token_pos_img, token_text, font=font, fill='white')
-
+        img.paste(rotated_template, (paste_x, paste_y), rotated_template)
 
     if maneuver_tool:
-        # Draw the maneuver tool path
         transformed_tool_path = [transform_coord(p) for p in maneuver_tool]
         draw.line(transformed_tool_path, fill='grey', width=int(ship_module.TOOL_WIDTH))
         
-        # Draw the joints
         radius = ship_module.TOOL_WIDTH / 2
         for i, point in enumerate(maneuver_tool):
             if i % 2 != 0:
                 transformed_point = transform_coord(point)
-                # Define the bounding box for the circle
                 bounding_box = [
                     (transformed_point[0] - radius, transformed_point[1] - radius),
                     (transformed_point[0] + radius, transformed_point[1] + radius)
                 ]
                 draw.ellipse(bounding_box, fill='darkgrey')
-    import os
 
-    # Create a directory to store visuals if it doesn't exist
     output_dir = "game_visuals"
     os.makedirs(output_dir, exist_ok=True)
-    
-    # Save the image inside that directory
     img.save(os.path.join(output_dir, f'game_state_{game.image_counter}.png'))
     game.image_counter += 1

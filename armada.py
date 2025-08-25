@@ -248,7 +248,7 @@ class Armada:
                             continue  # Skip the (False, False) combination
                         actions.append(('resolve_con-fire_command_action', (use_dial, use_token)))
 
-                if attack_info.con_fire_token :
+                if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
                     actions.extend([('use_confire_token_action', dice) for dice in dice_choice_combinations(attack_pool_result, 1)])
 
                 

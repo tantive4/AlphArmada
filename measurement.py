@@ -7,6 +7,10 @@ class AttackRange(IntEnum) :
     LONG = 2
     EXTREME = 3
 
+    def __str__(self) -> str:
+        return self.name
+    __repr__ = __str__
+    
 CLOSE_RANGE = 123.3
 MEDIUM_RANGE = 186.5
 LONG_RANGE = 304.8

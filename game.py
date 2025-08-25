@@ -1,5 +1,6 @@
 from armada import Armada
-from ship import Ship, Command
+from ship import Ship, Command, HullSection
+from shapely.ops import unary_union
 import math
 import json
 import os, shutil
@@ -36,6 +37,11 @@ victory.asign_command(Command.CONCENTRATE_FIRE)
 player1 = lambda: game.mcts_decision(iterations=400)
 player2 = lambda: game.mcts_decision(iterations=100)
 # player2 = game.random_decision
-game.play(player1, player2)
+# game.play(player1, player2)
+game.play()
+
+# cr90.move_ship([2],1)
+
+
 
 # zip -r game_visuals.zip game_visuals
