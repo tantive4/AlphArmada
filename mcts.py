@@ -117,7 +117,7 @@ class MCTS:
             return
 
         for i in range(iterations):
-            self.game.revert_snapshot(self.snapshot)
+            
             node : Node = self.root
             
             # 1. Selection
@@ -166,7 +166,8 @@ class MCTS:
             # 3. Simulation
             simulation_result = self.game.play(max_simulation_step=1000)
             # with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
-
+            self.game.revert_snapshot(self.snapshot)
+            
             # 4. Backpropagation (Updated for -1 to 1 scoring)
             temp_node = node
             while temp_node is not None:
