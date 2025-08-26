@@ -182,52 +182,76 @@ def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_
     from a larger pool by working directly with the counts of each die face.
     This is more efficient than flattening the list.
     """
+    # for 1 dice case
+    if dice_to_modify == 1:
+        combinations = []
+        # Iterate through each die color and its face counts
+        for color, face_counts in attack_pool_result.items():
+            # Iterate through each face index and its count
+            for face_idx, count in enumerate(face_counts):
+                # If there's at least one die of this face, it's a valid choice
+                if count > 0:
+                    # Create a new, zeroed-out combination dictionary
+                    new_combo = {
+                        Dice.BLACK: [0] * len(attack_pool_result.get(Dice.BLACK, [])),
+                        Dice.BLUE:  [0] * len(attack_pool_result.get(Dice.BLUE, [])),
+                        Dice.RED:   [0] * len(attack_pool_result.get(Dice.RED, []))
+                    }
+                    # Mark the single chosen die in the new combination
+                    new_combo[color][face_idx] = 1
+                    combinations.append(new_combo)
+        return combinations
     
     # We'll build the combinations using a recursive helper function
     combinations = []
     
-    def find_combos_recursive(current_combo : dict[Dice, list[int]], dice_left : int, start_color : Dice | None, start_face_idx : int):
+    # We use a list of colors to iterate more robustly than relying on enum values.
+    colors_to_check = sorted(attack_pool_result.keys(), key=lambda d: d.value)
+    
+    def find_combos_recursive(current_combo: dict[Dice, list[int]], dice_left: int, color_idx: int, face_idx: int):
+        # Base case: A valid combination of the required size has been found.
         if dice_left == 0:
             combinations.append({k: v[:] for k, v in current_combo.items()})
             return
 
-        if start_color is None:
+        # Base case: We have run out of dice faces to check.
+        if color_idx >= len(colors_to_check):
             return
 
-        # Determine the next position to check
-        next_face_idx = start_face_idx + 1
-        next_color = start_color
-        if next_face_idx >= len(attack_pool_result[start_color]):
+        # Determine the current color and details for this recursive step.
+        current_color = colors_to_check[color_idx]
+        num_faces = len(attack_pool_result[current_color])
+
+        # Determine the next position to check for the recursive calls.
+        next_face_idx = face_idx + 1
+        next_color_idx = color_idx
+        if next_face_idx >= num_faces:
             next_face_idx = 0
-            # Move to the next color in the enum's defined order
-            next_color = Dice(start_color.value + 1) if start_color.value + 1 < len(Dice) else None
+            next_color_idx += 1
 
         # Option 1: Skip the current die face and move to the next.
-        find_combos_recursive(current_combo, dice_left, next_color, next_face_idx)
+        find_combos_recursive(current_combo, dice_left, next_color_idx, next_face_idx)
         
         # Option 2: Take one or more dice of the current face type.
-        available_count = attack_pool_result[start_color][start_face_idx]
-        
-        for i in range(1, min(dice_left, available_count) + 1):
-            current_combo[start_color][start_face_idx] += i
-            find_combos_recursive(current_combo, dice_left - i, next_color, next_face_idx)
-            current_combo[start_color][start_face_idx] -= i
-        
-
-    # Kick off the recursion
-    initial_combo = {
-        Dice.BLACK: [0, 0, 0],
-        Dice.BLUE:  [0, 0, 0],
-        Dice.RED:   [0, 0, 0, 0, 0]
-    }
-    find_combos_recursive(initial_combo, dice_to_modify, Dice.BLACK, 0)
+        available_count = attack_pool_result[current_color][face_idx]
+        if available_count > 0:
+            for i in range(1, min(dice_left, available_count) + 1):
+                current_combo[current_color][face_idx] += i
+                find_combos_recursive(current_combo, dice_left - i, next_color_idx, next_face_idx)
+                # Backtrack: undo the change for the next iteration.
+                current_combo[current_color][face_idx] -= i
+    
+    # Kick off the recursion with an empty starting combination.
+    initial_combo = {color: [0] * len(counts) for color, counts in attack_pool_result.items()}
+    find_combos_recursive(initial_combo, dice_to_modify, 0, 0)
     
     return combinations
+
 
 if __name__ == "__main__":
     # --- Example Usage ---
     # Input: 1 black die, 1 blue die, 0 red dice
-    dice_pool = {Dice.BLACK : 5, Dice.BLUE : 5, Dice.RED : 5}
+    dice_pool = {Dice.BLACK : 2, Dice.BLUE : 2, Dice.RED : 2}
 
     
     # all_possible_outcomes = generate_all_dice_outcomes(dice_pool)
@@ -242,8 +266,8 @@ if __name__ == "__main__":
     dice_roll_result = roll_dice(dice_pool)
     print(dice_roll_result)
     print(f'result : {dice_icon(dice_roll_result)}')
-    # for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
-    #     print(dice_choice)
+    for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
+        print(dice_choice)
 
 class Critical(Enum) :
     STANDARD = 0

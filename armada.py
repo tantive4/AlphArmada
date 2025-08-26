@@ -30,12 +30,10 @@ class Armada:
         self.decision_player : int | None = 1
         self.active_ship : Ship | None = None
         self.attack_info : AttackInfo | None = None
-        self.determine_course : list[int | None] | None = None
 
         self.winner : float | None = None
         self.image_counter : int = 0
         self.simulation_mode : bool = False
-        self.action_list : list[ActionType.Action] = []
 
 
     def play(self, 
@@ -357,7 +355,6 @@ class Armada:
         """
         Applies the given action to the game state.
         """
-        self.action_list.append(action)
 
         if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
             if self.active_ship is None:
@@ -666,6 +663,34 @@ class Armada:
         """Ensures all ship objects refer to this game instance."""
         for ship in self.ships:
             ship.game = self
+
+    def get_snapshot(self) -> dict:
+        """Captures the essential state of the entire game."""
+        return {
+            "round": self.round,
+            "phase": self.phase,
+            "current_player": self.current_player,
+            "decision_player": self.decision_player,
+            "active_ship_id": self.active_ship.ship_id if self.active_ship else None,
+            "attack_info": copy.deepcopy(self.attack_info), # AttackInfo is small, deepcopy is fine here
+            "ship_states": [ship.get_snapshot() for ship in self.ships]
+        }
+
+    def revert_snapshot(self, snapshot: dict) -> None:
+        """Restores the entire game state from a snapshot."""
+        self.round = snapshot["round"]
+        self.phase = snapshot["phase"]
+        self.current_player = snapshot["current_player"]
+        self.decision_player = snapshot["decision_player"]
+        self.attack_info = snapshot["attack_info"]
+        
+        active_ship_id = snapshot["active_ship_id"]
+        self.active_ship = self.ships[active_ship_id] if active_ship_id is not None else None
+
+        for i, ship_snapshot in enumerate(snapshot["ship_states"]):
+            self.ships[i].revert_snapshot(ship_snapshot)
+
+
 
 class AttackInfo :
     def __init__(self, attack_ship : Ship, attack_hull : HullSection, defend_ship : Ship, defend_hull : HullSection) -> None:

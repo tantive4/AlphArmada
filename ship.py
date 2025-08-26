@@ -75,6 +75,8 @@ class Ship:
         return self.name
     __repr__ = __str__
 
+
+
     def deploy(self, game : Armada , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
         """
         deploy the ship to the game board
@@ -117,7 +119,7 @@ class Ship:
     def destroy(self) -> None:
         self.destroyed = True
         self.hull = 0
-        self.shield = [0,0,0,0]
+        self.shield = {hull : 0 for hull in HullSection}
         self.battery = {hull : [0,0,0] for hull in HullSection}
         for token in self.defense_tokens :
             if not token.discarded : token.discard()
@@ -735,3 +737,49 @@ class Ship:
                     if course[-2] > 0 : valid_placement.remove(-1)
                     elif course[-2] < 0 : valid_placement.remove(1)
         return valid_placement
+
+
+
+    def get_snapshot(self) -> dict :
+        return {
+            "x": self.x,
+            "y": self.y,
+            "orientation": self.orientation,
+            "speed": self.speed,
+            "hull": self.hull,
+            "shield": self.shield.copy(),
+            "destroyed": self.destroyed,
+            "activated": self.activated,
+            "command_stack": list(self.command_stack),
+            "command_dial": list(self.command_dial),
+            "command_token": list(self.command_token),
+            "resolved_command": list(self.resolved_command),
+            "attack_count": self.attack_count,
+            "attack_possible_hull": list(self.attack_possible_hull),
+            "target_exist_hull": list(self.target_exist_hull),
+            "defense_tokens": [(dt.readied, dt.discarded, dt.accuracy) for dt in self.defense_tokens]
+        }
+    
+    def revert_snapshot(self, snapshot: dict) -> None:
+        """Restores the ship's state from a snapshot."""
+        self.x = snapshot["x"]
+        self.y = snapshot["y"]
+        self.orientation = snapshot["orientation"]
+        self.speed = snapshot["speed"]
+        self.hull = snapshot["hull"]
+        self.shield = snapshot["shield"]
+        self.destroyed = snapshot["destroyed"]
+        self.activated = snapshot["activated"]
+        self.command_stack = snapshot["command_stack"]
+        self.command_dial = snapshot["command_dial"]
+        self.command_token = snapshot["command_token"]
+        self.resolved_command = snapshot["resolved_command"]
+        self.attack_count = snapshot["attack_count"]
+        self.attack_possible_hull = snapshot["attack_possible_hull"]
+        self.target_exist_hull = snapshot["target_exist_hull"]
+
+        for i, token_state in enumerate(snapshot["defense_tokens"]):
+            self.defense_tokens[i].readied, self.defense_tokens[i].discarded, self.defense_tokens[i].accuracy = token_state
+
+        # Crucially, update the geometry after restoring coordinates
+        self._set_coordination()

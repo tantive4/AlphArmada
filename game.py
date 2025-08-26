@@ -3,6 +3,7 @@ from ship import Ship, Command
 import json
 import os
 import math
+import copy
 import shutil
 import multiprocessing
 from dice import precompute_dice_outcomes  # <-- Add this import
@@ -33,7 +34,8 @@ def main():
     victory.asign_command(Command.NAVIGATION)
     victory.asign_command(Command.CONCENTRATE_FIRE)
     victory.asign_command(Command.CONCENTRATE_FIRE)
-
+    for key, value in game.__dict__.items():
+        print(f"{key}: {value}")
 
     # for MULTI CORE simulation
     # CPU_CORE = 4
@@ -49,12 +51,14 @@ def main():
     player1 = game.random_decision
     player2 = game.random_decision
 
-    game.play(player1, player2)
+    # game.play(player1, player2)
+
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
     precompute_dice_outcomes()
-    main()
+    # main()
+
 
 
 # to see the time spent
