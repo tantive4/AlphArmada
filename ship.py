@@ -120,7 +120,6 @@ class Ship:
         self.destroyed = True
         self.hull = 0
         self.shield = {hull : 0 for hull in HullSection}
-        self.battery = {hull : [0,0,0] for hull in HullSection}
         for token in self.defense_tokens :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
@@ -767,16 +766,16 @@ class Ship:
         self.orientation = snapshot["orientation"]
         self.speed = snapshot["speed"]
         self.hull = snapshot["hull"]
-        self.shield = snapshot["shield"]
+        self.shield = snapshot["shield"].copy()
         self.destroyed = snapshot["destroyed"]
         self.activated = snapshot["activated"]
-        self.command_stack = snapshot["command_stack"]
-        self.command_dial = snapshot["command_dial"]
-        self.command_token = snapshot["command_token"]
-        self.resolved_command = snapshot["resolved_command"]
+        self.command_stack = snapshot["command_stack"].copy()
+        self.command_dial = snapshot["command_dial"].copy()
+        self.command_token = snapshot["command_token"].copy()
+        self.resolved_command = snapshot["resolved_command"].copy()
         self.attack_count = snapshot["attack_count"]
-        self.attack_possible_hull = snapshot["attack_possible_hull"]
-        self.target_exist_hull = snapshot["target_exist_hull"]
+        self.attack_possible_hull = snapshot["attack_possible_hull"].copy()
+        self.target_exist_hull = snapshot["target_exist_hull"].copy()
 
         for i, token_state in enumerate(snapshot["defense_tokens"]):
             self.defense_tokens[i].readied, self.defense_tokens[i].discarded, self.defense_tokens[i].accuracy = token_state

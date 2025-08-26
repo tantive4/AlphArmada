@@ -659,22 +659,24 @@ class Armada:
     def get_snapshot(self) -> dict:
         """Captures the essential state of the entire game."""
         return {
+            "winner": self.winner,
             "round": self.round,
             "phase": self.phase,
             "current_player": self.current_player,
             "decision_player": self.decision_player,
             "active_ship_id": self.active_ship.ship_id if self.active_ship else None,
-            "attack_info": copy.deepcopy(self.attack_info), # AttackInfo is small, deepcopy is fine here
+            "attack_info": copy.deepcopy(self.attack_info),
             "ship_states": [ship.get_snapshot() for ship in self.ships]
         }
 
     def revert_snapshot(self, snapshot: dict) -> None:
         """Restores the entire game state from a snapshot."""
+        self.winner = snapshot["winner"]
         self.round = snapshot["round"]
         self.phase = snapshot["phase"]
         self.current_player = snapshot["current_player"]
         self.decision_player = snapshot["decision_player"]
-        self.attack_info = snapshot["attack_info"]
+        self.attack_info = copy.deepcopy(snapshot["attack_info"])
         
         active_ship_id = snapshot["active_ship_id"]
         self.active_ship = self.ships[active_ship_id] if active_ship_id is not None else None
