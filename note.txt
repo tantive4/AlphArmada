@@ -36,3 +36,74 @@ squadron set target	22	< ship hull 12 + squad 10
 no squad, no command, no attack sequence
 
 
+    def search(self, iterations: int) -> None:
+        # single decision optimization
+
+        possible_actions = self.game.get_possible_actions()
+        if len(possible_actions) == 1:
+            action = possible_actions[0]
+            self.game.apply_action(action)
+            self.root.add_child(action, self.game)
+            return
+
+        for i in range(iterations):
+            # 1. SAVE STATE at the beginning of the iteration
+            initial_snapshot = self.game.get_snapshot()
+            node : Node = self.root
+            
+            # 2. Selection
+            while (node.untried_actions is not None and not node.untried_actions and node.children) or node.chance_node:
+
+                if node.chance_node:
+                    # For a chance node, sample a random outcome instead of using UCT.
+                    if self.game.attack_info is None :
+                        raise ValueError("Invalid game for chance node: missing attack/defend info.")
+                    
+                    dice_roll = dice.roll_dice(self.game.attack_info.dice_to_roll)
+                    action = ("roll_dice_action", dice_roll)
+                    self.game.apply_action(action)
+
+                    dice_roll_result_node = next((child for child in node.children if child.action is not None and child.action[1] == dice_roll), None)
+                    if dice_roll_result_node:
+                        # If we've seen this random outcome before for this node, continue selection down that path.
+                        node = dice_roll_result_node
+                    else:
+                        # If it's a new outcome, this is the node we will expand and simulate.
+                        node = node.add_child(action, self.game)
+                        break # Exit selection loop
+
+                else:
+                    # Standard player decision node, use UCT.
+                    node = node.uct_select_child()
+                    if node.action is None:
+                        raise ValueError("Child node must have an action.")
+                    self.game.apply_action(node.action)
+            
+            # 3. Expansion (for player decision nodes)
+            if not self.game.winner :
+                if node.untried_actions is None:
+                    node.untried_actions = self.game.get_possible_actions()
+                    random.shuffle(node.untried_actions)
+
+                if node.untried_actions:
+                    action = node.untried_actions.pop()
+                    self.game.apply_action(action)
+                    child_node = node.add_child(action, self.game)
+                    node = child_node
+                    
+                    if self.game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE :
+                        node.chance_node = True
+
+            # 4. Simulation
+            simulation_result = self.game.play(max_simulation_step=1000)
+            # with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
+
+            # 5. Backpropagation (Updated for -1 to 1 scoring)
+            node.backpropagate(simulation_result)
+
+            # 6. REVERT STATE at the end of the iteration
+            self.game.revert_snapshot(initial_snapshot)
+            
+            if (i+1) % 400 == 0:
+                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action | {ActionType.get_action_str(self.game, self.get_best_action())}")
+                with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")

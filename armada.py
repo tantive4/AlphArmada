@@ -90,14 +90,6 @@ class Armada:
         action : ActionType.Action = mcts.get_best_action()
         return action
 
-    def mcts_decision_parallel(self, iterations: int = 1000, num_processes: int = 4) -> ActionType.Action:
-        game_copy: Armada = copy.deepcopy(self)
-        game_copy.simulation_mode = True
-        mcts = MCTS(game_copy)
-        mcts.search_parallel(iterations, num_processes)
-        action: ActionType.Action = mcts.get_best_action()
-        return action
-
 
     def update_decision_player(self) -> None:
         """

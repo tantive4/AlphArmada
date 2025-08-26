@@ -34,8 +34,7 @@ def main():
     victory.asign_command(Command.NAVIGATION)
     victory.asign_command(Command.CONCENTRATE_FIRE)
     victory.asign_command(Command.CONCENTRATE_FIRE)
-    for key, value in game.__dict__.items():
-        print(f"{key}: {value}")
+
 
     # for MULTI CORE simulation
     # CPU_CORE = 4
@@ -43,21 +42,21 @@ def main():
     # player2 = lambda: game.mcts_decision_parallel(iterations=800, num_processes=CPU_CORE)
 
     # for SINGLE CORE simulation
-    # player1 = lambda: game.mcts_decision(iterations=1600)
-    # player2 = lambda: game.mcts_decision(iterations=800)
+    player1 = lambda: game.mcts_decision(iterations=100)
+    player2 = lambda: game.mcts_decision(iterations=100)
 
 
     # for RANDOM PLAYER simulation
-    player1 = game.random_decision
-    player2 = game.random_decision
+    # player1 = game.random_decision
+    # player2 = game.random_decision
 
-    # game.play(player1, player2)
+    game.play(player1, player2)
 
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
     precompute_dice_outcomes()
-    # main()
+    main()
 
 
 
