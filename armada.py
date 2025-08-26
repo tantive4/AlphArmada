@@ -3,14 +3,12 @@ from ship import Ship, HullSection, Command
 import random
 from shapely.geometry import Polygon
 import visualizer
-from dice import Dice, ICON_INDICES, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, roll_dice, dice_icon, generate_all_dice_outcomes, Critical, dice_choice_combinations
+from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
 from measurement import AttackRange
 from defense_token import DefenseToken, TokenType
 import copy
 from mcts import MCTS
 import itertools
-import math
-import json
 from game_phase import GamePhase, ActionType
 from typing import Callable
 

@@ -61,12 +61,10 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
 
     # --- Draw Defense Tokens ---
     start_x, start_y = to_template_coord((ship.base_size[0] / 2 + 5, -ship.base_size[1] - 5))
+    valid_tokens = [token for token in ship.defense_tokens if not token.discarded]
+
     # Iterate backwards to stack from the bottom up
-    for i, token in enumerate(reversed(ship.defense_tokens)):
-        # If a token is discarded, skip drawing it, leaving a blank space
-        if token.discarded:
-            continue
-        
+    for i, token in enumerate(reversed(valid_tokens)):
         token_text = token.type.name
         # Stack upwards from the starting position
         pos_y = start_y - i * 12

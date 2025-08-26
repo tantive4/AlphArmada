@@ -133,6 +133,10 @@ class ActionType :
                 defend_ship = game.ships[defend_ship_id]
                 action_str = f'Declare Target: from {game.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
 
+            case 'use_confire_token_action' :
+                dice_choice = dice_icon(action[1])
+                action_str = f'Use Confire Token : {dice_choice}'
+
             case 'roll_dice_action' :
                 dice_result = dice_icon(action[1])
                 action_str = f'Dice Roll {dice_result}'
@@ -149,7 +153,7 @@ class ActionType :
                 defend_ship = game.ships[game.attack_info.defend_ship_id]
                 token = defend_ship.defense_tokens[action[1][0]]
                 evade_dice = action[1][1]
-                action_str = f'{'Spend' if sum([sum(evade_dice[dice_type]) for dice_type in Dice]) else 'Discard'} {token} Token {dice_icon(evade_dice)}'
+                action_str = f'{'Discard' if sum([sum(evade_dice[dice_type]) for dice_type in Dice]) == 2 else 'Spend'} {token} Token {dice_icon(evade_dice)}'
 
             case 'spend_redicect_token_action' :
                 if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
