@@ -48,6 +48,8 @@ SHIP_TOKEN_SIZE :  dict[SizeClass, tuple] = {SizeClass.SMALL : (38.5, 70.25), Si
 TOOL_WIDTH : float= 15.25
 TOOL_LENGTH : float= 46.13 
 TOOL_PART_LENGTH : float = 22.27
+ROTATION_MATRIX_90_CCW = np.array([[0, -1], [1, 0]])
+ROTATION_MATRICES = [np.linalg.matrix_power(ROTATION_MATRIX_90_CCW, i) for i in range(4)]
 
 class Ship:
     def __init__(self, ship_dict : dict, player : int) -> None:
@@ -74,6 +76,7 @@ class Ship:
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
         
         self._create_template_geometries(ship_dict)
+        self._course_cache : dict[tuple[int, bool], list[list[int]]]= {}
         
     def __str__(self):
         return self.name
@@ -278,64 +281,6 @@ class Ship:
 
 # sub method for attack
 
-    def measure_arc_and_range(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection, extension_factor=500) -> AttackRange:
-        """Measures the range and validity of a firing arc to a target.
-
-        This method checks if a target hull is within the firing ship's
-        specified arc and calculates the range if the line of sight is clear.
-
-        Args:
-            from_hull (HullSection): The index of the firing hull section (0-3).
-            to_ship (Ship): The target Ship object.
-            to_hull (HullSection): The index of the target hull section (0-3).
-
-        Returns:
-            AttackRange: An integer code representing the result.
-                -1: Not in arc or invalid range.
-                 0: Close range.
-                 1: Medium range.
-                 2: Long range.
-                 3: Extreme range.
-        """
-        if to_ship.destroyed : return AttackRange.INVALID
-
-        hull_coords = self.hull_polygon[from_hull].exterior.coords
-        if from_hull in (HullSection.FRONT, HullSection.REAR) :
-            arc1_center, arc1_end = hull_coords[0], hull_coords[1]
-            arc2_center, arc2_end = hull_coords[-1], hull_coords[-2] # Grabs the last two unique points
-        else :
-            arc1_center, arc1_end = hull_coords[0], hull_coords[1]
-            arc2_center, arc2_end = hull_coords[-2], hull_coords[-3] # Grabs the last two unique points
-
-        # Build the arc polygon. This logic works for ALL hull sections.
-        vec1 = np.array(arc1_end) - np.array(arc1_center)
-        vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
-        arc_polygon = Polygon([
-            arc1_end,
-            np.array(arc1_end) + vec1 * extension_factor,
-            np.array(arc2_end) + vec2 * extension_factor,
-            arc2_end
-        ])
-
-        target_hull = to_ship.hull_polygon[to_hull].exterior
-
-        to_hull_in_arc = target_hull.intersection(arc_polygon)
-
-        if to_hull_in_arc.is_empty :
-            return AttackRange.INVALID # not in arc
-
-        range_measure = LineString(shapely.ops.nearest_points(self.hull_polygon[from_hull].exterior, to_hull_in_arc))
-
-        for hull in HullSection :
-            if hull != to_hull and range_measure.crosses(to_ship.hull_polygon[hull].exterior) :
-                return AttackRange.INVALID # range not valid
-        distance = range_measure.length
-
-        if distance <= CLOSE_RANGE : return AttackRange.CLOSE # close range
-        elif distance <= MEDIUM_RANGE : return AttackRange.MEDIUM # medium range
-        elif distance <= LONG_RANGE : return AttackRange.LONG # long range
-        else : return AttackRange.EXTREME # extreme range
-
     def measure_line_of_sight(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection) -> bool :
         """
         Checks if the line of sight between two ships is obstructed.
@@ -401,22 +346,21 @@ class Ship:
         valid_targets = []
         vector_to_defender = np.array([defend_ship.center_point[0] - self.center_point[0],
                                     defend_ship.center_point[1] - self.center_point[1]])
-        rotation_matrix_90_ccw = np.array([[0, -1], [1, 0]])
+
 
         for target_hull in HullSection:
 
-            defend_orientation_vector = defend_ship.orientation_vector @ np.linalg.matrix_power(rotation_matrix_90_ccw, target_hull.value)
+            defend_orientation_vector = defend_ship.orientation_vector @ ROTATION_MATRICES[target_hull.value]
             dot_product = np.dot(vector_to_defender, defend_orientation_vector)
             if dot_product / np.linalg.norm(vector_to_defender) >= 0.25 : continue
 
             attack_range = _cached_measurements(self.get_ship_hash_state(), defend_ship.get_ship_hash_state(), attack_hull, target_hull)
 
             # arc and range
-            if attack_range == AttackRange.INVALID: continue
+            if attack_range in (AttackRange.INVALID, AttackRange.EXTREME) : continue
 
             # gather attack dice
             dice_count = sum(self.gather_dice(attack_hull, attack_range).values())
-            if dice_count >= 2: valid_targets.append(target_hull)
             if dice_count == 0 : continue
             elif dice_count == 1:
                 if self.measure_line_of_sight(attack_hull, defend_ship, target_hull) : continue
@@ -435,8 +379,7 @@ class Ship:
             valid_targets (list[Ship]): A list of valid target ships.
         """
         valid_targets = []
-        rotation_matrix_90_ccw = np.array([[0, -1], [1, 0]])
-        attack_orientation_vector = self.orientation_vector @ np.linalg.matrix_power(rotation_matrix_90_ccw, attack_hull.value)
+        attack_orientation_vector = self.orientation_vector @ ROTATION_MATRICES[attack_hull.value]
 
         for ship in self.game.ships:
             if ship.ship_id == self.ship_id or ship.destroyed or ship.player == self.player: continue
@@ -486,43 +429,46 @@ class Ship:
 
 # sub method for execute maneuver
 
-    def _tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]] :
-        """Calculates the coordinates and orientations along a maneuver tool's path.
-
-        This method simulates the placement of the maneuver tool against the
-        ship's base and calculates the series of points and angles that define
-        the maneuver course.
-
-        Args:
-            course (list[int]): A list of yaw adjustments for each joint of the maneuver tool. The length corresponds to the maneuver speed.
-            placement (int): The side of the ship to place the tool. `1` for the right side, `-1` for the left side.
-
-        Returns:
-            A tuple containing two lists:
-            - A list of (x, y) tuples representing the coordinates of each joint along the tool's path.
-            - A list of orientations in radians at each joint along the tool's path.
+    def _tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]]:
         """
-        (tool_x, tool_y) = self.tool_coords[placement]
-        tool_orientaion = self.orientation
+        Calculates the coordinates and orientations along a maneuver tool's path using NumPy.
+        """
+        if not course:
+            # For speed 0, return the starting point and orientation
+            return [self.tool_coords[placement]], [self.orientation]
 
-        joint_coordination = [(tool_x, tool_y)]
-        joint_orientation = [tool_orientaion]
+        # --- Step 1: Set up initial conditions ---
+        initial_position = np.array(self.tool_coords[placement])
+        initial_orientation = self.orientation
+        speed = len(course)
 
+        # --- Step 2: Calculate all joint orientations at once ---
+        # This array will have shape (speed + 1) and includes the initial orientation
+        yaw_changes = np.array([0] + course) * (math.pi / 8)
+        joint_orientations = initial_orientation + np.cumsum(yaw_changes)
 
-        for joint in course :
-            tool_x += math.sin(tool_orientaion) * TOOL_LENGTH
-            tool_y += math.cos(tool_orientaion) * TOOL_LENGTH
-            joint_coordination.append((tool_x, tool_y))
-
-            tool_orientaion += joint * math.pi / 8
-
-            tool_x += math.sin(tool_orientaion) * TOOL_PART_LENGTH
-            tool_y += math.cos(tool_orientaion) * TOOL_PART_LENGTH
-            joint_coordination.append((tool_x, tool_y))
-            joint_orientation.append(tool_orientaion)
+        # --- Step 3: Calculate the direction vectors for each segment ---
+        long_segment_orientations = joint_orientations[:-1]
+        short_segment_orientations = joint_orientations[1:]
         
+        segment_orientations = np.empty(2 * speed)
+        segment_orientations[0::2] = long_segment_orientations
+        segment_orientations[1::2] = short_segment_orientations
+        
+        segment_lengths = np.tile([TOOL_LENGTH, TOOL_PART_LENGTH], speed)
+        direction_vectors = np.array([np.sin(segment_orientations), np.cos(segment_orientations)]).T
 
-        return joint_coordination, joint_orientation
+        # --- Step 4: Calculate all position vectors ---
+        position_vectors = direction_vectors * segment_lengths[:, np.newaxis]
+        
+        # This creates an array of all points along the path, including the start point.
+        # The shape will be (2 * speed + 1, 2)
+        all_points = np.vstack([initial_position, np.cumsum(position_vectors, axis=0) + initial_position])
+
+        # --- Step 5: Convert back to the required list format (Corrected) ---
+        # Return the full list of orientations to match the original function's output.
+        # The shape will now be (speed + 1)
+        return all_points.tolist(), joint_orientations.tolist()
     
     def _maneuver_to_coordination(self, placement : int, tool_coordination : tuple[float, float], tool_orientaion : float) -> None :
         """
@@ -696,6 +642,12 @@ class Ship:
         Returns:
             A list of all unique, valid course lists.
         """
+        has_nav_dial = Command.NAVIGATION in self.command_dial
+        cache_key = (speed, has_nav_dial)
+
+        if cache_key in self._course_cache :
+            return self._course_cache[cache_key]
+        
         if speed == 0:
             return [[]] # A speed 0 maneuver has an empty course
 
@@ -732,8 +684,11 @@ class Ship:
                     new_course = list(course_list) # Create a copy
                     new_course[i] = modified_yaw_sub
                     all_courses.add(tuple(new_course))
-        
-        return [list(course) for course in all_courses]
+
+
+        final_result = [list(course) for course in all_courses]
+        self._course_cache[cache_key] = final_result
+        return final_result
     
     def get_valid_placement(self, course : list[int]) -> list[int]:
         """
@@ -874,6 +829,7 @@ def _cached_measurements(attacker_state : tuple[str, float, float, float], defen
     # Line of Sight blocked
     line_of_sight = LineString([from_hull_targeting_pt, to_hull_targeting_pt])
 
+
     for hull in HullSection:
         if hull == to_hull:
             continue
@@ -884,10 +840,10 @@ def _cached_measurements(attacker_state : tuple[str, float, float, float], defen
     hull_coords = from_hull_poly.exterior.coords
     if from_hull in (HullSection.FRONT, HullSection.REAR) :
         arc1_center, arc1_end = hull_coords[0], hull_coords[1]
-        arc2_center, arc2_end = hull_coords[-1], hull_coords[-2] 
+        arc2_center, arc2_end = hull_coords[-2], hull_coords[-3] 
     else :
         arc1_center, arc1_end = hull_coords[0], hull_coords[1]
-        arc2_center, arc2_end = hull_coords[-2], hull_coords[-3] 
+        arc2_center, arc2_end = hull_coords[-1], hull_coords[-2] 
 
     # Build the arc polygon. This logic works for ALL hull sections.
     vec1 = np.array(arc1_end) - np.array(arc1_center)
@@ -900,7 +856,6 @@ def _cached_measurements(attacker_state : tuple[str, float, float, float], defen
     ])
 
     target_hull = to_hull_poly_dict[to_hull].exterior
-
     to_hull_in_arc = target_hull.intersection(arc_polygon)
 
     if to_hull_in_arc.is_empty :

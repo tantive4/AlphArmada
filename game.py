@@ -24,7 +24,7 @@ def main():
     nebulon = Ship(SHIP_DATA['Neb-B Escort'], 1)
     victory = Ship(SHIP_DATA['VSD2'], -1)
 
-    game.deploy_ship(cr90, 600, 175, math.pi/4, 2)
+    game.deploy_ship(cr90, 600, 175, 0, 2)
     game.deploy_ship(nebulon, 300, 175, 0, 2)
     game.deploy_ship(victory, 450, 725, math.pi, 2)
 
@@ -51,6 +51,7 @@ def main():
     # player2 = game.random_decision
 
     game.play(player1, player2)
+
 
 
 

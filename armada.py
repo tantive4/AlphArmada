@@ -194,7 +194,7 @@ class Armada:
                         for defend_ship in active_ship.get_valid_target_ship(attack_hull)
                         for defend_hull in active_ship.get_valid_target_hull(attack_hull, defend_ship)]
                 if not actions : actions = [('pass_attack', None)]
-            
+                
             case GamePhase.SHIP_ATTACK_GATHER_DICE :
                 attack_ship = self.ships[attack_info.attack_ship_id]
                 dice_to_roll = attack_ship.gather_dice(attack_info.attack_hull, attack_info.attack_range)
@@ -617,6 +617,7 @@ class Armada:
     def status_phase(self) -> None:
         if not self.simulation_mode :
             print(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n')
+            with open('simulation_log.txt', 'a') as f: f.write(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n\n')
         # 1. Refresh all active ships for the next round
         for ship in self.ships:
             if not ship.destroyed:
