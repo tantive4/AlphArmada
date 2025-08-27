@@ -267,10 +267,6 @@ class Ship:
         self.ship_base = Polygon((self.template_base_vertices @ rotation_matrix.T) + translation_vector)
         self.ship_token = Polygon((self.template_token_vertices @ rotation_matrix.T) + translation_vector)
 
-        self.hull_polygon : dict[HullSection, Polygon]= {}
-        for section, vertices in self.template_hull_vertices.items():
-            self.hull_polygon[section] = Polygon((vertices @ rotation_matrix.T) + translation_vector)
-
         final_targeting_points = (self.template_targeting_points_and_maneuver_tool_insert @ rotation_matrix.T) + translation_vector
         self.targeting_point : dict[HullSection, tuple[int, int]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
         self.tool_coords : dict[int, tuple[float, float]]  = {1 : tuple(final_targeting_points[4]),
@@ -295,7 +291,6 @@ class Ship:
         """
         line_of_sight = LineString([self.targeting_point[from_hull], to_ship.targeting_point[to_hull]])
 
-        obstructed_line_of_sight = False
         for ship in self.game.ships:
 
             if ship.ship_id == self.ship_id or ship.ship_id == to_ship.ship_id:
@@ -304,10 +299,9 @@ class Ship:
                 continue
 
             if line_of_sight.crosses(ship.ship_token.exterior):
-                obstructed_line_of_sight = True
-                break
+                return True
 
-        return obstructed_line_of_sight
+        return False
 
     def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> dict[Dice, int] :
         attack_pool = self.battery[attack_hull].copy()
@@ -497,6 +491,10 @@ class Ship:
                 overlap_list.append(False)
                 continue
             
+            if math.dist(self.center_point, ship.center_point) > AttackRange.LONG : 
+                overlap_list.append(False)
+                continue
+
             if self.ship_base.intersects(ship.ship_base) and not self.ship_base.touches(ship.ship_base):
                 overlap_list.append(True)
             else:
