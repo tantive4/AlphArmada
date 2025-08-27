@@ -147,13 +147,11 @@ def precompute_dice_outcomes(max_dice: int = 8):
     Calculates and caches all dice outcomes up to max_dice for each color.
     This is run once when the module is imported for maximum performance.
     """
-    print("Pre-computing all possible dice outcomes...")
     for dice_type in Dice:
         num_faces = len(ICON_INDICES[dice_type])
         for i in range(1, max_dice + 1):
             # This call will compute and store the results in the global cache
             _generate_outcomes_for_color(i, num_faces, dice_type)
-    print("Dice outcome pre-computation complete.")
 
 def generate_all_dice_outcomes(dice_pool: dict[Dice,int]) -> list[dict[Dice, list[int]]]:
     """

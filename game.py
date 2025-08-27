@@ -1,5 +1,5 @@
 from armada import Armada
-from ship import Ship, Command
+from ship import Ship, Command, _cached_measurements, HullSection
 import json
 import os
 import math
@@ -14,17 +14,17 @@ def main():
         shutil.rmtree("game_visuals")
 
     with open('ship_info.json', 'r') as f:
-        ship_data: dict[str, dict[str, str | int | list]] = json.load(f)
+        SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
     with open('simulation_log.txt', 'w') as f:
         f.write("Game Start\n")
 
     game = Armada()
 
-    cr90 = Ship(ship_data['CR90A_Corvette'], 1)
-    nebulon = Ship(ship_data['NebulonB_Escort'], 1)
-    victory = Ship(ship_data['Victory2_SD'], -1)
+    cr90 = Ship(SHIP_DATA['CR90A'], 1)
+    nebulon = Ship(SHIP_DATA['Neb-B Escort'], 1)
+    victory = Ship(SHIP_DATA['VSD2'], -1)
 
-    game.deploy_ship(cr90, 600, 175, 0, 2)
+    game.deploy_ship(cr90, 600, 175, math.pi/4, 2)
     game.deploy_ship(nebulon, 300, 175, 0, 2)
     game.deploy_ship(victory, 450, 725, math.pi, 2)
 
@@ -53,6 +53,8 @@ def main():
     game.play(player1, player2)
 
 
+
+
 if __name__ == '__main__':
     precompute_dice_outcomes()
     main()
@@ -65,4 +67,4 @@ if __name__ == '__main__':
 # to see the result
 # python -m pstats profile_results
 # % sort cumtime
-# % stats 20
+# % stats 50

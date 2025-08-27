@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ship import Ship, HullSection, Command
+from ship import Ship, HullSection, Command, _cached_measurements
 import random
 from shapely.geometry import Polygon
 import visualizer
@@ -11,6 +11,7 @@ from mcts import MCTS
 import itertools
 from game_phase import GamePhase, ActionType
 from typing import Callable
+
 
 class Armada:
     def __init__(self) -> None:
@@ -693,8 +694,8 @@ class AttackInfo :
         self.attack_hull : HullSection = attack_hull
         self.defend_ship_id : int = defend_ship.ship_id
         self.defend_hull : HullSection = defend_hull
-        self.attack_range : AttackRange = attack_ship.measure_arc_and_range(attack_hull, defend_ship, defend_hull)
-        self.obstructed : bool = attack_ship.measure_line_of_sight(attack_hull, defend_ship, defend_hull)[1]
+        self.attack_range : AttackRange = _cached_measurements(attack_ship.get_ship_hash_state(), defend_ship.get_ship_hash_state(), attack_hull, defend_hull)
+        self.obstructed : bool = attack_ship.measure_line_of_sight(attack_hull, defend_ship, defend_hull)
 
         self.dice_to_roll : dict[Dice, int] = {dice_type : 0 for dice_type in Dice}
         self.attack_pool_result : dict[Dice, list[int]]  = {dice_type : [0 for _ in DAMAGE_INDICES[dice_type]] for dice_type in Dice}

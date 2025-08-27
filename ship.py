@@ -11,9 +11,12 @@ from dice import Dice, Critical
 from defense_token import DefenseToken
 from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE
 import itertools
+from functools import lru_cache
 if TYPE_CHECKING:
     from armada import Armada
-
+import json
+with open('ship_info.json', 'r') as f:
+    SHIP_DATA: dict = json.load(f)
 
 class HullSection(IntEnum):
     FRONT = 0
@@ -52,7 +55,7 @@ class Ship:
         self.name : str = ship_dict['name']
 
         self.max_hull : int = ship_dict['hull']
-        self.size_class : SizeClass = SizeClass[ship_dict['size'].upper()]
+        self.size_class : SizeClass = SizeClass[ship_dict['size_class']]
         self.token_size : tuple [float, float] = SHIP_TOKEN_SIZE[self.size_class]
         self.base_size : tuple [float, float] = SHIP_BASE_SIZE[self.size_class]
 
@@ -65,6 +68,7 @@ class Ship:
         self.max_shield : list[int] = ship_dict['shield']
         self.point : int = ship_dict['point']
         self.command_value : int = ship_dict['command']
+        self.destroyed = False
 
         self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
@@ -99,7 +103,6 @@ class Ship:
                        HullSection.RIGHT : self.max_shield[1], 
                        HullSection.REAR : self.max_shield[2], 
                        HullSection.LEFT : self.max_shield[1]} # [Front, Right, Rear, Left]
-        self.destroyed = False
         self.ship_id = ship_id
         self.command_stack : list[Command] = []
         self.command_dial : list[Command] = []
@@ -234,15 +237,17 @@ class Ship:
             ])
         }
         
-        # 1~4 : targeting points
-        # 5,6 : Right/Left maneuver tool insert point
+        # 0~3 : targeting points
+        # 4,5 : Right/Left maneuver tool insert point
+        # 6 : ship token center
         self.template_targeting_points_and_maneuver_tool_insert = np.array([
             [0, -ship_dict['front_targeting_point']],
             [ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
             [0, -ship_dict['rear_targeting_point']],
             [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
             [ (self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2],
-            [-(self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2]
+            [-(self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2],
+            [0, -self.token_size[1]/2]
         ])
 
     
@@ -267,6 +272,8 @@ class Ship:
         self.targeting_point : dict[HullSection, tuple[int, int]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
         self.tool_coords : dict[int, tuple[float, float]]  = {1 : tuple(final_targeting_points[4]),
                             -1: tuple(final_targeting_points[5])}
+        self.center_point = final_targeting_points[6]
+        self.orientation_vector = np.array([-s, c])
 
 
 # sub method for attack
@@ -329,7 +336,7 @@ class Ship:
         elif distance <= LONG_RANGE : return AttackRange.LONG # long range
         else : return AttackRange.EXTREME # extreme range
 
-    def measure_line_of_sight(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection) -> tuple[bool, bool] :
+    def measure_line_of_sight(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection) -> bool :
         """
         Checks if the line of sight between two ships is obstructed.
 
@@ -339,21 +346,9 @@ class Ship:
             to_hull (HullSection): The targeted hull section of the defending ship.
 
         Returns:
-            (bool, bool): A tuple where:
-                - The first boolean is True if blocked by another hull of the target ship.
-                - The second boolean is True if obstructed by another ship.
+            obstructed (bool)
         """
         line_of_sight = LineString([self.targeting_point[from_hull], to_ship.targeting_point[to_hull]])
-
-        blocked_line_of_sight = False
-
-        for hull in HullSection:
-            if hull == to_hull:
-                continue
-
-            if line_of_sight.crosses(to_ship.hull_polygon[hull].exterior):
-                blocked_line_of_sight = True
-                break 
 
         obstructed_line_of_sight = False
         for ship in self.game.ships:
@@ -367,7 +362,7 @@ class Ship:
                 obstructed_line_of_sight = True
                 break
 
-        return blocked_line_of_sight, obstructed_line_of_sight
+        return obstructed_line_of_sight
 
     def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> dict[Dice, int] :
         attack_pool = self.battery[attack_hull].copy()
@@ -391,7 +386,7 @@ class Ship:
 
 
 
-    def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : "Ship") -> list[ HullSection]:
+    def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : Ship) -> list[ HullSection]:
         """
         Get a list of valid targets for the given attacking hull section.
 
@@ -402,26 +397,34 @@ class Ship:
         Returns:
             valid_targets (list[HullSection]): A list of tuples containing the target ship and the targeted hull section.
         """
+        
         valid_targets = []
-
+        vector_to_defender = np.array([defend_ship.center_point[0] - self.center_point[0],
+                                    defend_ship.center_point[1] - self.center_point[1]])
+        rotation_matrix_90_ccw = np.array([[0, -1], [1, 0]])
 
         for target_hull in HullSection:
 
-            # line of sight
-            blocked, obstructed = self.measure_line_of_sight(attack_hull, defend_ship, target_hull)
-            if blocked : continue
+            defend_orientation_vector = defend_ship.orientation_vector @ np.linalg.matrix_power(rotation_matrix_90_ccw, target_hull.value)
+            dot_product = np.dot(vector_to_defender, defend_orientation_vector)
+            if dot_product / np.linalg.norm(vector_to_defender) >= 0.25 : continue
+
+            attack_range = _cached_measurements(self.get_ship_hash_state(), defend_ship.get_ship_hash_state(), attack_hull, target_hull)
 
             # arc and range
-            attack_range = self.measure_arc_and_range(attack_hull, defend_ship, target_hull)
-            if attack_range == AttackRange.INVALID: continue  
+            if attack_range == AttackRange.INVALID: continue
 
             # gather attack dice
-            if sum(self.gather_dice(attack_hull, attack_range).values()) <= int(obstructed): continue 
+            dice_count = sum(self.gather_dice(attack_hull, attack_range).values())
+            if dice_count >= 2: valid_targets.append(target_hull)
+            if dice_count == 0 : continue
+            elif dice_count == 1:
+                if self.measure_line_of_sight(attack_hull, defend_ship, target_hull) : continue
+            else : valid_targets.append(target_hull)
 
-            valid_targets.append(target_hull)
         return valid_targets
 
-    def get_valid_target_ship(self, attack_hull : HullSection) -> list["Ship"]:
+    def get_valid_target_ship(self, attack_hull : HullSection) -> list[Ship]:
         """
         Get a list of valid target ships for the given attacking hull section.
 
@@ -432,8 +435,22 @@ class Ship:
             valid_targets (list[Ship]): A list of valid target ships.
         """
         valid_targets = []
+        rotation_matrix_90_ccw = np.array([[0, -1], [1, 0]])
+        attack_orientation_vector = self.orientation_vector @ np.linalg.matrix_power(rotation_matrix_90_ccw, attack_hull.value)
+
         for ship in self.game.ships:
             if ship.ship_id == self.ship_id or ship.destroyed or ship.player == self.player: continue
+
+            distance_to_target = math.dist(self.center_point, ship.center_point)
+            if distance_to_target > LONG_RANGE * 2 : continue
+
+            
+            vector_to_target = np.array([ship.center_point[0] - self.center_point[0], 
+                                        ship.center_point[1] - self.center_point[1]])
+            
+            dot_product = np.dot(attack_orientation_vector, vector_to_target)
+            if dot_product / distance_to_target < -0.25 : continue
+
             if self.get_valid_target_hull(attack_hull, ship):
                 valid_targets.append(ship)
 
@@ -462,6 +479,9 @@ class Ship:
         if black_crit or blue_crit or red_crit :
             critical_list.append(Critical.STANDARD)
         return critical_list
+
+
+        
 
 
 # sub method for execute maneuver
@@ -737,8 +757,6 @@ class Ship:
                     elif course[-2] < 0 : valid_placement.remove(1)
         return valid_placement
 
-
-
     def get_snapshot(self) -> dict :
         return {
             "x": self.x,
@@ -782,3 +800,120 @@ class Ship:
 
         # Crucially, update the geometry after restoring coordinates
         self._set_coordination()
+
+    def get_ship_hash_state(self) -> tuple[str, float, float, float]:
+        """Returns a hashable tuple representing the ship's state."""
+        return (self.name, self.x, self.y, self.orientation)
+    
+
+@lru_cache(maxsize=None)
+def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> np.ndarray :
+
+    ship_dict = SHIP_DATA[ship_state[0]]
+
+    front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
+    rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
+    token_size : tuple[float, float] = SHIP_TOKEN_SIZE[SizeClass[ship_dict['size_class']]]
+    token_half_w = token_size[0] / 2
+
+    template_vertices = np.array([
+    [0, -front_arc[0]],                 # front_arc_center_pt 0
+    [-token_half_w, -front_arc[1]],     # front_left_arc_pt 1
+    [token_half_w, -front_arc[1]],      # front_right_arc_pt 2
+    [0, -rear_arc[0]],                  # rear_arc_center_pt 3
+    [-token_half_w, -rear_arc[1]],      # rear_left_arc_pt 4
+    [token_half_w, -rear_arc[1]],       # rear_right_arc_pt 5
+    [-token_half_w, 0],                 # front_left_token_pt 6
+    [token_half_w, 0],                  # front_right_token_pt 7
+    [-token_half_w, -token_size[1]],    # rear_left_token_pt 8
+    [token_half_w, -token_size[1]],     # rear_right_token_pt 9
+    [0, -ship_dict['front_targeting_point']],
+    [ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
+    [0, -ship_dict['rear_targeting_point']],
+    [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]]
+    ])
+
+    c, s = math.cos(-ship_state[3]), math.sin(-ship_state[3])
+    rotation_matrix = np.array([[c, -s], [s, c]])
+    translation_vector = np.array([ship_state[1], ship_state[2]])
+
+    return template_vertices @ rotation_matrix.T + translation_vector
+
+
+@lru_cache(maxsize=20000)
+def _cached_hull_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSection, Polygon]:
+    """
+    Creates and caches all hull polygons for a given ship state.
+    """
+    coords = _cached_coordinate(ship_state)
+    return {
+        HullSection.FRONT: Polygon([coords[0], coords[2], coords[7], coords[6], coords[1]]),
+        HullSection.RIGHT: Polygon([coords[0], coords[2], coords[5], coords[3]]),
+        HullSection.REAR: Polygon([coords[3], coords[5], coords[9], coords[8], coords[4]]),
+        HullSection.LEFT: Polygon([coords[0], coords[1], coords[4], coords[3]]),
+    }
+
+
+@lru_cache(maxsize=None)
+def _cached_measurements(attacker_state : tuple[str, float, float, float], defender_state : tuple[str, float, float, float], from_hull : HullSection, to_hull : HullSection, extension_factor=500):
+    """
+    return:
+        attack_range (AttackRange)
+    """
+
+    attacker_coords = _cached_coordinate(attacker_state)
+    defender_coords = _cached_coordinate(defender_state)
+    
+    from_hull_poly = _cached_hull_polygons(attacker_state)[from_hull]
+    to_hull_poly_dict = _cached_hull_polygons(defender_state)
+
+    from_hull_targeting_pt = attacker_coords[from_hull.value + 10]
+    to_hull_targeting_pt = defender_coords[to_hull.value + 10]
+
+
+    # Line of Sight blocked
+    line_of_sight = LineString([from_hull_targeting_pt, to_hull_targeting_pt])
+
+    for hull in HullSection:
+        if hull == to_hull:
+            continue
+        if line_of_sight.crosses(to_hull_poly_dict[hull].exterior):
+            return AttackRange.INVALID
+
+    # Range
+    hull_coords = from_hull_poly.exterior.coords
+    if from_hull in (HullSection.FRONT, HullSection.REAR) :
+        arc1_center, arc1_end = hull_coords[0], hull_coords[1]
+        arc2_center, arc2_end = hull_coords[-1], hull_coords[-2] 
+    else :
+        arc1_center, arc1_end = hull_coords[0], hull_coords[1]
+        arc2_center, arc2_end = hull_coords[-2], hull_coords[-3] 
+
+    # Build the arc polygon. This logic works for ALL hull sections.
+    vec1 = np.array(arc1_end) - np.array(arc1_center)
+    vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
+    arc_polygon = Polygon([
+        arc1_end,
+        np.array(arc1_end) + vec1 * extension_factor,
+        np.array(arc2_end) + vec2 * extension_factor,
+        arc2_end
+    ])
+
+    target_hull = to_hull_poly_dict[to_hull].exterior
+
+    to_hull_in_arc = target_hull.intersection(arc_polygon)
+
+    if to_hull_in_arc.is_empty :
+        return AttackRange.INVALID # not in arc
+
+    range_measure = LineString(shapely.ops.nearest_points(from_hull_poly.exterior, to_hull_in_arc))
+
+    for hull in HullSection :
+        if hull != to_hull and range_measure.crosses(to_hull_poly_dict[hull].exterior) :
+            return AttackRange.INVALID # range not valid
+    distance = range_measure.length
+
+    if distance <= CLOSE_RANGE : return AttackRange.CLOSE # close range
+    elif distance <= MEDIUM_RANGE : return AttackRange.MEDIUM # medium range
+    elif distance <= LONG_RANGE : return AttackRange.LONG # long range
+    else : return AttackRange.EXTREME # extreme range

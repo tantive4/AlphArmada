@@ -1,8 +1,8 @@
 {
-  "Victory2_SD": {
+  "VSD2": {
     "name": "VSD2",
     "hull": 8,
-    "size": "medium",
+    "size_class": "MEDIUM",
     "command": 3,
     "squadron": 3,
     "engineering": 4,
@@ -24,10 +24,10 @@
     "side_targeting_point" : [19.55, 51.5]
   },
 
-  "CR90A_Corvette": {
+  "CR90A": {
     "name": "CR90A",
     "hull": 4,
-    "size": "small",
+    "size_class": "SMALL",
     "command": 1,
     "squadron": 1,
     "engineering": 2,
@@ -51,10 +51,10 @@
     "side_targeting_point" : [11.5, 43]
   },
 
-  "NebulonB_Escort": {
+  "Neb-B Escort": {
     "name": "Neb-B Escort",
     "hull": 5,
-    "size": "small",
+    "size_class": "SMALL",
     "command": 2,
     "squadron": 2,
     "engineering": 3,
