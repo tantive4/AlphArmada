@@ -28,13 +28,14 @@ class GamePhase(IntEnum):
     
     # Ship Phase -> Attack (22xx)
     SHIP_ATTACK = 2200
-    SHIP_ATTACK_DECLARE_TARGET = 2201
-    SHIP_ATTACK_GATHER_DICE = 2202
-    SHIP_ATTACK_ROLL_DICE = 2203
-    SHIP_ATTACK_RESOLVE_EFFECTS = 2204
-    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 2205
-    SHIP_ATTACK_USE_CRITICAL_EFFECT = 2206
-    SHIP_ATTACK_RESOLVE_DAMAGE = 2207
+    SHIP_ATTACK_DECLARE_ATTACK_HULL = 2201
+    SHIP_ATTACK_DECLARE_TARGET = 2202
+    SHIP_ATTACK_GATHER_DICE = 2203
+    SHIP_ATTACK_ROLL_DICE = 2204
+    SHIP_ATTACK_RESOLVE_EFFECTS = 2205
+    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 2206
+    SHIP_ATTACK_USE_CRITICAL_EFFECT = 2207
+    SHIP_ATTACK_RESOLVE_DAMAGE = 2208
     # Note: Additional squadron target is part of the same sequence
     
     # Ship Phase -> Execute Maneuver (23xx)
@@ -58,7 +59,7 @@ class ActionType :
     DiscardCommandTokenAction : TypeAlias = tuple[Literal['discard_command_token_action'], Command]
     ResolveCommandAction : TypeAlias = tuple[Literal['resolve_con-fire_command_action', 'resolve_nav_command_action'], tuple[bool, bool]]
 
-
+    DeclareAttackHullAction : TypeAlias = tuple[Literal['declare_attack_hull_action'], HullSection]
     DeclareTargetAction: TypeAlias = tuple[Literal['declare_target_action'], tuple[HullSection, int, HullSection]]
     GatherDiceAction: TypeAlias = tuple[Literal['gather_dice_action'], dict[Dice, int]]
     RollDiceAction: TypeAlias = tuple[Literal['roll_dice_action'], dict[Dice, list[int]]]
@@ -99,6 +100,7 @@ class ActionType :
         ReavealCommandAction |
         DiscardCommandTokenAction |
         ResolveCommandAction |
+        DeclareAttackHullAction |
         DeclareTargetAction | 
         GatherDiceAction |
         RollDiceAction | 
@@ -127,6 +129,8 @@ class ActionType :
             case 'reveal_command_action' :
                 action_str = f'{game.active_ship} reveals {action[1]} Command'
 
+            case 'declare_attack_hull_action' :
+                action_str = f'{game.active_ship} declares attack from {action[1]}'
 
             case 'declare_target_action':
                 attack_hull, defend_ship_id, defend_hull = action[1]

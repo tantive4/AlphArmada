@@ -1,9 +1,9 @@
 from __future__ import annotations
-from ship import Ship, HullSection, Command, _cached_measurements
+from ship import Ship, HullSection, Command, _cached_range
 import random
 from shapely.geometry import Polygon
 import visualizer
-from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
+from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, ICON_INDICES, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
 from measurement import AttackRange
 from defense_token import DefenseToken, TokenType
 import copy
@@ -15,8 +15,8 @@ from typing import Callable
 
 class Armada:
     def __init__(self) -> None:
-        self.player_edge = 900
-        self.short_edge = 900
+        self.player_edge = 900 # mm
+        self.short_edge = 900 # mm
         self.game_board = Polygon([
             (0,0),
             (0,self.player_edge),
@@ -96,7 +96,7 @@ class Armada:
         """
         Returns a list of possible actions based on the current game phase.
         """
-        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
+        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
             if self.attack_info is None:
                 raise ValueError('No attack info for the current game phase.')
             attack_info : AttackInfo = self.attack_info
@@ -109,6 +109,9 @@ class Armada:
             case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
                 self.decision_player = self.current_player
             case GamePhase.SHIP_DISCARD_COMMAND_TOKEN :
+                self.decision_player = self.current_player
+
+            case GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL :
                 self.decision_player = self.current_player
 
             case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
@@ -153,7 +156,7 @@ class Armada:
             if self.active_ship is None:
                 raise ValueError('No active ship for the current game phase.')
             active_ship : Ship = self.active_ship
-        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
+        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
             if self.attack_info is None:
                 raise ValueError('No attack info for the current game phase.')
             attack_info : AttackInfo = self.attack_info
@@ -187,13 +190,16 @@ class Armada:
 
 
             # Attack Sequence
+            case GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL :
+                if active_ship.attack_count < 2 :
+                    actions = [('declare_attack_hull_action', attack_hull)
+                               for attack_hull in active_ship.get_valid_attack_hull()]
+                if not actions : actions = [('pass_attack', None)]
+
             case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
                 if active_ship.attack_count < 2 :
-                    actions = [('declare_target_action', (attack_hull, defend_ship.ship_id, defend_hull))
-                        for attack_hull in active_ship.get_valid_attack_hull()
-                        for defend_ship in active_ship.get_valid_target_ship(attack_hull)
-                        for defend_hull in active_ship.get_valid_target_hull(attack_hull, defend_ship)]
-                if not actions : actions = [('pass_attack', None)]
+                    actions = [('declare_target_action', (attack_info.attack_hull, defend_ship.ship_id, defend_hull))
+                        for defend_ship, defend_hull in active_ship.get_valid_target(attack_info.attack_hull)]
                 
             case GamePhase.SHIP_ATTACK_GATHER_DICE :
                 attack_ship = self.ships[attack_info.attack_ship_id]
@@ -353,7 +359,7 @@ class Armada:
             if self.active_ship is None:
                 raise ValueError("No active ship for the current game phase.")
             active_ship : Ship = self.active_ship
-        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
+        if self.phase > GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
             if self.attack_info is None:
                 raise ValueError("No attack info for the current game phase.")
             attack_info= self.attack_info
@@ -399,25 +405,28 @@ class Armada:
                 if len(active_ship.command_token) > active_ship.command_value :
                     self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
                 else :
-                    self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
+                    self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
             case 'reveal_command_action' :
                 active_ship.command_dial.append(active_ship.command_stack.pop(0))
-                self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
+                self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
             case 'discard_command_token_action' :
                 active_ship.command_token.remove(action[1])
                 if len(active_ship.command_token) > active_ship.command_value :
                     self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
                 else :
-                    self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
+                    self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
+            case 'declare_attack_hull_action' :
+                self.attack_info = AttackInfo(active_ship, action[1])
+                self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
 
             case 'declare_target_action':
                 active_ship.attack_count += 1
                 active_ship.attack_possible_hull[action[1][0].value] = False
                 # gather initial dice pool here
-                self.attack_info = AttackInfo(active_ship, action[1][0], self.ships[action[1][1]], action[1][2])
+                attack_info.declare_target(active_ship, action[1][0], self.ships[action[1][1]], action[1][2])
                 self.phase = GamePhase.SHIP_ATTACK_GATHER_DICE
             
             case 'gather_dice_action':
@@ -541,7 +550,7 @@ class Armada:
                     total_damage -= damage
 
                 defend_ship.defend(attack_info.defend_hull, total_damage, attack_info.critical)
-                self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
+                self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
                 self.attack_info = None
 
             case 'pass_attack':
@@ -689,17 +698,13 @@ class Armada:
 
 
 class AttackInfo :
-    def __init__(self, attack_ship : Ship, attack_hull : HullSection, defend_ship : Ship, defend_hull : HullSection) -> None:
+    def __init__(self, attack_ship : Ship, attack_hull : HullSection) -> None :
         self.attack_player : int = attack_ship.player
         self.attack_ship_id : int = attack_ship.ship_id
         self.attack_hull : HullSection = attack_hull
-        self.defend_ship_id : int = defend_ship.ship_id
-        self.defend_hull : HullSection = defend_hull
-        self.attack_range : AttackRange = _cached_measurements(attack_ship.get_ship_hash_state(), defend_ship.get_ship_hash_state(), attack_hull, defend_hull)
-        self.obstructed : bool = attack_ship.measure_line_of_sight(attack_hull, defend_ship, defend_hull)
 
         self.dice_to_roll : dict[Dice, int] = {dice_type : 0 for dice_type in Dice}
-        self.attack_pool_result : dict[Dice, list[int]]  = {dice_type : [0 for _ in DAMAGE_INDICES[dice_type]] for dice_type in Dice}
+        self.attack_pool_result : dict[Dice, list[int]]  = {dice_type : [0 for _ in ICON_INDICES[dice_type]] for dice_type in Dice}
         self.con_fire_dial = False
         self.con_fire_token = False
 
@@ -710,6 +715,12 @@ class AttackInfo :
         self.redirect_hulls : list[HullSection] = []
 
         self.critical : Critical | None = None
+
+    def declare_target(self, attack_ship : Ship, attack_hull : HullSection, defend_ship : Ship, defend_hull : HullSection) -> None:
+        self.defend_ship_id : int = defend_ship.ship_id
+        self.defend_hull : HullSection = defend_hull
+        self.attack_range : AttackRange = _cached_range(attack_ship.get_ship_hash_state(), defend_ship.get_ship_hash_state())[1][attack_hull][defend_hull]
+        self.obstructed : bool = attack_ship.measure_line_of_sight(attack_hull, defend_ship, defend_hull)
 
         if self.attack_range == AttackRange.INVALID : raise ValueError('Cannot Declare Target of Invalid Range')
 

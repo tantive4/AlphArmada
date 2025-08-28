@@ -265,14 +265,12 @@ class Ship:
 
         # Transform vertices and create final Polygon objects
         self.ship_base = Polygon((self.template_base_vertices @ rotation_matrix.T) + translation_vector)
-        self.ship_token = Polygon((self.template_token_vertices @ rotation_matrix.T) + translation_vector)
 
         final_targeting_points = (self.template_targeting_points_and_maneuver_tool_insert @ rotation_matrix.T) + translation_vector
-        self.targeting_point : dict[HullSection, tuple[int, int]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
+        self.targeting_point : dict[HullSection, tuple[float, float]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
         self.tool_coords : dict[int, tuple[float, float]]  = {1 : tuple(final_targeting_points[4]),
                             -1: tuple(final_targeting_points[5])}
-        self.center_point = final_targeting_points[6]
-        self.orientation_vector = np.array([-s, c])
+
 
 
 # sub method for attack
@@ -289,7 +287,7 @@ class Ship:
         Returns:
             obstructed (bool)
         """
-        line_of_sight = LineString([self.targeting_point[from_hull], to_ship.targeting_point[to_hull]])
+        line_of_sight : tuple[tuple, tuple] = (self.targeting_point[from_hull], to_ship.targeting_point[to_hull])
 
         for ship in self.game.ships:
 
@@ -298,16 +296,13 @@ class Ship:
             if ship.destroyed:
                 continue
 
-            if line_of_sight.crosses(ship.ship_token.exterior):
+            if _cached_obstruction(line_of_sight, ship.get_ship_hash_state()):
                 return True
 
         return False
 
     def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> dict[Dice, int] :
-        attack_pool = self.battery[attack_hull].copy()
-        attack_pool = {dice_type : self.battery[attack_hull][dice_type.value] for dice_type in Dice}
-        for dice_type in Dice :
-            if dice_type.value < attack_range.value: attack_pool[dice_type] = 0
+        attack_pool = {dice_type : self.battery[attack_hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice}
         return attack_pool
 
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
@@ -323,76 +318,29 @@ class Ship:
 
         if self.hull <= 0 : self.destroy()
 
-
-
-    def get_valid_target_hull(self, attack_hull : HullSection, defend_ship : Ship) -> list[ HullSection]:
-        """
-        Get a list of valid targets for the given attacking hull section.
-
-        Args:
-            attack_hull (HullSection): The attacking hull section.
-            defend_ship (Ship): The defending ship.
-
-        Returns:
-            valid_targets (list[HullSection]): A list of tuples containing the target ship and the targeted hull section.
-        """
-        
-        valid_targets = []
-        vector_to_defender = np.array([defend_ship.center_point[0] - self.center_point[0],
-                                    defend_ship.center_point[1] - self.center_point[1]])
-
-
-        for target_hull in HullSection:
-
-            defend_orientation_vector = defend_ship.orientation_vector @ ROTATION_MATRICES[target_hull.value]
-            dot_product = np.dot(vector_to_defender, defend_orientation_vector)
-            if dot_product / np.linalg.norm(vector_to_defender) >= 0.25 : continue
-
-            attack_range = _cached_measurements(self.get_ship_hash_state(), defend_ship.get_ship_hash_state(), attack_hull, target_hull)
-
-            # arc and range
-            if attack_range in (AttackRange.INVALID, AttackRange.EXTREME) : continue
-
-            # gather attack dice
-            dice_count = sum(self.gather_dice(attack_hull, attack_range).values())
-            if dice_count == 0 : continue
-            elif dice_count == 1:
-                if self.measure_line_of_sight(attack_hull, defend_ship, target_hull) : continue
-            else : valid_targets.append(target_hull)
-
-        return valid_targets
-
-    def get_valid_target_ship(self, attack_hull : HullSection) -> list[Ship]:
-        """
-        Get a list of valid target ships for the given attacking hull section.
-
-        Args:
-            attack_hull (HullSection): The attacking hull section.
-
-        Returns:
-            valid_targets (list[Ship]): A list of valid target ships.
-        """
-        valid_targets = []
-        attack_orientation_vector = self.orientation_vector @ ROTATION_MATRICES[attack_hull.value]
+    def get_valid_target(self, attack_hull : HullSection) -> list[tuple[Ship, HullSection]] :
+        valid_targets : list[tuple[Ship, HullSection]]= []
 
         for ship in self.game.ships:
             if ship.ship_id == self.ship_id or ship.destroyed or ship.player == self.player: continue
 
-            distance_to_target = math.dist(self.center_point, ship.center_point)
-            if distance_to_target > LONG_RANGE * 2 : continue
+            target_dict, range_dict =  _cached_range(self.get_ship_hash_state(), ship.get_ship_hash_state())
 
-            
-            vector_to_target = np.array([ship.center_point[0] - self.center_point[0], 
-                                        ship.center_point[1] - self.center_point[1]])
-            
-            dot_product = np.dot(attack_orientation_vector, vector_to_target)
-            if dot_product / distance_to_target < -0.25 : continue
+            if not target_dict[attack_hull] : continue
 
-            if self.get_valid_target_hull(attack_hull, ship):
-                valid_targets.append(ship)
+            for target_hull in HullSection :
+                attack_range : AttackRange = range_dict[attack_hull][target_hull] 
+                
+                if attack_range == AttackRange.INVALID : continue
+
+                dice_count = sum(self.gather_dice(attack_hull, attack_range).values())
+                if dice_count == 0 : continue
+                elif dice_count == 1:
+                    if self.measure_line_of_sight(attack_hull, ship, target_hull) : continue
+                valid_targets.append((ship, target_hull))
+
 
         return valid_targets
-    
 
     def get_valid_attack_hull(self) -> list[HullSection]:
         """
@@ -405,10 +353,10 @@ class Ship:
         for hull in HullSection:
             if not self.attack_possible_hull[hull.value] : continue
 
-            if self.target_exist_hull[hull.value] and self.get_valid_target_ship(hull):
+            if self.target_exist_hull[hull.value] and self.get_valid_target(hull):
                 valid_attacker.append(hull)
             else :
-                self.target_exist_hull[hull.value] = False 
+                self.target_exist_hull[hull.value] = False
         return valid_attacker
 
     def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical] :
@@ -418,7 +366,6 @@ class Ship:
         return critical_list
 
 
-        
 
 
 # sub method for execute maneuver
@@ -479,6 +426,8 @@ class Ship:
         self._set_coordination()
         
     def is_overlap(self) -> list[bool] :
+
+        
         """
         determines which ship overlaps to this ship at current location
         
@@ -491,14 +440,7 @@ class Ship:
                 overlap_list.append(False)
                 continue
             
-            if math.dist(self.center_point, ship.center_point) > AttackRange.LONG : 
-                overlap_list.append(False)
-                continue
-
-            if self.ship_base.intersects(ship.ship_base) and not self.ship_base.touches(ship.ship_base):
-                overlap_list.append(True)
-            else:
-                overlap_list.append(False)
+            overlap_list.append(_cached_overlapping(self.get_ship_hash_state(), ship.get_ship_hash_state()))
         return overlap_list
 
     def overlap(self, overlap_list : list[bool]) -> None:
@@ -536,7 +478,12 @@ class Ship:
         Returns:
             bool: True if the ship is out of the board, False otherwise.
         """
-        return not self.ship_base.within(self.game.game_board)
+        min_x, min_y, max_x, max_y = self.ship_base.bounds
+
+        if min_x >= 0 and max_x <= self.game.player_edge and min_y >= 0 and max_y <= self.game.short_edge:
+            return False
+        
+        return True
     
     def get_valid_speed(self) -> list[int]:
         """
@@ -760,7 +707,7 @@ class Ship:
     
 
 @lru_cache(maxsize=None)
-def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> np.ndarray :
+def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> tuple[np.ndarray, np.ndarray] :
 
     ship_dict = SHIP_DATA[ship_state[0]]
 
@@ -783,90 +730,208 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> np.ndarr
     [0, -ship_dict['front_targeting_point']],
     [ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
     [0, -ship_dict['rear_targeting_point']],
-    [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]]
+    [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
+    [0, -token_size[1]/2],              # center point 14
+    [-token_half_w, 0],                 # left front base 15
+    [token_half_w, 0],                  # right front base 16
+    [token_half_w, -token_size[1]],      # right rear base 17
+    [-token_half_w, -token_size[1]],    # left rear base 18
     ])
 
     c, s = math.cos(-ship_state[3]), math.sin(-ship_state[3])
     rotation_matrix = np.array([[c, -s], [s, c]])
     translation_vector = np.array([ship_state[1], ship_state[2]])
 
-    return template_vertices @ rotation_matrix.T + translation_vector
+    return template_vertices @ rotation_matrix.T + translation_vector, np.array([-s, c])
 
-
-@lru_cache(maxsize=20000)
-def _cached_hull_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSection, Polygon]:
+@lru_cache(maxsize=None)
+def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSection | str, Polygon]:
     """
     Creates and caches all hull polygons for a given ship state.
     """
-    coords = _cached_coordinate(ship_state)
+    coords, _ = _cached_coordinate(ship_state)
     return {
         HullSection.FRONT: Polygon([coords[0], coords[2], coords[7], coords[6], coords[1]]),
         HullSection.RIGHT: Polygon([coords[0], coords[2], coords[5], coords[3]]),
         HullSection.REAR: Polygon([coords[3], coords[5], coords[9], coords[8], coords[4]]),
         HullSection.LEFT: Polygon([coords[0], coords[1], coords[4], coords[3]]),
+        'token' : Polygon([coords[6], coords[7], coords[9], coords[8]])
     }
 
-
 @lru_cache(maxsize=None)
-def _cached_measurements(attacker_state : tuple[str, float, float, float], defender_state : tuple[str, float, float, float], from_hull : HullSection, to_hull : HullSection, extension_factor=500):
+def _cached_range(attacker_state : tuple[str, float, float, float], defender_state : tuple[str, float, float, float], extension_factor=500) -> tuple[dict[HullSection, bool],dict[HullSection, dict[HullSection, AttackRange]]]:
     """
     return:
         attack_range (AttackRange)
     """
-
-    attacker_coords = _cached_coordinate(attacker_state)
-    defender_coords = _cached_coordinate(defender_state)
+    target_dict : dict[HullSection, bool] = {from_hull : False for from_hull in HullSection}
+    measure_dict : dict[HullSection, dict[HullSection, AttackRange]] = {from_hull : {to_hull : AttackRange.INVALID for to_hull in HullSection} for from_hull in HullSection}
     
-    from_hull_poly = _cached_hull_polygons(attacker_state)[from_hull]
-    to_hull_poly_dict = _cached_hull_polygons(defender_state)
+    attacker_coords = _cached_coordinate(attacker_state)[0]
+    defender_coords = _cached_coordinate(defender_state)[0]
 
-    from_hull_targeting_pt = attacker_coords[from_hull.value + 10]
-    to_hull_targeting_pt = defender_coords[to_hull.value + 10]
+    attacker_center : np.ndarray = attacker_coords[14]
+    defender_center : np.ndarray = defender_coords[14]
+    attacker_orientation_vector : np.ndarray = _cached_coordinate(attacker_state)[1]
+    target_vector : np.ndarray = attacker_center - defender_center
+
+    # distance check
+    distance = np.linalg.norm(target_vector)
+    if distance > 2 * LONG_RANGE :
+        return target_dict, measure_dict
+    
+    attacker_poly : dict[HullSection | str, Polygon] = _cached_polygons(attacker_state)
+    defender_poly : dict[HullSection | str, Polygon] = _cached_polygons(defender_state)
 
 
-    # Line of Sight blocked
-    line_of_sight = LineString([from_hull_targeting_pt, to_hull_targeting_pt])
+    for from_hull in HullSection :
+        for to_hull in HullSection :
+            from_hull_targeting_pt = attacker_coords[from_hull.value + 10]
+            to_hull_targeting_pt = defender_coords[to_hull.value + 10]
 
+            # attack hull orientation check
+            attack_orientation_vector = attacker_orientation_vector @ ROTATION_MATRICES[from_hull.value]
+            hull_target_vector = to_hull_targeting_pt - from_hull_targeting_pt
+            dot_product = np.dot(attack_orientation_vector, hull_target_vector)
+            if dot_product < 0 :
+                continue
 
-    for hull in HullSection:
-        if hull == to_hull:
-            continue
-        if line_of_sight.crosses(to_hull_poly_dict[hull].exterior):
-            return AttackRange.INVALID
+            # Line of Sight blocked
+            is_blocked : bool = False
+            line_of_sight = LineString([from_hull_targeting_pt, to_hull_targeting_pt])
+            for hull in HullSection:
+                if hull != to_hull and line_of_sight.crosses(defender_poly[hull].exterior):
+                    is_blocked = True
+                    continue
+            if is_blocked : continue
 
-    # Range
-    hull_coords = from_hull_poly.exterior.coords
-    if from_hull in (HullSection.FRONT, HullSection.REAR) :
-        arc1_center, arc1_end = hull_coords[0], hull_coords[1]
-        arc2_center, arc2_end = hull_coords[-2], hull_coords[-3] 
-    else :
-        arc1_center, arc1_end = hull_coords[0], hull_coords[1]
-        arc2_center, arc2_end = hull_coords[-1], hull_coords[-2] 
+            # Range
+            from_hull_poly = attacker_poly[from_hull]
+            to_hull_poly = defender_poly[to_hull]
 
-    # Build the arc polygon. This logic works for ALL hull sections.
-    vec1 = np.array(arc1_end) - np.array(arc1_center)
-    vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
-    arc_polygon = Polygon([
-        arc1_end,
-        np.array(arc1_end) + vec1 * extension_factor,
-        np.array(arc2_end) + vec2 * extension_factor,
-        arc2_end
-    ])
+            if from_hull in (HullSection.FRONT, HullSection.RIGHT) :
+                arc1_center, arc1_end = attacker_coords[0], attacker_coords[2]
+            else :
+                arc1_center, arc1_end = attacker_coords[3], attacker_coords[4]
 
-    target_hull = to_hull_poly_dict[to_hull].exterior
-    to_hull_in_arc = target_hull.intersection(arc_polygon)
+            if from_hull in (HullSection.FRONT, HullSection.LEFT) :
+                arc2_center, arc2_end = attacker_coords[0], attacker_coords[1]
+            else :
+                arc2_center, arc2_end = attacker_coords[3], attacker_coords[5]
 
-    if to_hull_in_arc.is_empty :
-        return AttackRange.INVALID # not in arc
+            # Build the arc polygon. This logic works for ALL hull sections.
+            vec1 = np.array(arc1_end) - np.array(arc1_center)
+            vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
+            arc_polygon = Polygon([
+                arc1_end,
+                np.array(arc1_end) + vec1 * extension_factor,
+                np.array(arc2_end) + vec2 * extension_factor,
+                arc2_end
+            ])
 
-    range_measure = LineString(shapely.ops.nearest_points(from_hull_poly.exterior, to_hull_in_arc))
+            target_hull = to_hull_poly.exterior
+            to_hull_in_arc = target_hull.intersection(arc_polygon)
 
-    for hull in HullSection :
-        if hull != to_hull and range_measure.crosses(to_hull_poly_dict[hull].exterior) :
-            return AttackRange.INVALID # range not valid
-    distance = range_measure.length
+            if to_hull_in_arc.is_empty :
+                continue # not in arc
 
-    if distance <= CLOSE_RANGE : return AttackRange.CLOSE # close range
-    elif distance <= MEDIUM_RANGE : return AttackRange.MEDIUM # medium range
-    elif distance <= LONG_RANGE : return AttackRange.LONG # long range
-    else : return AttackRange.EXTREME # extreme range
+            range_measure = LineString(shapely.ops.nearest_points(from_hull_poly.exterior, to_hull_in_arc))
+
+            for hull in HullSection :
+                if hull != to_hull and range_measure.crosses(defender_poly[hull].exterior) :
+                    is_blocked = True
+            if is_blocked : continue
+
+            distance = range_measure.length
+
+            if distance <= CLOSE_RANGE : 
+                measure_dict[from_hull][to_hull] = AttackRange.CLOSE # close range
+                target_dict[from_hull] = True
+            elif distance <= MEDIUM_RANGE : 
+                measure_dict[from_hull][to_hull] = AttackRange.MEDIUM # medium range
+                target_dict[from_hull] = True
+            elif distance <= LONG_RANGE : 
+                measure_dict[from_hull][to_hull] = AttackRange.LONG # long range
+                target_dict[from_hull] = True
+            else : measure_dict[from_hull][to_hull] = AttackRange.INVALID # invalid range (extreme)
+
+    return target_dict, measure_dict
+
+@lru_cache(maxsize=None)
+def _cached_obstruction(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, float, float, float]) -> bool :
+    line_of_sight : LineString = LineString(targeting_point)
+    token_poly : Polygon = _cached_polygons(ship_state)['token']
+
+    return line_of_sight.crosses(token_poly.exterior)
+
+@lru_cache(maxsize=None)
+def _cached_overlapping(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> bool :
+    self_coordinate = _cached_coordinate(self_state)[0][15:19]
+    other_coordinate = _cached_coordinate(ship_state)[0][15:19]
+
+    def get_axes(corners):
+        """
+        Gets the two unique perpendicular axes from a rectangle's corners.
+        An axis is a normalized vector perpendicular to an edge.
+        """
+        axes = np.zeros((2, 2))
+        
+        # Axis for the first edge (e.g., from left-front to right-front)
+        edge1 = corners[1] - corners[0]
+        # The normal is (-edge.y, edge.x)
+        normal1 = np.array([-edge1[1], edge1[0]])
+        norm1_len = np.sqrt(normal1[0]**2 + normal1[1]**2)
+        if norm1_len > 0:
+            axes[0] = normal1 / norm1_len # Normalize the axis
+        
+        # Axis for the second edge (e.g., from right-front to right-rear)
+        edge2 = corners[2] - corners[1]
+        normal2 = np.array([-edge2[1], edge2[0]])
+        norm2_len = np.sqrt(normal2[0]**2 + normal2[1]**2)
+        if norm2_len > 0:
+            axes[1] = normal2 / norm2_len # Normalize the axis
+            
+        return axes
+
+    def check_overlap_numpy(corners1, corners2):
+        """
+        Checks if two rotated rectangles overlap using an AABB pre-check
+        followed by the Separating Axis Theorem (SAT).
+
+        Args:
+            corners1 (np.ndarray): A 4x2 NumPy array of the first rectangle's corners.
+            corners2 (np.ndarray): A 4x2 NumPy array of the second rectangle's corners.
+
+        Returns:
+            bool: True if they overlap, False otherwise.
+        """
+        # --- Step 1: Fast Axis-Aligned Bounding Box (AABB) Pre-Check ---
+        min1_x, min1_y = np.min(corners1, axis=0)
+        max1_x, max1_y = np.max(corners1, axis=0)
+        min2_x, min2_y = np.min(corners2, axis=0)
+        max2_x, max2_y = np.max(corners2, axis=0)
+        
+        if max1_x < min2_x or max2_x < min1_x or max1_y < min2_y or max2_y < min1_y:
+            return False
+
+        # --- Step 2: Separating Axis Theorem (SAT) ---
+        axes1 = get_axes(corners1)
+        axes2 = get_axes(corners2)
+        
+        all_axes = np.vstack((axes1, axes2))
+        
+        for axis in all_axes:
+            # Project all 8 corners onto the current axis
+            proj1 = np.dot(corners1, axis)
+            proj2 = np.dot(corners2, axis)
+            
+            min1, max1 = np.min(proj1), np.max(proj1)
+            min2, max2 = np.min(proj2), np.max(proj2)
+            
+            # Check for separation.
+            if max1 < min2 or max2 < min1:
+                return False
+
+        return True
+    
+    return check_overlap_numpy(self_coordinate, other_coordinate)
