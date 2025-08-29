@@ -6,13 +6,14 @@ import math
 import copy
 import shutil
 import multiprocessing
+import random
 from dice import precompute_dice_outcomes 
 
 def main():
     """Main function to set up and run the game."""
     if os.path.exists("game_visuals"):
         shutil.rmtree("game_visuals")
-
+    random.seed(66)
     with open('ship_info.json', 'r') as f:
         SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
     with open('simulation_log.txt', 'w') as f:
@@ -25,7 +26,7 @@ def main():
     victory = Ship(SHIP_DATA['VSD2'], -1)
 
     game.deploy_ship(cr90, 300, 175, 0, 2)
-    game.deploy_ship(nebulon, 300, 100, 0, 2)
+    game.deploy_ship(nebulon, 600, 175, 0, 2)
     game.deploy_ship(victory, 450, 725, math.pi, 2)
 
     cr90.asign_command(Command.NAVIGATION)
@@ -42,13 +43,13 @@ def main():
     # player2 = lambda: game.mcts_decision_parallel(iterations=800, num_processes=CPU_CORE)
 
     # for SINGLE CORE simulation
-    # player1 = lambda: game.mcts_decision(iterations=100)
-    # player2 = lambda: game.mcts_decision(iterations=100)
+    player1 = lambda: game.mcts_decision(iterations=800)
+    player2 = lambda: game.mcts_decision(iterations=800)
 
 
     # for RANDOM PLAYER simulation
-    player1 = game.random_decision
-    player2 = game.random_decision
+    # player1 = game.random_decision
+    # player2 = game.random_decision
 
     game.play(player1, player2)
 

@@ -100,37 +100,35 @@ class MCTS:
     """
 
     def __init__(self, initial_game: Armada) -> None:
-        self.game = initial_game
-        self.snapshot = self.game.get_snapshot()
+        self.root_game = initial_game
+        self.snapshot = self.root_game.get_snapshot()
         self.root : Node = Node(decision_player=initial_game.decision_player)
-        if self.root.decision_player is None :
-            raise ValueError("MCTS requires a decision player to be set in the game.")
 
     def search(self, iterations: int) -> None:
-        # single decision optimization
 
-        possible_actions = self.game.get_possible_actions()
+        # single decision optimization
+        possible_actions = self.root_game.get_possible_actions()
         if len(possible_actions) == 1:
             action = possible_actions[0]
-            self.game.apply_action(action)
-            self.root.add_child(action, self.game)
+            self.root_game.apply_action(action)
+            self.root.add_child(action, self.root_game)
             return
 
         for i in range(iterations):
             
-            node : Node = self.root
+            node : Node | None = self.root
             
             # 1. Selection
             while (node.untried_actions is not None and not node.untried_actions and node.children) or node.chance_node:
 
                 if node.chance_node:
                     # For a chance node, sample a random outcome instead of using UCT.
-                    if self.game.attack_info is None :
+                    if self.root_game.attack_info is None :
                         raise ValueError("Invalid game for chance node: missing attack/defend info.")
                     
-                    dice_roll = dice.roll_dice(self.game.attack_info.dice_to_roll)
+                    dice_roll = dice.roll_dice(self.root_game.attack_info.dice_to_roll)
                     action = ("roll_dice_action", dice_roll)
-                    self.game.apply_action(action)
+                    self.root_game.apply_action(action)
 
                     dice_roll_result_node = next((child for child in node.children if child.action is not None and child.action[1] == dice_roll), None)
                     if dice_roll_result_node:
@@ -138,7 +136,7 @@ class MCTS:
                         node = dice_roll_result_node
                     else:
                         # If it's a new outcome, this is the node we will expand and simulate.
-                        node = node.add_child(action, self.game)
+                        node = node.add_child(action, self.root_game)
                         break # Exit selection loop
 
                 else:
@@ -146,33 +144,32 @@ class MCTS:
                     node = node.uct_select_child()
                     if node.action is None:
                         raise ValueError("Child node must have an action.")
-                    self.game.apply_action(node.action)
+                    self.root_game.apply_action(node.action)
             
             # 2. Expansion (for player decision nodes)
-            if not self.game.winner :
+            if not self.root_game.winner :
                 if node.untried_actions is None:
-                    node.untried_actions = self.game.get_possible_actions()
+                    node.untried_actions = self.root_game.get_possible_actions()
                     random.shuffle(node.untried_actions)
 
                 if node.untried_actions:
                     action = node.untried_actions.pop()
-                    self.game.apply_action(action)
-                    child_node = node.add_child(action, self.game)
+                    self.root_game.apply_action(action)
+                    child_node = node.add_child(action, self.root_game)
                     node = child_node
                     
-                    if self.game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE :
+                    if self.root_game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE :
                         node.chance_node = True
 
             # 3. Simulation
-            simulation_result = self.game.play(max_simulation_step=1000)
+            simulation_result = self.root_game.play(max_simulation_step=1000)
             # with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
-            self.game.revert_snapshot(self.snapshot)
+            self.root_game.revert_snapshot(self.snapshot)
             
             # 4. Backpropagation (Updated for -1 to 1 scoring)
-            temp_node = node
-            while temp_node is not None:
+            while node is not None:
                 # The result must be from the perspective of the player who made the move at the parent node.
-                perspective_player = temp_node.parent.decision_player if temp_node.parent else self.root.decision_player
+                perspective_player = node.parent.decision_player if node.parent else self.root.decision_player
                 
                 # The simulation_result is always from Player 1's perspective.
                 # If the current node's move was made by Player -1, we flip the score.
@@ -183,23 +180,38 @@ class MCTS:
                 else :
                     result_for_node = 0
                 
-                temp_node.update(result_for_node)
-                temp_node = temp_node.parent
+                node.update(result_for_node)
+                node = node.parent
             
             if (i+1) % 100 == 0:
-                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action | {ActionType.get_action_str(self.game, self.get_best_action())}")
+                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
                 with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
 
-    def _run_simulation(self, game: Armada) -> float:
-        """
-        A helper method to run a single simulation. This will be called by the worker processes.
-        """
-        return game.play(max_simulation_step=1000)
 
+    def advance_tree(self, action: ActionType.Action) -> None:
+        """
+        Advances the tree to the next state by selecting the child
+        corresponding to the given action as the new root.
+        """
+        # Find the child node that matches the action taken.
+        # If no child matches, a new tree must be started.
+        matching_child = next((child for child in self.root.children if child.action == action), None)
+        
+        if matching_child:
+            # The found child becomes the new root.
+            self.root = matching_child
+            self.root.parent = None # The new root has no parent.
+        else:
+            # This can happen if the opponent makes an unexpected move or
+            # for chance nodes. We must start a new tree from the current state.
+            self.root = Node(decision_player=self.root_game.decision_player)
+
+        self.root_game.apply_action(action)
+        self.snapshot = self.root_game.get_snapshot()
 
     def get_best_action(self) -> ActionType.Action:
         if not self.root.children:
-            possible_actions = self.game.get_possible_actions()
+            possible_actions = self.root_game.get_possible_actions()
             random.shuffle(possible_actions)
             return possible_actions[0]
             

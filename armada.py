@@ -45,13 +45,18 @@ class Armada:
         The main game loop with two players defined by functions.
         Each player function should return an action based on the current game state.
         """
+        if not self.simulation_mode :
+            mcts_game = copy.deepcopy(self)
+            mcts_game.simulation_mode = True
+            self.game_tree = MCTS(mcts_game)
+
         if player1 is None : 
             player1 = self.random_decision
         if player2 is None : 
             player2 = self.random_decision
         simulation_counter = 0
 
-        
+    
         while self.winner is None:
             if self.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
                 if self.attack_info is None :
@@ -65,7 +70,9 @@ class Armada:
                 action : ActionType.Action = player2()
             else :
                 action : ActionType.Action = self.get_possible_actions()[0]
+
             self.apply_action(action)
+            if not self.simulation_mode : self.game_tree.advance_tree(action)
 
             simulation_counter += 1
             if simulation_counter >= max_simulation_step:
@@ -83,12 +90,9 @@ class Armada:
         return random.choice(actions)
 
 
-    def mcts_decision(self, iterations : int = 1000) -> ActionType.Action:
-        game_copy : Armada = copy.deepcopy(self)
-        game_copy.simulation_mode = True
-        mcts = MCTS(game_copy)
-        mcts.search(iterations)
-        action : ActionType.Action = mcts.get_best_action()
+    def mcts_decision(self, iterations : int = 800) -> ActionType.Action:
+        self.game_tree.search(iterations)
+        action : ActionType.Action = self.game_tree.get_best_action()
         return action
 
 
@@ -116,7 +120,7 @@ class Armada:
 
             case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
                 self.decision_player = self.current_player
-            
+
             case GamePhase.SHIP_ATTACK_GATHER_DICE :
                 self.decision_player = attack_info.attack_player
 

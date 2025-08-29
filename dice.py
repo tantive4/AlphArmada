@@ -46,7 +46,7 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
                BLUE : [blue hit, blue critical, blue accuracy],
                RED : [red blank, red hit, red critical, red double, red accuracy]}
     """
-    
+
     black_dice = dice_pool.get(Dice.BLACK,0)
     blue_dice = dice_pool.get(Dice.BLUE,0)
     red_dice = dice_pool.get(Dice.RED,0)
