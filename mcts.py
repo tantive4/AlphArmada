@@ -22,7 +22,7 @@ class Node:
         if (parent is None) != (action is None):
             raise ValueError("Root nodes must have no parent and no action, while child nodes must have both.")
 
-        self.decision_player : int | None = decision_player
+        self.decision_player : int | None = decision_player # decision player used when get_possible_action is called on this node
         self.parent : Node | None = parent
         self.action : ActionType.Action | None = action
         self.children : list[Node] = []
@@ -112,6 +112,7 @@ class MCTS:
             action = possible_actions[0]
             self.root_game.apply_action(action)
             self.root.add_child(action, self.root_game)
+            self.root_game.revert_snapshot(self.snapshot)
             return
 
         for i in range(iterations):
@@ -169,7 +170,7 @@ class MCTS:
             # 4. Backpropagation (Updated for -1 to 1 scoring)
             while node is not None:
                 # The result must be from the perspective of the player who made the move at the parent node.
-                perspective_player = node.parent.decision_player if node.parent else self.root.decision_player
+                perspective_player = node.parent.decision_player if node.parent else None # do not update win value of root node
                 
                 # The simulation_result is always from Player 1's perspective.
                 # If the current node's move was made by Player -1, we flip the score.
@@ -184,8 +185,8 @@ class MCTS:
                 node = node.parent
             
             if (i+1) % 100 == 0:
-                print(f"Iteration {i + 1}/{iterations}: Total Wins: {round(self.root.wins, 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
-                with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Win {round(self.root.wins,2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
+                print(f"Iteration {i + 1}/{iterations}: Total Visits : {self.root.visits} Total Wins: {round(sum([child.wins for child in self.root.children]), 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
+                with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Visits : {self.root.visits} Total Win {round(sum([child.wins for child in self.root.children]), 2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
 
 
     def advance_tree(self, action: ActionType.Action) -> None:

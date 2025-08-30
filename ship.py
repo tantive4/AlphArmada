@@ -113,7 +113,6 @@ class Ship:
         self.resolved_command : list[Command] = []
         self.attack_count : int = 0
         self.attack_possible_hull = [True, True, True, True]
-        self.target_exist_hull = [True, True, True, True]
         self._set_coordination()
         self.refresh()
     
@@ -139,7 +138,6 @@ class Ship:
     def end_activation(self) -> None :
         self.activated = True
         self.attack_possible_hull = [True, True, True, True]
-        self.target_exist_hull = [True, True, True, True]
         self.attack_count = 0
         self.command_dial = []
         self.resolved_command = []
@@ -353,10 +351,9 @@ class Ship:
         for hull in HullSection:
             if not self.attack_possible_hull[hull.value] : continue
 
-            if self.target_exist_hull[hull.value] and self.get_valid_target(hull):
+            if self.get_valid_target(hull):
                 valid_attacker.append(hull)
-            else :
-                self.target_exist_hull[hull.value] = False
+
         return valid_attacker
 
     def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical] :
@@ -673,7 +670,6 @@ class Ship:
             "resolved_command": list(self.resolved_command),
             "attack_count": self.attack_count,
             "attack_possible_hull": list(self.attack_possible_hull),
-            "target_exist_hull": list(self.target_exist_hull),
             "defense_tokens": [(dt.readied, dt.discarded, dt.accuracy) for dt in self.defense_tokens]
         }
     
@@ -693,7 +689,6 @@ class Ship:
         self.resolved_command = snapshot["resolved_command"].copy()
         self.attack_count = snapshot["attack_count"]
         self.attack_possible_hull = snapshot["attack_possible_hull"].copy()
-        self.target_exist_hull = snapshot["target_exist_hull"].copy()
 
         for i, token_state in enumerate(snapshot["defense_tokens"]):
             self.defense_tokens[i].readied, self.defense_tokens[i].discarded, self.defense_tokens[i].accuracy = token_state

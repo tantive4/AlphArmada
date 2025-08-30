@@ -1,4 +1,4 @@
-from armada import Armada
+from armada import Armada, AttackInfo
 from ship import Ship, Command, HullSection, _cached_range, _cached_overlapping
 import json
 import os
@@ -8,6 +8,7 @@ import shutil
 import multiprocessing
 import random
 from dice import precompute_dice_outcomes 
+from game_phase import GamePhase
 
 def main():
     """Main function to set up and run the game."""
@@ -43,8 +44,8 @@ def main():
     # player2 = lambda: game.mcts_decision_parallel(iterations=800, num_processes=CPU_CORE)
 
     # for SINGLE CORE simulation
-    player1 = lambda: game.mcts_decision(iterations=800)
-    player2 = lambda: game.mcts_decision(iterations=800)
+    player1 = lambda: game.mcts_decision(iterations=400)
+    player2 = lambda: game.mcts_decision(iterations=400)
 
 
     # for RANDOM PLAYER simulation
