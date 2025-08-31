@@ -6,6 +6,7 @@ import copy
 from typing import TYPE_CHECKING
 import dice
 from game_phase import GamePhase, ActionType
+from ship import _cached_range
 if TYPE_CHECKING:
     from armada import Armada
 
@@ -184,10 +185,10 @@ class MCTS:
                 node.update(result_for_node)
                 node = node.parent
             
-            if (i+1) % 100 == 0:
+            if (i+1) % (iterations//4) == 0:
                 print(f"Iteration {i + 1}/{iterations}: Total Visits : {self.root.visits} Total Wins: {round(sum([child.wins for child in self.root.children]), 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
                 with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Visits : {self.root.visits} Total Win {round(sum([child.wins for child in self.root.children]), 2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
-
+        print(f'range cache info : {_cached_range.cache_info()}')
 
     def advance_tree(self, action: ActionType.Action) -> None:
         """

@@ -134,27 +134,25 @@ class Armada:
             case GamePhase.SHIP_DISCARD_COMMAND_TOKEN :
                 self.decision_player = self.current_player
 
+            case GamePhase.SHIP_RESOLVE_REPAIR :
+                self.decision_player = self.current_player
+            case GamePhase.SHIP_USE_ENGINEER_POINT :
+                self.decision_player = self.current_player
+
             case GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL :
                 self.decision_player = self.current_player
-
             case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
                 self.decision_player = self.current_player
-
             case GamePhase.SHIP_ATTACK_GATHER_DICE :
                 self.decision_player = attack_info.attack_player
-
             case GamePhase.SHIP_ATTACK_ROLL_DICE :
                 self.decision_player = None
-
             case GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS :
                 self.decision_player = attack_info.attack_player
-
             case GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS :
-                self.decision_player = -attack_info.attack_player
-            
+                self.decision_player = -attack_info.attack_player 
             case GamePhase.SHIP_ATTACK_USE_CRITICAL_EFFECT :
                 self.decision_player = attack_info.attack_player
-
             case GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE :
                 self.decision_player = -attack_info.attack_player
 
@@ -165,7 +163,7 @@ class Armada:
                 self.decision_player = None
 
             case _ :
-                raise ValueError(f'Unknown game phase: {self.phase}')
+                raise ValueError(f'Unknown game phase: {self.phase.name}')
     
 
     def get_possible_actions(self) -> list[ActionType.Action]:
@@ -215,6 +213,24 @@ class Armada:
                 actions = [('discard_command_token_action', command) for command in active_ship.command_token]
 
 
+            # Engineering Sequence
+            case GamePhase.SHIP_RESOLVE_REPAIR :
+                dial = Command.REPAIR in active_ship.command_dial
+                token_choices = [True, False] if Command.REPAIR in active_ship.command_token else [False]
+                actions = [('resolve_repair_command_action', (dial, token)) for token in token_choices]
+
+            case GamePhase.SHIP_USE_ENGINEER_POINT :
+                if active_ship.engineer_point >= 3 and active_ship.hull < active_ship.max_hull :
+                    actions.append(('repair_hull_action', None))
+                if active_ship.engineer_point >= 2 :
+                    actions.extend([('recover_shield_action', hull) for hull in HullSection if active_ship.shield[hull] < active_ship.max_shield[hull]])
+                if not actions : actions = [('pass_repair', None)]
+
+                if active_ship.engineer_point >= 1 :
+                    actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection
+                                    if active_ship.shield[to_hull] < active_ship.max_shield[to_hull] and active_ship.shield[from_hull] > 0 and
+                                    not from_hull in active_ship.repaired_hull])
+            
             # Attack Sequence
             case GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL :
                 if active_ship.attack_count < 2 :
@@ -266,9 +282,9 @@ class Armada:
                 if not actions : actions= [('pass_attack_effect', None)] # Above actions are MUST USED actions
                 
                 # use con-fire command
-                if Command.CONCENTRATE_FIRE not in active_ship.resolved_command :
-                    dial = Command.CONCENTRATE_FIRE in active_ship.command_dial
-                    token = Command.CONCENTRATE_FIRE in active_ship.command_token
+                if Command.CONFIRE not in active_ship.resolved_command :
+                    dial = Command.CONFIRE in active_ship.command_dial
+                    token = Command.CONFIRE in active_ship.command_token
                     dial_choices = [True, False] if dial else [False]
                     token_choices = [True, False] if token else [False]
                     all_combinations = itertools.product(dial_choices, token_choices)
@@ -430,20 +446,65 @@ class Armada:
                         active_ship.command_token.append(command_token)
                     if len(active_ship.command_token) > active_ship.command_value :
                         self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
+                    elif Command.REPAIR in active_ship.command_dial + active_ship.command_token :
+                        self.phase = GamePhase.SHIP_RESOLVE_REPAIR
                     else :
                         self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
                 case 'reveal_command_action' :
                     active_ship.command_stack.pop()
                     active_ship.command_dial.append(action[1])
-                    self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
+                    if Command.REPAIR in active_ship.command_dial + active_ship.command_token :
+                        self.phase = GamePhase.SHIP_RESOLVE_REPAIR
+                    else :
+                        self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
                 case 'discard_command_token_action' :
                     active_ship.command_token.remove(action[1])
                     if len(active_ship.command_token) > active_ship.command_value :
                         self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
+                    elif Command.REPAIR in active_ship.command_dial + active_ship.command_token :
+                        self.phase = GamePhase.SHIP_RESOLVE_REPAIR
                     else :
                         self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
+
+                case 'resolve_repair_command_action' :
+                    dial, token = action[1]
+                    if dial : active_ship.command_dial.remove(Command.REPAIR)
+                    if token : active_ship.command_token.remove(Command.REPAIR)
+                    if dial or token :
+                        active_ship.resolved_command.append(Command.REPAIR)
+                        active_ship.engineer_point = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
+                        self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
+                    else : 
+                        self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
+
+                case 'repair_hull_action' :
+                    active_ship.engineer_point -= 3
+                    active_ship.hull += 1
+
+                    self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
+
+                case 'recover_shield_action':
+                    active_ship.engineer_point -= 2
+                    active_ship.shield[action[1]] += 1
+                    active_ship.repaired_hull.append(action[1])
+
+                    self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
+
+                case 'move_shield_action' :
+                    active_ship.engineer_point -= 1
+                    from_hull, to_hull = action[1]
+                    active_ship.shield[from_hull] -= 1
+                    active_ship.shield[to_hull] += 1
+                    active_ship.repaired_hull.append(to_hull)
+
+                    self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
+
+                case 'pass_repair' :
+                    active_ship.repaired_hull = []
+                    active_ship.engineer_point = 0
+                    self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
                 case 'declare_attack_hull_action' :
                     self.attack_info = AttackInfo(active_ship, action[1])
@@ -485,7 +546,7 @@ class Armada:
                     self.phase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
 
                 case 'resolve_con-fire_command_action' :
-                    active_ship.resolved_command.append(Command.CONCENTRATE_FIRE)
+                    active_ship.resolved_command.append(Command.CONFIRE)
                     attack_info.con_fire_dial, attack_info.con_fire_token = action[1]
                     self.phase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
                 
@@ -588,9 +649,9 @@ class Armada:
                     nav_dial_used, nav_token_used = active_ship.nav_command_used(course)
                         
                     if nav_dial_used:
-                        active_ship.command_dial.remove(Command.NAVIGATION)
+                        active_ship.command_dial.remove(Command.NAV)
                     if nav_token_used:
-                        active_ship.command_token.remove(Command.NAVIGATION)
+                        active_ship.command_token.remove(Command.NAV)
 
                     active_ship.speed = len(course)
                     active_ship.move_ship(course, placement)

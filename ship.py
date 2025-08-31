@@ -34,12 +34,12 @@ class SizeClass(IntEnum) :
     HUGE = 4
 
 class Command(Enum) :
-    NAVIGATION = 'NAV'
-    # SQUADRON = 'SQAD'
-    # ENGINEERING = 'ENGINEER'
-    CONCENTRATE_FIRE = 'CONFIRE'
+    NAV = 'NAV'
+    # SQUAD = 'SQAD'
+    REPAIR = 'REPAIR'
+    CONFIRE = 'CONFIRE'
     def __str__(self):
-        return self.value
+        return self.name
     __repr__ = __str__
 
 
@@ -67,9 +67,13 @@ class Ship:
                                                         HullSection.LEFT : ship_dict['battery'][1]}
         self.defense_tokens : list[DefenseToken] = [DefenseToken(token_type, token_index) for token_index, token_type in enumerate(ship_dict['defense_token'])]
         self.navchart : dict[str, list[int]] = ship_dict['navchart']
-        self.max_shield : list[int] = ship_dict['shield']
+        self.max_shield : dict[HullSection, int] = {HullSection.FRONT : ship_dict['shield'][0], 
+                                                    HullSection.RIGHT : ship_dict['shield'][1], 
+                                                    HullSection.REAR : ship_dict['shield'][2], 
+                                                    HullSection.LEFT : ship_dict['shield'][1]}
         self.point : int = ship_dict['point']
         self.command_value : int = ship_dict['command']
+        self.engineer_value : int = ship_dict['engineering']
         self.destroyed = False
 
         self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
@@ -102,17 +106,16 @@ class Ship:
         
         self.speed = speed
         self.hull = self.max_hull
-        self.shield = {HullSection.FRONT : self.max_shield[0], 
-                       HullSection.RIGHT : self.max_shield[1], 
-                       HullSection.REAR : self.max_shield[2], 
-                       HullSection.LEFT : self.max_shield[1]} # [Front, Right, Rear, Left]
+        self.shield = self.max_shield.copy()
         self.ship_id = ship_id
         self.command_stack : list[Command] = []
         self.command_dial : list[Command] = []
         self.command_token : list[Command] = []
         self.resolved_command : list[Command] = []
+        self.engineer_point : int = 0
         self.attack_count : int = 0
         self.attack_possible_hull = [True, True, True, True]
+        self.repaired_hull : list[HullSection] = []
         self._set_coordination()
         self.refresh()
     
@@ -490,7 +493,7 @@ class Ship:
             list[int]: A list of valid speeds.
         """
         valid_speed = []
-        speed_change : int = int(Command.NAVIGATION in self.command_dial) + int(Command.NAVIGATION in self.command_token)
+        speed_change : int = int(Command.NAV in self.command_dial) + int(Command.NAV in self.command_token)
 
         for speed in range(5):
             if abs(speed - self.speed) > speed_change:
@@ -533,16 +536,16 @@ class Ship:
 
             if speed_change == 1:
                 # Must use one NAVIGATE command from either dial or token
-                if Command.NAVIGATION in self.command_dial:
+                if Command.NAV in self.command_dial:
                     nav_dial_used = True
-                elif Command.NAVIGATION in self.command_token:
+                elif Command.NAV in self.command_token:
                     nav_token_used = True
                 else:
                     raise ValueError("Speed change of 1 requires a NAVIGATE command from a dial or token.")
 
             if speed_change == 2:
                 # Must use two NAVIGATE commands, one from each source
-                if Command.NAVIGATION in self.command_dial and Command.NAVIGATION in self.command_token:
+                if Command.NAV in self.command_dial and Command.NAV in self.command_token:
                     nav_dial_used = True
                     nav_token_used = True
                 else:
@@ -553,7 +556,7 @@ class Ship:
             
             if not is_standard:
                 # This is a special course that requires an extra click from the command dial.
-                if Command.NAVIGATION in self.command_dial:
+                if Command.NAV in self.command_dial:
                     nav_dial_used = True
                 else:
                     raise ValueError("This course requires an extra click, which needs a NAVIGATE command from the dial.")
@@ -584,7 +587,7 @@ class Ship:
         Returns:
             A list of all unique, valid course lists.
         """
-        has_nav_dial = Command.NAVIGATION in self.command_dial
+        has_nav_dial = Command.NAV in self.command_dial
         cache_key = (speed, has_nav_dial)
 
         if cache_key in self._course_cache :
@@ -601,7 +604,7 @@ class Ship:
         all_courses = set(itertools.product(*original_yaw_options))
 
         # 3. If the special condition isn't met, return the standard courses.
-        if not Command.NAVIGATION in self.command_dial:
+        if not Command.NAV in self.command_dial:
             return [list(course) for course in all_courses]
 
         # 4. If the condition is met, generate new courses from the standard ones.
@@ -670,6 +673,8 @@ class Ship:
             "resolved_command": list(self.resolved_command),
             "attack_count": self.attack_count,
             "attack_possible_hull": list(self.attack_possible_hull),
+            "engineer_point" : self.engineer_point,
+            "repaired_hull" : list(self.repaired_hull),
             "defense_tokens": [(dt.readied, dt.discarded, dt.accuracy) for dt in self.defense_tokens]
         }
     
@@ -688,6 +693,8 @@ class Ship:
         self.command_token = snapshot["command_token"].copy()
         self.resolved_command = snapshot["resolved_command"].copy()
         self.attack_count = snapshot["attack_count"]
+        self.engineer_point = snapshot["engineer_point"]
+        self.repaired_hull = snapshot["repaired_hull"].copy()
         self.attack_possible_hull = snapshot["attack_possible_hull"].copy()
 
         for i, token_state in enumerate(snapshot["defense_tokens"]):

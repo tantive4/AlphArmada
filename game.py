@@ -30,12 +30,12 @@ def main():
     game.deploy_ship(nebulon, 600, 175, 0, 2)
     game.deploy_ship(victory, 450, 725, math.pi, 2)
 
-    cr90.asign_command(Command.NAVIGATION)
-    nebulon.asign_command(Command.NAVIGATION)
-    nebulon.asign_command(Command.CONCENTRATE_FIRE)
-    victory.asign_command(Command.NAVIGATION)
-    victory.asign_command(Command.CONCENTRATE_FIRE)
-    victory.asign_command(Command.CONCENTRATE_FIRE)
+    cr90.asign_command(Command.REPAIR)
+    nebulon.asign_command(Command.NAV)
+    nebulon.asign_command(Command.CONFIRE)
+    victory.asign_command(Command.REPAIR)
+    victory.asign_command(Command.NAV)
+    victory.asign_command(Command.CONFIRE)
 
 
     # for MULTI CORE simulation
