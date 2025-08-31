@@ -84,7 +84,7 @@ class Armada:
                 
             simulation_counter += 1
             if simulation_counter >= max_simulation_step:
-                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}')
+                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}\n{self.phase}')
         return self.winner
 
     def random_decision(self) -> ActionType.Action:
@@ -130,6 +130,8 @@ class Armada:
             case GamePhase.SHIP_PHASE :
                 self.decision_player = self.current_player
             case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
+                self.decision_player = self.current_player
+            case GamePhase.SHIP_GAIN_COMMAND_TOKEN :
                 self.decision_player = self.current_player
             case GamePhase.SHIP_DISCARD_COMMAND_TOKEN :
                 self.decision_player = self.current_player
@@ -204,10 +206,14 @@ class Armada:
             
             # Reveal Command Sequence
             case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-                if not self.simulation_mode or self.current_player == self.simulation_player : actions = [('gain_command_token_action', active_ship.command_stack[0]), ('reveal_command_action', active_ship.command_stack[0])]
-                else : 
-                    actions = [('gain_command_token_action', command) for command in Command]
-                    actions.extend([('reveal_command_action', command) for command in Command])
+                if not self.simulation_mode or self.current_player == self.simulation_player :  # real game or player's simulation
+                    actions = [('reveal_command_action', active_ship.command_stack[0])]
+                else :                                                                          # secret information
+                    actions = [('reveal_command_action', command) for command in Command]
+
+            case GamePhase.SHIP_GAIN_COMMAND_TOKEN :
+                actions = [('gain_command_token_action', command) for command in active_ship.command_dial if command not in active_ship.command_token]
+                actions.append(('pass_command_token', None))
                 
             case GamePhase.SHIP_DISCARD_COMMAND_TOKEN :
                 actions = [('discard_command_token_action', command) for command in active_ship.command_token]
@@ -438,12 +444,17 @@ class Armada:
                     else :
                         self.phase = GamePhase.STATUS_PHASE
                         self.active_ship = None
-                
+
+                case 'reveal_command_action' :
+                    active_ship.command_stack.pop()
+                    active_ship.command_dial.append(action[1])
+                    self.phase = GamePhase.SHIP_GAIN_COMMAND_TOKEN
+
                 case 'gain_command_token_action' :
-                    active_ship.command_stack.pop(0)
-                    command_token = action[1]
-                    if not command_token in active_ship.command_token : 
-                        active_ship.command_token.append(command_token)
+                    active_ship.command_dial.remove(action[1])
+                    command_token = action[1] 
+                    active_ship.command_token.append(command_token)
+
                     if len(active_ship.command_token) > active_ship.command_value :
                         self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
                     elif Command.REPAIR in active_ship.command_dial + active_ship.command_token :
@@ -451,9 +462,7 @@ class Armada:
                     else :
                         self.phase = GamePhase.SHIP_ATTACK_DECLARE_ATTACK_HULL
 
-                case 'reveal_command_action' :
-                    active_ship.command_stack.pop()
-                    active_ship.command_dial.append(action[1])
+                case 'pass_command_token' :
                     if Command.REPAIR in active_ship.command_dial + active_ship.command_token :
                         self.phase = GamePhase.SHIP_RESOLVE_REPAIR
                     else :
@@ -668,6 +677,9 @@ class Armada:
                     self.status_phase()
                     if self.winner is None :
                         self.phase = GamePhase.COMMAND_PHASE
+
+                case _ :
+                    raise ValueError(f'Unknown Action {action}')
         except Exception as e :
             print(self.get_snapshot())
             raise e

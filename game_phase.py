@@ -24,9 +24,10 @@ class GamePhase(IntEnum):
     
     # Ship Phase -> Reveal Dial (21xx)
     SHIP_REVEAL_COMMAND_DIAL = 2100
-    SHIP_DISCARD_COMMAND_TOKEN = 2101
-    SHIP_RESOLVE_REPAIR = 2102
-    SHIP_USE_ENGINEER_POINT = 2103
+    SHIP_GAIN_COMMAND_TOKEN = 2101
+    SHIP_DISCARD_COMMAND_TOKEN = 2102
+    SHIP_RESOLVE_REPAIR = 2103
+    SHIP_USE_ENGINEER_POINT = 2104
     
     # Ship Phase -> Attack (22xx)
     SHIP_ATTACK = 2200
@@ -93,6 +94,7 @@ class ActionType :
 
     NoneValueAction: TypeAlias = tuple[Literal['pass_ship_activation', 
                                                'pass_command', 
+                                               'pass_command_token',
                                                'pass_repair',
                                                'pass_attack', 
                                                'pass_attack_effect', 
@@ -132,14 +134,18 @@ class ActionType :
             case 'activate_ship_action':
                 action_str = f'Activate Ship: {game.ships[action[1]].name}'
 
-            case 'gain_command_token_action' :
-                action_str = f'{game.active_ship} reveals {action[1]} Command and gain Token'
-            
+
             case 'reveal_command_action' :
                 action_str = f'{game.active_ship} reveals {action[1]} Command'
+            case 'gain_command_token_action' :
+
+                action_str = f'{game.active_ship} gains {action[1]} Token'
+            case 'discard_command_token_action' :
+                action_str = f'{game.active_ship} discards {action[1]} Token'
+            
 
             case 'move_shield_action' :
-                actions_str = f'Move Shield from {action[1][0]} to {action[1][1]}'
+                action_str = f'Move Shield from {action[1][0]} to {action[1][1]}'
 
             case 'declare_attack_hull_action' :
                 action_str = f'{game.active_ship} declares attack from {action[1]}'
