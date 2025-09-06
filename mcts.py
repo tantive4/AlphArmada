@@ -29,7 +29,6 @@ class Node:
         self.children : list[Node] = []
         self.wins : float = 0
         self.visits : int = 0
-        self.untried_actions : list[ActionType.Action]| None = None
         self.chance_node = chance_node
 
 
@@ -105,10 +104,10 @@ class MCTS:
         self.snapshot = self.root_game.get_snapshot()
         self.root : Node = Node(decision_player=initial_game.decision_player)
 
-    def search(self, iterations: int) -> None:
+    def mcts_search(self, iterations: int) -> None:
 
         # single decision optimization
-        possible_actions = self.root_game.get_possible_actions()
+        possible_actions = self.root_game.get_valid_actions()
         if len(possible_actions) == 1:
             action = possible_actions[0]
             self.root_game.apply_action(action)
@@ -121,7 +120,7 @@ class MCTS:
             node : Node | None = self.root
             
             # 1. Selection
-            while (node.untried_actions is not None and not node.untried_actions and node.children) or node.chance_node:
+            while node.children or node.chance_node:
 
                 if node.chance_node:
                     # For a chance node, sample a random outcome instead of using UCT.
@@ -150,18 +149,16 @@ class MCTS:
             
             # 2. Expansion (for player decision nodes)
             if not self.root_game.winner :
-                if node.untried_actions is None:
-                    node.untried_actions = self.root_game.get_possible_actions()
-                    random.shuffle(node.untried_actions)
+                actions = self.root_game.get_valid_actions()
+                leaf_snapshot = self.root_game.get_snapshot()
 
-                if node.untried_actions:
-                    action = node.untried_actions.pop()
+                for action in actions:
                     self.root_game.apply_action(action)
                     child_node = node.add_child(action, self.root_game)
-                    node = child_node
-                    
+
                     if self.root_game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE :
-                        node.chance_node = True
+                        child_node.chance_node = True
+                    self.root_game.revert_snapshot(leaf_snapshot)
 
             # 3. Simulation
             simulation_result = self.root_game.play(max_simulation_step=1000)
@@ -190,6 +187,10 @@ class MCTS:
                 with open('simulation_log.txt', 'a') as f: f.write(f"\n{i+1} iteration. Total Visits : {self.root.visits} Total Win {round(sum([child.wins for child in self.root.children]), 2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
         print(f'_RANGE CACHE INFO : {_cached_range.cache_info()}')
 
+    def alpha_mcts_search(self, iterations: int) -> None :
+        raise NotImplementedError("Alpha MCTS not implemented yet.")
+    
+    
     def advance_tree(self, action: ActionType.Action) -> None:
         """
         Advances the tree to the next state by selecting the child
@@ -213,7 +214,7 @@ class MCTS:
 
     def get_best_action(self) -> ActionType.Action:
         if not self.root.children:
-            possible_actions = self.root_game.get_possible_actions()
+            possible_actions = self.root_game.get_valid_actions()
             random.shuffle(possible_actions)
             return possible_actions[0]
             

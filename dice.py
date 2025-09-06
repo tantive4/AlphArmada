@@ -16,7 +16,10 @@ class Dice(Enum) :
     def __str__(self):
         return self.name
     __repr__ = __str__
-    
+
+FULL_DICE_POOL = {Dice.BLACK : [2,2,2], Dice.BLUE : [2,2,2], Dice.RED : [2,2,2,2,2]}
+
+
 CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
 ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 4}
 ICON_INDICES = {
@@ -30,7 +33,8 @@ DAMAGE_INDICES = {
     Dice.RED:   [0, 1, 1, 2, 1]
 }
 def dice_icon(dice_pool : dict[Dice, list[int]]) -> dict[Dice, str] :
-    return {dice_type : ' '.join([(f'{icon} ' * dice_count) for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type])]).replace('  ',' ').strip() for dice_type in Dice}
+    icon_dict = {dice_type : ' '.join([(f'{icon} ' * dice_count) for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type])]).replace('  ',' ').strip() for dice_type in Dice}
+    return {dice_type : dice_pool for dice_type,dice_pool in icon_dict.items() if dice_pool}
 
 def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
     """
@@ -106,9 +110,9 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
             results["red_double"] += 1
 
     dice_result = {
-        Dice.BLACK : [results["black_blank"], results["black_hit"], results["black_double"]],
-        Dice.BLUE : [results["blue_hit"], results["blue_critical"], results["blue_accuracy"]],
-        Dice.RED : [results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"]]
+        Dice.BLACK : (results["black_blank"], results["black_hit"], results["black_double"]),
+        Dice.BLUE : (results["blue_hit"], results["blue_critical"], results["blue_accuracy"]),
+        Dice.RED : (results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"])
     }
 
     return dice_result
@@ -182,7 +186,7 @@ def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_
     """
     # for 1 dice case
     if dice_to_modify == 1:
-        combinations = []
+        combinations : list[dict[Dice, list[int]]]= []
         # Iterate through each die color and its face counts
         for color, face_counts in attack_pool_result.items():
             # Iterate through each face index and its count

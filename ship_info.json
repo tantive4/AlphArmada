@@ -24,6 +24,32 @@
     "side_targeting_point" : [19.55, 51.5]
   },
 
+  "VSD1": {
+    "name": "VSD1",
+    "hull": 8,
+    "size_class": "MEDIUM",
+    "command": 3,
+    "squadron": 3,
+    "engineering": 4,
+    "defense_token": ["brace", "redirect", "redirect"],
+    "anti_squad": [0, 1, 0],
+    "shield": [3, 3, 1],
+    "battery": [[3, 0, 3], [1, 0, 2], [0, 0, 2]],
+    "navchart": {
+      "1": [1],
+      "2": [0, 1]
+    },
+    "point": 73,
+    "front_arc_center": 47,
+    "front_arc_end": 20.25,
+    "rear_arc_center": 47,
+    "rear_arc_end": 78,
+    "front_targeting_point" : 11.4,
+    "rear_targeting_point" : 90.5,
+    "side_targeting_point" : [19.55, 51.5]
+  },
+
+
   "CR90A": {
     "name": "CR90A",
     "hull": 4,
@@ -51,6 +77,34 @@
     "side_targeting_point" : [11.5, 43]
   },
 
+  "CR90B": {
+    "name": "CR90B",
+    "hull": 4,
+    "size_class": "SMALL",
+    "command": 1,
+    "squadron": 1,
+    "engineering": 2,
+    "defense_token": ["evade", "evade", "redirect"],
+    "anti_squad": [0, 1, 0],
+    "shield": [2, 2, 1],
+    "battery": [[0, 3, 0], [0, 2, 0], [0, 1, 0]],
+    "navchart": {
+      "1": [2],
+      "2": [1, 2],
+      "3": [0, 1, 2],
+      "4": [0, 1, 1, 2]
+    },
+    "point": 39,
+    "front_arc_center": 43.5,
+    "front_arc_end": 21.5,
+    "rear_arc_center": 42.75,
+    "rear_arc_end": 64.75,
+    "front_targeting_point" : 7.5,
+    "rear_targeting_point" : 62.75,
+    "side_targeting_point" : [11.5, 43]
+  },
+
+
   "Neb-B Escort": {
     "name": "Neb-B Escort",
     "hull": 5,
@@ -67,7 +121,33 @@
       "2": [1, 1],
       "3": [0, 1, 2]
     },
-    "point": 47,
+    "point": 57,
+    "front_arc_center": 36,
+    "front_arc_end": 0,
+    "rear_arc_center": 35,
+    "rear_arc_end": 70.25,
+    "front_targeting_point" : 7.75,
+    "rear_targeting_point" : 63,
+    "side_targeting_point" : [12, 35.25]
+  },
+
+  "Neb-B Support": {
+    "name": "Neb-B Support",
+    "hull": 5,
+    "size_class": "SMALL",
+    "command": 2,
+    "squadron": 2,
+    "engineering": 3,
+    "defense_token": ["evade", "brace", "brace"],
+    "anti_squad": [0, 1, 0],
+    "shield": [3, 1, 2],
+    "battery": [[0, 0, 3], [0, 1, 1], [0, 0, 2]],
+    "navchart": {
+      "1": [1],
+      "2": [1, 1],
+      "3": [0, 1, 2]
+    },
+    "point": 51,
     "front_arc_center": 36,
     "front_arc_end": 0,
     "rear_arc_center": 35,

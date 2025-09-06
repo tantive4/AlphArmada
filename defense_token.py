@@ -1,5 +1,5 @@
 from functools import wraps
-from enum import Enum
+from enum import Enum, IntEnum
 def check_discarded(func):
     """Decorator to prevent methods from running if the token is discarded."""
     @wraps(func)
@@ -24,9 +24,8 @@ def protect_all_methods(cls):
 
 @protect_all_methods
 class DefenseToken:
-    def __init__(self, token_type: str, token_index : int) -> None :
+    def __init__(self, token_type: str) -> None :
         self.type: TokenType = TokenType[token_type.upper()]
-        self.index = token_index
         self.readied : bool = True
         self.discarded : bool = False
         self.accuracy : bool = False
@@ -46,12 +45,7 @@ class DefenseToken:
         
         self_dict = self.__dict__.copy()
         other_dict = other.__dict__.copy()
-        
-        # Remove the 'index' key before comparison
-        self_dict.pop('index', None)
-        other_dict.pop('index', None)
-        
-        # Compare the modified dictionaries
+
         return self_dict == other_dict
 
     def spend(self) -> None :
@@ -66,10 +60,15 @@ class DefenseToken:
     def ready(self) -> None :
         self.readied = True
 
-class TokenType(Enum):
-    BRACE = 'brace'
-    REDIRECT = 'redirect'
-    EVADE = 'evade'
-    SCATTER = 'scatter'
-    CONTAIN = 'contain'
-    SALVO = 'salvo'
+class TokenType(IntEnum):
+    BRACE = 0
+    REDIRECT = 1
+    EVADE = 2
+
+TOKEN_DICT = {
+    index + double : DefenseToken(TokenType(index).name) for index, double in zip(TokenType, (0, 1))
+    # 0 : Brace,
+    # 1 : Brace, 
+    # 2 : Redirect
+    # 3 ... etc
+}

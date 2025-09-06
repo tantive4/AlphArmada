@@ -30,21 +30,20 @@ class GamePhase(IntEnum):
     SHIP_USE_ENGINEER_POINT = 2104
     
     # Ship Phase -> Attack (22xx)
-    SHIP_ATTACK = 2200
-    SHIP_ATTACK_DECLARE_ATTACK_HULL = 2201
-    SHIP_ATTACK_DECLARE_TARGET = 2202
-    SHIP_ATTACK_GATHER_DICE = 2203
-    SHIP_ATTACK_ROLL_DICE = 2204
-    SHIP_ATTACK_RESOLVE_EFFECTS = 2205
-    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 2206
-    SHIP_ATTACK_USE_CRITICAL_EFFECT = 2207
-    SHIP_ATTACK_RESOLVE_DAMAGE = 2208
+    SHIP_ATTACK = 2200 # checkpoint
+    SHIP_ATTACK_DECLARE_TARGET = 2201
+    SHIP_ATTACK_GATHER_DICE = 2202
+    SHIP_ATTACK_ROLL_DICE = 2203
+    SHIP_ATTACK_RESOLVE_EFFECTS = 2204
+    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 2205
+    SHIP_ATTACK_USE_CRITICAL_EFFECT = 2206
+    SHIP_ATTACK_RESOLVE_DAMAGE = 2207
     # Note: Additional squadron target is part of the same sequence
     
     # Ship Phase -> Execute Maneuver (23xx)
-    SHIP_EXECUTE_MANEUVER = 2300
+    SHIP_EXECUTE_MANEUVER = 2300 # checkpoint
     SHIP_MANEUVER_DETERMINE_COURSE = 2301
-    SHIP_MANEUVER_MOVE_SHIP = 2302
+    SHIP_MANEUVER_MOVE_SHIP = 2302 # checkpoint
 
     # Round : SQUADRON PHASE
     SQUADRON_PHASE = 3000
@@ -67,7 +66,6 @@ class ActionType :
         tuple[Literal['move_shield_action'], tuple[HullSection, HullSection]] 
     )
 
-    DeclareAttackHullAction : TypeAlias = tuple[Literal['declare_attack_hull_action'], HullSection]
     DeclareTargetAction: TypeAlias = tuple[Literal['declare_target_action'], tuple[HullSection, int, HullSection]]
     GatherDiceAction: TypeAlias = tuple[Literal['gather_dice_action'], dict[Dice, int]]
     RollDiceAction: TypeAlias = tuple[Literal['roll_dice_action'], dict[Dice, list[int]]]
@@ -90,7 +88,7 @@ class ActionType :
     ResolveDamageAction: TypeAlias = tuple[Literal['resolve_damage_action'], list[tuple[HullSection,int]]]
 
 
-    DetermineCourseAction: TypeAlias = tuple[Literal['determine_course_action'], tuple[list[int], int]]
+    DetermineCourseAction: TypeAlias = tuple[Literal['determine_course_action'], tuple[list[int], int]] # course, placement
 
     NoneValueAction: TypeAlias = tuple[Literal['pass_ship_activation', 
                                                'pass_command', 
@@ -111,7 +109,6 @@ class ActionType :
         DiscardCommandTokenAction |
         ResolveCommandAction |
         RepairAction |
-        DeclareAttackHullAction |
         DeclareTargetAction | 
         GatherDiceAction |
         RollDiceAction | 
@@ -127,79 +124,76 @@ class ActionType :
     def get_action_str(game : Armada, action : ActionType.Action) -> str | None:
         action_str = None
 
-        match action[0]:
-            case 'set_command_action' :
-                action_str = f'Set {action[1][1]} Command on {game.ships[action[1][0]]}'
+        match action:
+            case 'set_command_action', (ship_id, command) :
+                action_str = f'Set {command} Command on {game.ships[ship_id]}'
 
-            case 'activate_ship_action':
-                action_str = f'Activate Ship: {game.ships[action[1]].name}'
+            case 'activate_ship_action', ship_id:
+                action_str = f'Activate Ship: {game.ships[ship_id].name}'
 
 
-            case 'reveal_command_action' :
-                action_str = f'{game.active_ship} reveals {action[1]} Command'
-            case 'gain_command_token_action' :
+            case 'reveal_command_action', command :
+                action_str = f'{game.active_ship} reveals {command} Command'
 
-                action_str = f'{game.active_ship} gains {action[1]} Token'
-            case 'discard_command_token_action' :
-                action_str = f'{game.active_ship} discards {action[1]} Token'
+            case 'gain_command_token_action', command :
+                action_str = f'{game.active_ship} gains {command} Token'
+
+            case 'discard_command_token_action', command :
+                action_str = f'{game.active_ship} discards {command} Token'
             
 
-            case 'move_shield_action' :
-                action_str = f'Move Shield from {action[1][0]} to {action[1][1]}'
+            case 'move_shield_action', (from_hull, to_hull) :
+                action_str = f'Move Shield from {from_hull} to {to_hull}'
 
-            case 'declare_attack_hull_action' :
-                action_str = f'{game.active_ship} declares attack from {action[1]}'
 
-            case 'declare_target_action':
-                attack_hull, defend_ship_id, defend_hull = action[1]
+            case 'declare_target_action', (attack_hull, defend_ship_id, defend_hull):
                 defend_ship = game.ships[defend_ship_id]
-                action_str = f'Declare Target: from {game.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
+                action_str = f'Declare Attack: from {game.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
 
-            case 'use_confire_token_action' :
-                dice_choice = dice_icon(action[1])
-                action_str = f'Use Confire Token : {dice_choice}'
+            case 'gather_dice_action', dice_to_remove :
+                if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+                action_str = f'Gather Dice {game.attack_info.dice_to_roll} {f"(Remove {dice_to_remove})" if any(dice_to_remove.values()) else ""}'
 
-            case 'roll_dice_action' :
-                dice_result = dice_icon(action[1])
+            case 'use_confire_token_action', dice :
+                action_str = f'Use Confire Token to Reroll {dice_icon(dice)}'
+
+            case 'roll_dice_action', dice :
+                dice_result = dice_icon(dice)
                 action_str = f'Dice Roll {dice_result}'
 
-            case 'spend_accuracy_action' :
-                dice_type, index = action[1]
+            case 'spend_accuracy_action', (dice_type, index) :
                 if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
                 defend_ship = game.ships[game.attack_info.defend_ship_id]
                 token = defend_ship.defense_tokens[index]
                 action_str = f'Spend {dice_type} Accuracy : {token}'
 
-            case 'spend_evade_token_action' :
+            case 'spend_evade_token_action', (index, evade_dice) :
                 if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
                 defend_ship = game.ships[game.attack_info.defend_ship_id]
-                token = defend_ship.defense_tokens[action[1][0]]
-                evade_dice = action[1][1]
-                action_str = f'{'Discard' if sum([sum(evade_dice[dice_type]) for dice_type in Dice]) == 2 else 'Spend'} {token} Token {dice_icon(evade_dice)}'
+                token = defend_ship.defense_tokens[index]
+                action_str = f'{'Discard' if sum([sum(evade_dice[dice_type]) for dice_type in Dice]) == 2 else 'Spend'} {token} Token on {dice_icon(evade_dice)} ({game.attack_info.attack_range} Range)'
 
-            case 'spend_redicect_token_action' :
+            case 'spend_redicect_token_action', (index, hull) :
                 if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
                 defend_ship = game.ships[game.attack_info.defend_ship_id]
-                token = defend_ship.defense_tokens[action[1][0]]
-                hull = action[1][1]
+                token = defend_ship.defense_tokens[index]
                 action_str = f'Spend {token} Token to {hull}'
 
-            case 'spend_defense_token_action' :
-                index = action[1]
+            case 'spend_defense_token_action', index :
                 if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
                 defend_ship = game.ships[game.attack_info.defend_ship_id]
                 action_str = f'Spend {defend_ship.defense_tokens[index]} Token'
                 
-            case 'resolve_damage_action' :
-                redirect_list = action[1]
+            case 'resolve_damage_action', redirect_list :
                 if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
                 action_str = f'Resolve Total {game.attack_info.total_damage} Damage'
                 if redirect_list : action_str += f', Redirect {[f'{damage} to {hull}' for hull, damage in redirect_list]}'
 
 
-            case 'determine_course_action':
-                course, placement = action[1]
-                action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'}'
+            case 'determine_course_action', (course, placement) :
+                if game.active_ship is None : raise ValueError('Need active ship to determine course')
+                dial_used, token_used = game.active_ship.nav_command_used(course)
+                action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'} {" (Dial Spent)" if dial_used else ""} {" (Token Spent)" if token_used else ""}'
 
             case _:
                 if 'pass' in action[0] : return

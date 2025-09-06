@@ -8,7 +8,8 @@ import math
 from enum import IntEnum, Enum
 from typing import TYPE_CHECKING
 from dice import Dice, Critical
-from defense_token import DefenseToken
+from defense_token import DefenseToken, TokenType
+from collections import Counter
 from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE
 import itertools
 from functools import lru_cache
@@ -65,7 +66,18 @@ class Ship:
                                                         HullSection.RIGHT : ship_dict['battery'][1], 
                                                         HullSection.REAR : ship_dict['battery'][2], 
                                                         HullSection.LEFT : ship_dict['battery'][1]}
-        self.defense_tokens : list[DefenseToken] = [DefenseToken(token_type, token_index) for token_index, token_type in enumerate(ship_dict['defense_token'])]
+        
+        self.defense_tokens: dict[int, DefenseToken] = {}
+        token_counts = Counter()
+        # Iterate through the list of token strings from the JSON
+        for token_type_str in ship_dict['defense_token']:
+            token_enum = TokenType[token_type_str.upper()]
+            # token_counts[token_enum] will be 0 for the first, 1 for the second, etc.
+            key = token_enum.value * 2 + token_counts[token_enum]
+            # Add the token to the dictionary and increment the count for that type
+            self.defense_tokens[key] = DefenseToken(token_type_str)
+            token_counts[token_enum] += 1
+
         self.navchart : dict[str, list[int]] = ship_dict['navchart']
         self.max_shield : dict[HullSection, int] = {HullSection.FRONT : ship_dict['shield'][0], 
                                                     HullSection.RIGHT : ship_dict['shield'][1], 
@@ -128,13 +140,13 @@ class Ship:
         self.destroyed = True
         self.hull = 0
         self.shield = {hull : 0 for hull in HullSection}
-        for token in self.defense_tokens :
+        for token in self.defense_tokens.values() :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
 
     def refresh(self) -> None:
         self.activated = False
-        for token in self.defense_tokens:
+        for token in self.defense_tokens.values():
             if not token.discarded:
                 token.ready()
 
@@ -647,6 +659,8 @@ class Ship:
                 1 for right, -1 for left
         """
         speed = len(course)
+        if speed == 0 : return [0]
+        
         valid_placement = [-1, 1]
         if speed > 0 :
             if course[-1] > 0 : valid_placement.remove(-1)
@@ -675,7 +689,10 @@ class Ship:
             "attack_possible_hull": list(self.attack_possible_hull),
             "engineer_point" : self.engineer_point,
             "repaired_hull" : list(self.repaired_hull),
-            "defense_tokens": [(dt.readied, dt.discarded, dt.accuracy) for dt in self.defense_tokens]
+            "defense_tokens": {
+                key: (dt.readied, dt.discarded, dt.accuracy) 
+                for key, dt in self.defense_tokens.items()
+            }
         }
     
     def revert_snapshot(self, snapshot: dict) -> None:
@@ -697,10 +714,9 @@ class Ship:
         self.repaired_hull = snapshot["repaired_hull"].copy()
         self.attack_possible_hull = snapshot["attack_possible_hull"].copy()
 
-        for i, token_state in enumerate(snapshot["defense_tokens"]):
-            self.defense_tokens[i].readied, self.defense_tokens[i].discarded, self.defense_tokens[i].accuracy = token_state
+        for key, token_state in snapshot["defense_tokens"].items():
+            self.defense_tokens[key].readied, self.defense_tokens[key].discarded, self.defense_tokens[key].accuracy = token_state
 
-        # Crucially, update the geometry after restoring coordinates
         self._set_coordination()
 
     def get_ship_hash_state(self) -> tuple[str, float, float, float]:
@@ -842,6 +858,7 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
             for hull in HullSection :
                 if hull != to_hull and range_measure.crosses(defender_poly[hull].exterior) :
                     is_blocked = True
+                    break
             if is_blocked : continue
 
             distance = range_measure.length
