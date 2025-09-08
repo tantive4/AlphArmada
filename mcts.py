@@ -1,9 +1,11 @@
 from __future__ import annotations
 import multiprocessing
+from action_space import ActionManager
 import math
 import random
 import copy
 from typing import TYPE_CHECKING
+import numpy as np
 import dice
 from game_phase import GamePhase, ActionType
 from ship import _cached_range
@@ -18,21 +20,26 @@ class Node:
     Represents a node in the Monte Carlo Search Tree.
     Can be a decision node (for a player) or a chance node (for random events).
     """
-    def __init__(self, decision_player : int | None, parent : Node | None =None, action : ActionType.Action | None=None, chance_node : bool = False) -> None :
+    def __init__(self, decision_player : int | None, 
+                 action : ActionType.Action, 
+                 parent : Node | None =None, 
+                 policy : float = 0,
+                 chance_node : bool = False) -> None :
         
         if (parent is None) != (action is None):
             raise ValueError("Root nodes must have no parent and no action, while child nodes must have both.")
 
         self.decision_player : int | None = decision_player # decision player used when get_possible_action is called on this node
         self.parent : Node | None = parent
-        self.action : ActionType.Action | None = action
+        self.action : ActionType.Action = action
         self.children : list[Node] = []
         self.wins : float = 0
         self.visits : int = 0
-        self.chance_node = chance_node
+        self.chance_node : bool = chance_node
+        self.policy : float = policy # policy value from parent node state
 
 
-    def uct_select_child(self, exploration_constant=2) -> Node:
+    def select_child(self, use_policy : bool = False) -> Node:
         """
         Selects a child node using the UCT formula with random tie-breaking.
         """
@@ -48,33 +55,32 @@ class Node:
             # The main loop should handle the initial expansion of each child once.
             return random.choice(self.children)
             
-        log_parent_visits = math.log(self.visits)
+        best_child = random.choice(self.children)
+        best_ucb = -np.inf
         
-        best_score = -float('inf')
-        tie_count : int = 0
-
         for child in self.children:
-            # Exploit term (win rate)
-            if child.visits == 0:
-                return child
-            win_rate = child.wins / (child.visits)
-
-            # Explore term
-            exploration = exploration_constant * math.sqrt(log_parent_visits / (child.visits))
+            if use_policy: ucb = self.get_pucb(child)
+            else : ucb = self.get_ucb(child)
             
-            uct_score = win_rate + exploration
-
-            if uct_score > best_score:
-                best_score = uct_score
+            if ucb > best_ucb:
                 best_child = child
-                tie_count : int = 1  # Reset the count for the new best score
-            elif uct_score == best_score:
-                tie_count += 1
-                # Reservoir sampling: with a 1/tie_count probability, replace the best child
-                if random.randint(1, tie_count) == 1:
-                    best_child = child
+                best_ucb = ucb
 
-        return best_child # Randomly choose from the best options
+        return best_child
+    
+    def get_ucb(self, child : Node, exploration_constant=2) -> float:
+        if child.visits == 0:
+            return float('inf')
+        q_value : float = child.wins / child.visits
+        return q_value + exploration_constant * math.sqrt(math.log(self.visits)) / child.visits
+
+    def get_pucb(self, child : Node, exploration_constant=2) -> float:
+        if child.visits == 0:
+            q_value : float = 0
+        else: 
+            q_value : float = child.wins / child.visits
+        return q_value + exploration_constant * child.policy * math.sqrt(self.visits) / (1 + child.visits)
+        
 
     def add_child(self, action : ActionType.Action, game : Armada) -> Node :
         """
@@ -90,7 +96,29 @@ class Node:
         """
         self.visits += 1
         self.wins += result
-
+    
+    def backpropagate(self, simulation_result : float) -> None :
+        """
+        Backpropagates the simulation result up the tree.
+        """
+        node = self
+        while node is not None:
+            # The result must be from the perspective of the player who made the move at the parent node.
+            if node.parent is not None :
+                perspective_player = node.parent.decision_player
+            else : perspective_player = None # do not update win value of root node (only update visits)
+            
+            # The simulation_result is always from Player 1's perspective.
+            # If the current node's move was made by Player -1, we flip the score.
+            if perspective_player == 1 :
+                result_for_node = simulation_result
+            elif perspective_player == -1:
+                result_for_node = -simulation_result
+            else :
+                result_for_node = 0
+            
+            node.update(result_for_node)
+            node = node.parent
 
 
 class MCTS:
@@ -102,7 +130,9 @@ class MCTS:
     def __init__(self, initial_game: Armada) -> None:
         self.root_game = initial_game
         self.snapshot = self.root_game.get_snapshot()
-        self.root : Node = Node(decision_player=initial_game.decision_player)
+        self.root : Node = Node(decision_player=initial_game.decision_player, action = ('initialize_game', None))
+
+        self.action_manager = ActionManager()
 
     def mcts_search(self, iterations: int) -> None:
 
@@ -142,7 +172,7 @@ class MCTS:
 
                 else:
                     # Standard player decision node, use UCT.
-                    node = node.uct_select_child()
+                    node = node.select_child()
                     if node.action is None:
                         raise ValueError("Child node must have an action.")
                     self.root_game.apply_action(node.action)
@@ -166,21 +196,7 @@ class MCTS:
             self.root_game.revert_snapshot(self.snapshot)
             
             # 4. Backpropagation (Updated for -1 to 1 scoring)
-            while node is not None:
-                # The result must be from the perspective of the player who made the move at the parent node.
-                perspective_player = node.parent.decision_player if node.parent else None # do not update win value of root node
-                
-                # The simulation_result is always from Player 1's perspective.
-                # If the current node's move was made by Player -1, we flip the score.
-                if perspective_player == 1 :
-                    result_for_node = simulation_result
-                elif perspective_player == -1:
-                    result_for_node = -simulation_result
-                else :
-                    result_for_node = 0
-                
-                node.update(result_for_node)
-                node = node.parent
+            node.backpropagate(simulation_result)
             
             if (i+1) % (iterations//4) == 0:
                 print(f"Iteration {i + 1}/{iterations}: Total Visits : {self.root.visits} Total Wins: {round(sum([child.wins for child in self.root.children]), 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
@@ -189,8 +205,8 @@ class MCTS:
 
     def alpha_mcts_search(self, iterations: int) -> None :
         raise NotImplementedError("Alpha MCTS not implemented yet.")
-    
-    
+
+
     def advance_tree(self, action: ActionType.Action) -> None:
         """
         Advances the tree to the next state by selecting the child
@@ -207,7 +223,7 @@ class MCTS:
         else:
             # This can happen if the opponent makes an unexpected move or
             # for chance nodes. We must start a new tree from the current state.
-            self.root = Node(decision_player=self.root_game.decision_player)
+            self.root = Node(decision_player=self.root_game.decision_player, action=action)
 
         self.root_game.apply_action(action)
         self.snapshot = self.root_game.get_snapshot()
@@ -219,7 +235,5 @@ class MCTS:
             return possible_actions[0]
             
         best_child = max(self.root.children, key=lambda c: c.visits)
-        if best_child.action is None :
-            raise ValueError('Child Node needs action from parent')
         return best_child.action
     

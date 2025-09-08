@@ -1,7 +1,7 @@
 import random
 import itertools
 from collections import Counter
-from enum import Enum
+from enum import Enum, IntEnum
 
 # --- Global Cache ---
 # This dictionary will store the outcomes for a given number and color of dice
@@ -9,7 +9,7 @@ from enum import Enum
 _DICE_OUTCOME_CACHE = {}
 
 
-class Dice(Enum) :
+class Dice(IntEnum) :
     BLACK = 0
     BLUE = 1
     RED = 2

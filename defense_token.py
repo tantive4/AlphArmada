@@ -1,5 +1,7 @@
 from functools import wraps
 from enum import Enum, IntEnum
+from itertools import product
+
 def check_discarded(func):
     """Decorator to prevent methods from running if the token is discarded."""
     @wraps(func)
@@ -66,7 +68,7 @@ class TokenType(IntEnum):
     EVADE = 2
 
 TOKEN_DICT = {
-    index + double : DefenseToken(TokenType(index).name) for index, double in zip(TokenType, (0, 1))
+    2 * index + double : DefenseToken(TokenType(index).name) for index, double in product(TokenType, (0, 1))
     # 0 : Brace,
     # 1 : Brace, 
     # 2 : Redirect

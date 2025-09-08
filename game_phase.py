@@ -90,7 +90,8 @@ class ActionType :
 
     DetermineCourseAction: TypeAlias = tuple[Literal['determine_course_action'], tuple[list[int], int]] # course, placement
 
-    NoneValueAction: TypeAlias = tuple[Literal['pass_ship_activation', 
+    NoneValueAction: TypeAlias = tuple[Literal['initialize_game',
+                                               'pass_ship_activation', 
                                                'pass_command', 
                                                'pass_command_token',
                                                'pass_repair',

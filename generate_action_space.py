@@ -10,10 +10,10 @@ def _make_hashable(action_value):
     """
     Recursively converts an action's payload into a fully hashable type.
     """
-    if isinstance(action_value, list):
+    if isinstance(action_value, list | tuple):
         return tuple(_make_hashable(item) for item in action_value)
     if isinstance(action_value, dict):
-        return tuple((k, _make_hashable(v)) for k, v in action_value.items())
+        return tuple(sorted((k, _make_hashable(v)) for k, v in action_value.items()))
     return action_value
 
 # --- Helper to make enums JSON-serializable ---
@@ -59,12 +59,13 @@ def generate_all_maps():
 
             # Engineering Sequence
             case GamePhase.SHIP_RESOLVE_REPAIR :
-                actions = [('resolve_repair_command_action', (dial, token)) for dial, token in zip((True, False), (True, False))]
+                booleans = (True, False)
+                actions = [('resolve_repair_command_action', (dial, token)) for dial in booleans for token in booleans]
 
             case GamePhase.SHIP_USE_ENGINEER_POINT :
                 actions = [('repair_hull_action', None)]
                 actions.extend([('recover_shield_action', hull) for hull in HullSection])
-                actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection])
+                actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection if from_hull != to_hull])
                 actions.append(('pass_repair', None))
 
             # Attack Sequence
@@ -78,7 +79,7 @@ def generate_all_maps():
                     dice_to_remove = {dice_type : 0 for dice_type in Dice}
                     dice_to_remove[dice_type] = 1
                     actions.append(('gather_dice_action', dice_to_remove))
-                actions = [('gather_dice_action', {dice_type : 0 for dice_type in Dice})]
+                actions.append(('gather_dice_action', {dice_type : 0 for dice_type in Dice}))
 
             case GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node
                 pass
@@ -108,7 +109,7 @@ def generate_all_maps():
                         # if defender is smaller, may choose 2 dice
                         discard_evade_choices = dice_choice_combinations(FULL_DICE_POOL, 2)
                         for dice_choice in discard_evade_choices :
-                            actions.append(('spend_evade_token_action', (index, dice_choice))) # dice choice edit!!!
+                            actions.append(('spend_evade_token_action', (index, dice_choice)))
 
                     else : actions.append(('spend_defense_token_action', index))
 
@@ -134,6 +135,7 @@ def generate_all_maps():
                     for course in all_courses:
                         # Placement can be Left (-1) or Right (1)
                         for placement in [-1, 1]:
+                            if course[-1] * placement < 0: continue 
                             actions.append(('determine_course_action', (list(course), placement)))
 
             case GamePhase.STATUS_PHASE :
@@ -150,6 +152,7 @@ def generate_all_maps():
             (action_name, _make_hashable(action_value))
             for action_name, action_value in action_list
         ]
+
 
     # Write the generated data to a JSON file
     with open('action_space.json', 'w') as f:

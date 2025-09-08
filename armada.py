@@ -196,8 +196,7 @@ class Armada:
                     raise ValueError('Game has already ended.')
                 ships_to_command = [ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value]
                 if ships_to_command : 
-                    ship_id = random.choice(ships_to_command)
-                    actions = [('set_command_action', (ship_id, command)) for command in Command]
+                    actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in ships_to_command]
                 else :
                     actions = [('pass_command', None)]
             

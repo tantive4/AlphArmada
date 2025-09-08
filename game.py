@@ -14,12 +14,14 @@ def main():
     """Main function to set up and run the game."""
     if os.path.exists("game_visuals"):
         shutil.rmtree("game_visuals")
-    random.seed(66)
+    
     with open('ship_info.json', 'r') as f:
         SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
     with open('simulation_log.txt', 'w') as f:
         f.write("Game Start\n")
 
+
+    # random.seed(66)
     game = Armada()
 
     cr90 = Ship(SHIP_DATA['CR90A'], 1)
@@ -37,11 +39,6 @@ def main():
     victory.asign_command(Command.NAV)
     victory.asign_command(Command.CONFIRE)
 
-
-    # for MULTI CORE simulation
-    # CPU_CORE = 4
-    # player1 = lambda: game.mcts_decision_parallel(iterations=1600, num_processes=CPU_CORE)
-    # player2 = lambda: game.mcts_decision_parallel(iterations=800, num_processes=CPU_CORE)
 
     # for SINGLE CORE simulation
     player1 = lambda: game.mcts_decision(iterations=400)
