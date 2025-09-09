@@ -1,21 +1,24 @@
 from __future__ import annotations
+import math
+from enum import IntEnum, Enum
+from typing import TYPE_CHECKING
+from collections import Counter
+import itertools
+from functools import lru_cache
+import json
+
 from shapely.geometry import Polygon, LineString, Point
 from shapely.affinity import translate, rotate
 from shapely.ops import unary_union
 import shapely.ops
 import numpy as np
-import math
-from enum import IntEnum, Enum
-from typing import TYPE_CHECKING
+
 from dice import Dice, Critical
 from defense_token import DefenseToken, TokenType
-from collections import Counter
 from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE
-import itertools
-from functools import lru_cache
 if TYPE_CHECKING:
     from armada import Armada
-import json
+
 with open('ship_info.json', 'r') as f:
     SHIP_DATA: dict = json.load(f)
 

@@ -1,17 +1,18 @@
 from __future__ import annotations
-from ship import Ship, HullSection, Command, _cached_range
 import random
-from shapely.geometry import Polygon
-import visualizer
-from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, ICON_INDICES, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
-from measurement import AttackRange
-from defense_token import DefenseToken, TokenType, TOKEN_DICT
 import copy
-from mcts import MCTS
 import itertools
-from game_phase import GamePhase, ActionType
 from typing import Callable
 
+from shapely.geometry import Polygon
+
+from mcts import MCTS
+from game_phase import GamePhase, ActionType
+import visualizer
+from ship import Ship, HullSection, Command, _cached_range
+from defense_token import DefenseToken, TokenType, TOKEN_DICT
+from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, ICON_INDICES, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
+from measurement import AttackRange
 
 class Armada:
     def __init__(self) -> None:
@@ -80,8 +81,8 @@ class Armada:
                     print(self.get_snapshot())
                     print(self.game_tree.root_game.get_snapshot())
                     raise ValueError
-                
-                
+
+
             simulation_counter += 1
             if simulation_counter >= max_simulation_step:
                 raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}\n{self.phase}')
@@ -120,7 +121,7 @@ class Armada:
         player_index = int(input('Enter the action index (1, 2, 3 ...) : '))
         return actions[player_index - 1]
 
-
+    
     def update_decision_player(self) -> None:
         """
         Returns a list of possible actions based on the current game phase.
@@ -238,7 +239,8 @@ class Armada:
                 if active_ship.engineer_point >= 1 :
                     actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection
                                     if active_ship.shield[to_hull] < active_ship.max_shield[to_hull] and active_ship.shield[from_hull] > 0 and
-                                    not from_hull in active_ship.repaired_hull])
+                                        from_hull != to_hull and
+                                        not from_hull in active_ship.repaired_hull])
             
             # Attack Sequence
             case GamePhase.SHIP_ATTACK_DECLARE_TARGET :
@@ -743,10 +745,8 @@ class Armada:
             return
         visualizer.visualize(self, title, maneuver_tool)
 
-    def refresh_ship_links(self) -> None:
-        """Ensures all ship objects refer to this game instance."""
-        for ship in self.ships:
-            ship.game = self
+    def get_encoded_state(self) -> None :
+        return
 
     def get_snapshot(self) -> dict:
         """Captures the essential state of the entire game."""

@@ -244,102 +244,102 @@
     ],
     [
       "recover_shield_action",
-      0
+      "FRONT"
     ],
     [
       "recover_shield_action",
-      1
+      "RIGHT"
     ],
     [
       "recover_shield_action",
-      2
+      "REAR"
     ],
     [
       "recover_shield_action",
-      3
+      "LEFT"
     ],
     [
       "move_shield_action",
       [
-        0,
-        1
+        "FRONT",
+        "RIGHT"
       ]
     ],
     [
       "move_shield_action",
       [
-        0,
-        2
+        "FRONT",
+        "REAR"
       ]
     ],
     [
       "move_shield_action",
       [
-        0,
-        3
+        "FRONT",
+        "LEFT"
       ]
     ],
     [
       "move_shield_action",
       [
-        1,
-        0
+        "RIGHT",
+        "FRONT"
       ]
     ],
     [
       "move_shield_action",
       [
-        1,
-        2
+        "RIGHT",
+        "REAR"
       ]
     ],
     [
       "move_shield_action",
       [
-        1,
-        3
+        "RIGHT",
+        "LEFT"
       ]
     ],
     [
       "move_shield_action",
       [
-        2,
-        0
+        "REAR",
+        "FRONT"
       ]
     ],
     [
       "move_shield_action",
       [
-        2,
-        1
+        "REAR",
+        "RIGHT"
       ]
     ],
     [
       "move_shield_action",
       [
-        2,
-        3
+        "REAR",
+        "LEFT"
       ]
     ],
     [
       "move_shield_action",
       [
-        3,
-        0
+        "LEFT",
+        "FRONT"
       ]
     ],
     [
       "move_shield_action",
       [
-        3,
-        1
+        "LEFT",
+        "RIGHT"
       ]
     ],
     [
       "move_shield_action",
       [
-        3,
-        2
+        "LEFT",
+        "REAR"
       ]
     ],
     [
@@ -351,33 +351,769 @@
     [
       "declare_target_action",
       [
+        "FRONT",
         0,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
         0,
-        0
+        "RIGHT"
       ]
     ],
     [
       "declare_target_action",
       [
+        "FRONT",
+        0,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        0,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
         1,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
         1,
-        1
+        "RIGHT"
       ]
     ],
     [
       "declare_target_action",
       [
-        2,
-        2,
-        2
+        "FRONT",
+        1,
+        "REAR"
       ]
     ],
     [
       "declare_target_action",
       [
+        "FRONT",
+        1,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        2,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        2,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        2,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        2,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
         3,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
         3,
-        3
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        3,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        3,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        4,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        4,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        4,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        4,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        5,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        5,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        5,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "FRONT",
+        5,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        0,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        0,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        0,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        0,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        1,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        1,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        1,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        1,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        2,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        2,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        2,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        2,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        3,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        3,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        3,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        3,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        4,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        4,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        4,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        4,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        5,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        5,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        5,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "RIGHT",
+        5,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        0,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        0,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        0,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        0,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        1,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        1,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        1,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        1,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        2,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        2,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        2,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        2,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        3,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        3,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        3,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        3,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        4,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        4,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        4,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        4,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        5,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        5,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        5,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "REAR",
+        5,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        0,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        0,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        0,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        0,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        1,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        1,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        1,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        1,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        2,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        2,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        2,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        2,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        3,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        3,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        3,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        3,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        4,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        4,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        4,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        4,
+        "LEFT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        5,
+        "FRONT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        5,
+        "RIGHT"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        5,
+        "REAR"
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        "LEFT",
+        5,
+        "LEFT"
       ]
     ],
     [
@@ -459,85 +1195,92 @@
     [
       "spend_accuracy_action",
       [
-        1,
+        "BLUE",
         0
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        1,
+        "BLUE",
         1
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        1,
+        "BLUE",
         2
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        1,
+        "BLUE",
         3
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        1,
+        "BLUE",
         4
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        1,
+        "BLUE",
         5
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        2,
+        "RED",
         0
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        2,
+        "RED",
         1
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        2,
+        "RED",
         2
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        2,
+        "RED",
         3
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        2,
+        "RED",
         4
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        2,
+        "RED",
         5
+      ]
+    ],
+    [
+      "resolve_con-fire_command_action",
+      [
+        true,
+        true
       ]
     ],
     [
@@ -550,8 +1293,8 @@
     [
       "resolve_con-fire_command_action",
       [
-        true,
-        false
+        false,
+        true
       ]
     ],
     [
@@ -940,56 +1683,56 @@
       "spend_redicect_token_action",
       [
         2,
-        0
+        "FRONT"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         2,
-        1
+        "RIGHT"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         2,
-        2
+        "REAR"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         2,
-        3
+        "LEFT"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        0
+        "FRONT"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        1
+        "RIGHT"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        2
+        "REAR"
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        3
+        "LEFT"
       ]
     ],
     [
@@ -6248,7 +6991,7 @@
       "resolve_damage_action",
       [
         [
-          0,
+          "FRONT",
           0
         ]
       ]
@@ -6257,7 +7000,7 @@
       "resolve_damage_action",
       [
         [
-          0,
+          "FRONT",
           1
         ]
       ]
@@ -6266,7 +7009,7 @@
       "resolve_damage_action",
       [
         [
-          0,
+          "FRONT",
           2
         ]
       ]
@@ -6275,7 +7018,7 @@
       "resolve_damage_action",
       [
         [
-          0,
+          "FRONT",
           3
         ]
       ]
@@ -6284,7 +7027,7 @@
       "resolve_damage_action",
       [
         [
-          0,
+          "FRONT",
           4
         ]
       ]
@@ -6293,7 +7036,7 @@
       "resolve_damage_action",
       [
         [
-          1,
+          "RIGHT",
           0
         ]
       ]
@@ -6302,7 +7045,7 @@
       "resolve_damage_action",
       [
         [
-          1,
+          "RIGHT",
           1
         ]
       ]
@@ -6311,7 +7054,7 @@
       "resolve_damage_action",
       [
         [
-          1,
+          "RIGHT",
           2
         ]
       ]
@@ -6320,7 +7063,7 @@
       "resolve_damage_action",
       [
         [
-          1,
+          "RIGHT",
           3
         ]
       ]
@@ -6329,7 +7072,7 @@
       "resolve_damage_action",
       [
         [
-          1,
+          "RIGHT",
           4
         ]
       ]
@@ -6338,7 +7081,7 @@
       "resolve_damage_action",
       [
         [
-          2,
+          "REAR",
           0
         ]
       ]
@@ -6347,7 +7090,7 @@
       "resolve_damage_action",
       [
         [
-          2,
+          "REAR",
           1
         ]
       ]
@@ -6356,7 +7099,7 @@
       "resolve_damage_action",
       [
         [
-          2,
+          "REAR",
           2
         ]
       ]
@@ -6365,7 +7108,7 @@
       "resolve_damage_action",
       [
         [
-          2,
+          "REAR",
           3
         ]
       ]
@@ -6374,7 +7117,7 @@
       "resolve_damage_action",
       [
         [
-          2,
+          "REAR",
           4
         ]
       ]
@@ -6383,7 +7126,7 @@
       "resolve_damage_action",
       [
         [
-          3,
+          "LEFT",
           0
         ]
       ]
@@ -6392,7 +7135,7 @@
       "resolve_damage_action",
       [
         [
-          3,
+          "LEFT",
           1
         ]
       ]
@@ -6401,7 +7144,7 @@
       "resolve_damage_action",
       [
         [
-          3,
+          "LEFT",
           2
         ]
       ]
@@ -6410,7 +7153,7 @@
       "resolve_damage_action",
       [
         [
-          3,
+          "LEFT",
           3
         ]
       ]
@@ -6419,10 +7162,14 @@
       "resolve_damage_action",
       [
         [
-          3,
+          "LEFT",
           4
         ]
       ]
+    ],
+    [
+      "resolve_damage_action",
+      []
     ]
   ],
   "SHIP_MANEUVER_DETERMINE_COURSE": [

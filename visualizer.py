@@ -1,8 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont
-import ship as ship_module
+
 import math
 from typing import TYPE_CHECKING
 import os
+
+import ship as ship_module
 
 # Conditionally import Armada only for type checking
 if TYPE_CHECKING:
