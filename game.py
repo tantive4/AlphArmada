@@ -19,26 +19,37 @@ def main():
         f.write("Game Start\n")
 
 
-    # random.seed(66)
     game = Armada()
 
-    cr90 = Ship(SHIP_DATA['CR90A'], 1)
-    nebulon = Ship(SHIP_DATA['Neb-B Escort'], 1)
-    victory = Ship(SHIP_DATA['VSD2'], -1)
+    cr90a = Ship(SHIP_DATA['CR90A'], 1)
+    cr90b = Ship(SHIP_DATA['CR90B'], 1)
+    neb_escort = Ship(SHIP_DATA['Neb-B Escort'], 1)
+    neb_support = Ship(SHIP_DATA['Neb-B Support'], 1)
+    victory1 = Ship(SHIP_DATA['VSD1'], -1)
+    victory2 = Ship(SHIP_DATA['VSD2'], -1)
 
-    game.deploy_ship(cr90, 300, 175, 0, 2)
-    game.deploy_ship(nebulon, 600, 175, 0, 2)
-    game.deploy_ship(victory, 450, 725, math.pi, 2)
+    game.deploy_ship(cr90a, 300, 175, 0, 3)
+    game.deploy_ship(cr90b, 400, 175, 0, 3)
+    game.deploy_ship(neb_escort, 500, 175, 0, 2)
+    game.deploy_ship(neb_support, 600, 175, 0, 2)
+    game.deploy_ship(victory1, 400, 725, math.pi, 2)
+    game.deploy_ship(victory2, 500, 725, math.pi, 2)
 
-    cr90.asign_command(Command.REPAIR)
-    nebulon.asign_command(Command.NAV)
-    nebulon.asign_command(Command.CONFIRE)
-    victory.asign_command(Command.REPAIR)
-    victory.asign_command(Command.NAV)
-    victory.asign_command(Command.CONFIRE)
+    cr90a.asign_command(Command.NAV)
+    cr90b.asign_command(Command.NAV)
 
+    neb_escort.asign_command(Command.NAV)
+    neb_escort.asign_command(Command.CONFIRE)
+    neb_support.asign_command(Command.NAV)
+    neb_support.asign_command(Command.CONFIRE)
 
-    # for SINGLE CORE simulation
+    victory1.asign_command(Command.REPAIR)
+    victory1.asign_command(Command.NAV)
+    victory1.asign_command(Command.CONFIRE)
+    victory2.asign_command(Command.REPAIR)
+    victory2.asign_command(Command.NAV)
+    victory2.asign_command(Command.CONFIRE)
+
     player1 = lambda: game.alpha_mcts_decision(iterations=400)
     player2 = lambda: game.alpha_mcts_decision(iterations=400)
 
@@ -47,7 +58,7 @@ def main():
     # player1 = game.random_decision
     # player2 = game.random_decision
 
-    game.play(player1, player2)
+    # game.play(player1, player2)
 
 
 
