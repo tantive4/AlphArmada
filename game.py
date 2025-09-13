@@ -3,6 +3,8 @@ import os
 import math
 import shutil
 
+import numpy as np
+
 from armada import Armada, AttackInfo
 from ship import Ship, Command, HullSection, _cached_range, _cached_overlapping
 from dice import precompute_dice_outcomes 
@@ -59,8 +61,10 @@ def main():
     # player2 = game.random_decision
 
     # game.play(player1, player2)
-
-
+    state = game.get_encoded_state()
+    for k, v in state.items():
+        print(k, np.array(v).shape)
+        print(v)
 
 
 if __name__ == '__main__':

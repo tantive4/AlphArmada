@@ -7,8 +7,7 @@ import itertools
 from functools import lru_cache
 import json
 
-from shapely.geometry import Polygon, LineString, Point
-from shapely.affinity import translate, rotate
+from shapely.geometry import Polygon, LineString
 from shapely.ops import unary_union
 import shapely.ops
 import numpy as np
@@ -37,11 +36,11 @@ class SizeClass(IntEnum) :
     LARGE = 3
     HUGE = 4
 
-class Command(Enum) :
-    NAV = 'NAV'
-    # SQUAD = 'SQAD'
-    REPAIR = 'REPAIR'
-    CONFIRE = 'CONFIRE'
+class Command(IntEnum) :
+    NAV = 0
+    REPAIR = 1
+    CONFIRE = 2
+    # SQUAD = 3
     def __str__(self):
         return self.name
     __repr__ = __str__
@@ -347,7 +346,7 @@ class Ship:
             for target_hull in HullSection :
                 attack_range : AttackRange = range_dict[attack_hull][target_hull] 
                 
-                if attack_range == AttackRange.INVALID : continue
+                if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
 
                 dice_count = sum(self.gather_dice(attack_hull, attack_range).values())
                 if dice_count == 0 : continue
@@ -780,6 +779,72 @@ def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSe
     }
 
 @lru_cache(maxsize=None)
+def _cached_point_range(ship_state: tuple[str, float, float, float], point: tuple[float, float]) -> dict[HullSection, AttackRange]:
+    """
+    Checks if a point is within a specific firing arc and within max_range.
+    
+    Args:
+        attack_hull: The hull section whose arc is being checked.
+        point: The (x, y) coordinate of the point to check.
+        max_range: The maximum distance the arc extends to.
+
+    Returns:
+        True if the point is within the arc and range, False otherwise.
+    """
+    measure_dict : dict[HullSection, AttackRange] = {from_hull : AttackRange.INVALID for from_hull in HullSection}
+    
+    ship_coords = _cached_coordinate(ship_state)[0]
+    ship_center : np.ndarray = ship_coords[14]
+
+    target_vector : np.ndarray = np.array(point) - ship_center
+
+    arc_vector_tuple : tuple[np.ndarray, ...] = (
+        ship_coords[2] - ship_center, # front right
+        ship_coords[5] - ship_center, # rear right
+        ship_coords[4] - ship_center, # rear left
+        ship_coords[1] - ship_center, # front left
+    )
+
+    def is_point_in_arc(target_vector: np.ndarray, 
+                                arc1_start: np.ndarray, 
+                                arc2_end: np.ndarray) -> bool:
+        """
+        Checks if a target vector lies within a clockwise arc.
+        This version uses manual calculation to avoid NumPy 2.0 deprecation warnings.
+        """
+        # Manual 2D cross product: a[0]*b[1] - a[1]*b[0]
+        
+        # Is the target clockwise relative to the start? (cross product <= 0)
+        cross_product_start = arc1_start[0] * target_vector[1] - arc1_start[1] * target_vector[0]
+        is_clockwise_from_start = cross_product_start <= 0
+
+        # Is the target counter-clockwise relative to the end? (cross product >= 0)
+        cross_product_end = arc2_end[0] * target_vector[1] - arc2_end[1] * target_vector[0]
+        is_counter_clockwise_from_end = cross_product_end >= 0
+
+        return is_clockwise_from_start and is_counter_clockwise_from_end
+        
+    for from_hull in HullSection :
+        arc1 = arc_vector_tuple[from_hull.value]
+        arc2 = arc_vector_tuple[(from_hull.value + 1) % 4]
+
+        if not is_point_in_arc(target_vector, arc1, arc2) :
+            continue
+        
+        targeting_pt = ship_coords[from_hull.value + 10]
+        distance = np.linalg.norm(targeting_pt - np.array(point))
+
+        if distance <= CLOSE_RANGE : 
+            measure_dict[from_hull] = AttackRange.CLOSE # close range
+        elif distance <= MEDIUM_RANGE : 
+            measure_dict[from_hull] = AttackRange.MEDIUM # medium range
+        elif distance <= LONG_RANGE : 
+            measure_dict[from_hull] = AttackRange.LONG # long range
+        else : measure_dict[from_hull] = AttackRange.EXTREME # invalid range (extreme)
+    return measure_dict
+
+
+@lru_cache(maxsize=None)
 def _cached_range(attacker_state : tuple[str, float, float, float], defender_state : tuple[str, float, float, float], extension_factor=500) -> tuple[dict[HullSection, bool],dict[HullSection, dict[HullSection, AttackRange]]]:
     """
     return:
@@ -796,10 +861,10 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
     attacker_orientation_vector : np.ndarray = _cached_coordinate(attacker_state)[1]
     target_vector : np.ndarray = attacker_center - defender_center
 
-    # distance check
-    distance = np.linalg.norm(target_vector)
-    if distance > 2 * LONG_RANGE :
-        return target_dict, measure_dict
+    # # distance check
+    # distance = np.linalg.norm(target_vector)
+    # if distance > 2 * LONG_RANGE :
+    #     return target_dict, measure_dict
     
     attacker_poly : dict[HullSection | str, Polygon] = _cached_polygons(attacker_state)
     defender_poly : dict[HullSection | str, Polygon] = _cached_polygons(defender_state)
@@ -875,7 +940,7 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
             elif distance <= LONG_RANGE : 
                 measure_dict[from_hull][to_hull] = AttackRange.LONG # long range
                 target_dict[from_hull] = True
-            else : measure_dict[from_hull][to_hull] = AttackRange.INVALID # invalid range (extreme)
+            else : measure_dict[from_hull][to_hull] = AttackRange.EXTREME # invalid range (extreme)
 
     return target_dict, measure_dict
 

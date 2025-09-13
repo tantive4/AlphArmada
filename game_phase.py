@@ -10,46 +10,40 @@ if TYPE_CHECKING:
 
 
 class GamePhase(IntEnum):
-    '''
-    A single enum to track the entire hierarchical game state.
-    - 1000s: Round phase
-    - 100s:  Major action (e.g., Ship Phase step)
-    - 1s:    Action sub-step (e.g., Attack Sequence step)
-    '''
     # Round : COMMAND PHASE
-    COMMAND_PHASE = 1000
+    COMMAND_PHASE = 1
 
-    # Round : SHIP PHASE (2xxx)
-    SHIP_PHASE = 2000
+    # Round : SHIP PHASE
+    SHIP_PHASE = 2
     
-    # Ship Phase -> Reveal Dial (21xx)
-    SHIP_REVEAL_COMMAND_DIAL = 2100
-    SHIP_GAIN_COMMAND_TOKEN = 2101
-    SHIP_DISCARD_COMMAND_TOKEN = 2102
-    SHIP_RESOLVE_REPAIR = 2103
-    SHIP_USE_ENGINEER_POINT = 2104
-    
-    # Ship Phase -> Attack (22xx)
-    SHIP_ATTACK = 2200 # checkpoint
-    SHIP_ATTACK_DECLARE_TARGET = 2201
-    SHIP_ATTACK_GATHER_DICE = 2202
-    SHIP_ATTACK_ROLL_DICE = 2203
-    SHIP_ATTACK_RESOLVE_EFFECTS = 2204
-    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 2205
-    SHIP_ATTACK_USE_CRITICAL_EFFECT = 2206
-    SHIP_ATTACK_RESOLVE_DAMAGE = 2207
+    # Ship Phase -> Reveal Dial
+    SHIP_REVEAL_COMMAND_DIAL = 3
+    SHIP_GAIN_COMMAND_TOKEN = 4
+    SHIP_DISCARD_COMMAND_TOKEN = 5
+    SHIP_RESOLVE_REPAIR = 6
+    SHIP_USE_ENGINEER_POINT = 7
+
+    # Ship Phase -> Attack
+    SHIP_ATTACK = 8 # checkpoint
+    SHIP_ATTACK_DECLARE_TARGET = 9
+    SHIP_ATTACK_GATHER_DICE = 10
+    SHIP_ATTACK_ROLL_DICE = 11
+    SHIP_ATTACK_RESOLVE_EFFECTS = 12
+    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 13
+    SHIP_ATTACK_USE_CRITICAL_EFFECT = 14
+    SHIP_ATTACK_RESOLVE_DAMAGE = 15
     # Note: Additional squadron target is part of the same sequence
     
-    # Ship Phase -> Execute Maneuver (23xx)
-    SHIP_EXECUTE_MANEUVER = 2300 # checkpoint
-    SHIP_MANEUVER_DETERMINE_COURSE = 2301
-    SHIP_MANEUVER_MOVE_SHIP = 2302 # checkpoint
+    # Ship Phase -> Execute Maneuver
+    SHIP_EXECUTE_MANEUVER = 16 # checkpoint
+    SHIP_MANEUVER_DETERMINE_COURSE = 17
+    SHIP_MANEUVER_MOVE_SHIP = 18 # checkpoint
 
     # Round : SQUADRON PHASE
-    SQUADRON_PHASE = 3000
+    SQUADRON_PHASE = 19
 
     # Round : STATUS PHASE
-    STATUS_PHASE = 4000
+    STATUS_PHASE = 20
 
     
 class ActionType :

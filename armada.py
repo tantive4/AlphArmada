@@ -8,6 +8,7 @@ from shapely.geometry import Polygon
 
 from mcts import MCTS
 from game_phase import GamePhase, ActionType
+from game_encoder import encode_game_state
 import visualizer
 from ship import Ship, HullSection, Command, _cached_range
 from defense_token import DefenseToken, TokenType, TOKEN_DICT
@@ -745,8 +746,8 @@ class Armada:
             return
         visualizer.visualize(self, title, maneuver_tool)
 
-    def get_encoded_state(self) -> None :
-        return
+    def get_encoded_state(self) -> dict :
+        return encode_game_state(self)
 
     def get_snapshot(self) -> dict:
         """Captures the essential state of the entire game."""
