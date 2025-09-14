@@ -1,10 +1,9 @@
 from __future__ import annotations
 from enum import IntEnum
 from typing import TypeAlias, Literal, TYPE_CHECKING
-from ship import HullSection, Command
-from defense_token import DefenseToken
-from dice import Dice, Critical, dice_icon
 
+from ship import HullSection, Command
+from dice import Dice, Critical, dice_icon
 if TYPE_CHECKING:
     from armada import Armada
 

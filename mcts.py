@@ -3,15 +3,18 @@ import math
 import random
 from typing import TYPE_CHECKING
 
+import torch
 import numpy as np
 
 from action_space import ActionManager, _make_hashable
 from dummy_model import DummyModel
+from armada_net import ArmadaNet
 import dice
 from game_phase import GamePhase, ActionType
 from ship import _cached_range
 if TYPE_CHECKING:
     from armada import Armada
+    from self_play import Config
 
 
 
@@ -134,13 +137,14 @@ class MCTS:
 
     """
 
-    def __init__(self, initial_game: Armada) -> None:
+    def __init__(self, initial_game: Armada, action_manager : ActionManager, model, config : Config) -> None:
         self.root_game = initial_game
         self.snapshot = self.root_game.get_snapshot()
         self.root : Node = Node(game = initial_game, action = ('initialize_game', None))
 
-        self.action_manager = ActionManager()
-        self.model = DummyModel(self.action_manager)
+        self.action_manager = action_manager
+        self.model = model
+        self.config = config
 
     def mcts_search(self, iterations: int) -> None:
 
@@ -212,9 +216,9 @@ class MCTS:
 
 
 
-    def alpha_mcts_search(self, iterations: int) -> np.ndarray :
+    def alpha_mcts_search(self) -> np.ndarray :
         
-        for iteration in range(iterations):
+        for iteration in range(self.config.MCTS_ITERATION):
             
             node : Node = self.root
             
@@ -248,7 +252,25 @@ class MCTS:
             leaf_snapshot = node.snapshot
             self.root_game.revert_snapshot(leaf_snapshot)
 
-            policy, value = self.model(self.root_game.get_encoded_state(), self.root_game.phase)
+            encoded_state = self.root_game.get_encoded_state()
+            
+            # Convert numpy arrays to PyTorch tensors for the model
+            scalar_tensor = torch.from_numpy(encoded_state['scalar']).float().to(self.config.DEVICE)
+            entity_tensor = torch.from_numpy(encoded_state['entities']).float().to(self.config.DEVICE)
+            spatial_tensor = torch.from_numpy(encoded_state['spatial']).float().to(self.config.DEVICE)
+            relation_tensor = torch.from_numpy(encoded_state['relations']).float().to(self.config.DEVICE)
+            
+            self.model.eval()
+            with torch.no_grad():
+                policy_logits, value_tensor = self.model(
+                    scalar_tensor, 
+                    entity_tensor, 
+                    spatial_tensor, 
+                    relation_tensor, 
+                    self.root_game.phase
+                )
+            value = value_tensor.item()
+            policy = policy_logits.cpu().numpy()
 
 
             if self.root_game.winner is not None : value = self.root_game.winner
@@ -295,9 +317,9 @@ class MCTS:
             # 3. Backpropagation (Updated for -1 to 1 scoring)
             node.backpropagate(value)
             
-            if (iteration+1) % (iterations//4) == 0:
-                print(f"Iteration {iteration + 1}/{iterations}: Total Visits : {self.root.visits} Total Wins: {round(sum([child.wins for child in self.root.children]), 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
-                with open('simulation_log.txt', 'a') as f: f.write(f"\n{iteration+1} iteration. Total Visits : {self.root.visits} Total Win {round(sum([child.wins for child in self.root.children]), 2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
+            # if (iteration+1) % (iterations//4) == 0:
+            #     print(f"Iteration {iteration + 1}/{iterations}: Total Visits : {self.root.visits} Total Wins: {round(sum([child.wins for child in self.root.children]), 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
+            #     with open('simulation_log.txt', 'a') as f: f.write(f"\n{iteration+1} iteration. Total Visits : {self.root.visits} Total Win {round(sum([child.wins for child in self.root.children]), 2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.root.children]}")
         
         # End of Search Iteration
         action_map = self.action_manager.get_action_map(self.root_game.phase)
@@ -336,3 +358,7 @@ class MCTS:
         best_child = max(self.root.children, key=lambda c: c.visits)
         return best_child.action
     
+    def get_random_best_action(self) -> ActionType.Action:
+        visit_weights = [c.visits for c in self.root.children]
+        chosen_child = random.choices(population=self.root.children, weights=visit_weights, k=1)[0]
+        return chosen_child.action

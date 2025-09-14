@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import numpy as np
 import math
 from typing import TYPE_CHECKING
@@ -14,13 +13,13 @@ if TYPE_CHECKING:
     from armada import Armada
 
 # --- Configuration Constants ---
-MAX_SHIP = 6
+MAX_SHIPS = 6
 MAX_COMMAND_STACK = 3
 MAX_DEFENSE_TOKENS = 6 
 BOARD_RESOLUTION = 16
-ENTITY_FEATURE_SIZE = 70
+ENTITY_FEATURE_SIZE = 78
 RELATION_FEATURE_SIZE = 12
-SCALAR_FEATURE_SIZE = 30
+SCALAR_FEATURE_SIZE = 41
 
 def encode_game_state(game: Armada) -> dict[str, np.ndarray]:
     """Main function to encode the entire game state into numpy arrays for the NN."""
@@ -50,8 +49,8 @@ def encode_scalar_features(game: Armada) -> np.ndarray:
         player_feature.tolist()
     )
 
-    # --- Attack Context Features (20 features) ---
-    attack_features = np.zeros(20, dtype=np.float32)
+    # --- Attack Context Features (16 features) ---
+    attack_features = np.zeros(16, dtype=np.float32)
 
     if game.attack_info:
         info = game.attack_info
@@ -91,13 +90,13 @@ def encode_entity_features(game: Armada) -> np.ndarray:
     """
     Encodes a detailed vector for each ship, now including its role in an active attack.
     """
-    entity_vectors = np.zeros((MAX_SHIP, ENTITY_FEATURE_SIZE), dtype=np.float32)
+    entity_vectors = np.zeros((MAX_SHIPS, ENTITY_FEATURE_SIZE), dtype=np.float32)
     GLOBAL_MAX_HULL = 8.0
     GLOBAL_MAX_SHIELDS = 4.0
     GLOBAL_MAX_DICE = 4.0 
 
     for i, ship in enumerate(game.ships):
-        if i >= MAX_SHIP or ship.destroyed:
+        if i >= MAX_SHIPS or ship.destroyed:
             continue
 
         # --- Base Stats and Position (14 features) ---
@@ -118,27 +117,30 @@ def encode_entity_features(game: Armada) -> np.ndarray:
             math.cos(ship.orientation)
         ])
 
-        # --- Command Info (13 features) ---
+        # --- Command Info (14 features) ---
         command_value = ship.command_value / float(MAX_COMMAND_STACK)
         command_stack_feature = np.zeros(MAX_COMMAND_STACK * len(Command), dtype=np.float32)
         if ship.player == game.simulation_player:
             for stack_idx, cmd in enumerate(ship.command_stack):
                 command_stack_feature[stack_idx * len(Command) + (cmd.value)] = 1.0
         
+        command_dials = np.zeros(len(Command), dtype=np.float32)
         command_tokens = np.zeros(len(Command), dtype=np.float32)
         for dial in ship.command_dial:
-            command_tokens[dial.value] = 1.0
+            command_dials[dial.value] = 1.0
         for token in ship.command_token:
             command_tokens[token.value] = 1.0
 
-        # --- Attack Role (8 features) ---
-        attack_role = np.zeros(8, dtype=np.float32)
+        # --- Attack Role (10 features) ---
+        attack_role = np.zeros(10, dtype=np.float32)
         if game.attack_info:
             info = game.attack_info
             if i == info.attack_ship_id:
-                attack_role[info.attack_hull.value] = 1.0 # is_attacking_hull (one-hot)
+                attack_role[0] = 1.0
+                attack_role[info.attack_hull.value + 1] = 1.0 # is_attacking_hull (one-hot)
             if i == info.defend_ship_id:
-                attack_role[4 + info.defend_hull.value] = 1.0 # is_defending_hull (one-hot)
+                attack_role[5] = 1.0
+                attack_role[5 + info.defend_hull.value] = 1.0 # is_defending_hull (one-hot)
 
         # --- Defense Tokens (12 features: 2 states for 6 token slots) ---
         defense_tokens = np.zeros(MAX_DEFENSE_TOKENS * 2, dtype=np.float32)
@@ -166,16 +168,17 @@ def encode_entity_features(game: Armada) -> np.ndarray:
         
         nav_chart_vector = np.zeros(10, dtype=np.float32) # For speed 0 to 4
         for speed in range(5):
-            if str(speed) in ship.navchart:
-             clicks = ship.navchart[str(speed)]
+            if speed in ship.nav_chart:
+             clicks = ship.nav_chart[speed]
              for i, click in enumerate(clicks):
                  nav_chart_vector[speed+i-1] = click / 2.0 # Normalize by max clicks
 
         entity_vectors[i] = np.concatenate([
             base_and_pos,
-            np.array([command_value]), command_stack_feature, command_tokens,
+            np.array([command_value]), command_stack_feature, command_dials, command_tokens,
             attack_role, defense_tokens, armament, status, nav_chart_vector
         ])
+
     return entity_vectors
 
 
@@ -191,7 +194,7 @@ def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
     - Plane 6: Friendly Threat Map
     - Plane 7: Enemy Threat Map
     """
-    planes = np.zeros((MAX_SHIP + 2, resolution, resolution), dtype=np.float32)
+    planes = np.zeros((MAX_SHIPS + 2, resolution, resolution), dtype=np.float32)
     width_step = game.player_edge / resolution
     height_step = game.short_edge / resolution
 
@@ -203,7 +206,7 @@ def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
         rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=planes[i].shape)
         planes[i, rr, cc] = value
 
-    threat_plane_offset = MAX_SHIP
+    threat_plane_offset = MAX_SHIPS
     for ship in game.ships:
         if ship.destroyed: continue
             
@@ -225,13 +228,13 @@ def encode_relation_matrix(game: Armada) -> np.ndarray:
     """
     Encodes the pairwise range relationships between every hull section of every ship.
     """
-    num_hulls = MAX_SHIP * len(HullSection)
+    num_hulls = MAX_SHIPS * len(HullSection)
     matrix = np.zeros((num_hulls, num_hulls), dtype=np.float32)
 
     for i, attacker in enumerate(game.ships):
-        if i >= MAX_SHIP or attacker.destroyed: continue
+        if i >= MAX_SHIPS or attacker.destroyed: continue
         for j, defender in enumerate(game.ships):
-            if j >= MAX_SHIP or defender.destroyed or i == j: continue
+            if j >= MAX_SHIPS or defender.destroyed or i == j: continue
 
             _, range_dict = _cached_range(attacker.get_ship_hash_state(), defender.get_ship_hash_state())
 

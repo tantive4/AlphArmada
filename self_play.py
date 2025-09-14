@@ -1,0 +1,218 @@
+import torch
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+import numpy as np
+from collections import deque
+import random
+import os
+import time
+import copy
+import json
+import math
+
+# Import your custom modules
+from armada import Armada
+from ship import Ship
+from armada_net import ArmadaNet
+from game_encoder import encode_game_state
+from mcts import MCTS
+from action_space import ActionManager
+from game_phase import GamePhase
+from dice import roll_dice
+
+class Config:
+    # Hardware
+    DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+
+    # Training Loop
+    ITERATIONS = 50 # update model ITERATION times
+    SELF_PLAY_GAMES = 20 # generate data for SELF_PLAY_GAMES games during one iteration
+
+    # MCTS
+    MCTS_ITERATION = 400
+    MAX_GAME_STEP = 1000
+
+    # Replay Buffer
+    REPLAY_BUFFER_SIZE = 30000
+
+    # Neural Network Training
+    EPOCHS = 1 # learn each data EPOCHS times
+    BATCH_SIZE = 64
+    LEARNING_RATE = 0.001
+    L2_LAMBDA = 1e-4
+
+    # Model Paths
+    MODEL_PATH = "model.pth"
+    CHECKPOINT_DIR = "model_checkpoints"
+
+class AlphArmada:
+    def __init__(self, model : ArmadaNet, optimizer : optim.AdamW, config : Config) :
+        self.model = model
+        self.optimizer = optimizer
+        self.config = config
+
+    def self_play(self) :
+        memory : list[tuple[GamePhase, dict, np.ndarray]]= []
+        game = setup_game()
+        mcts_game = copy.deepcopy(game)
+        mcts_game.simulation_mode = True
+        mcts = MCTS(mcts_game, game.action_manager, self.model, self.config)
+
+        for _ in range(self.config.MAX_GAME_STEP) :
+            if game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
+                if game.attack_info is None :
+                    raise ValueError("No attack info for the current game phase.")
+                dice_roll = roll_dice(game.attack_info.dice_to_roll)
+                action = ('roll_dice_action', dice_roll)
+            else :
+                action_probs = mcts.alpha_mcts_search()
+                memory.append((game.phase, encode_game_state(game), action_probs))
+                action = mcts.get_random_best_action()
+
+            game.apply_action(action)
+            mcts.advance_tree(action)
+
+
+            if game.winner is not None : 
+                return_memory = [(phase, state, action_probs, game.winner) for phase, state, action_probs in memory]
+                return return_memory
+        raise RuntimeError(f'Maximum simulation steps reached\n{game.get_snapshot()}')
+    
+
+    def train(self, memory: list[tuple[GamePhase, dict, np.ndarray, float]]):
+        """
+        Trains the neural network on a batch of experiences from self-play.
+        """
+        self.model.train()
+        self.optimizer.zero_grad()
+        
+        phases, states, target_policies, target_values = zip(*memory)
+        
+        target_policies = torch.from_numpy(np.array(target_policies)).float().to(self.config.DEVICE)
+        target_values = torch.tensor(target_values, dtype=torch.float32).to(self.config.DEVICE).view(-1, 1)
+
+        scalar_batch = torch.stack([torch.from_numpy(s['scalar']) for s in states]).to(self.config.DEVICE)
+        entity_batch = torch.stack([torch.from_numpy(s['entities']) for s in states]).to(self.config.DEVICE)
+        spatial_batch = torch.stack([torch.from_numpy(s['spatial']) for s in states]).to(self.config.DEVICE)
+        relation_batch = torch.stack([torch.from_numpy(s['relations']) for s in states]).to(self.config.DEVICE)
+        phase_batch = list(phases)
+        
+        policy_loss = torch.tensor(0.0, device=self.config.DEVICE)
+        value_loss = torch.tensor(0.0, device=self.config.DEVICE)
+        
+        for i in range(len(memory)):
+            policy_logits, value_pred = self.model(
+                scalar_batch[i], entity_batch[i], spatial_batch[i],
+                relation_batch[i], phase_batch[i]
+            )
+            
+            policy_loss += F.cross_entropy(policy_logits.unsqueeze(0), target_policies[i].unsqueeze(0))
+            value_loss += F.mse_loss(value_pred.squeeze(0), target_values[i])
+
+        # This adds a penalty for large weights to prevent overfitting.
+        l2_reg = torch.tensor(0., device=self.config.DEVICE)
+        for param in self.model.parameters():
+            l2_reg += torch.sum(param.pow(2))
+
+        # Average the primary losses and add the scaled L2 penalty
+        total_loss = (policy_loss + value_loss) / len(memory) + self.config.L2_LAMBDA * l2_reg
+
+
+        total_loss.backward()
+        self.optimizer.step()
+        
+        return total_loss.item()
+
+    def learn(self):
+        """
+        The main continuous training loop: self-play -> store -> train.
+        """
+        replay_buffer = deque(maxlen=self.config.REPLAY_BUFFER_SIZE)
+        loss_history = []
+        
+        os.makedirs(self.config.CHECKPOINT_DIR, exist_ok=True)
+
+        for i in range(self.config.ITERATIONS):
+            print(f"\n----- Iteration {i+1}/{self.config.ITERATIONS} -----")
+            
+            self.model.eval()
+            # --- Self-Play Phase ---
+            print("Starting self-play...")
+            start_time = time.time()
+            new_memory = self.self_play()
+            replay_buffer.extend(new_memory)
+            end_time = time.time()
+            print(f"Self-play finished in {end_time - start_time:.2f}s. Replay buffer size: {len(replay_buffer)}")
+
+            # --- Training Phase ---
+            if len(replay_buffer) < self.config.BATCH_SIZE:
+                print("Not enough data in replay buffer to train. Skipping...")
+                continue
+            
+            print("Starting training...")
+            start_time = time.time()
+            training_batch = random.sample(list(replay_buffer), self.config.BATCH_SIZE)
+            loss = self.train(training_batch)
+            loss_history.append(loss)
+            end_time = time.time()
+            print(f"Training finished in {end_time - start_time:.2f}s. Loss: {loss:.4f}")
+
+            # --- Save Checkpoint and update main model file ---
+            checkpoint_path = os.path.join(self.config.CHECKPOINT_DIR, f"model_iter_{i+1}.pth")
+            torch.save(self.model.state_dict(), checkpoint_path)
+            torch.save(self.model.state_dict(), self.config.MODEL_PATH) # Overwrite the main model
+            print(f"Model checkpoint saved to {checkpoint_path}")
+
+        print("\nTraining complete!")
+        print(f"Loss history: {loss_history}")
+
+def setup_game() -> Armada: 
+    with open('ship_info.json', 'r') as f:
+        SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
+    game = Armada()
+    
+    rebel_ships = (
+        Ship(SHIP_DATA['CR90A'], 1), 
+        Ship(SHIP_DATA['CR90B'], 1),
+        Ship(SHIP_DATA['Neb-B Escort'], 1), 
+        Ship(SHIP_DATA['Neb-B Support'], 1))
+    
+    empire_ships = (
+        Ship(SHIP_DATA['VSD1'], -1),
+        Ship(SHIP_DATA['VSD2'], -1))
+
+    rebel_deployment = [250, 400, 500, 650]
+    empire_deployment = [350, 550]
+    random.shuffle(rebel_deployment)
+    random.shuffle(empire_deployment)
+
+    yaw_one_click = math.pi/8
+    for i, ship in enumerate(rebel_ships) :
+        game.deploy_ship(ship, rebel_deployment[i], 175, random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
+    for i, ship in enumerate(empire_ships): 
+        game.deploy_ship(ship, empire_deployment[i], 175, math.pi + random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
+
+    return game
+
+def main():
+    config = Config()
+    print(f"Starting training on device: {config.DEVICE}")
+
+    # Initialize a single game instance and action manager to pass around
+    game = setup_game()
+
+    # Initialize the model and optimizer
+    model = ArmadaNet(game.action_manager).to(config.DEVICE)
+    if os.path.exists(config.MODEL_PATH):
+        print(f"Loading model from {config.MODEL_PATH} to continue training.")
+        model.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))
+
+    optimizer = optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
+
+    # Create the training manager and start the learning process
+    alpharmada_trainer = AlphArmada(model, optimizer, config)
+    alpharmada_trainer.learn()
+
+if __name__ == "__main__":
+    main()

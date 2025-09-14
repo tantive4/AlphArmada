@@ -80,7 +80,7 @@ class Ship:
             self.defense_tokens[key] = DefenseToken(token_type_str)
             token_counts[token_enum] += 1
 
-        self.navchart : dict[str, list[int]] = ship_dict['navchart']
+        self.nav_chart : dict[int, list[int]] = {int(k) : v for k, v in ship_dict['navchart'].items()}
         self.max_shield : dict[HullSection, int] = {HullSection.FRONT : ship_dict['shield'][0], 
                                                     HullSection.RIGHT : ship_dict['shield'][1], 
                                                     HullSection.REAR : ship_dict['shield'][2], 
@@ -117,8 +117,8 @@ class Ship:
         self.x = x
         self.y = y
         self.orientation = orientation
-        
         self.speed = speed
+
         self.hull = self.max_hull
         self.shield = self.max_shield.copy()
         self.ship_id = ship_id
@@ -512,7 +512,7 @@ class Ship:
         for speed in range(5):
             if abs(speed - self.speed) > speed_change:
                 continue
-            if self.navchart.get(str(speed)) is not None or speed == 0:
+            if self.nav_chart.get(speed) is not None or speed == 0:
                 valid_speed.append(speed)
 
         return valid_speed
@@ -531,7 +531,7 @@ class Ship:
         valid_yaw = []
         
         for yaw in range(5):
-            if abs(yaw - 2) > self.navchart[str(speed)][joint]:
+            if abs(yaw - 2) > self.nav_chart[speed][joint]:
                 continue
             valid_yaw.append(yaw -2)
 
@@ -585,7 +585,7 @@ class Ship:
         if speed == 0 : return True
 
         for joint, yaw in enumerate(course) :
-            if abs(yaw) > self.navchart[str(speed)][joint] : return False
+            if abs(yaw) > self.nav_chart[speed][joint] : return False
         return True
 
     def get_all_possible_courses(self, speed: int) -> list[list[int]]:
@@ -726,7 +726,6 @@ class Ship:
         return (self.name, self.x, self.y, self.orientation)
     
 
-@lru_cache(maxsize=None)
 def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> tuple[np.ndarray, np.ndarray] :
 
     ship_dict = SHIP_DATA[ship_state[0]]
@@ -735,6 +734,8 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> tuple[np
     rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
     token_size : tuple[float, float] = SHIP_TOKEN_SIZE[SizeClass[ship_dict['size_class']]]
     token_half_w = token_size[0] / 2
+    base_size : tuple[float, float] = SHIP_BASE_SIZE[SizeClass[ship_dict['size_class']]]
+    base_half_w = base_size[0] / 2
 
     template_vertices = np.array([
     [0, -front_arc[0]],                 # front_arc_center_pt 0
@@ -753,9 +754,9 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> tuple[np
     [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
     [0, -token_size[1]/2],              # center point 14
     [-token_half_w, 0],                 # left front base 15
-    [token_half_w, 0],                  # right front base 16
-    [token_half_w, -token_size[1]],      # right rear base 17
-    [-token_half_w, -token_size[1]],    # left rear base 18
+    [base_half_w, 0],                  # right front base 16
+    [base_half_w, -base_size[1]],      # right rear base 17
+    [-base_half_w, -base_size[1]],    # left rear base 18
     ])
 
     c, s = math.cos(-ship_state[3]), math.sin(-ship_state[3])

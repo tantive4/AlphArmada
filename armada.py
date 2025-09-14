@@ -3,12 +3,15 @@ import random
 import copy
 import itertools
 from typing import Callable
+import math
 
 from shapely.geometry import Polygon
 
+from armada_net import ArmadaNet
 from mcts import MCTS
 from game_phase import GamePhase, ActionType
 from game_encoder import encode_game_state
+from action_space import ActionManager
 import visualizer
 from ship import Ship, HullSection, Command, _cached_range
 from defense_token import DefenseToken, TokenType, TOKEN_DICT
@@ -28,7 +31,7 @@ class Armada:
         self.ships : list[Ship] = []
 
         self.round : int = 1
-        self.phase = GamePhase.COMMAND_PHASE
+        self.phase = GamePhase.COMMAND_PHASE    
         self.current_player : int = 1
         self.decision_player : int | None = 1
         self.active_ship : Ship | None = None
@@ -36,8 +39,27 @@ class Armada:
 
         self.winner : float | None = None
         self.image_counter : int = 0
+        self.debuging_visual : bool = False
         self.simulation_mode : bool = False
         self.simulation_player : int | None = None
+
+        self.action_manager = ActionManager()
+
+    def random_initialize(self) :
+        """
+        Initialize game with random deployment x & orientation and speed
+        """
+        self.revert_snapshot(self.start_snapshot)
+        rebel_deployment = [300, 400, 500, 600]
+        empire_deployment = [400, 500]
+        random.shuffle(rebel_deployment)
+        random.shuffle(empire_deployment)
+        deployment = rebel_deployment + empire_deployment
+        for ship in self.ships :
+            ship.x = deployment[ship.ship_id]
+            ship.orientation = random.choice([-math.pi/8, 0, math.pi])
+            ship.speed = random.randint(1,len(ship.nav_chart))
+        self.start_snapshot = self.get_snapshot()
 
 
     def play(self, 
@@ -51,7 +73,9 @@ class Armada:
         if not self.simulation_mode :
             mcts_game = copy.deepcopy(self)
             mcts_game.simulation_mode = True
-            self.game_tree = MCTS(mcts_game)
+            action_manager = ActionManager()
+            model = ArmadaNet(action_manager)
+            self.game_tree = MCTS(mcts_game, action_manager, model)
 
         if player1 is None : 
             player1 = self.random_decision
@@ -94,7 +118,7 @@ class Armada:
         A simple strategy that returns a random action from the list of possible actions.
         """
         actions = self.get_valid_actions()
-        if not self.simulation_mode : 
+        if self.debuging_visual : 
             with open('simulation_log.txt', 'a') as f:
                 f.write(f"{actions}\n")
         return random.choice(actions)
@@ -109,7 +133,7 @@ class Armada:
 
     def alpha_mcts_decision(self, iterations : int = 800) -> ActionType.Action:
         self.game_tree.root_game.simulation_player = self.current_player
-        self.game_tree.alpha_mcts_search(iterations)
+        self.game_tree.alpha_mcts_search()
         action : ActionType.Action = self.game_tree.get_best_action()
         self.game_tree.root_game.simulation_player = None
         return action
@@ -675,7 +699,7 @@ class Armada:
         """
         get action string and call visualizer
         """
-        if self.simulation_mode : return
+        if not self.debuging_visual : return
 
         action_str = ActionType.get_action_str(self, action)
         if action_str is None : return
@@ -692,6 +716,7 @@ class Armada:
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
         self.visualize(f'\n{ship.name} is deployed.')
+        self.start_snapshot = self.get_snapshot()
 
 
 
@@ -708,9 +733,10 @@ class Armada:
     
 
     def status_phase(self) -> None:
-        if not self.simulation_mode :
+        if self.debuging_visual :
             print(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n')
             with open('simulation_log.txt', 'a') as f: f.write(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n\n')
+
         # 1. Refresh all active ships for the next round
         for ship in self.ships:
             if not ship.destroyed:
@@ -742,7 +768,7 @@ class Armada:
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
 
     def visualize(self, title : str, maneuver_tool : list[tuple[float, float]] | None = None) -> None:
-        if self.simulation_mode:
+        if not self.debuging_visual:
             return
         visualizer.visualize(self, title, maneuver_tool)
 

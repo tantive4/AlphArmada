@@ -60,11 +60,7 @@ def main():
     # player1 = game.random_decision
     # player2 = game.random_decision
 
-    # game.play(player1, player2)
-    state = game.get_encoded_state()
-    for k, v in state.items():
-        print(k, np.array(v).shape)
-        print(v)
+    game.play(player1, player2)
 
 
 if __name__ == '__main__':
