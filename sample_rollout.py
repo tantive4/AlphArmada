@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
 
 # to see the time spent
-# python -m cProfile -o profile_results game.py
+# python -m cProfile -o profile_results self_play.py
 
 # to see the result
 # python -m pstats profile_results

@@ -27,10 +27,10 @@ class Config:
 
     # Training Loop
     ITERATIONS = 50 # update model ITERATION times
-    SELF_PLAY_GAMES = 20 # generate data for SELF_PLAY_GAMES games during one iteration
+    SELF_PLAY_GAMES = 1 # generate data for SELF_PLAY_GAMES games during one iteration
 
     # MCTS
-    MCTS_ITERATION = 100
+    MCTS_ITERATION = 50
     MAX_GAME_STEP = 1000
 
     # Replay Buffer
@@ -80,7 +80,7 @@ class AlphArmada:
             else :
                 action_probs = mcts.alpha_mcts_search(game.decision_player)
                 memory.append((game.phase, encode_game_state(game), action_probs))
-                action = mcts.get_best_action(game.decision_player)
+                action = mcts.get_random_best_action(game.decision_player)
                 
             print(get_action_str(game, action))
             game.apply_action(action)
@@ -210,6 +210,10 @@ def setup_game() -> Armada:
     return game
 
 def main():
+    random.seed(66)
+    np.random.seed(66)
+    torch.manual_seed(66)
+
     config = Config()
     print(f"Starting training on device: {config.DEVICE}")
 

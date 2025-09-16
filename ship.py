@@ -64,10 +64,16 @@ class Ship:
         self.token_size : tuple [float, float] = SHIP_TOKEN_SIZE[self.size_class]
         self.base_size : tuple [float, float] = SHIP_BASE_SIZE[self.size_class]
 
-        self.battery :  dict[HullSection, list[int]] = {HullSection.FRONT : ship_dict['battery'][0], 
+        battery :  dict[HullSection, list[int]] = {HullSection.FRONT : ship_dict['battery'][0], 
                                                         HullSection.RIGHT : ship_dict['battery'][1], 
                                                         HullSection.REAR : ship_dict['battery'][2], 
                                                         HullSection.LEFT : ship_dict['battery'][1]}
+        self.battery_range : dict[HullSection, dict[AttackRange, tuple[int, ...]]] = {
+            hull: {
+                attack_range : tuple(battery[hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice)
+                for attack_range in AttackRange if attack_range != AttackRange.INVALID
+            } for hull in HullSection
+        }
         
         self.defense_tokens: dict[int, DefenseToken] = {}
         token_counts = Counter()
@@ -93,7 +99,8 @@ class Ship:
         self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
         
-        self._create_template_geometries(ship_dict)
+        self._create_templ
+        ate_geometries(ship_dict)
         self._course_cache : dict[tuple[int, bool], list[tuple[int, ...]]]= {}
         
     def __str__(self):
@@ -317,7 +324,7 @@ class Ship:
         return False
 
     def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> tuple[int, ...] :
-        attack_pool = tuple(self.battery[attack_hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice)
+        attack_pool = self.battery_range[attack_hull][attack_range]
         return attack_pool
 
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
