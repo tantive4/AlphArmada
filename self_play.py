@@ -151,12 +151,13 @@ class AlphArmada:
             
             self.model.eval()
             # --- Self-Play Phase ---
-            print("Starting self-play...")
-            start_time = time.time()
-            new_memory = self.self_play()
-            replay_buffer.extend(new_memory)
-            end_time = time.time()
-            print(f"Self-play finished in {end_time - start_time:.2f}s. Replay buffer size: {len(replay_buffer)}")
+            for self_play_iteration in range(self.config.SELF_PLAY_GAMES):
+                print(f"Starting {self_play_iteration}th self-play...")
+                start_time = time.time()
+                new_memory = self.self_play()
+                replay_buffer.extend(new_memory)
+                end_time = time.time()
+                print(f"{self_play_iteration} Self-play finished in {end_time - start_time:.2f}s. Replay buffer size: {len(replay_buffer)}")
 
             # --- Training Phase ---
             if len(replay_buffer) < self.config.BATCH_SIZE:
