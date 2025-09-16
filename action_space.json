@@ -4,131 +4,127 @@
       "set_command_action",
       [
         0,
-        "NAV"
+        0
       ]
     ],
     [
       "set_command_action",
       [
         1,
-        "NAV"
+        0
       ]
     ],
     [
       "set_command_action",
       [
         2,
-        "NAV"
+        0
       ]
     ],
     [
       "set_command_action",
       [
         3,
-        "NAV"
+        0
       ]
     ],
     [
       "set_command_action",
       [
         4,
-        "NAV"
+        0
       ]
     ],
     [
       "set_command_action",
       [
         5,
-        "NAV"
+        0
       ]
     ],
     [
       "set_command_action",
       [
         0,
-        "REPAIR"
+        1
       ]
     ],
     [
       "set_command_action",
       [
         1,
-        "REPAIR"
+        1
       ]
     ],
     [
       "set_command_action",
       [
         2,
-        "REPAIR"
+        1
       ]
     ],
     [
       "set_command_action",
       [
         3,
-        "REPAIR"
+        1
       ]
     ],
     [
       "set_command_action",
       [
         4,
-        "REPAIR"
+        1
       ]
     ],
     [
       "set_command_action",
       [
         5,
-        "REPAIR"
+        1
       ]
     ],
     [
       "set_command_action",
       [
         0,
-        "CONFIRE"
+        2
       ]
     ],
     [
       "set_command_action",
       [
         1,
-        "CONFIRE"
+        2
       ]
     ],
     [
       "set_command_action",
       [
         2,
-        "CONFIRE"
+        2
       ]
     ],
     [
       "set_command_action",
       [
         3,
-        "CONFIRE"
+        2
       ]
     ],
     [
       "set_command_action",
       [
         4,
-        "CONFIRE"
+        2
       ]
     ],
     [
       "set_command_action",
       [
         5,
-        "CONFIRE"
+        2
       ]
-    ],
-    [
-      "pass_command",
-      null
     ]
   ],
   "SHIP_PHASE": [
@@ -155,38 +151,20 @@
     [
       "activate_ship_action",
       5
-    ],
-    [
-      "pass_ship_activation",
-      null
-    ]
-  ],
-  "SHIP_REVEAL_COMMAND_DIAL": [
-    [
-      "reveal_command_action",
-      "NAV"
-    ],
-    [
-      "reveal_command_action",
-      "REPAIR"
-    ],
-    [
-      "reveal_command_action",
-      "CONFIRE"
     ]
   ],
   "SHIP_GAIN_COMMAND_TOKEN": [
     [
       "gain_command_token_action",
-      "NAV"
+      0
     ],
     [
       "gain_command_token_action",
-      "REPAIR"
+      1
     ],
     [
       "gain_command_token_action",
-      "CONFIRE"
+      2
     ],
     [
       "pass_command_token",
@@ -196,15 +174,15 @@
   "SHIP_DISCARD_COMMAND_TOKEN": [
     [
       "discard_command_token_action",
-      "NAV"
+      0
     ],
     [
       "discard_command_token_action",
-      "REPAIR"
+      1
     ],
     [
       "discard_command_token_action",
-      "CONFIRE"
+      2
     ]
   ],
   "SHIP_RESOLVE_REPAIR": [
@@ -244,102 +222,102 @@
     ],
     [
       "recover_shield_action",
-      "FRONT"
+      0
     ],
     [
       "recover_shield_action",
-      "RIGHT"
+      1
     ],
     [
       "recover_shield_action",
-      "REAR"
+      2
     ],
     [
       "recover_shield_action",
-      "LEFT"
+      3
     ],
     [
       "move_shield_action",
       [
-        "FRONT",
-        "RIGHT"
+        0,
+        1
       ]
     ],
     [
       "move_shield_action",
       [
-        "FRONT",
-        "REAR"
+        0,
+        2
       ]
     ],
     [
       "move_shield_action",
       [
-        "FRONT",
-        "LEFT"
+        0,
+        3
       ]
     ],
     [
       "move_shield_action",
       [
-        "RIGHT",
-        "FRONT"
+        1,
+        0
       ]
     ],
     [
       "move_shield_action",
       [
-        "RIGHT",
-        "REAR"
+        1,
+        2
       ]
     ],
     [
       "move_shield_action",
       [
-        "RIGHT",
-        "LEFT"
+        1,
+        3
       ]
     ],
     [
       "move_shield_action",
       [
-        "REAR",
-        "FRONT"
+        2,
+        0
       ]
     ],
     [
       "move_shield_action",
       [
-        "REAR",
-        "RIGHT"
+        2,
+        1
       ]
     ],
     [
       "move_shield_action",
       [
-        "REAR",
-        "LEFT"
+        2,
+        3
       ]
     ],
     [
       "move_shield_action",
       [
-        "LEFT",
-        "FRONT"
+        3,
+        0
       ]
     ],
     [
       "move_shield_action",
       [
-        "LEFT",
-        "RIGHT"
+        3,
+        1
       ]
     ],
     [
       "move_shield_action",
       [
-        "LEFT",
-        "REAR"
+        3,
+        2
       ]
     ],
     [
@@ -351,769 +329,769 @@
     [
       "declare_target_action",
       [
-        "FRONT",
         0,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
         0,
-        "RIGHT"
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "FRONT",
         0,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
         0,
-        "LEFT"
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "FRONT",
-        1,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        1,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        1,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        1,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        2,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        2,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        2,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        2,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        3,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        3,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        3,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        3,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        4,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        4,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        4,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        4,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        5,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        5,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        5,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "FRONT",
-        5,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
         0,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
         0,
-        "RIGHT"
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "RIGHT",
         0,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
         0,
-        "LEFT"
+        3
       ]
     ],
     [
       "declare_target_action",
       [
-        "RIGHT",
-        1,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        1,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        1,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        1,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        2,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        2,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        2,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        2,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        3,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        3,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        3,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        3,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        4,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        4,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        4,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        4,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        5,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        5,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        5,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "RIGHT",
-        5,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
         0,
-        "FRONT"
+        1,
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "REAR",
         0,
-        "RIGHT"
+        1,
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "REAR",
         0,
-        "REAR"
+        1,
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "REAR",
         0,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
         1,
-        "FRONT"
+        3
       ]
     ],
     [
       "declare_target_action",
       [
-        "REAR",
-        1,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        1,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        1,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        2,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        2,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        2,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        2,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        3,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        3,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        3,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        3,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        4,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        4,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        4,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        4,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        5,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        5,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        5,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "REAR",
-        5,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "LEFT",
         0,
-        "FRONT"
+        2,
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
         0,
-        "RIGHT"
+        2,
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
         0,
-        "REAR"
+        2,
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
         0,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "LEFT",
-        1,
-        "FRONT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "LEFT",
-        1,
-        "RIGHT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "LEFT",
-        1,
-        "REAR"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "LEFT",
-        1,
-        "LEFT"
-      ]
-    ],
-    [
-      "declare_target_action",
-      [
-        "LEFT",
         2,
-        "FRONT"
+        3
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        0,
+        3,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        3,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        3,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        3,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        4,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        4,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        4,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        4,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        5,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        5,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        5,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        0,
+        5,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        0,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        0,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        0,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        1,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        1,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
+        1,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
         2,
-        "RIGHT"
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         2,
-        "REAR"
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         2,
-        "LEFT"
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
+        2,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        1,
         3,
-        "FRONT"
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         3,
-        "RIGHT"
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         3,
-        "REAR"
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         3,
-        "LEFT"
+        3
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         4,
-        "FRONT"
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         4,
-        "RIGHT"
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         4,
-        "REAR"
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         4,
-        "LEFT"
+        3
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         5,
-        "FRONT"
+        0
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         5,
-        "RIGHT"
+        1
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         5,
-        "REAR"
+        2
       ]
     ],
     [
       "declare_target_action",
       [
-        "LEFT",
+        1,
         5,
-        "LEFT"
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        0,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        0,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        0,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        0,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        1,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        1,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        1,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        1,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        2,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        2,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        2,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        2,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        3,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        3,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        3,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        3,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        4,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        4,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        4,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        4,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        5,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        5,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        5,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        2,
+        5,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        0,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        0,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        0,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        0,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        1,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        1,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        1,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        1,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        2,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        2,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        2,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        2,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        3,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        3,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        3,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        3,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        4,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        4,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        4,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        4,
+        3
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        5,
+        0
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        5,
+        1
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        5,
+        2
+      ]
+    ],
+    [
+      "declare_target_action",
+      [
+        3,
+        5,
+        3
       ]
     ],
     [
@@ -1125,69 +1103,33 @@
     [
       "gather_dice_action",
       [
-        [
-          0,
-          1
-        ],
-        [
-          1,
-          0
-        ],
-        [
-          2,
-          0
-        ]
+        1,
+        0,
+        0
       ]
     ],
     [
       "gather_dice_action",
       [
-        [
-          0,
-          0
-        ],
-        [
-          1,
-          1
-        ],
-        [
-          2,
-          0
-        ]
+        0,
+        1,
+        0
       ]
     ],
     [
       "gather_dice_action",
       [
-        [
-          0,
-          0
-        ],
-        [
-          1,
-          0
-        ],
-        [
-          2,
-          1
-        ]
+        0,
+        0,
+        1
       ]
     ],
     [
       "gather_dice_action",
       [
-        [
-          0,
-          0
-        ],
-        [
-          1,
-          0
-        ],
-        [
-          2,
-          0
-        ]
+        0,
+        0,
+        0
       ]
     ]
   ],
@@ -1195,84 +1137,84 @@
     [
       "spend_accuracy_action",
       [
-        "BLUE",
+        1,
         0
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "BLUE",
+        1,
         1
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "BLUE",
+        1,
         2
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "BLUE",
+        1,
         3
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "BLUE",
+        1,
         4
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "BLUE",
+        1,
         5
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "RED",
+        2,
         0
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "RED",
+        2,
         1
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "RED",
+        2,
         2
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "RED",
+        2,
         3
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "RED",
+        2,
         4
       ]
     ],
     [
       "spend_accuracy_action",
       [
-        "RED",
+        2,
         5
       ]
     ],
@@ -1300,27 +1242,90 @@
     [
       "use_confire_dial_action",
       [
-        [
-          0,
-          1
-        ]
+        1,
+        0,
+        0
       ]
     ],
     [
       "use_confire_dial_action",
       [
-        [
-          1,
-          1
-        ]
+        0,
+        1,
+        0
       ]
     ],
     [
       "use_confire_dial_action",
       [
+        0,
+        0,
+        1
+      ]
+    ],
+    [
+      "use_confire_token_action",
+      [
         [
-          2,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "use_confire_token_action",
+      [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "use_confire_token_action",
+      [
+        [
+          0,
+          0,
           1
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
         ]
       ]
     ],
@@ -1329,29 +1334,20 @@
       [
         [
           0,
-          [
-            1,
-            0,
-            0
-          ]
+          0,
+          0
         ],
         [
           1,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ],
         [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
+          0,
+          0,
+          0,
+          0,
+          0
         ]
       ]
     ],
@@ -1360,29 +1356,20 @@
       [
         [
           0,
-          [
-            0,
-            1,
-            0
-          ]
+          0,
+          0
         ],
         [
+          0,
           1,
-          [
-            0,
-            0,
-            0
-          ]
+          0
         ],
         [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
+          0,
+          0,
+          0,
+          0,
+          0
         ]
       ]
     ],
@@ -1391,29 +1378,20 @@
       [
         [
           0,
-          [
-            0,
-            0,
-            1
-          ]
+          0,
+          0
         ],
         [
-          1,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0,
+          1
         ],
         [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
+          0,
+          0,
+          0,
+          0,
+          0
         ]
       ]
     ],
@@ -1422,29 +1400,20 @@
       [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
         ],
         [
           1,
-          [
-            1,
-            0,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
+          0,
+          0,
+          0,
+          0
         ]
       ]
     ],
@@ -1453,29 +1422,20 @@
       [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ],
         [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
           1,
-          [
-            0,
-            1,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
+          0,
+          0,
+          0
         ]
       ]
     ],
@@ -1484,29 +1444,20 @@
       [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ],
         [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
           1,
-          [
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ]
       ]
     ],
@@ -1515,29 +1466,20 @@
       [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ],
         [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
           1,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            1,
-            0,
-            0,
-            0,
-            0
-          ]
+          0
         ]
       ]
     ],
@@ -1546,122 +1488,20 @@
       [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ],
-        [
-          1,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            1,
-            0,
-            0,
-            0
-          ]
-        ]
-      ]
-    ],
-    [
-      "use_confire_token_action",
-      [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
+          0,
+          0
         ],
-        [
-          1,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            0,
-            1,
-            0,
-            0
-          ]
-        ]
-      ]
-    ],
-    [
-      "use_confire_token_action",
-      [
         [
           0,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          1,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            0,
-            0,
-            1,
-            0
-          ]
-        ]
-      ]
-    ],
-    [
-      "use_confire_token_action",
-      [
-        [
           0,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          1,
-          [
-            0,
-            0,
-            0
-          ]
-        ],
-        [
-          2,
-          [
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
+          0,
+          0,
+          1
         ]
       ]
     ],
@@ -1683,56 +1523,56 @@
       "spend_redicect_token_action",
       [
         2,
-        "FRONT"
+        0
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         2,
-        "RIGHT"
+        1
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         2,
-        "REAR"
+        2
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         2,
-        "LEFT"
+        3
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        "FRONT"
+        0
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        "RIGHT"
+        1
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        "REAR"
+        2
       ]
     ],
     [
       "spend_redicect_token_action",
       [
         3,
-        "LEFT"
+        3
       ]
     ],
     [
@@ -1741,4348 +1581,21 @@
         4,
         [
           [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              2
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              2,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              2,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              2,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              2,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              2
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              2,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              2,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              2
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              0,
-              2,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              1,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        4,
-        [
-          [
-            0,
-            [
-              2,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              2
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              2,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              2,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              2,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              2,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              2
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              1,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              2,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              1
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              2,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
-            0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
-          [
+            1,
             0,
-            [
-              0,
-              0,
-              1
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6090,67 +1603,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
             0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
             1,
-            [
-              0,
-              0,
-              0
-            ]
+            0
           ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
           [
             0,
-            [
-              0,
-              0,
-              1
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6158,33 +1628,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
+            0,
             0,
-            [
-              0,
-              0,
-              1
-            ]
+            1
           ],
           [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6192,33 +1653,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
+            0,
             0,
-            [
-              0,
-              0,
-              1
-            ]
+            0
           ],
           [
             1,
-            [
-              1,
-              0,
-              0
-            ]
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6226,33 +1678,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
+            0,
             0,
-            [
-              0,
-              0,
-              2
-            ]
+            0
           ],
           [
+            0,
             1,
-            [
-              0,
-              0,
-              0
-            ]
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6260,33 +1703,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
+            0,
             0,
-            [
-              0,
-              1,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            1
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6294,67 +1728,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
             0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0
           ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
           [
+            0,
             0,
-            [
-              0,
-              1,
-              0
-            ]
+            0
           ],
           [
             1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6362,67 +1753,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
             0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0
           ],
-          [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
           [
+            0,
             0,
-            [
-              0,
-              1,
-              0
-            ]
+            0
           ],
           [
+            0,
             1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6430,67 +1778,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
             0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
+            0,
+            0
           ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
           [
+            0,
             0,
-            [
-              0,
-              1,
-              0
-            ]
+            0
           ],
           [
+            0,
+            0,
             1,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0
           ]
         ]
       ]
@@ -6498,67 +1803,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
             0,
-            [
-              0,
-              1,
-              0
-            ]
-          ],
-          [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
+            0,
+            0
           ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
-          ]
-        ]
-      ]
-    ],
-    [
-      "spend_evade_token_action",
-      [
-        5,
-        [
           [
+            0,
             0,
-            [
-              0,
-              1,
-              1
-            ]
+            0
           ],
           [
+            0,
+            0,
+            0,
             1,
-            [
-              0,
-              0,
-              0
-            ]
-          ],
-          [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0
           ]
         ]
       ]
@@ -6566,33 +1828,24 @@
     [
       "spend_evade_token_action",
       [
-        5,
+        4,
         [
           [
+            0,
             0,
-            [
-              0,
-              2,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            1
           ]
         ]
       ]
@@ -6603,30 +1856,21 @@
         5,
         [
           [
+            1,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              1
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6638,29 +1882,20 @@
         [
           [
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            1,
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              1,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6671,30 +1906,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            1
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              1,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6705,30 +1931,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            0
           ],
           [
             1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              1,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6739,30 +1956,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            0
           ],
           [
+            0,
             1,
-            [
-              0,
-              0,
-              0
-            ]
+            0
           ],
           [
-            2,
-            [
-              1,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6773,30 +1981,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              1
-            ]
+            0,
+            0,
+            1
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6807,30 +2006,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              1,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            1,
+            0,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6841,30 +2031,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              1,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            1,
+            0,
+            0,
+            0
           ]
         ]
       ]
@@ -6875,30 +2056,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              0,
-              1
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            1,
+            0,
+            0
           ]
         ]
       ]
@@ -6909,30 +2081,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              1,
-              1,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            1,
+            0
           ]
         ]
       ]
@@ -6943,30 +2106,21 @@
         5,
         [
           [
+            0,
             0,
-            [
-              2,
-              0,
-              0
-            ]
+            0
           ],
           [
-            1,
-            [
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0
           ],
           [
-            2,
-            [
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+            0,
+            0,
+            0,
+            0,
+            1
           ]
         ]
       ]
@@ -6990,186 +2144,146 @@
     [
       "resolve_damage_action",
       [
-        [
-          "FRONT",
-          0
-        ]
+        0,
+        0
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "FRONT",
-          1
-        ]
+        0,
+        1
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "FRONT",
-          2
-        ]
+        0,
+        2
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "FRONT",
-          3
-        ]
+        0,
+        3
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "FRONT",
-          4
-        ]
+        0,
+        4
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "RIGHT",
-          0
-        ]
+        1,
+        0
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "RIGHT",
-          1
-        ]
+        1,
+        1
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "RIGHT",
-          2
-        ]
+        1,
+        2
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "RIGHT",
-          3
-        ]
+        1,
+        3
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "RIGHT",
-          4
-        ]
+        1,
+        4
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "REAR",
-          0
-        ]
+        2,
+        0
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "REAR",
-          1
-        ]
+        2,
+        1
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "REAR",
-          2
-        ]
+        2,
+        2
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "REAR",
-          3
-        ]
+        2,
+        3
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "REAR",
-          4
-        ]
+        2,
+        4
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "LEFT",
-          0
-        ]
+        3,
+        0
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "LEFT",
-          1
-        ]
+        3,
+        1
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "LEFT",
-          2
-        ]
+        3,
+        2
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "LEFT",
-          3
-        ]
+        3,
+        3
       ]
     ],
     [
       "resolve_damage_action",
       [
-        [
-          "LEFT",
-          4
-        ]
+        3,
+        4
       ]
     ],
     [
       "resolve_damage_action",
-      []
+      null
     ]
   ],
   "SHIP_MANEUVER_DETERMINE_COURSE": [
@@ -18183,12 +13297,6 @@
         ],
         1
       ]
-    ]
-  ],
-  "STATUS_PHASE": [
-    [
-      "status_phase",
-      null
     ]
   ]
 }

@@ -3,10 +3,6 @@ import itertools
 from collections import Counter
 from enum import Enum, IntEnum
 
-# --- Global Cache ---
-# This dictionary will store the outcomes for a given number and color of dice
-# to avoid re-calculating them. The key will be a tuple like (Dice.BLACK, 3).
-_DICE_OUTCOME_CACHE = {}
 
 
 class Dice(IntEnum) :
@@ -17,8 +13,8 @@ class Dice(IntEnum) :
         return self.name
     __repr__ = __str__
 
-FULL_DICE_POOL = {Dice.BLACK : [2,2,2], Dice.BLUE : [2,2,2], Dice.RED : [2,2,2,2,2]}
-
+FULL_DICE_POOL = ((2,2,2), (2,2,2), (2,2,2,2,2))
+EMPTY_DICE_POOL = ((0,0,0), (0,0,0), (0,0,0,0,0))
 
 CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
 ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 4}
@@ -32,11 +28,12 @@ DAMAGE_INDICES = {
     Dice.BLUE:  [1, 1, 0],
     Dice.RED:   [0, 1, 1, 2, 1]
 }
-def dice_icon(dice_pool : dict[Dice, list[int]]) -> dict[Dice, str] :
-    icon_dict = {dice_type : ' '.join([(f'{icon} ' * dice_count) for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type])]).replace('  ',' ').strip() for dice_type in Dice}
+
+def dice_icon(dice_pool : tuple[tuple[int, ...], ...]) -> dict[Dice, str] :
+    icon_dict = {dice_type : ' '.join([(f'{icon} ' * dice_count) for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type.value])]).replace('  ',' ').strip() for dice_type in Dice}
     return {dice_type : dice_pool for dice_type,dice_pool in icon_dict.items() if dice_pool}
 
-def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
+def roll_dice(dice_pool : tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
     """
     Simulates rolling Star Wars: Armada dice with specified probabilities.
 
@@ -51,9 +48,9 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
                RED : [red blank, red hit, red critical, red double, red accuracy]}
     """
 
-    black_dice = dice_pool.get(Dice.BLACK,0)
-    blue_dice = dice_pool.get(Dice.BLUE,0)
-    red_dice = dice_pool.get(Dice.RED,0)
+    black_dice = dice_pool[Dice.BLACK]
+    blue_dice = dice_pool[Dice.BLUE]
+    red_dice = dice_pool[Dice.RED]
 
     results = {
         "black_blank": 0,
@@ -109,76 +106,16 @@ def roll_dice(dice_pool : dict[Dice, int]) -> dict[Dice, list[int]]:
         elif roll == "accuracy":
             results["red_double"] += 1
 
-    dice_result = {
-        Dice.BLACK : (results["black_blank"], results["black_hit"], results["black_double"]),
-        Dice.BLUE : (results["blue_hit"], results["blue_critical"], results["blue_accuracy"]),
-        Dice.RED : (results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"])
-    }
+    dice_result = (
+        (results["black_blank"], results["black_hit"], results["black_double"]),
+        (results["blue_hit"], results["blue_critical"], results["blue_accuracy"]),
+        (results["red_blank"], results["red_hit"], results["red_critical"], results["red_double"], results["red_accuracy"])
+    )
 
     return dice_result
 
 
-def _generate_outcomes_for_color(dice_count: int, num_faces: int, dice_type: Dice) -> list[list[int]]:
-    """
-    Generates all possible result combinations for a single color of dice.
-    This function is used by the pre-computation step.
-    """
-    if dice_count == 0:
-        return [[0] * num_faces]
-
-    # Create a unique key for the cache
-    cache_key = (dice_type, dice_count)
-    
-    # Check if the result is already in the cache (it will be after pre-computation)
-    if cache_key in _DICE_OUTCOME_CACHE:
-        return _DICE_OUTCOME_CACHE[cache_key]
-
-    # If not in cache (e.g., for > max_dice), calculate the outcomes on the fly
-    face_indices = range(num_faces)
-    outcomes = []
-    
-    for combo in itertools.combinations_with_replacement(face_indices, dice_count):
-        counts = Counter(combo)
-        result = [counts[i] for i in face_indices]
-        outcomes.append(result)
-    
-    # Store the result in the cache for future use
-    _DICE_OUTCOME_CACHE[cache_key] = outcomes
-    return outcomes
-
-def precompute_dice_outcomes(max_dice: int = 8):
-    """
-    Calculates and caches all dice outcomes up to max_dice for each color.
-    This is run once when the module is imported for maximum performance.
-    """
-    for dice_type in Dice:
-        num_faces = len(ICON_INDICES[dice_type])
-        for i in range(1, max_dice + 1):
-            # This call will compute and store the results in the global cache
-            _generate_outcomes_for_color(i, num_faces, dice_type)
-
-def generate_all_dice_outcomes(dice_pool: dict[Dice,int]) -> list[dict[Dice, list[int]]]:
-    """
-    Creates a list of every possible dice outcome for a given set of dice
-    by combining pre-calculated outcomes for each color from the cache.
-    """
-    # Get outcomes for each color (this will use the cache)
-    black_outcomes = _generate_outcomes_for_color(dice_pool.get(Dice.BLACK, 0), 3, Dice.BLACK)
-    blue_outcomes = _generate_outcomes_for_color(dice_pool.get(Dice.BLUE, 0), 3, Dice.BLUE)
-    red_outcomes = _generate_outcomes_for_color(dice_pool.get(Dice.RED, 0), 5, Dice.RED)
-    
-    # Combine the outcomes of each color using a Cartesian product
-    all_combinations = itertools.product(black_outcomes, blue_outcomes, red_outcomes)
-    
-    # Format the final list
-    final_outcomes = [
-        {Dice.BLACK: black, Dice.BLUE: blue, Dice.RED: red}
-        for black, blue, red in all_combinations
-    ]
-    
-    return final_outcomes
-
-def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_modify: int) -> list[dict[Dice, list[int]]]:
+def dice_choice_combinations(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
     """
     Generates all possible outcomes of selecting a specific number of dice
     from a larger pool by working directly with the counts of each die face.
@@ -186,24 +123,26 @@ def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_
     """
     # for 1 dice case
     if dice_to_modify == 1:
-        combinations : list[dict[Dice, list[int]]]= []
+        combinations : list[tuple[tuple[int, ...], ...]] = []
         # Iterate through each die color and its face counts
-        for color, face_counts in attack_pool_result.items():
+        for color, face_counts in zip(Dice, attack_pool_result):
             # Iterate through each face index and its count
             for face_idx, count in enumerate(face_counts):
                 # If there's at least one die of this face, it's a valid choice
                 if count > 0:
                     # Create a new, zeroed-out combination dictionary
-                    new_combo = {
-                        Dice.BLACK: [0] * len(attack_pool_result.get(Dice.BLACK, [])),
-                        Dice.BLUE:  [0] * len(attack_pool_result.get(Dice.BLUE, [])),
-                        Dice.RED:   [0] * len(attack_pool_result.get(Dice.RED, []))
-                    }
+                    new_combo = (
+                        [0] * len(ICON_INDICES[Dice.BLACK]),
+                        [0] * len(ICON_INDICES[Dice.BLUE]),
+                        [0] * len(ICON_INDICES[Dice.RED])
+                    )
                     # Mark the single chosen die in the new combination
                     new_combo[color][face_idx] = 1
-                    combinations.append(new_combo)
+                    new_combo_tuple = tuple(tuple(face_list) for face_list in new_combo)
+                    combinations.append(new_combo_tuple)
         return combinations
     
+    else : raise NotImplementedError("Currently only supports choosing 1 die.")
     # We'll build the combinations using a recursive helper function
     combinations = []
     
@@ -253,7 +192,7 @@ def dice_choice_combinations(attack_pool_result: dict[Dice, list[int]], dice_to_
 if __name__ == "__main__":
     # --- Example Usage ---
     # Input: 1 black die, 1 blue die, 0 red dice
-    dice_pool = {Dice.BLACK : 2, Dice.BLUE : 2, Dice.RED : 2}
+    dice_pool = (2,2,2)
 
     
     # all_possible_outcomes = generate_all_dice_outcomes(dice_pool)

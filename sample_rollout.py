@@ -7,7 +7,6 @@ import numpy as np
 
 from armada import Armada, AttackInfo
 from ship import Ship, Command, HullSection, _cached_range, _cached_overlapping
-from dice import precompute_dice_outcomes 
 from game_phase import GamePhase
 
 def main():
@@ -21,7 +20,7 @@ def main():
         f.write("Game Start\n")
 
 
-    game = Armada()
+    game = Armada(initiative=1)
 
     cr90a = Ship(SHIP_DATA['CR90A'], 1)
     cr90b = Ship(SHIP_DATA['CR90B'], 1)
@@ -37,34 +36,9 @@ def main():
     game.deploy_ship(victory1, 400, 725, math.pi, 2)
     game.deploy_ship(victory2, 500, 725, math.pi, 2)
 
-    cr90a.asign_command(Command.NAV)
-    cr90b.asign_command(Command.NAV)
-
-    neb_escort.asign_command(Command.NAV)
-    neb_escort.asign_command(Command.CONFIRE)
-    neb_support.asign_command(Command.NAV)
-    neb_support.asign_command(Command.CONFIRE)
-
-    victory1.asign_command(Command.REPAIR)
-    victory1.asign_command(Command.NAV)
-    victory1.asign_command(Command.CONFIRE)
-    victory2.asign_command(Command.REPAIR)
-    victory2.asign_command(Command.NAV)
-    victory2.asign_command(Command.CONFIRE)
-
-    player1 = lambda: game.alpha_mcts_decision(iterations=400)
-    player2 = lambda: game.alpha_mcts_decision(iterations=400)
-
-
-    # for RANDOM PLAYER simulation
-    # player1 = game.random_decision
-    # player2 = game.random_decision
-
-    game.play(player1, player2)
-
+    game.rollout()
 
 if __name__ == '__main__':
-    precompute_dice_outcomes()
     main()
 
 

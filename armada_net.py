@@ -146,8 +146,9 @@ class ArmadaNet(nn.Module):
         
         # Select the correct policy head based on the current game phase
         policy_logits = self.policy_heads[phase.name](torso_output)
+        policy_probabilities = F.softmax(policy_logits, dim=0)
         
-        return policy_logits, value
+        return policy_probabilities, value
 
 # --- Example Usage (for testing the model's structure) ---
 if __name__ == '__main__':
@@ -189,4 +190,4 @@ if __name__ == '__main__':
     print(f"Predicted value: {value_output.item()}")
 
     # You can uncomment this to see the raw policy logits
-    # print(f"Policy logits: {policy_output}")
+    print(f"Policy logits: {policy_output}")

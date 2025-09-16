@@ -19,7 +19,7 @@ MAX_DEFENSE_TOKENS = 6
 BOARD_RESOLUTION = 16
 ENTITY_FEATURE_SIZE = 78
 RELATION_FEATURE_SIZE = 12
-SCALAR_FEATURE_SIZE = 41
+SCALAR_FEATURE_SIZE = 42
 
 def encode_game_state(game: Armada) -> dict[str, np.ndarray]:
     """Main function to encode the entire game state into numpy arrays for the NN."""
@@ -39,12 +39,14 @@ def encode_scalar_features(game: Armada) -> np.ndarray:
     round_feature = game.round / 6.0
     phase_feature = np.zeros(len(GamePhase), dtype=np.float32)
     phase_feature[game.phase.value - 1] = 1.0
+    initiative_feature = np.array([1, 0] if game.first_player == 1 else [0, 1], dtype=np.float32)
     player_feature = np.array([1, 0] if game.current_player == 1 else [0, 1], dtype=np.float32)
     p1_points = game.get_point(1) / 200.0
     p2_points = game.get_point(-1) / 200.0
 
     base_features = np.array(
         [round_feature, p1_points, p2_points] +
+        initiative_feature.tolist() +
         phase_feature.tolist() +
         player_feature.tolist()
     )
@@ -66,13 +68,13 @@ def encode_scalar_features(game: Armada) -> np.ndarray:
             np.array(info.attack_pool_result[Dice.RED], dtype=np.float32)
         ])
 
-        # Critical Effect (one-hot, len(Critical) )
+        # Critical Effect (one-hot, len(Critical) = 1 feature)
         crit_effect = np.zeros(len(Critical), dtype=np.float32)
         if info.critical :
             crit_effect[info.critical.value] = 1.0
 
-        # Range & Obstruction
-        attack_range = (info.attack_range.value - 1) / 4
+        # Range & Obstruction (2 features)
+        attack_range = (info.attack_range.value) / 4
         obstructed = 1.0 if info.obstructed else 0.0
 
         attack_features = np.concatenate([
@@ -218,7 +220,7 @@ def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
                 range_dict = _cached_point_range(ship.get_ship_hash_state(), point)
                 for attack_hull in HullSection:
                     dice = ship.gather_dice(attack_hull, range_dict[attack_hull])
-                    total_threat += sum(dice.values())
+                    total_threat += sum(dice)
                 if total_threat > 0:
                     planes[threat_plane_idx, r, c] += total_threat / 10.0
     return planes

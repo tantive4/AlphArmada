@@ -3,23 +3,20 @@ import random
 import copy
 import itertools
 from typing import Callable
-import math
 
 from shapely.geometry import Polygon
 
-from armada_net import ArmadaNet
-from mcts import MCTS
-from game_phase import GamePhase, ActionType
+from game_phase import GamePhase, ActionType, get_action_str
 from game_encoder import encode_game_state
 from action_space import ActionManager
 import visualizer
 from ship import Ship, HullSection, Command, _cached_range
-from defense_token import DefenseToken, TokenType, TOKEN_DICT
-from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, ICON_INDICES, DAMAGE_INDICES, roll_dice, generate_all_dice_outcomes, Critical, dice_choice_combinations
+from defense_token import DefenseToken, TokenType
+from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, EMPTY_DICE_POOL, roll_dice, Critical, dice_choice_combinations
 from measurement import AttackRange
 
 class Armada:
-    def __init__(self) -> None:
+    def __init__(self, initiative: int) -> None:
         self.player_edge = 900 # mm
         self.short_edge = 900 # mm
         self.game_board = Polygon([
@@ -31,56 +28,30 @@ class Armada:
         self.ships : list[Ship] = []
 
         self.round : int = 1
+        self.first_player : int = initiative
+
         self.phase = GamePhase.COMMAND_PHASE    
-        self.current_player : int = 1
-        self.decision_player : int | None = 1
+        self.current_player : int = self.first_player
+        self.decision_player : int | None = self.first_player
         self.active_ship : Ship | None = None
         self.attack_info : AttackInfo | None = None
 
         self.winner : float | None = None
         self.image_counter : int = 0
         self.debuging_visual : bool = False
-        self.simulation_mode : bool = False
         self.simulation_player : int | None = None
 
         self.action_manager = ActionManager()
 
-    def random_initialize(self) :
-        """
-        Initialize game with random deployment x & orientation and speed
-        """
-        self.revert_snapshot(self.start_snapshot)
-        rebel_deployment = [300, 400, 500, 600]
-        empire_deployment = [400, 500]
-        random.shuffle(rebel_deployment)
-        random.shuffle(empire_deployment)
-        deployment = rebel_deployment + empire_deployment
-        for ship in self.ships :
-            ship.x = deployment[ship.ship_id]
-            ship.orientation = random.choice([-math.pi/8, 0, math.pi])
-            ship.speed = random.randint(1,len(ship.nav_chart))
-        self.start_snapshot = self.get_snapshot()
 
-
-    def play(self, 
-             player1 : Callable[[], ActionType.Action] | None = None, 
-             player2 : Callable[[], ActionType.Action] | None = None, 
-             max_simulation_step : int = 1000) -> float :
+    def rollout(self, max_simulation_step : int = 1000) -> float :
         """
         The main game loop with two players defined by functions.
         Each player function should return an action based on the current game state.
         """
-        if not self.simulation_mode :
-            mcts_game = copy.deepcopy(self)
-            mcts_game.simulation_mode = True
-            action_manager = ActionManager()
-            model = ArmadaNet(action_manager)
-            self.game_tree = MCTS(mcts_game, action_manager, model)
 
-        if player1 is None : 
-            player1 = self.random_decision
-        if player2 is None : 
-            player2 = self.random_decision
+        player1 = self.random_decision
+        player2 = self.random_decision
         simulation_counter = 0
 
     
@@ -99,14 +70,6 @@ class Armada:
                 action : ActionType.Action = self.get_valid_actions()[0]
 
             self.apply_action(action)
-            if not self.simulation_mode : 
-                self.game_tree.advance_tree(action)
-
-                if self.get_snapshot() != self.game_tree.root_game.get_snapshot() : # debugging
-                    print(self.get_snapshot())
-                    print(self.game_tree.root_game.get_snapshot())
-                    raise ValueError
-
 
             simulation_counter += 1
             if simulation_counter >= max_simulation_step:
@@ -123,26 +86,11 @@ class Armada:
                 f.write(f"{actions}\n")
         return random.choice(actions)
 
-
-    def mcts_decision(self, iterations : int = 800) -> ActionType.Action:
-        self.game_tree.root_game.simulation_player = self.current_player
-        self.game_tree.mcts_search(iterations)
-        action : ActionType.Action = self.game_tree.get_best_action()
-        self.game_tree.root_game.simulation_player = None
-        return action
-
-    def alpha_mcts_decision(self, iterations : int = 800) -> ActionType.Action:
-        self.game_tree.root_game.simulation_player = self.current_player
-        self.game_tree.alpha_mcts_search()
-        action : ActionType.Action = self.game_tree.get_best_action()
-        self.game_tree.root_game.simulation_player = None
-        return action
-
     def player_decision(self) -> ActionType.Action:
         actions = self.get_valid_actions()
         if len(actions) == 1 : return actions[0]
         for i, action in enumerate(actions,1) :
-            print(f'{i} : {ActionType.get_action_str(self, action)}')
+            print(f'{i} : {get_action_str(self, action)}')
         player_index = int(input('Enter the action index (1, 2, 3 ...) : '))
         return actions[player_index - 1]
 
@@ -163,7 +111,7 @@ class Armada:
             case GamePhase.SHIP_PHASE :
                 self.decision_player = self.current_player
             case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-                self.decision_player = self.current_player
+                self.decision_player = None
             case GamePhase.SHIP_GAIN_COMMAND_TOKEN :
                 self.decision_player = self.current_player
             case GamePhase.SHIP_DISCARD_COMMAND_TOKEN :
@@ -192,8 +140,6 @@ class Armada:
             case GamePhase.SHIP_MANEUVER_DETERMINE_COURSE :
                 self.decision_player = self.current_player
 
-            case GamePhase.STATUS_PHASE :
-                self.decision_player = None
 
             case _ :
                 raise ValueError(f'Unknown game phase: {self.phase.name}')
@@ -207,11 +153,11 @@ class Armada:
 
         if self.phase > GamePhase.SHIP_PHASE and self.phase < GamePhase.SQUADRON_PHASE:
             if self.active_ship is None:
-                raise ValueError('No active ship for the current game phase.')
+                raise ValueError(f'No active ship for the current game phase.\n{self.get_snapshot()}')
             active_ship : Ship = self.active_ship
         if self.phase > GamePhase.SHIP_ATTACK_DECLARE_TARGET and self.phase < GamePhase.SHIP_EXECUTE_MANEUVER:
             if self.attack_info is None:
-                raise ValueError('No attack info for the current game phase.')
+                raise ValueError(f'No attack info for the current game phase.\n{self.get_snapshot()}')
             attack_info : AttackInfo = self.attack_info
             attack_pool_result = attack_info.attack_pool_result
 
@@ -220,22 +166,16 @@ class Armada:
             case GamePhase.COMMAND_PHASE :
                 if self.winner is not None:
                     raise ValueError('Game has already ended.')
-                ships_to_command = [ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value]
-                if ships_to_command : 
-                    actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in ships_to_command]
-                else :
-                    actions = [('pass_command', None)]
+                ships_to_command = [ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value] 
+                actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in ships_to_command]
             
             case GamePhase.SHIP_PHASE :
                 valid_ships = self.get_valid_activation(self.current_player)
-                if valid_ships : 
-                    actions = [('activate_ship_action', ship.ship_id) for ship in valid_ships]
-                else :
-                    actions = [('pass_ship_activation', None)]
+                actions = [('activate_ship_action', ship.ship_id) for ship in valid_ships]
             
             # Reveal Command Sequence
             case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-                if not self.simulation_mode or self.current_player == self.simulation_player :  # real game or player's simulation
+                if active_ship.player == self.simulation_player :  # player's simulation
                     actions = [('reveal_command_action', active_ship.command_stack[0])]
                 else :                                                                          # secret information
                     actions = [('reveal_command_action', command) for command in Command]
@@ -279,18 +219,17 @@ class Armada:
                 dice_to_roll = attack_ship.gather_dice(attack_info.attack_hull, attack_info.attack_range)
 
                 if attack_info.obstructed:
-                    if sum(dice_to_roll.values()) <= 1 : raise ValueError('Empty Attack Pool. Invalid Attack')
+                    if sum(dice_to_roll) <= 1 : raise ValueError('Empty Attack Pool. Invalid Attack')
                     for dice_type in Dice :
                         if dice_to_roll[dice_type] > 0 :
-                            dice_to_remove = {dice_type : 0 for dice_type in Dice}
-                            dice_to_remove[dice_type] = 1
+                            dice_to_remove = tuple(1 if i == dice_type else 0 for i in range(3))
                             actions.append(('gather_dice_action', dice_to_remove))
                 else:
-                    actions = [('gather_dice_action', {dice_type : 0 for dice_type in Dice})]
+                    actions = [('gather_dice_action', (0,0,0))]
             
             case GamePhase.SHIP_ATTACK_ROLL_DICE :
-                actions = [('roll_dice_action', dice_roll) for dice_roll in generate_all_dice_outcomes(attack_info.dice_to_roll)]
-            
+                raise NotImplementedError("This is a chance node. No player action available.")
+
             case GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS :
                 # spend accuracy
                 blue_acc_count = attack_pool_result[Dice.BLUE][ACCURACY_INDEX[Dice.BLUE]]
@@ -309,9 +248,9 @@ class Armada:
 
                 # use con-fire command
                 if attack_info.con_fire_dial :
-                    actions.extend([('use_confire_dial_action', {dice: 1}) for dice in Dice if sum(attack_pool_result[dice])])
+                    actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in Dice if sum(attack_pool_result[dice])])
 
-                if not actions : actions= [('pass_attack_effect', None)] # Above actions are MUST USED actions
+                if not actions : actions = [('pass_attack_effect', None)] # Above actions are MUST USED actions
 
                 # use con-fire command
                 if Command.CONFIRE not in active_ship.resolved_command :
@@ -354,12 +293,6 @@ class Armada:
                                 evade_dice_choices = dice_choice_combinations(attack_pool_result, 1)
                                 for dice_choice in evade_dice_choices :
                                     actions.append(('spend_evade_token_action', (index, dice_choice)))
-                                
-                                # if defender is smaller, may choose 2 dice
-                                if defend_ship.size_class < attack_ship.size_class :
-                                    discard_evade_choices = dice_choice_combinations(attack_pool_result, 2)
-                                    for dice_choice in discard_evade_choices :
-                                        actions.append(('spend_evade_token_action', (index, dice_choice)))
 
                             else : actions.append(('spend_defense_token_action', index))
 
@@ -381,26 +314,10 @@ class Armada:
             case GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE:
                 defend_ship = self.ships[attack_info.defend_ship_id]
                 total_damage = attack_info.total_damage
-                redirect_hulls = attack_info.redirect_hulls
-
-                # Helper function to recursively find all combinations
-                def find_redirect_combinations(hull_index, remaining_damage, current_combination):
-                    # Base case: If we have processed all hulls, this combination is complete.
-                    if hull_index == len(redirect_hulls):
-                        actions.append(('resolve_damage_action', current_combination))
-                        return
-
-                    current_hull = redirect_hulls[hull_index]
-                    max_shield = defend_ship.shield[current_hull]
-                    
-                    # Iterate through all possible damage amounts for the current hull.
-                    for damage in range(min(remaining_damage, max_shield) + 1):
-                        # Create the next combination by adding the current choice
-                        next_combination = current_combination + [(current_hull, damage)]
-                        # Recurse for the next hull with the updated remaining damage
-                        find_redirect_combinations(hull_index + 1, remaining_damage - damage, next_combination)
-
-                find_redirect_combinations(0, total_damage, [])
+                redirect_hull = attack_info.redirect_hull
+                if redirect_hull is not None :
+                    actions = [('resolve_damage_action', (redirect_hull, damage)) for damage in (range(min(total_damage, defend_ship.shield[redirect_hull]) + 1))]
+                actions.append(('resolve_damage_action', None))
                 
 
             # Maneuver Sequence
@@ -412,14 +329,16 @@ class Armada:
                         for placement in active_ship.get_valid_placement(course):
                             actions.append(('determine_course_action', (course, placement)))
 
-            case GamePhase.STATUS_PHASE :
-                actions = [('status_phase', None)]
-
             case _ :
                 raise ValueError(f'Unknown game phase: {self.phase.name}')
             
         if not actions:
             raise ValueError(f'No valid actions available in phase {self.phase.name}\n{self.get_snapshot()}')
+        try :
+            for action in actions :
+                hash(action)
+        except TypeError:
+            raise TypeError(f"Unhashable type detected in phase {self.phase.name}, action {action}: {type(action)} - {action}")
         return actions
     
     
@@ -446,27 +365,18 @@ class Armada:
                 if [ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value] :
                     self.phase = GamePhase.COMMAND_PHASE
                 else :
-                    if self.current_player == 1 : 
-                        self.current_player = -1
+                    if self.current_player == self.first_player : 
+                        self.current_player *= -1
                         self.phase = GamePhase.COMMAND_PHASE
                     else :
-                        self.current_player = 1
+                        self.current_player = self.first_player
                         self.phase = GamePhase.SHIP_PHASE
             
-            case 'pass_command', _ :
-                self.current_player = 1
-                self.phase = GamePhase.SHIP_PHASE
 
             case 'activate_ship_action', ship_id:
                 self.active_ship = self.ships[ship_id]
                 self.phase = GamePhase.SHIP_REVEAL_COMMAND_DIAL
 
-            case 'pass_ship_activation', _ :
-                if self.get_valid_activation(-self.current_player):
-                    self.current_player *= -1
-                else :
-                    self.phase = GamePhase.STATUS_PHASE
-                    self.active_ship = None
 
             case 'reveal_command_action', command :
                 active_ship.command_stack.pop()
@@ -545,29 +455,29 @@ class Armada:
             
             case 'gather_dice_action', dice_to_remove:
                 # update dice pool considering obstruction.etc
-                attack_info.dice_to_roll = {dice_type : attack_info.dice_to_roll[dice_type] - dice_to_remove[dice_type] for dice_type in Dice}
+                attack_info.dice_to_roll = tuple(attack_info.dice_to_roll[dice_type] - dice_to_remove[dice_type] for dice_type in Dice)
                 self.phase = GamePhase.SHIP_ATTACK_ROLL_DICE
 
             case 'roll_dice_action', dice_roll:
-                attack_info.dice_to_roll = {dice_type : 0 for dice_type in Dice}
-                for dice_type in Dice :
-                    current_results = attack_info.attack_pool_result[dice_type]
-                    new_results = dice_roll[dice_type]
-                    attack_info.attack_pool_result[dice_type] = [
-                        current + new for current, new in zip(current_results, new_results)
-                    ]
+                attack_info.dice_to_roll = tuple(0 for _ in Dice)
+                attack_info.attack_pool_result = tuple(tuple(original + new for original, new 
+                                                             in zip(attack_pool_result[dice_type], dice_roll[dice_type])) for dice_type in Dice)
+
                 if attack_info.phase == GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS :
                     self.phase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
                 else : self.phase = GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS
 
-            case 'spend_accuracy_action', (dice, index):
+            case 'spend_accuracy_action', (accuracy_dice, index):
                 defend_ship = self.ships[attack_info.defend_ship_id]
                 token = defend_ship.defense_tokens[index]
                 token.accuracy = True
-                if dice == Dice.BLUE:
-                    attack_pool_result[Dice.BLUE][ACCURACY_INDEX[Dice.BLUE]] -= 1
-                elif dice == Dice.RED:
-                    attack_pool_result[Dice.RED][ACCURACY_INDEX[Dice.RED]] -= 1
+                attack_info.attack_pool_result = tuple(
+                    tuple(result) if dice_type != accuracy_dice else
+                    tuple(count - 1 if i == ACCURACY_INDEX[accuracy_dice] else count
+                          for i, count in enumerate(result))
+                    for dice_type, result in zip(Dice, attack_pool_result)
+                )
+
                 self.phase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
 
             case 'resolve_con-fire_command_action', (dial, token) :
@@ -582,10 +492,10 @@ class Armada:
                 
             case 'use_confire_token_action', reroll_dice :
                 attack_info.con_fire_token = False
-                attack_info.attack_pool_result = {dice_type : [original_count - removed_count 
-                                                            for original_count, removed_count in zip(attack_pool_result[dice_type], reroll_dice[dice_type])] 
-                                                            for dice_type in Dice}
-                attack_info.dice_to_roll = {dice_type : sum(reroll_dice[dice_type]) for dice_type in Dice}
+                attack_info.attack_pool_result = tuple(tuple(original_count - removed_count 
+                                                            for original_count, removed_count in zip(attack_pool_result[dice_type], reroll_dice[dice_type])) 
+                                                            for dice_type in Dice)
+                attack_info.dice_to_roll = tuple(sum(reroll_dice[dice_type]) for dice_type in Dice)
                 self.phase = GamePhase.SHIP_ATTACK_ROLL_DICE
 
             case 'pass_attack_effect', _ :
@@ -608,7 +518,7 @@ class Armada:
                 attack_info.spent_token_indices.append(index)
                 attack_info.spent_token_types.append(token.type)
                 token.spend()
-                attack_info.redirect_hulls.append(hull)
+                attack_info.redirect_hull = hull
                 self.phase = GamePhase.SHIP_ATTACK_SPEND_DEFENSE_TOKENS
 
             case 'spend_evade_token_action', (index, evade_dice) :
@@ -621,13 +531,13 @@ class Armada:
                     token.discard()
                 else :
                     token.spend()
-                attack_info.attack_pool_result = {dice_type : [original_count - removed_count 
-                                                            for original_count, removed_count in zip(attack_pool_result[dice_type], evade_dice[dice_type])] 
-                                                            for dice_type in Dice}
+                attack_info.attack_pool_result = tuple(tuple(original_count - removed_count 
+                                                            for original_count, removed_count in zip(attack_pool_result[dice_type], evade_dice[dice_type]))
+                                                            for dice_type in Dice)
 
                 if attack_info.attack_range in [AttackRange.CLOSE, AttackRange.MEDIUM]:
                     # Reroll Evade Dice
-                    attack_info.dice_to_roll = {dice_type : sum(evade_dice[dice_type]) for dice_type in Dice}
+                    attack_info.dice_to_roll = tuple(sum(evade_dice[dice_type]) for dice_type in Dice)
                     self.phase = GamePhase.SHIP_ATTACK_ROLL_DICE
 
                 else:
@@ -648,11 +558,12 @@ class Armada:
                 attack_info.calculate_total_damage()
                 self.phase = GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE
 
-            case 'resolve_damage_action', redirect_damge:
+            case 'resolve_damage_action', redirect_damage:
                 defend_ship = self.ships[attack_info.defend_ship_id]
                 total_damage = attack_info.total_damage
                 # Redirect
-                for hull, damage in redirect_damge :
+                if redirect_damage :
+                    hull, damage = redirect_damage
                     defend_ship.shield[hull] -= damage
                     total_damage -= damage
 
@@ -675,22 +586,22 @@ class Armada:
                 active_ship.end_activation()
                 self.active_ship = None
 
-                if self.get_valid_activation(self.current_player) or self.get_valid_activation(-self.current_player) :
-                    self.phase = GamePhase.SHIP_PHASE
+                if self.get_valid_activation(- self.current_player) :
+                    # if opponent has ships left
                     self.current_player *= -1
-                else:
-                    self.phase = GamePhase.STATUS_PHASE
+                    self.phase = GamePhase.SHIP_PHASE
                 
-            case 'status_phase', _:
-                self.status_phase()
-                if self.winner is None :
-                    self.phase = GamePhase.COMMAND_PHASE
+                elif self.get_valid_activation(self.current_player) :
+                    # elif current player has ships left
+                    self.phase = GamePhase.SHIP_PHASE
+                
+                else :
+                    self.status_phase()
+                    if self.winner is None :
+                        self.phase = GamePhase.COMMAND_PHASE
 
             case _ :
                 raise ValueError(f'Unknown Action {action}')
-
-
-
 
         # decision player for NEXT PHASE (after applying action)
         self.update_decision_player()
@@ -701,7 +612,7 @@ class Armada:
         """
         if not self.debuging_visual : return
 
-        action_str = ActionType.get_action_str(self, action)
+        action_str = get_action_str(self, action)
         if action_str is None : return
 
         maneuver_tool = None
@@ -716,7 +627,6 @@ class Armada:
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
         self.visualize(f'\n{ship.name} is deployed.')
-        self.start_snapshot = self.get_snapshot()
 
 
 
@@ -762,7 +672,7 @@ class Armada:
         # 4. If the game is not over, advance to the next round
         else:
             self.round += 1
-            self.current_player = 1
+            self.current_player = self.first_player
 
     def get_point(self, player : int) -> int :
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
@@ -817,8 +727,8 @@ class AttackInfo :
 
         if self.attack_range == AttackRange.INVALID : raise ValueError('Cannot Declare Target of Invalid Range')
 
-        self.dice_to_roll : dict[Dice, int] = attack_ship.gather_dice(attack_hull, self.attack_range)
-        self.attack_pool_result : dict[Dice, list[int]]  = {dice_type : [0 for _ in ICON_INDICES[dice_type]] for dice_type in Dice}
+        self.dice_to_roll : tuple[int, ...] = attack_ship.gather_dice(attack_hull, self.attack_range)
+        self.attack_pool_result : tuple[tuple[int, ...], ...]  = EMPTY_DICE_POOL
         self.con_fire_dial = False
         self.con_fire_token = False
 
@@ -828,7 +738,7 @@ class AttackInfo :
 
         self.spent_token_indices : list[int] = []
         self.spent_token_types : list[TokenType] = []
-        self.redirect_hulls : list[HullSection] = []
+        self.redirect_hull : HullSection | None = None
 
         self.critical : Critical | None = None
 
@@ -839,9 +749,6 @@ class AttackInfo :
     def __str__(self) -> str :
         return str(self.__dict__)
     __repr__ = __str__
-    
-
-
 
     def calculate_total_damage(self) -> int :
         total_damage = 0

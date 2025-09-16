@@ -11,18 +11,16 @@ def _make_hashable(action_value):
     Recursively converts an action's payload (often loaded from JSON as a list)
     into a fully hashable type (a tuple).
     """
-    if isinstance(action_value, (Command, HullSection, Dice, Critical)):
-        return action_value.name
-    
-    if isinstance(action_value, list | tuple):
+    if isinstance(action_value, (list, tuple)):
         return tuple(_make_hashable(item) for item in action_value)
-    if isinstance(action_value, dict):
-        # Sort by key to ensure consistency
-        return tuple(sorted((k, _make_hashable(v)) for k, v in action_value.items()))
     return action_value
 
 def generate_all_maps():
-    """Generates the total action space for every game phase."""
+    """
+    Generates the total action space for every game phase.
+    
+    Skip Chance node (dice roll) & Information node (command stack)
+    """
     all_maps_raw = {}
 
     # Define the maximums your game will support
@@ -36,15 +34,13 @@ def generate_all_maps():
         
             case GamePhase.COMMAND_PHASE :
                 actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in range(MAX_SHIPS)]
-                actions.append(('pass_command', None))
             
             case GamePhase.SHIP_PHASE :
                 actions = [('activate_ship_action', ship_id) for ship_id in range(MAX_SHIPS)]
-                actions.append(('pass_ship_activation', None))
             
             # Reveal Command Sequence
-            case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-                actions = [('reveal_command_action', command) for command in Command]
+            case GamePhase.SHIP_REVEAL_COMMAND_DIAL : # information node
+                pass
 
             case GamePhase.SHIP_GAIN_COMMAND_TOKEN :
                 actions = [('gain_command_token_action', command) for command in Command]
@@ -73,10 +69,11 @@ def generate_all_maps():
                 
             case GamePhase.SHIP_ATTACK_GATHER_DICE :
                 for dice_type in Dice :
-                    dice_to_remove = {dice_type : 0 for dice_type in Dice}
+                    dice_to_remove = [0,0,0]
                     dice_to_remove[dice_type] = 1
+                    dice_to_remove = tuple(dice_to_remove)
                     actions.append(('gather_dice_action', dice_to_remove))
-                actions.append(('gather_dice_action', {dice_type : 0 for dice_type in Dice}))
+                actions.append(('gather_dice_action', (0, 0, 0)))
 
             case GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node
                 pass
@@ -87,7 +84,7 @@ def generate_all_maps():
 
                 # use con-fire command
                 actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
-                actions.extend([('use_confire_dial_action', {dice: 1}) for dice in Dice])
+                actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in Dice])
                 actions.extend([('use_confire_token_action', dice) for dice in dice_choice_combinations(FULL_DICE_POOL, 1)])
                 
                 actions.append(('pass_attack_effect', None))
@@ -103,10 +100,6 @@ def generate_all_maps():
                         evade_dice_choices = dice_choice_combinations(FULL_DICE_POOL, 1)
                         for dice_choice in evade_dice_choices :
                             actions.append(('spend_evade_token_action', (index, dice_choice)))
-                        # if defender is smaller, may choose 2 dice
-                        discard_evade_choices = dice_choice_combinations(FULL_DICE_POOL, 2)
-                        for dice_choice in discard_evade_choices :
-                            actions.append(('spend_evade_token_action', (index, dice_choice)))
 
                     else : actions.append(('spend_defense_token_action', index))
 
@@ -119,12 +112,12 @@ def generate_all_maps():
 
             case GamePhase.SHIP_ATTACK_RESOLVE_DAMAGE:
                 # consider standard redirect with max damage 4
-                actions = [('resolve_damage_action', [(hull, damage)]) for hull in HullSection for damage in range(5)]
-                actions.append(('resolve_damage_action', []))
+                actions = [('resolve_damage_action', (hull, damage)) for hull in HullSection for damage in range(5)]
+                actions.append(('resolve_damage_action', None))
 
             # Maneuver Sequence
             case GamePhase.SHIP_MANEUVER_DETERMINE_COURSE :
-                actions = [('determine_course_action',([], 0))]
+                actions = [('determine_course_action', ((), 0))]
                 for speed in range(1, 5):
                     # All possible yaw combinations (-2 to 2 for each joint)
                     yaw_options = range(-2, 3)
@@ -134,10 +127,8 @@ def generate_all_maps():
                         # Placement can be Left (-1) or Right (1)
                         for placement in [-1, 1]:
                             if course[-1] * placement < 0: continue 
-                            actions.append(('determine_course_action', (list(course), placement)))
+                            actions.append(('determine_course_action', (course, placement)))
 
-            case GamePhase.STATUS_PHASE :
-                actions = [('status_phase', None)]
         
         if actions:
             all_maps_raw[phase.name] = actions
@@ -147,7 +138,7 @@ def generate_all_maps():
     for phase_name, action_list in all_maps_raw.items():
         # Use a list comprehension to apply the conversion to the entire list
         all_maps_hashable[phase_name] = [
-            (action_name, _make_hashable(action_value))
+            (action_name, action_value)
             for action_name, action_value in action_list
         ]
 
@@ -214,4 +205,3 @@ if __name__ == '__main__':
         if phase in action_manager.action_maps:
             action_map = action_manager.get_action_map(phase)
             print(f"Phase: {phase.name:<35} Total Actions: {len(action_map['total_actions'])}")
-

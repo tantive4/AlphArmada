@@ -94,7 +94,7 @@ class Ship:
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
         
         self._create_template_geometries(ship_dict)
-        self._course_cache : dict[tuple[int, bool], list[list[int]]]= {}
+        self._course_cache : dict[tuple[int, bool], list[tuple[int, ...]]]= {}
         
     def __str__(self):
         return self.name
@@ -159,7 +159,7 @@ class Ship:
         self.command_dial = []
         self.resolved_command = []
 
-    def move_ship(self, course : list[int], placement : int) -> None:
+    def move_ship(self, course : tuple[int, ...], placement : int) -> None:
         # speed 0 maneuver
         if not course :
             self.game.visualize(f'{self} executes speed 0 maneuver.')
@@ -316,8 +316,8 @@ class Ship:
 
         return False
 
-    def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> dict[Dice, int] :
-        attack_pool = {dice_type : self.battery[attack_hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice}
+    def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> tuple[int, ...] :
+        attack_pool = tuple(self.battery[attack_hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice)
         return attack_pool
 
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
@@ -348,7 +348,7 @@ class Ship:
                 
                 if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
 
-                dice_count = sum(self.gather_dice(attack_hull, attack_range).values())
+                dice_count = sum(self.gather_dice(attack_hull, attack_range))
                 if dice_count == 0 : continue
                 elif dice_count == 1:
                     if self.measure_line_of_sight(attack_hull, ship, target_hull) : continue
@@ -384,7 +384,7 @@ class Ship:
 
 # sub method for execute maneuver
 
-    def _tool_coordination(self, course : list[int], placement : int) -> tuple[list[tuple[float, float]], list[float]]:
+    def _tool_coordination(self, course : tuple[int, ...], placement : int) -> tuple[list[tuple[float, float]], list[float]]:
         """
         Calculates the coordinates and orientations along a maneuver tool's path using NumPy.
         """
@@ -399,7 +399,7 @@ class Ship:
 
         # --- Step 2: Calculate all joint orientations at once ---
         # This array will have shape (speed + 1) and includes the initial orientation
-        yaw_changes = np.array([0] + course) * (math.pi / 8)
+        yaw_changes = np.array([0] + list(course)) * (math.pi / 8)
         joint_orientations = initial_orientation + np.cumsum(yaw_changes)
 
         # --- Step 3: Calculate the direction vectors for each segment ---
@@ -537,7 +537,7 @@ class Ship:
 
         return valid_yaw
     
-    def nav_command_used(self, course: list[int]) -> tuple[bool, bool] :
+    def nav_command_used(self, course: tuple[int, ...]) -> tuple[bool, bool] :
             nav_dial_used = False
             nav_token_used = False
             new_speed = len(course)
@@ -576,7 +576,7 @@ class Ship:
                     raise ValueError("This course requires an extra click, which needs a NAVIGATE command from the dial.")
             return nav_dial_used, nav_token_used
     
-    def is_standard_course(self, course:list[int]) -> bool :
+    def is_standard_course(self, course:tuple[int, ...]) -> bool :
         """
         Checks if a given course is a standard maneuver for a given speed,
         without using any special abilities like adding a click.
@@ -588,7 +588,7 @@ class Ship:
             if abs(yaw) > self.nav_chart[speed][joint] : return False
         return True
 
-    def get_all_possible_courses(self, speed: int) -> list[list[int]]:
+    def get_all_possible_courses(self, speed: int) -> list[tuple[int, ...]]:
         """
         Gets all possible maneuver courses for a given speed.
 
@@ -608,7 +608,7 @@ class Ship:
             return self._course_cache[cache_key]
         
         if speed == 0:
-            return [[]] # A speed 0 maneuver has an empty course
+            return [()] # A speed 0 maneuver has an empty course
 
         # 1. Get the base valid yaw options for each joint from the nav chart.
         original_yaw_options = [self.get_valid_yaw(speed, joint) for joint in range(speed)]
@@ -619,7 +619,7 @@ class Ship:
 
         # 3. If the special condition isn't met, return the standard courses.
         if not Command.NAV in self.command_dial:
-            return [list(course) for course in all_courses]
+            return [course for course in all_courses]
 
         # 4. If the condition is met, generate new courses from the standard ones.
         # We start with a copy of the original courses to iterate over.
@@ -645,11 +645,11 @@ class Ship:
                     all_courses.add(tuple(new_course))
 
 
-        final_result = [list(course) for course in all_courses]
+        final_result = [course for course in all_courses]
         self._course_cache[cache_key] = final_result
         return final_result
     
-    def get_valid_placement(self, course : list[int]) -> list[int]:
+    def get_valid_placement(self, course : tuple[int, ...]) -> list[int]:
         """
         Get a list of valid placements for the ship based on its navchart.
 

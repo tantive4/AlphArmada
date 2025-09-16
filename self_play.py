@@ -18,7 +18,7 @@ from armada_net import ArmadaNet
 from game_encoder import encode_game_state
 from mcts import MCTS
 from action_space import ActionManager
-from game_phase import GamePhase
+from game_phase import GamePhase, ActionType, get_action_str
 from dice import roll_dice
 
 class Config:
@@ -30,7 +30,7 @@ class Config:
     SELF_PLAY_GAMES = 20 # generate data for SELF_PLAY_GAMES games during one iteration
 
     # MCTS
-    MCTS_ITERATION = 400
+    MCTS_ITERATION = 100
     MAX_GAME_STEP = 1000
 
     # Replay Buffer
@@ -53,25 +53,38 @@ class AlphArmada:
         self.config = config
 
     def self_play(self) :
+        with open('simulation_log.txt', 'w') as f:
+            f.write("Game Start\n")
+
         memory : list[tuple[GamePhase, dict, np.ndarray]]= []
         game = setup_game()
         mcts_game = copy.deepcopy(game)
-        mcts_game.simulation_mode = True
         mcts = MCTS(mcts_game, game.action_manager, self.model, self.config)
 
         for _ in range(self.config.MAX_GAME_STEP) :
-            if game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : # chance node case
-                if game.attack_info is None :
-                    raise ValueError("No attack info for the current game phase.")
-                dice_roll = roll_dice(game.attack_info.dice_to_roll)
-                action = ('roll_dice_action', dice_roll)
-            else :
-                action_probs = mcts.alpha_mcts_search()
-                memory.append((game.phase, encode_game_state(game), action_probs))
-                action = mcts.get_random_best_action()
+            if game.decision_player is None :
+                # chance node case
+                if game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : 
+                    if game.attack_info is None :
+                        raise ValueError("No attack info for the current game phase.")
+                    dice_roll = roll_dice(game.attack_info.dice_to_roll)
+                    action = ('roll_dice_action', dice_roll)
 
+                 # information set node case
+                elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL :
+                    mcts.game.simulation_player = game.current_player
+                    if len(mcts.game.get_valid_actions()) != 1 :
+                        raise ValueError(f"Multiple valid actions in information set node.\n{mcts.game.get_valid_actions()}")
+                    action = mcts.game.get_valid_actions()[0]
+
+            else :
+                action_probs = mcts.alpha_mcts_search(game.decision_player)
+                memory.append((game.phase, encode_game_state(game), action_probs))
+                action = mcts.get_best_action(game.decision_player)
+                
+            print(get_action_str(game, action))
             game.apply_action(action)
-            mcts.advance_tree(action)
+            mcts.advance_tree(action, game.get_snapshot())
 
 
             if game.winner is not None : 
@@ -170,7 +183,7 @@ class AlphArmada:
 def setup_game() -> Armada: 
     with open('ship_info.json', 'r') as f:
         SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
-    game = Armada()
+    game = Armada(random.choice([1, -1])) # randomly choose the first player
     
     rebel_ships = (
         Ship(SHIP_DATA['CR90A'], 1), 
@@ -191,7 +204,7 @@ def setup_game() -> Armada:
     for i, ship in enumerate(rebel_ships) :
         game.deploy_ship(ship, rebel_deployment[i], 175, random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
     for i, ship in enumerate(empire_ships): 
-        game.deploy_ship(ship, empire_deployment[i], 175, math.pi + random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
+        game.deploy_ship(ship, empire_deployment[i], 725, math.pi + random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
 
     return game
 
