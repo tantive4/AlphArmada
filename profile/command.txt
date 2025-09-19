@@ -1,0 +1,7 @@
+python -m cProfile -o profile/result_5 self_play.py
+
+python -m pstats profile/result_5
+sort cumtime
+sort 100
+
+snakeviz profile/result_5

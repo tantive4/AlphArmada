@@ -48,11 +48,11 @@ class Command(IntEnum) :
 
 SHIP_BASE_SIZE : dict[SizeClass, tuple]= {SizeClass.SMALL : (43, 71), SizeClass.MEDIUM : (63, 102), SizeClass.LARGE : (77.5, 129)}
 SHIP_TOKEN_SIZE :  dict[SizeClass, tuple] = {SizeClass.SMALL : (38.5, 70.25), SizeClass.MEDIUM : (58.5, 101.5)}
-TOOL_WIDTH : float= 15.25
+TOOL_WIDTH_HALF : float= 15.25 / 2
 TOOL_LENGTH : float= 46.13 
 TOOL_PART_LENGTH : float = 22.27
-ROTATION_MATRIX_90_CCW = np.array([[0, -1], [1, 0]])
-ROTATION_MATRICES = [np.linalg.matrix_power(ROTATION_MATRIX_90_CCW, i) for i in range(4)]
+ROTATION_MATRIX_90_CW = np.array([[0, -1], [1, 0]])
+ROTATION_MATRICES = [np.linalg.matrix_power(ROTATION_MATRIX_90_CW, i) for i in range(4)]
 
 class Ship:
     def __init__(self, ship_dict : dict, player : int) -> None:
@@ -64,13 +64,13 @@ class Ship:
         self.token_size : tuple [float, float] = SHIP_TOKEN_SIZE[self.size_class]
         self.base_size : tuple [float, float] = SHIP_BASE_SIZE[self.size_class]
 
-        battery :  dict[HullSection, list[int]] = {HullSection.FRONT : ship_dict['battery'][0], 
+        self.battery :  dict[HullSection, list[int]] = {HullSection.FRONT : ship_dict['battery'][0], 
                                                         HullSection.RIGHT : ship_dict['battery'][1], 
                                                         HullSection.REAR : ship_dict['battery'][2], 
                                                         HullSection.LEFT : ship_dict['battery'][1]}
         self.battery_range : dict[HullSection, dict[AttackRange, tuple[int, ...]]] = {
             hull: {
-                attack_range : tuple(battery[hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice)
+                attack_range : tuple(self.battery[hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice)
                 for attack_range in AttackRange if attack_range != AttackRange.INVALID
             } for hull in HullSection
         }
@@ -99,8 +99,7 @@ class Ship:
         self.front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         self.rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
         
-        self._create_templ
-        ate_geometries(ship_dict)
+        self._create_template_geometries(ship_dict)
         self._course_cache : dict[tuple[int, bool], list[tuple[int, ...]]]= {}
         
     def __str__(self):
@@ -121,15 +120,15 @@ class Ship:
             ship_id (int) : ship id
         """
         self.game : Armada = game
-        self.x = x
-        self.y = y
-        self.orientation = orientation
-        self.speed = speed
+        self.x: float = x
+        self.y: float = y
+        self.orientation: float = orientation
+        self.speed: int = speed
 
-        self.hull = self.max_hull
-        self.shield = self.max_shield.copy()
-        self.ship_id = ship_id
-        self.command_stack : list[Command] = []
+        self.hull: int = self.max_hull
+        self.shield: dict[HullSection, int] = self.max_shield.copy()
+        self.ship_id: int = ship_id
+        self.command_stack: list[Command] = []
         self.command_dial : list[Command] = []
         self.command_token : list[Command] = []
         self.resolved_command : list[Command] = []
@@ -137,7 +136,6 @@ class Ship:
         self.attack_count : int = 0
         self.attack_possible_hull = [True, True, True, True]
         self.repaired_hull : list[HullSection] = []
-        self._set_coordination()
         self.refresh()
     
     def asign_command(self, Command) -> None :
@@ -166,44 +164,41 @@ class Ship:
         self.command_dial = []
         self.resolved_command = []
 
-    def move_ship(self, course : tuple[int, ...], placement : int) -> None:
-        # speed 0 maneuver
-        if not course :
-            self.game.visualize(f'{self} executes speed 0 maneuver.')
-            return
-
-        original_x, original_y, original_orientaion = self.x, self.y, self.orientation
-
-        joint_coordination, joint_orientaion = self._tool_coordination(course, placement)
-
-        overlap_list = [False for _ in self.game.ships]
-
-        while True :
-            self._maneuver_to_coordination(placement, joint_coordination[-1], joint_orientaion[-1])
-            self.game.visualize(f'{self} executes speed {len(joint_orientaion) - 1} maneuver.', joint_coordination)
-
-            current_overlap = self.is_overlap()
-
-            if not any(current_overlap):
-                break
-            self.game.visualize(f'{self} overlaps ships at speed {len(joint_orientaion) - 1} maneuver.')
-
-            overlap_list = [overlap_list[i] or current_overlap[i] for i in range(len(overlap_list))]
-
-            self.x, self.y, self.orientation = original_x, original_y, original_orientaion
-            self._set_coordination()
-            del joint_coordination[-2 :]
-            del joint_orientaion[-1] 
-
-            if len(joint_coordination) == 1 : break
-
+    def execute_maneuver(self, course : tuple[int, ...], placement : int) -> None:
+        overlap_ships = self.move_ship(course, placement, set())
+        self.overlap(overlap_ships)
         if self.out_of_board() :
             self.game.visualize(f'{self} is out of board!')
             self.destroy()
 
-        self.overlap(overlap_list)
+    def move_ship(self, course : tuple[int, ...], placement : int, overlap_ships : set[int]) -> set[int]:
+        if not course :
+            self.game.visualize(f'{self} executes speed 0 maneuver.')
+            return overlap_ships
+        # tool_coord = self._tool_coordination(course, placement)[0]
+        
+        original_position, original_orientation = np.array([self.x, self.y]), self.orientation
 
-
+        tool_translation, tool_rotation = _cached_maneuver_tool(self.size_class, course, placement)
+        # change translation vector according to the current orientation
+        # rotation matrix use CW orientation    
+        c = np.cos(-original_orientation)
+        s = np.sin(-original_orientation)
+        rotation_matrix = np.array([[c, -s],
+                                    [s,  c]])
+        tool_translation = rotation_matrix @ tool_translation
+        self.x, self.y = original_position + tool_translation
+        self.orientation += tool_rotation
+        # self.game.visualize(f'{self} executes speed {len(course)} maneuver.',tool_coord)
+        current_overlap = self.is_overlap()
+        
+        if current_overlap:
+            # self.game.visualize(f'{self} overlaps ships at speed {len(course)} maneuver.',tool_coord)
+            overlap_ships = overlap_ships.union(current_overlap)
+            self.x, self.y, self.orientation = *original_position, original_orientation
+            new_overlap = self.move_ship(course[:-1], placement, overlap_ships)
+            overlap_ships = overlap_ships.union(new_overlap)
+        return overlap_ships
 
 
 
@@ -270,33 +265,16 @@ class Ship:
             [ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
             [0, -ship_dict['rear_targeting_point']],
             [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
-            [ (self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2],
-            [-(self.base_size[0] + TOOL_WIDTH)/2, (self.base_size[1]-self.token_size[1])/2],
+            [ (self.base_size[0] + TOOL_WIDTH_HALF)/2, (self.base_size[1]-self.token_size[1])/2],
+            [-(self.base_size[0] + TOOL_WIDTH_HALF)/2, (self.base_size[1]-self.token_size[1])/2],
             [0, -self.token_size[1]/2]
         ])
 
-    
-    def _set_coordination(self) -> None:
-        """
-        Transforms template vertices using NumPy and creates final Polygon objects.
-        This is the fastest and safest method, avoiding both repeated calculations and the need for .buffer(0).
-        """
-        c, s = math.cos(-self.orientation), math.sin(-self.orientation)
-        rotation_matrix = np.array([[c, -s], [s, c]])
-        translation_vector = np.array([self.x, self.y])
 
-        # Transform vertices and create final Polygon objects
-        self.ship_base = Polygon((self.template_base_vertices @ rotation_matrix.T) + translation_vector)
-
-        final_targeting_points = (self.template_targeting_points_and_maneuver_tool_insert @ rotation_matrix.T) + translation_vector
-        self.targeting_point : dict[HullSection, tuple[float, float]] = {hull : tuple(final_targeting_points[hull.value]) for hull in HullSection}
-        self.tool_coords : dict[int, tuple[float, float]]  = {1 : tuple(final_targeting_points[4]),
-                            -1: tuple(final_targeting_points[5])}
 
 
 
 # sub method for attack
-
     def measure_line_of_sight(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection) -> bool :
         """
         Checks if the line of sight between two ships is obstructed.
@@ -309,7 +287,7 @@ class Ship:
         Returns:
             obstructed (bool)
         """
-        line_of_sight : tuple[tuple, tuple] = (self.targeting_point[from_hull], to_ship.targeting_point[to_hull])
+        line_of_sight : tuple[tuple[float, float], ...] = (tuple(_cached_coordinate(self.get_ship_hash_state())[from_hull + 10]), tuple(_cached_coordinate(to_ship.get_ship_hash_state())[to_hull + 10]))
 
         for ship in self.game.ships:
 
@@ -324,6 +302,7 @@ class Ship:
         return False
 
     def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange) -> tuple[int, ...] :
+        if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): return (0, 0, 0)
         attack_pool = self.battery_range[attack_hull][attack_range]
         return attack_pool
 
@@ -390,17 +369,20 @@ class Ship:
 
 
 # sub method for execute maneuver
-
     def _tool_coordination(self, course : tuple[int, ...], placement : int) -> tuple[list[tuple[float, float]], list[float]]:
         """
         Calculates the coordinates and orientations along a maneuver tool's path using NumPy.
         """
+
+        tool_coords = _cached_coordinate(self.get_ship_hash_state())[19 :21]
+        tool_coord : tuple[float, float] = tool_coords[0] if placement == 1 else tool_coords[1]
+        
         if not course:
             # For speed 0, return the starting point and orientation
-            return [self.tool_coords[placement]], [self.orientation]
-
+            return [tool_coord], [self.orientation]
+        
         # --- Step 1: Set up initial conditions ---
-        initial_position = np.array(self.tool_coords[placement])
+        initial_position = np.array(tool_coord)
         initial_orientation = self.orientation
         speed = len(course)
 
@@ -431,60 +413,42 @@ class Ship:
         # Return the full list of orientations to match the original function's output.
         # The shape will now be (speed + 1)
         return all_points.tolist(), joint_orientations.tolist()
-    
-    def _maneuver_to_coordination(self, placement : int, tool_coordination : tuple[float, float], tool_orientaion : float) -> None :
-        """
-        move the ship to given toolool coordination
-
-        Args:
-            placement (int): 1 for right, -1 for left
-            tool_coordination (tuple) : endpoint of maneuver tool
-            tool_orientaion (float) : orientation of maneuver tool
-        """
-        self.x = tool_coordination[0] - placement * math.cos(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
-        self.y = tool_coordination[1] + placement * math.sin(tool_orientaion) * (self.base_size[0] + TOOL_WIDTH) / 2
-        self.orientation = tool_orientaion
-        self._set_coordination()
         
-    def is_overlap(self) -> list[bool] :
-
-        
+    def is_overlap(self) -> set[int] :        
         """
         determines which ship overlaps to this ship at current location
         
         Returns:
             overlap_list (list[bool]): A list indicating which ships were overlapped.
         """
-        overlap_list = []
+        overlap_list = set()
         for ship in self.game.ships:
             if self.ship_id == ship.ship_id or ship.destroyed :
-                overlap_list.append(False)
                 continue
-            
-            overlap_list.append(_cached_overlapping(self.get_ship_hash_state(), ship.get_ship_hash_state()))
+
+            if _cached_overlapping(self.get_ship_hash_state(), ship.get_ship_hash_state()):
+                overlap_list.add(ship.ship_id)
         return overlap_list
 
-    def overlap(self, overlap_list : list[bool]) -> None:
+    def overlap(self, overlap_list : set[int]) -> None:
         """
         Determines which of the overlapping ships is closest and handles the collision.
 
         Args:
-            overlap_list (list[bool]): A list indicating which ships were overlapped.
+            overlap_list (set[int]): A set indicating which ships were overlapped.
         """
         closest_ship = None
         min_distance = float('inf')
 
-        for i, is_overlapped in enumerate(overlap_list):
-            if is_overlapped:
-                other_ship = self.game.ships[i]
-                
-                # Calculate the distance between the two ship bases.
-                distance = self.ship_base.distance(other_ship.ship_base)
-                
-                if distance < min_distance:
-                    min_distance = distance
-                    closest_ship = other_ship
-        
+        for ship_id in overlap_list:
+            other_ship = self.game.ships[ship_id]
+
+            # Calculate the distance between the two ship bases.
+            distance = _cached_distance(self.get_ship_hash_state(), other_ship.get_ship_hash_state())
+            if distance < min_distance:
+                min_distance = distance
+                closest_ship = other_ship
+
         if closest_ship:
             self.hull -= 1
             closest_ship.hull -= 1
@@ -499,7 +463,10 @@ class Ship:
         Returns:
             bool: True if the ship is out of the board, False otherwise.
         """
-        min_x, min_y, max_x, max_y = self.ship_base.bounds
+        coords = _cached_coordinate(self.get_ship_hash_state())
+        base_corners = coords[15:19]
+        min_x, min_y = base_corners.min(axis=0)
+        max_x, max_y = base_corners.max(axis=0)
 
         if min_x >= 0 and max_x <= self.game.player_edge and min_y >= 0 and max_y <= self.game.short_edge:
             return False
@@ -690,14 +657,14 @@ class Ship:
             "shield": self.shield.copy(),
             "destroyed": self.destroyed,
             "activated": self.activated,
-            "command_stack": list(self.command_stack),
-            "command_dial": list(self.command_dial),
-            "command_token": list(self.command_token),
-            "resolved_command": list(self.resolved_command),
+            "command_stack": tuple(self.command_stack),
+            "command_dial": tuple(self.command_dial),
+            "command_token": tuple(self.command_token),
+            "resolved_command": tuple(self.resolved_command),
             "attack_count": self.attack_count,
-            "attack_possible_hull": list(self.attack_possible_hull),
+            "attack_possible_hull": tuple(self.attack_possible_hull),
             "engineer_point" : self.engineer_point,
-            "repaired_hull" : list(self.repaired_hull),
+            "repaired_hull" : tuple(self.repaired_hull),
             "defense_tokens": {
                 key: (dt.readied, dt.discarded, dt.accuracy) 
                 for key, dt in self.defense_tokens.items()
@@ -714,26 +681,25 @@ class Ship:
         self.shield = snapshot["shield"].copy()
         self.destroyed = snapshot["destroyed"]
         self.activated = snapshot["activated"]
-        self.command_stack = snapshot["command_stack"].copy()
-        self.command_dial = snapshot["command_dial"].copy()
-        self.command_token = snapshot["command_token"].copy()
-        self.resolved_command = snapshot["resolved_command"].copy()
+        self.command_stack = list(snapshot["command_stack"])
+        self.command_dial = list(snapshot["command_dial"])
+        self.command_token = list(snapshot["command_token"])
+        self.resolved_command = list(snapshot["resolved_command"])
         self.attack_count = snapshot["attack_count"]
         self.engineer_point = snapshot["engineer_point"]
-        self.repaired_hull = snapshot["repaired_hull"].copy()
-        self.attack_possible_hull = snapshot["attack_possible_hull"].copy()
+        self.repaired_hull = list(snapshot["repaired_hull"])
+        self.attack_possible_hull = list(snapshot["attack_possible_hull"])
 
         for key, token_state in snapshot["defense_tokens"].items():
             self.defense_tokens[key].readied, self.defense_tokens[key].discarded, self.defense_tokens[key].accuracy = token_state
 
-        self._set_coordination()
 
     def get_ship_hash_state(self) -> tuple[str, float, float, float]:
         """Returns a hashable tuple representing the ship's state."""
         return (self.name, self.x, self.y, self.orientation)
     
 
-def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> tuple[np.ndarray, np.ndarray] :
+def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> np.ndarray :
 
     ship_dict = SHIP_DATA[ship_state[0]]
 
@@ -760,30 +726,36 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> tuple[np
     [0, -ship_dict['rear_targeting_point']],
     [- ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
     [0, -token_size[1]/2],              # center point 14
-    [-token_half_w, 0],                 # left front base 15
+    [-base_half_w, 0],                 # left front base 15
     [base_half_w, 0],                  # right front base 16
     [base_half_w, -base_size[1]],      # right rear base 17
     [-base_half_w, -base_size[1]],    # left rear base 18
+    [ (base_half_w + TOOL_WIDTH_HALF), (base_size[1]-token_size[1])/2],  # right tool insert 19
+    [-(base_half_w + TOOL_WIDTH_HALF), (base_size[1]-token_size[1])/2]   # left tool insert 20
     ])
 
+    # CW rotation matrix
     c, s = math.cos(-ship_state[3]), math.sin(-ship_state[3])
     rotation_matrix = np.array([[c, -s], [s, c]])
     translation_vector = np.array([ship_state[1], ship_state[2]])
 
-    return template_vertices @ rotation_matrix.T + translation_vector, np.array([-s, c])
+    # Rotate each vertex by applying the transpose of the rotation matrix
+    # to the (N,2) vertices array, then translate by (2,) vector.
+    return template_vertices @ rotation_matrix.T + translation_vector
 
 @lru_cache(maxsize=None)
 def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSection | str, Polygon]:
     """
     Creates and caches all hull polygons for a given ship state.
     """
-    coords, _ = _cached_coordinate(ship_state)
+    coords = _cached_coordinate(ship_state)
     return {
         HullSection.FRONT: Polygon([coords[0], coords[2], coords[7], coords[6], coords[1]]),
         HullSection.RIGHT: Polygon([coords[0], coords[2], coords[5], coords[3]]),
         HullSection.REAR: Polygon([coords[3], coords[5], coords[9], coords[8], coords[4]]),
         HullSection.LEFT: Polygon([coords[0], coords[1], coords[4], coords[3]]),
-        'token' : Polygon([coords[6], coords[7], coords[9], coords[8]])
+        'token' : Polygon([coords[6], coords[7], coords[9], coords[8]]),
+        'base' : Polygon([coords[15], coords[16], coords[17], coords[18]])
     }
 
 @lru_cache(maxsize=None)
@@ -801,7 +773,7 @@ def _cached_point_range(ship_state: tuple[str, float, float, float], point: tupl
     """
     measure_dict : dict[HullSection, AttackRange] = {from_hull : AttackRange.INVALID for from_hull in HullSection}
     
-    ship_coords = _cached_coordinate(ship_state)[0]
+    ship_coords = _cached_coordinate(ship_state)
     ship_center : np.ndarray = ship_coords[14]
 
     target_vector : np.ndarray = np.array(point) - ship_center
@@ -861,15 +833,17 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
     target_dict : dict[HullSection, bool] = {from_hull : False for from_hull in HullSection}
     measure_dict : dict[HullSection, dict[HullSection, AttackRange]] = {from_hull : {to_hull : AttackRange.INVALID for to_hull in HullSection} for from_hull in HullSection}
     
-    attacker_coords = _cached_coordinate(attacker_state)[0]
-    defender_coords = _cached_coordinate(defender_state)[0]
+    attacker_coords = _cached_coordinate(attacker_state)
+    defender_coords = _cached_coordinate(defender_state)
 
     attacker_center : np.ndarray = attacker_coords[14]
     defender_center : np.ndarray = defender_coords[14]
-    attacker_orientation_vector : np.ndarray = _cached_coordinate(attacker_state)[1]
-    target_vector : np.ndarray = attacker_center - defender_center
+    # orientation vector points to the front of the ship
+    attacker_orientation_vector : np.ndarray = np.array([math.sin(-attacker_state[3]), math.cos(-attacker_state[3])])
+    
 
     # # distance check
+    target_vector : np.ndarray = attacker_center - defender_center
     # distance = np.linalg.norm(target_vector)
     # if distance > 2 * LONG_RANGE :
     #     return target_dict, measure_dict
@@ -880,11 +854,11 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
 
     for from_hull in HullSection :
         for to_hull in HullSection :
-            from_hull_targeting_pt = attacker_coords[from_hull.value + 10]
-            to_hull_targeting_pt = defender_coords[to_hull.value + 10]
+            from_hull_targeting_pt = attacker_coords[from_hull + 10]
+            to_hull_targeting_pt = defender_coords[to_hull + 10]
 
             # attack hull orientation check
-            attack_orientation_vector = attacker_orientation_vector @ ROTATION_MATRICES[from_hull.value]
+            attack_orientation_vector = ROTATION_MATRICES[from_hull] @ attacker_orientation_vector
             hull_target_vector = to_hull_targeting_pt - from_hull_targeting_pt
             dot_product = np.dot(attack_orientation_vector, hull_target_vector)
             if dot_product < 0 :
@@ -961,8 +935,8 @@ def _cached_obstruction(targeting_point : tuple[tuple[float, float], tuple[float
 
 @lru_cache(maxsize=None)
 def _cached_overlapping(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> bool :
-    self_coordinate = _cached_coordinate(self_state)[0][15:19]
-    other_coordinate = _cached_coordinate(ship_state)[0][15:19]
+    self_coordinate = _cached_coordinate(self_state)[15:19]
+    other_coordinate = _cached_coordinate(ship_state)[15:19]
 
     def get_axes(corners):
         """
@@ -1030,3 +1004,51 @@ def _cached_overlapping(self_state : tuple[str, float, float, float], ship_state
         return True
     
     return check_overlap_numpy(self_coordinate, other_coordinate)
+
+@lru_cache(maxsize=None)
+def _cached_distance(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> float :
+    self_poly : Polygon = _cached_polygons(self_state)['base']
+    ship_poly : Polygon = _cached_polygons(ship_state)['base']
+
+    return self_poly.distance(ship_poly)
+
+@lru_cache(maxsize=None)
+def _cached_maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : int) -> tuple[np.ndarray, float]:
+    """
+    translate maneuver tool coordination to ship coordination
+    from ship.(x,y) to (x,y) after maneuver
+    """
+    if not course :
+        return np.array([0.0, 0.0]), 0.0
+
+    yaw_changes = np.array([0] + list(course)) * (math.pi / 8)
+    joint_orientations = np.cumsum(yaw_changes)
+
+    # --- Step 2: Get the final orientation directly ---
+    # The final orientation is simply the last element of the cumulative sum.
+    final_orientation = joint_orientations[-1]
+
+    # --- Step 3: Calculate the total displacement vector ---
+    # Get the orientations for the long and short segments of the path.
+    long_segment_orientations = joint_orientations[:-1]
+    short_segment_orientations = joint_orientations[1:]
+
+    # Sum the x and y components of all segment vectors without storing them.
+    # total_displacement_vector = sum(length * [sin(angle), cos(angle)])
+    total_dx = np.sum(TOOL_LENGTH * np.sin(long_segment_orientations)) + \
+               np.sum(TOOL_PART_LENGTH * np.sin(short_segment_orientations))
+               
+    total_dy = np.sum(TOOL_LENGTH * np.cos(long_segment_orientations)) + \
+               np.sum(TOOL_PART_LENGTH * np.cos(short_segment_orientations))
+
+
+    tool_offset = placement * (SHIP_BASE_SIZE[size_class][0]/2 + TOOL_WIDTH_HALF)
+    ship_to_tool = np.array([tool_offset, (SHIP_BASE_SIZE[size_class][1] - SHIP_TOKEN_SIZE[size_class][1])/2])
+    c, s = np.cos(-final_orientation), np.sin(-final_orientation)
+    rotation = np.array([[c, -s], [s, c]])
+    tool_to_ship = rotation @ -ship_to_tool
+
+
+    # --- Step 4: Calculate final position ---
+    final_position = ship_to_tool + np.array([total_dx, total_dy]) + tool_to_ship
+    return final_position, final_orientation

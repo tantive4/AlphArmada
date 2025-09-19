@@ -2133,7 +2133,7 @@
   "SHIP_ATTACK_USE_CRITICAL_EFFECT": [
     [
       "use_critical_action",
-      "STANDARD"
+      0
     ],
     [
       "pass_critical",

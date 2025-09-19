@@ -318,7 +318,7 @@ class MCTS:
             node.backpropagate(value)
             
             if (iteration+1) % (self.config.MCTS_ITERATION//1) == 0:
-                print(f"Iteration {iteration + 1}/{self.config.MCTS_ITERATION}: Total Visits : {self.player_root[simulation_player].visits} Total Wins: {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}, Best Action | {get_action_str(self.game, self.get_best_action(simulation_player))}")
+                # print(f"Iteration {iteration + 1}/{self.config.MCTS_ITERATION}: Total Visits : {self.player_root[simulation_player].visits} Total Wins: {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}, Best Action | {get_action_str(self.game, self.get_best_action(simulation_player))}")
                 with open('simulation_log.txt', 'a') as f: f.write(f"\n{iteration+1} iteration. Total Visits : {self.player_root[simulation_player].visits} Total Win {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}. Best Action {self.get_best_action(simulation_player)} \n{[(node.action, f'win : {round(node.wins,2)}', f'visit : {node.visits}', f'policy : {round(node.policy, 3)}') for node in self.player_root[simulation_player].children]}")
         
         # End of Search Iteration            

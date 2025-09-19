@@ -1,6 +1,7 @@
 import json
 import os
 import math
+import random
 import shutil
 
 import numpy as np
@@ -11,6 +12,7 @@ from game_phase import GamePhase
 
 def main():
     """Main function to set up and run the game."""
+    random.seed(66)
     if os.path.exists("game_visuals"):
         shutil.rmtree("game_visuals")
     
@@ -21,6 +23,7 @@ def main():
 
 
     game = Armada(initiative=1)
+    game.debuging_visual = True
 
     cr90a = Ship(SHIP_DATA['CR90A'], 1)
     cr90b = Ship(SHIP_DATA['CR90B'], 1)
@@ -36,8 +39,13 @@ def main():
     game.deploy_ship(victory1, 400, 725, math.pi, 2)
     game.deploy_ship(victory2, 500, 725, math.pi, 2)
 
-    game.rollout()
+    # game.rollout()
+    # print(game.winner)
+    # print(game.round)
+    # print([(ship, ship.hull) for ship in game.ships])
+    cr90a.execute_maneuver((0,0,-2), -1)
 
+    
 if __name__ == '__main__':
     main()
 

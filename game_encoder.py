@@ -3,7 +3,7 @@ import numpy as np
 import math
 from typing import TYPE_CHECKING
 
-from ship import Ship, HullSection, Command, SizeClass, _cached_range, _cached_point_range
+from ship import Ship, HullSection, Command, SizeClass, _cached_range, _cached_point_range, _cached_polygons
 from game_phase import GamePhase
 from dice import Dice, Critical
 from measurement import AttackRange
@@ -19,7 +19,7 @@ MAX_DEFENSE_TOKENS = 6
 BOARD_RESOLUTION = 16
 ENTITY_FEATURE_SIZE = 78
 RELATION_FEATURE_SIZE = 12
-SCALAR_FEATURE_SIZE = 42
+SCALAR_FEATURE_SIZE = 38
 
 def encode_game_state(game: Armada) -> dict[str, np.ndarray]:
     """Main function to encode the entire game state into numpy arrays for the NN."""
@@ -38,7 +38,7 @@ def encode_scalar_features(game: Armada) -> np.ndarray:
     # --- Base Game State Features (10 features) ---
     round_feature = game.round / 6.0
     phase_feature = np.zeros(len(GamePhase), dtype=np.float32)
-    phase_feature[game.phase.value - 1] = 1.0
+    phase_feature[game.phase - 1] = 1.0
     initiative_feature = np.array([1, 0] if game.first_player == 1 else [0, 1], dtype=np.float32)
     player_feature = np.array([1, 0] if game.current_player == 1 else [0, 1], dtype=np.float32)
     p1_points = game.get_point(1) / 200.0
@@ -204,7 +204,7 @@ def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
         if ship.destroyed: continue
         
         value = (ship.hull / ship.max_hull) * ship.player
-        scaled_vertices = np.array(ship.ship_base.exterior.coords) / [width_step, height_step]
+        scaled_vertices = np.array(_cached_polygons(ship.get_ship_hash_state())['base'].exterior.coords) / [width_step, height_step]
         rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=planes[i].shape)
         planes[i, rr, cc] = value
 
@@ -243,11 +243,11 @@ def encode_relation_matrix(game: Armada) -> np.ndarray:
             for from_hull in HullSection:
                 for to_hull in HullSection:
                     # Calculate the flattened index for the matrix
-                    from_idx = i * len(HullSection) + from_hull.value
-                    to_idx = j * len(HullSection) + to_hull.value
+                    from_idx = i * 4 + from_hull
+                    to_idx = j * 4 + to_hull
                     
                     attack_range = range_dict[from_hull][to_hull]
                     
                     # Normalize range to a value between 0 and 1
-                    matrix[from_idx, to_idx] = (attack_range.value + 1) / 4
+                    matrix[from_idx, to_idx] = (attack_range + 1) / 4
     return matrix

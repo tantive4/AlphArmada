@@ -131,9 +131,9 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
 
     if maneuver_tool:
         transformed_tool_path = [transform_coord(p) for p in maneuver_tool]
-        draw.line(transformed_tool_path, fill='grey', width=int(ship_module.TOOL_WIDTH))
+        draw.line(transformed_tool_path, fill='grey', width=int(ship_module.TOOL_WIDTH_HALF * 2))
         
-        radius = ship_module.TOOL_WIDTH / 2
+        radius = ship_module.TOOL_WIDTH_HALF
         for i, point in enumerate(maneuver_tool):
             if i % 2 != 0:
                 transformed_point = transform_coord(point)

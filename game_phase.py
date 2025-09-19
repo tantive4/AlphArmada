@@ -1,5 +1,5 @@
 from __future__ import annotations
-from enum import IntEnum
+from enum import IntEnum, auto
 from typing import TypeAlias, Literal, TYPE_CHECKING
 
 from ship import HullSection, Command
@@ -10,36 +10,33 @@ if TYPE_CHECKING:
 
 class GamePhase(IntEnum):
     # Round : COMMAND PHASE
-    COMMAND_PHASE = 1
+    COMMAND_PHASE = auto()
 
     # Round : SHIP PHASE
-    SHIP_PHASE = 2
-    
+    SHIP_PHASE = auto()
+
     # Ship Phase -> Reveal Dial
-    SHIP_REVEAL_COMMAND_DIAL = 3
-    SHIP_GAIN_COMMAND_TOKEN = 4
-    SHIP_DISCARD_COMMAND_TOKEN = 5
-    SHIP_RESOLVE_REPAIR = 6
-    SHIP_USE_ENGINEER_POINT = 7
+    SHIP_REVEAL_COMMAND_DIAL = auto()
+    SHIP_GAIN_COMMAND_TOKEN = auto()
+    SHIP_DISCARD_COMMAND_TOKEN = auto()
+    SHIP_RESOLVE_REPAIR = auto()
+    SHIP_USE_ENGINEER_POINT = auto()
 
     # Ship Phase -> Attack
-    SHIP_ATTACK = 8 # checkpoint
-    SHIP_ATTACK_DECLARE_TARGET = 9
-    SHIP_ATTACK_GATHER_DICE = 10
-    SHIP_ATTACK_ROLL_DICE = 11
-    SHIP_ATTACK_RESOLVE_EFFECTS = 12
-    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = 13
-    SHIP_ATTACK_USE_CRITICAL_EFFECT = 14
-    SHIP_ATTACK_RESOLVE_DAMAGE = 15
-    # Note: Additional squadron target is part of the same sequence
+    SHIP_ATTACK_DECLARE_TARGET = auto()
+    SHIP_ATTACK_GATHER_DICE = auto()
+    SHIP_ATTACK_ROLL_DICE = auto()
+    SHIP_ATTACK_RESOLVE_EFFECTS = auto()
+    SHIP_ATTACK_SPEND_DEFENSE_TOKENS = auto()
+    SHIP_ATTACK_USE_CRITICAL_EFFECT = auto()
+    SHIP_ATTACK_RESOLVE_DAMAGE = auto()
+    # SHIP_ATTACK_ADDITIONAL_SQUADRON_TARGET = auto()
     
     # Ship Phase -> Execute Maneuver
-    SHIP_EXECUTE_MANEUVER = 16 # checkpoint
-    SHIP_MANEUVER_DETERMINE_COURSE = 17
-    SHIP_MANEUVER_MOVE_SHIP = 18 # checkpoint
+    SHIP_MANEUVER_DETERMINE_COURSE = auto()
 
-    # Round : SQUADRON PHASE
-    SQUADRON_PHASE = 19
+    # Round : SQUADRON_PHASE
+    # SQUADRON_PHASE = auto()
 
 
     
@@ -129,6 +126,10 @@ def get_action_str(game : Armada, action : ActionType.Action) -> str | None:
         case 'discard_command_token_action', command :
             action_str = f'{game.active_ship} discards {command} Token'
         
+        case 'resolve_repair_command_action', (use_dial, use_token) :
+            if use_dial or use_token :
+                action_str = f'Resolve Repair Command{" (Dial)" if use_dial else ""}{" (Token)" if use_token else ""}'
+            else : action_str = None
 
         case 'move_shield_action', (from_hull, to_hull) :
             action_str = f'Move Shield from {from_hull} to {to_hull}'
@@ -186,6 +187,6 @@ def get_action_str(game : Armada, action : ActionType.Action) -> str | None:
             action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'} {" (Dial Spent)" if dial_used else ""} {" (Token Spent)" if token_used else ""}'
 
         case _:
-            if 'pass' in action[0] : return
+            # if 'pass' in action[0] : return
             action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()} {f': {action[1]}' if action[1] else ''}'
     return action_str

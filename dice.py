@@ -210,7 +210,7 @@ if __name__ == "__main__":
     for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
         print(dice_choice)
 
-class Critical(Enum) :
+class Critical(IntEnum) :
     STANDARD = 0
     def __str__(self) :
         return self.name
