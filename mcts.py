@@ -9,6 +9,7 @@ import numpy as np
 from action_space import ActionManager
 from dummy_model import DummyModel
 from armada_net import ArmadaNet
+from game_encoder import encode_game_state
 import dice
 from game_phase import GamePhase, ActionType, get_action_str
 from ship import _cached_range
@@ -331,7 +332,7 @@ class MCTS:
         return action_probs
 
     def get_value_policy(self, game : Armada) -> tuple:
-        encoded_state = game.get_encoded_state()
+        encoded_state = encode_game_state(game)
         
         # Convert numpy arrays to PyTorch tensors for the model
         scalar_tensor = torch.from_numpy(encoded_state['scalar']).float().to(self.config.DEVICE)

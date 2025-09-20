@@ -287,7 +287,7 @@ class Ship:
         Returns:
             obstructed (bool)
         """
-        line_of_sight : tuple[tuple[float, float], ...] = (tuple(_cached_coordinate(self.get_ship_hash_state())[from_hull + 10]), tuple(_cached_coordinate(to_ship.get_ship_hash_state())[to_hull + 10]))
+        line_of_sight : tuple[tuple[float, float], ...] = (tuple(_cached_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(_cached_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
 
         for ship in self.game.ships:
 
@@ -374,7 +374,7 @@ class Ship:
         Calculates the coordinates and orientations along a maneuver tool's path using NumPy.
         """
 
-        tool_coords = _cached_coordinate(self.get_ship_hash_state())[19 :21]
+        tool_coords = _cached_coordinate(self.get_ship_hash_state())['tool_corners']
         tool_coord : tuple[float, float] = tool_coords[0] if placement == 1 else tool_coords[1]
         
         if not course:
@@ -464,7 +464,7 @@ class Ship:
             bool: True if the ship is out of the board, False otherwise.
         """
         coords = _cached_coordinate(self.get_ship_hash_state())
-        base_corners = coords[15:19]
+        base_corners = coords['base_corners']
         min_x, min_y = base_corners.min(axis=0)
         max_x, max_y = base_corners.max(axis=0)
 
@@ -699,7 +699,7 @@ class Ship:
         return (self.name, self.x, self.y, self.orientation)
     
 
-def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> np.ndarray :
+def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str,np.ndarray] :
 
     ship_dict = SHIP_DATA[ship_state[0]]
 
@@ -741,7 +741,15 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> np.ndarr
 
     # Rotate each vertex by applying the transpose of the rotation matrix
     # to the (N,2) vertices array, then translate by (2,) vector.
-    return template_vertices @ rotation_matrix.T + translation_vector
+    current_vertices =  template_vertices @ rotation_matrix.T + translation_vector
+    return {
+        'arc_points' : current_vertices[0:10],
+        'targeting_points' : current_vertices[10:14],
+        'center_point' : current_vertices[14],
+        'token_corners' : current_vertices[6:10],
+        'base_corners' : current_vertices[15:19],
+        'tool_insert_points' : current_vertices[19:21],
+    }
 
 @lru_cache(maxsize=None)
 def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSection | str, Polygon]:
@@ -749,13 +757,17 @@ def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSe
     Creates and caches all hull polygons for a given ship state.
     """
     coords = _cached_coordinate(ship_state)
+    arc_coords = coords['arc_points']
+    base_coords = coords['base_corners']
+    token_coords = coords['token_corners']
+    
     return {
-        HullSection.FRONT: Polygon([coords[0], coords[2], coords[7], coords[6], coords[1]]),
-        HullSection.RIGHT: Polygon([coords[0], coords[2], coords[5], coords[3]]),
-        HullSection.REAR: Polygon([coords[3], coords[5], coords[9], coords[8], coords[4]]),
-        HullSection.LEFT: Polygon([coords[0], coords[1], coords[4], coords[3]]),
-        'token' : Polygon([coords[6], coords[7], coords[9], coords[8]]),
-        'base' : Polygon([coords[15], coords[16], coords[17], coords[18]])
+        HullSection.FRONT: Polygon([arc_coords[0], arc_coords[2], arc_coords[7], arc_coords[6], arc_coords[1]]),
+        HullSection.RIGHT: Polygon([arc_coords[0], arc_coords[2], arc_coords[5], arc_coords[3]]),
+        HullSection.REAR: Polygon([arc_coords[3], arc_coords[5], arc_coords[9], arc_coords[8], arc_coords[4]]),
+        HullSection.LEFT: Polygon([arc_coords[0], arc_coords[1], arc_coords[4], arc_coords[3]]),
+        'token' : Polygon(token_coords),
+        'base' : Polygon(base_coords)
     }
 
 @lru_cache(maxsize=None)
@@ -774,15 +786,15 @@ def _cached_point_range(ship_state: tuple[str, float, float, float], point: tupl
     measure_dict : dict[HullSection, AttackRange] = {from_hull : AttackRange.INVALID for from_hull in HullSection}
     
     ship_coords = _cached_coordinate(ship_state)
-    ship_center : np.ndarray = ship_coords[14]
+    ship_center : np.ndarray = ship_coords['center_point']
 
     target_vector : np.ndarray = np.array(point) - ship_center
 
     arc_vector_tuple : tuple[np.ndarray, ...] = (
-        ship_coords[2] - ship_center, # front right
-        ship_coords[5] - ship_center, # rear right
-        ship_coords[4] - ship_center, # rear left
-        ship_coords[1] - ship_center, # front left
+        ship_coords['arc_points'][2] - ship_center, # front right
+        ship_coords['arc_points'][5] - ship_center, # rear right
+        ship_coords['arc_points'][4] - ship_center, # rear left
+        ship_coords['arc_points'][1] - ship_center, # front left
     )
 
     def is_point_in_arc(target_vector: np.ndarray, 
@@ -810,8 +822,8 @@ def _cached_point_range(ship_state: tuple[str, float, float, float], point: tupl
 
         if not is_point_in_arc(target_vector, arc1, arc2) :
             continue
-        
-        targeting_pt = ship_coords[from_hull.value + 10]
+
+        targeting_pt = ship_coords['targeting_points'][from_hull]
         distance = np.linalg.norm(targeting_pt - np.array(point))
 
         if distance <= CLOSE_RANGE : 
@@ -836,8 +848,8 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
     attacker_coords = _cached_coordinate(attacker_state)
     defender_coords = _cached_coordinate(defender_state)
 
-    attacker_center : np.ndarray = attacker_coords[14]
-    defender_center : np.ndarray = defender_coords[14]
+    attacker_center : np.ndarray = attacker_coords['center_point']
+    defender_center : np.ndarray = defender_coords['center_point']
     # orientation vector points to the front of the ship
     attacker_orientation_vector : np.ndarray = np.array([math.sin(-attacker_state[3]), math.cos(-attacker_state[3])])
     
@@ -854,8 +866,8 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
 
     for from_hull in HullSection :
         for to_hull in HullSection :
-            from_hull_targeting_pt = attacker_coords[from_hull + 10]
-            to_hull_targeting_pt = defender_coords[to_hull + 10]
+            from_hull_targeting_pt = attacker_coords['targeting_points'][from_hull]
+            to_hull_targeting_pt = defender_coords['targeting_points'][to_hull]
 
             # attack hull orientation check
             attack_orientation_vector = ROTATION_MATRICES[from_hull] @ attacker_orientation_vector
@@ -878,14 +890,14 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
             to_hull_poly = defender_poly[to_hull]
 
             if from_hull in (HullSection.FRONT, HullSection.RIGHT) :
-                arc1_center, arc1_end = attacker_coords[0], attacker_coords[2]
+                arc1_center, arc1_end = attacker_coords['arc_points'][0], attacker_coords['arc_points'][2]
             else :
-                arc1_center, arc1_end = attacker_coords[3], attacker_coords[4]
+                arc1_center, arc1_end = attacker_coords['arc_points'][3], attacker_coords['arc_points'][4]
 
             if from_hull in (HullSection.FRONT, HullSection.LEFT) :
-                arc2_center, arc2_end = attacker_coords[0], attacker_coords[1]
+                arc2_center, arc2_end = attacker_coords['arc_points'][0], attacker_coords['arc_points'][1]
             else :
-                arc2_center, arc2_end = attacker_coords[3], attacker_coords[5]
+                arc2_center, arc2_end = attacker_coords['arc_points'][3], attacker_coords['arc_points'][5]
 
             # Build the arc polygon. This logic works for ALL hull sections.
             vec1 = np.array(arc1_end) - np.array(arc1_center)
@@ -935,8 +947,8 @@ def _cached_obstruction(targeting_point : tuple[tuple[float, float], tuple[float
 
 @lru_cache(maxsize=None)
 def _cached_overlapping(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> bool :
-    self_coordinate = _cached_coordinate(self_state)[15:19]
-    other_coordinate = _cached_coordinate(ship_state)[15:19]
+    self_coordinate = _cached_coordinate(self_state)['base_corners']
+    other_coordinate = _cached_coordinate(ship_state)['base_corners']
 
     def get_axes(corners):
         """
