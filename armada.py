@@ -331,7 +331,7 @@ class Armada:
         match action:
             case 'set_command_action', (ship_id, command):
                 command_ship = self.ships[ship_id]
-                command_ship.command_stack.append(command)
+                command_ship.command_stack += (command,)
                 if [ship.ship_id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value] :
                     self.phase = GamePhase.COMMAND_PHASE
                 else :
@@ -349,13 +349,13 @@ class Armada:
 
 
             case 'reveal_command_action', command :
-                active_ship.command_stack.pop()
-                active_ship.command_dial.append(command)
+                active_ship.command_stack = active_ship.command_stack[1:]
+                active_ship.command_dial += (command,)
                 self.phase = GamePhase.SHIP_GAIN_COMMAND_TOKEN
 
             case 'gain_command_token_action', command :
-                active_ship.command_dial.remove(command)
-                active_ship.command_token.append(command)
+                active_ship.command_dial = tuple(cd for cd in active_ship.command_dial if cd != command)
+                active_ship.command_token += (command,)
 
                 if len(active_ship.command_token) > active_ship.command_value :
                     self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
@@ -371,7 +371,7 @@ class Armada:
                     self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
 
             case 'discard_command_token_action', command :
-                active_ship.command_token.remove(command)
+                active_ship.command_token = tuple(ct for ct in active_ship.command_token if ct != command)
                 if len(active_ship.command_token) > active_ship.command_value :
                     self.phase = GamePhase.SHIP_DISCARD_COMMAND_TOKEN
                 elif Command.REPAIR in active_ship.command_dial + active_ship.command_token :
@@ -380,10 +380,10 @@ class Armada:
                     self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
 
             case 'resolve_repair_command_action', (dial, token) :
-                if dial : active_ship.command_dial.remove(Command.REPAIR)
-                if token : active_ship.command_token.remove(Command.REPAIR)
+                if dial : active_ship.command_dial = tuple(cd for cd in active_ship.command_dial if cd != Command.REPAIR)
+                if token : active_ship.command_token = tuple(ct for ct in active_ship.command_token if ct != Command.REPAIR)
                 if dial or token :
-                    active_ship.resolved_command.append(Command.REPAIR)
+                    active_ship.resolved_command += (Command.REPAIR,)
                     active_ship.engineer_point = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
                     self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
                 else : 
@@ -397,27 +397,35 @@ class Armada:
 
             case 'recover_shield_action', hull:
                 active_ship.engineer_point -= 2
-                active_ship.shield[hull] += 1
-                active_ship.repaired_hull.append(hull)
+
+                shield_list = list(active_ship.shield)
+                shield_list[hull] += 1
+                active_ship.shield = tuple(shield_list)
+                
+                active_ship.repaired_hull += (hull,)
 
                 self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
 
             case 'move_shield_action', (from_hull, to_hull) :
                 active_ship.engineer_point -= 1
-                active_ship.shield[from_hull] -= 1
-                active_ship.shield[to_hull] += 1
-                active_ship.repaired_hull.append(to_hull)
+
+                shield_list = list(active_ship.shield)
+                shield_list[from_hull] -= 1
+                shield_list[to_hull] += 1
+                active_ship.shield = tuple(shield_list)
+
+                active_ship.repaired_hull += (to_hull,)
 
                 self.phase = GamePhase.SHIP_USE_ENGINEER_POINT
 
             case 'pass_repair', _ :
-                active_ship.repaired_hull = []
+                active_ship.repaired_hull = ()
                 active_ship.engineer_point = 0
                 self.phase = GamePhase.SHIP_ATTACK_DECLARE_TARGET
 
             case 'declare_target_action', (attack_hull, defend_ship_id, defend_hull) :
                 active_ship.attack_count += 1
-                active_ship.attack_possible_hull[attack_hull.value] = False
+                active_ship.attack_impossible_hull += (attack_hull,)
 
                 # gather initial dice pool here
                 self.attack_info = AttackInfo(active_ship, attack_hull, self.ships[defend_ship_id], defend_hull)
@@ -451,7 +459,7 @@ class Armada:
                 self.phase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
 
             case 'resolve_con-fire_command_action', (dial, token) :
-                active_ship.resolved_command.append(Command.CONFIRE)
+                active_ship.resolved_command += (Command.CONFIRE,)
                 attack_info.con_fire_dial, attack_info.con_fire_token = dial, token
                 attack_info.calculate_total_damage()
                 self.phase = GamePhase.SHIP_ATTACK_RESOLVE_EFFECTS
@@ -536,7 +544,11 @@ class Armada:
                 # Redirect
                 if redirect_damage :
                     hull, damage = redirect_damage
-                    defend_ship.shield[hull] -= damage
+
+                    shield_list = list(defend_ship.shield)
+                    shield_list[hull] -= damage
+                    defend_ship.shield = tuple(shield_list)
+
                     total_damage -= damage
 
                 defend_ship.defend(attack_info.defend_hull, total_damage, attack_info.critical)
@@ -551,9 +563,9 @@ class Armada:
             case 'determine_course_action', (course, placement):
                 dial_used, token_used = active_ship.nav_command_used(course)
                 if dial_used:
-                    active_ship.command_dial.remove(Command.NAV)
+                    active_ship.command_dial = tuple(cd for cd in active_ship.command_dial if cd != Command.NAV)
                 if token_used:
-                    active_ship.command_token.remove(Command.NAV)
+                    active_ship.command_token = tuple(ct for ct in active_ship.command_token if ct != Command.NAV)
 
                 active_ship.speed = len(course)
                 active_ship.execute_maneuver(course, placement)

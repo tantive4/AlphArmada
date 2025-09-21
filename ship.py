@@ -126,27 +126,27 @@ class Ship:
         self.speed: int = speed
 
         self.hull: int = self.max_hull
-        self.shield: dict[HullSection, int] = self.max_shield.copy()
+        self.shield: tuple[int, int, int, int] = tuple(self.max_shield[hull] for hull in HullSection)
         self.ship_id: int = ship_id
-        self.command_stack: list[Command] = []
-        self.command_dial : list[Command] = []
-        self.command_token : list[Command] = []
-        self.resolved_command : list[Command] = []
+        self.command_stack: tuple[Command, ...] = ()
+        self.command_dial : tuple[Command, ...] = ()
+        self.command_token : tuple[Command, ...] = ()
+        self.resolved_command : tuple[Command, ...] = ()
         self.engineer_point : int = 0
         self.attack_count : int = 0
-        self.attack_possible_hull = [True, True, True, True]
-        self.repaired_hull : list[HullSection] = []
+        self.attack_impossible_hull : tuple[HullSection, ...] = ()
+        self.repaired_hull : tuple[HullSection, ...] = ()
         self.refresh()
     
     def asign_command(self, Command) -> None :
         if len(self.command_stack) >= self.command_value : raise ValueError("Cannot asigne more command then Command Value")
-        self.command_stack.append(Command)
+        self.command_stack += (Command,)
 
 
     def destroy(self) -> None:
         self.destroyed = True
         self.hull = 0
-        self.shield = {hull : 0 for hull in HullSection}
+        self.shield = (0, 0, 0, 0)
         for token in self.defense_tokens.values() :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
@@ -159,10 +159,10 @@ class Ship:
 
     def end_activation(self) -> None :
         self.activated = True
-        self.attack_possible_hull = [True, True, True, True]
+        self.attack_impossible_hull = ()
         self.attack_count = 0
-        self.command_dial = []
-        self.resolved_command = []
+        self.command_dial = ()
+        self.resolved_command = ()
 
     def execute_maneuver(self, course : tuple[int, ...], placement : int) -> None:
         overlap_ships = self.move_ship(course, placement, set())
@@ -309,7 +309,11 @@ class Ship:
     def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
         # Absorb damage with shields first
         shield_damage = min(total_damage, self.shield[defend_hull])
-        self.shield[defend_hull] -= shield_damage
+
+        shield_list = list(self.shield)
+        shield_list[defend_hull] -= shield_damage
+        self.shield = tuple(shield_list)
+
         total_damage -= shield_damage
 
         # Apply remaining damage to the hull
@@ -352,7 +356,7 @@ class Ship:
         """
         valid_attacker = []
         for hull in HullSection:
-            if not self.attack_possible_hull[hull.value] : continue
+            if hull in self.attack_impossible_hull: continue
 
             if self.get_valid_target(hull):
                 valid_attacker.append(hull)
@@ -619,7 +623,7 @@ class Ship:
                     all_courses.add(tuple(new_course))
 
 
-        final_result = [course for course in all_courses]
+        final_result = sorted(list(all_courses))
         self._course_cache[cache_key] = final_result
         return final_result
     
@@ -654,17 +658,17 @@ class Ship:
             "orientation": self.orientation,
             "speed": self.speed,
             "hull": self.hull,
-            "shield": self.shield.copy(),
+            "shield": self.shield,
             "destroyed": self.destroyed,
             "activated": self.activated,
-            "command_stack": tuple(self.command_stack),
-            "command_dial": tuple(self.command_dial),
-            "command_token": tuple(self.command_token),
-            "resolved_command": tuple(self.resolved_command),
+            "command_stack": self.command_stack,
+            "command_dial": self.command_dial,
+            "command_token": self.command_token,
+            "resolved_command": self.resolved_command,
             "attack_count": self.attack_count,
-            "attack_possible_hull": tuple(self.attack_possible_hull),
+            "attack_impossible_hull": self.attack_impossible_hull,
             "engineer_point" : self.engineer_point,
-            "repaired_hull" : tuple(self.repaired_hull),
+            "repaired_hull" : self.repaired_hull,
             "defense_tokens": {
                 key: (dt.readied, dt.discarded, dt.accuracy) 
                 for key, dt in self.defense_tokens.items()
@@ -678,17 +682,17 @@ class Ship:
         self.orientation = snapshot["orientation"]
         self.speed = snapshot["speed"]
         self.hull = snapshot["hull"]
-        self.shield = snapshot["shield"].copy()
+        self.shield = snapshot["shield"]
         self.destroyed = snapshot["destroyed"]
         self.activated = snapshot["activated"]
-        self.command_stack = list(snapshot["command_stack"])
-        self.command_dial = list(snapshot["command_dial"])
-        self.command_token = list(snapshot["command_token"])
-        self.resolved_command = list(snapshot["resolved_command"])
+        self.command_stack = snapshot["command_stack"]
+        self.command_dial = snapshot["command_dial"]
+        self.command_token = snapshot["command_token"]
+        self.resolved_command = snapshot["resolved_command"]
         self.attack_count = snapshot["attack_count"]
         self.engineer_point = snapshot["engineer_point"]
-        self.repaired_hull = list(snapshot["repaired_hull"])
-        self.attack_possible_hull = list(snapshot["attack_possible_hull"])
+        self.repaired_hull = snapshot["repaired_hull"]
+        self.attack_impossible_hull = snapshot["attack_impossible_hull"]
 
         for key, token_state in snapshot["defense_tokens"].items():
             self.defense_tokens[key].readied, self.defense_tokens[key].discarded, self.defense_tokens[key].accuracy = token_state
