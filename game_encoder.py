@@ -3,7 +3,7 @@ import numpy as np
 import math
 from typing import TYPE_CHECKING
 
-from ship import Ship, HullSection, Command, SizeClass, _cached_range, _cached_point_range, _cached_polygons
+from ship import Ship, HullSection, Command, SizeClass, _cached_range, _cached_polygons, _cached_presence_plane, _cached_threat_plane
 from game_phase import GamePhase
 from dice import Dice, Critical
 from measurement import AttackRange
@@ -184,7 +184,7 @@ def encode_entity_features(game: Armada) -> np.ndarray:
     return entity_vectors
 
 
-def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
+# def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
     """
     Creates 2D grid representations of the game board using the Per-Entity Plane approach.
     This provides high-fidelity orientation and shape information.
@@ -224,7 +224,43 @@ def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
                 if total_threat > 0:
                     planes[threat_plane_idx, r, c] += total_threat / 10.0
     return planes
+def _draw_ship_presence_planes(planes: np.ndarray, game: Armada, resolution: int):
+    """Draws each ship's presence onto its dedicated plane."""
+    width_step = game.player_edge / resolution
+    height_step = game.short_edge / resolution
 
+    for i, ship in enumerate(game.ships):
+        if ship.destroyed: continue
+
+        value = (ship.hull / ship.max_hull) * ship.player
+        planes[i] = _cached_presence_plane(ship.get_ship_hash_state(), value, width_step, height_step, resolution)
+
+def _draw_threat_maps(planes: np.ndarray, game: Armada, resolution: int):
+    """Calculates and draws friendly and enemy threat maps."""
+    width_step = game.player_edge / resolution
+    height_step = game.short_edge / resolution
+    threat_plane_offset = MAX_SHIPS
+
+    for ship in game.ships:
+        if ship.destroyed: continue
+
+        threat_plane_idx = threat_plane_offset + (0 if ship.player == game.current_player else 1)
+        planes[threat_plane_idx] += _cached_threat_plane(ship.get_ship_hash_state(), width_step, height_step, resolution)
+
+def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
+    """
+    Creates 2D grid representations of the game board.
+    This is now a wrapper function for clarity and profiling.
+    """
+    planes = np.zeros((MAX_SHIPS + 2, resolution, resolution), dtype=np.float32)
+    
+    # Part 1: Draw the presence of each ship on its own plane
+    _draw_ship_presence_planes(planes, game, resolution)
+
+    # Part 2: Draw the friendly and enemy threat maps
+    _draw_threat_maps(planes, game, resolution)
+    
+    return planes
 
 def encode_relation_matrix(game: Armada) -> np.ndarray:
     """

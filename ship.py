@@ -11,6 +11,8 @@ from shapely.geometry import Polygon, LineString
 from shapely.ops import unary_union
 import shapely.ops
 import numpy as np
+from skimage.draw import polygon as draw_polygon
+from skimage.measure import block_reduce
 
 from dice import Dice, Critical
 from defense_token import DefenseToken, TokenType
@@ -70,7 +72,7 @@ class Ship:
                                                         HullSection.LEFT : ship_dict['battery'][1]}
         self.battery_range : dict[HullSection, dict[AttackRange, tuple[int, ...]]] = {
             hull: {
-                attack_range : tuple(self.battery[hull][dice_type.value] if dice_type.value >= attack_range.value else 0 for dice_type in Dice)
+                attack_range : tuple(self.battery[hull][dice_type] if dice_type >= attack_range else 0 for dice_type in Dice)
                 for attack_range in AttackRange if attack_range != AttackRange.INVALID
             } for hull in HullSection
         }
@@ -81,7 +83,7 @@ class Ship:
         for token_type_str in ship_dict['defense_token']:
             token_enum = TokenType[token_type_str.upper()]
             # token_counts[token_enum] will be 0 for the first, 1 for the second, etc.
-            key = token_enum.value * 2 + token_counts[token_enum]
+            key = token_enum * 2 + token_counts[token_enum]
             # Add the token to the dictionary and increment the count for that type
             self.defense_tokens[key] = DefenseToken(token_type_str)
             token_counts[token_enum] += 1
@@ -723,8 +725,8 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str
     [token_half_w, -rear_arc[1]],       # rear_right_arc_pt 5
     [-token_half_w, 0],                 # front_left_token_pt 6
     [token_half_w, 0],                  # front_right_token_pt 7
-    [-token_half_w, -token_size[1]],    # rear_left_token_pt 8
-    [token_half_w, -token_size[1]],     # rear_right_token_pt 9
+    [token_half_w, -token_size[1]],     # rear_right_token_pt 8
+    [-token_half_w, -token_size[1]],    # rear_left_token_pt 9
     [0, -ship_dict['front_targeting_point']],
     [ship_dict['side_targeting_point'][0], -ship_dict['side_targeting_point'][1]],
     [0, -ship_dict['rear_targeting_point']],
@@ -764,80 +766,17 @@ def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSe
     arc_coords = coords['arc_points']
     base_coords = coords['base_corners']
     token_coords = coords['token_corners']
+
     
     return {
         HullSection.FRONT: Polygon([arc_coords[0], arc_coords[2], arc_coords[7], arc_coords[6], arc_coords[1]]),
         HullSection.RIGHT: Polygon([arc_coords[0], arc_coords[2], arc_coords[5], arc_coords[3]]),
-        HullSection.REAR: Polygon([arc_coords[3], arc_coords[5], arc_coords[9], arc_coords[8], arc_coords[4]]),
+        HullSection.REAR: Polygon([arc_coords[3], arc_coords[5], arc_coords[8], arc_coords[9], arc_coords[4]]),
         HullSection.LEFT: Polygon([arc_coords[0], arc_coords[1], arc_coords[4], arc_coords[3]]),
         'token' : Polygon(token_coords),
         'base' : Polygon(base_coords)
     }
 
-@lru_cache(maxsize=None)
-def _cached_point_range(ship_state: tuple[str, float, float, float], point: tuple[float, float]) -> dict[HullSection, AttackRange]:
-    """
-    Checks if a point is within a specific firing arc and within max_range.
-    
-    Args:
-        attack_hull: The hull section whose arc is being checked.
-        point: The (x, y) coordinate of the point to check.
-        max_range: The maximum distance the arc extends to.
-
-    Returns:
-        True if the point is within the arc and range, False otherwise.
-    """
-    measure_dict : dict[HullSection, AttackRange] = {from_hull : AttackRange.INVALID for from_hull in HullSection}
-    
-    ship_coords = _cached_coordinate(ship_state)
-    ship_center : np.ndarray = ship_coords['center_point']
-
-    target_vector : np.ndarray = np.array(point) - ship_center
-
-    arc_vector_tuple : tuple[np.ndarray, ...] = (
-        ship_coords['arc_points'][2] - ship_center, # front right
-        ship_coords['arc_points'][5] - ship_center, # rear right
-        ship_coords['arc_points'][4] - ship_center, # rear left
-        ship_coords['arc_points'][1] - ship_center, # front left
-    )
-
-    def is_point_in_arc(target_vector: np.ndarray, 
-                                arc1_start: np.ndarray, 
-                                arc2_end: np.ndarray) -> bool:
-        """
-        Checks if a target vector lies within a clockwise arc.
-        This version uses manual calculation to avoid NumPy 2.0 deprecation warnings.
-        """
-        # Manual 2D cross product: a[0]*b[1] - a[1]*b[0]
-        
-        # Is the target clockwise relative to the start? (cross product <= 0)
-        cross_product_start = arc1_start[0] * target_vector[1] - arc1_start[1] * target_vector[0]
-        is_clockwise_from_start = cross_product_start <= 0
-
-        # Is the target counter-clockwise relative to the end? (cross product >= 0)
-        cross_product_end = arc2_end[0] * target_vector[1] - arc2_end[1] * target_vector[0]
-        is_counter_clockwise_from_end = cross_product_end >= 0
-
-        return is_clockwise_from_start and is_counter_clockwise_from_end
-        
-    for from_hull in HullSection :
-        arc1 = arc_vector_tuple[from_hull.value]
-        arc2 = arc_vector_tuple[(from_hull.value + 1) % 4]
-
-        if not is_point_in_arc(target_vector, arc1, arc2) :
-            continue
-
-        targeting_pt = ship_coords['targeting_points'][from_hull]
-        distance = np.linalg.norm(targeting_pt - np.array(point))
-
-        if distance <= CLOSE_RANGE : 
-            measure_dict[from_hull] = AttackRange.CLOSE # close range
-        elif distance <= MEDIUM_RANGE : 
-            measure_dict[from_hull] = AttackRange.MEDIUM # medium range
-        elif distance <= LONG_RANGE : 
-            measure_dict[from_hull] = AttackRange.LONG # long range
-        else : measure_dict[from_hull] = AttackRange.EXTREME # invalid range (extreme)
-    return measure_dict
 
 
 @lru_cache(maxsize=None)
@@ -859,7 +798,7 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
     
 
     # # distance check
-    target_vector : np.ndarray = attacker_center - defender_center
+    # target_vector : np.ndarray = attacker_center - defender_center
     # distance = np.linalg.norm(target_vector)
     # if distance > 2 * LONG_RANGE :
     #     return target_dict, measure_dict
@@ -1068,3 +1007,117 @@ def _cached_maneuver_tool(size_class :SizeClass, course : tuple[int, ...], place
     # --- Step 4: Calculate final position ---
     final_position = ship_to_tool + np.array([total_dx, total_dy]) + tool_to_ship
     return final_position, final_orientation
+
+@lru_cache(maxsize=None)
+def _cached_presence_plane(ship_state : tuple[str, float, float, float], value :float, width_step : float,  height_step : float, resolution : int) -> np.ndarray :
+    """
+    Encodes the ship's position and orientation into a fixed-size NumPy array.
+    This encoding is suitable for use as input to machine learning models.
+    """
+
+    presence_plane = np.zeros((resolution, resolution), dtype=np.float32)
+    scaled_vertices = np.array(_cached_coordinate(ship_state)['base_corners']) / [width_step, height_step]
+    rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=presence_plane.shape)
+    presence_plane[rr, cc] = value
+
+    return presence_plane
+
+@lru_cache(maxsize=None)
+def _cached_threat_plane(ship_state : tuple[str, float, float, float], width_step : float,  height_step : float, resolution : int, extension_factor=500) -> np.ndarray :
+    """
+    Encodes the ship's threat area into two fixed-size NumPy arrays.
+    This encoding is suitable for use as input to machine learning models.
+    """
+    # --- 1. Set up High-Resolution Grid ---
+    # We will draw on a grid 4x the size (2x in each dimension)
+    high_res = resolution * 2
+    threat_planes_hr = np.zeros((12, high_res, high_res), dtype=np.float16)
+    
+    # Calculate the step size for the finer grid
+    width_step_hr = width_step / 2
+    height_step_hr = height_step / 2
+
+    ship_token = _cached_polygons(ship_state)['token']
+
+    arc_coords = _cached_coordinate(ship_state)['arc_points']
+    long_zone = ship_token.buffer(LONG_RANGE)
+    medium_zone = ship_token.buffer(MEDIUM_RANGE)
+    close_zone = ship_token.buffer(CLOSE_RANGE)
+
+    for hull in HullSection:
+        # Get the correct arc coordinates for each hull section
+        if hull in (HullSection.FRONT, HullSection.RIGHT):
+            arc1_center, arc1_end = arc_coords[0], arc_coords[2]
+        else:
+            arc1_center, arc1_end = arc_coords[3], arc_coords[4]
+
+        if hull in (HullSection.FRONT, HullSection.LEFT):
+            arc2_center, arc2_end = arc_coords[0], arc_coords[1]
+        else:
+            arc2_center, arc2_end = arc_coords[3], arc_coords[5]
+
+        # Build the arc polygon for this hull section
+        vec1 = np.array(arc1_end) - np.array(arc1_center)
+        vec2 = np.array(arc2_end) - np.array(arc2_center)
+        arc_polygon = Polygon([
+            arc1_end,
+            np.array(arc1_end) + vec1 * extension_factor,
+            np.array(arc2_end) + vec2 * extension_factor,
+            arc2_end
+        ])
+        
+        # Get threat zones for this hull section
+        long_threat_zone = long_zone.intersection(arc_polygon)
+        medium_threat_zone = medium_zone.intersection(arc_polygon)
+        close_threat_zone = close_zone.intersection(arc_polygon)
+
+        # Get battery data for this hull section
+        battery_dict = SHIP_DATA[ship_state[0]]['battery']
+        if hull == HullSection.LEFT:
+            battery = battery_dict[1]  # Left uses right battery data
+        else:
+            battery = battery_dict[hull]
+
+        # Extract dice counts for each range
+        long_dice = battery[AttackRange.LONG] 
+        medium_dice = battery[AttackRange.MEDIUM] 
+        close_dice = battery[AttackRange.CLOSE] 
+
+        # Helper function to safely draw polygon on threat plane
+        def draw_threat_zone(threat_zone, dice_count, plane_layer):
+            if dice_count > 0 and not threat_zone.is_empty:
+                coords = np.array(threat_zone.exterior.coords)
+                scaled_verts = coords / [width_step, height_step]
+                # Clip to valid bounds
+                # --- 2. Scale vertices to the High-Resolution Grid ---
+                scaled_verts = np.array(threat_zone.exterior.coords) / [width_step_hr, height_step_hr]
+                rr, cc = draw_polygon(scaled_verts[:, 1], scaled_verts[:, 0], shape=(high_res, high_res))
+                threat_planes_hr[plane_layer, rr, cc] = dice_count
+
+
+        # Draw threat zones for each range
+        draw_threat_zone(long_threat_zone, long_dice, hull * 3 + AttackRange.LONG)
+        draw_threat_zone(medium_threat_zone, medium_dice, hull * 3 + AttackRange.MEDIUM)
+        draw_threat_zone(close_threat_zone, close_dice, hull * 3 + AttackRange.CLOSE)
+
+    # --- 3. NEW LOGIC: Reduce and Combine ---
+    # Create an empty array to hold the final threat map for each of the 4 hulls
+    hull_threat_maps = np.zeros((4, resolution, resolution), dtype=np.float16)
+
+    for hull in HullSection:
+        # Select the 3 high-res range layers for the current hull
+        start_index = hull * 3
+        hull_range_layers_hr = threat_planes_hr[start_index : start_index + 3]
+
+        # First, find the maximum threat across the 3 range bands for this hull
+        max_threat_per_hull_hr = np.max(hull_range_layers_hr, axis=0)
+
+        # Now, downsample this max-threat map to the final 16x16 resolution
+        # We use np.max here again to ensure the strongest threat in any 2x2 block is preserved
+        hull_threat_maps[hull] = block_reduce(max_threat_per_hull_hr, block_size=(2, 2), func=np.max)
+
+    # --- 4. Final Summation ---
+    # Sum the 4 final hull maps to get the total threat, correctly capturing double-arcing
+    final_threat_map = np.sum(hull_threat_maps, axis=0)
+
+    return final_threat_map
