@@ -26,7 +26,7 @@ class Config:
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
     # Training Loop
-    ITERATIONS = 50 # update model ITERATION times
+    ITERATIONS = 1 # update model ITERATION times
     SELF_PLAY_GAMES = 1 # generate data for SELF_PLAY_GAMES games during one iteration
 
     # MCTS
@@ -99,44 +99,48 @@ class AlphArmada:
         """
         self.model.train()
         self.optimizer.zero_grad()
-        
+
         phases, states, target_policies, target_values = zip(*memory)
-        
-        target_policies = torch.from_numpy(np.array(target_policies)).float().to(self.config.DEVICE)
+
+        # DO NOT convert target_policies to a single tensor here. Keep it as a list of numpy arrays.
+        # target_policies = torch.from_numpy(np.array(target_policies)).float().to(self.config.DEVICE) # <- REMOVE THIS LINE
+
         target_values = torch.tensor(target_values, dtype=torch.float32).to(self.config.DEVICE).view(-1, 1)
 
-        scalar_batch = torch.stack([torch.from_numpy(s['scalar']) for s in states]).to(self.config.DEVICE)
-        entity_batch = torch.stack([torch.from_numpy(s['entities']) for s in states]).to(self.config.DEVICE)
-        spatial_batch = torch.stack([torch.from_numpy(s['spatial']) for s in states]).to(self.config.DEVICE)
-        relation_batch = torch.stack([torch.from_numpy(s['relations']) for s in states]).to(self.config.DEVICE)
+        scalar_batch = torch.stack([torch.from_numpy(s['scalar']).float() for s in states]).to(self.config.DEVICE)
+        entity_batch = torch.stack([torch.from_numpy(s['entities']).float() for s in states]).to(self.config.DEVICE)
+        spatial_batch = torch.stack([torch.from_numpy(s['spatial']).float() for s in states]).to(self.config.DEVICE)
+        relation_batch = torch.stack([torch.from_numpy(s['relations']).float() for s in states]).to(self.config.DEVICE)
         phase_batch = list(phases)
-        
+
         policy_loss = torch.tensor(0.0, device=self.config.DEVICE)
         value_loss = torch.tensor(0.0, device=self.config.DEVICE)
-        
+
         for i in range(len(memory)):
             policy_logits, value_pred = self.model(
                 scalar_batch[i], entity_batch[i], spatial_batch[i],
                 relation_batch[i], phase_batch[i]
             )
-            
-            policy_loss += F.cross_entropy(policy_logits.unsqueeze(0), target_policies[i].unsqueeze(0))
-            value_loss += F.mse_loss(value_pred.squeeze(0), target_values[i])
 
-        # This adds a penalty for large weights to prevent overfitting.
+            # Convert the individual target policy to a tensor INSIDE the loop
+            # The shape of target_policies[i] will now correctly match the shape of policy_logits
+            current_target_policy = torch.from_numpy(target_policies[i]).float().to(self.config.DEVICE)
+
+            policy_loss += F.cross_entropy(policy_logits.unsqueeze(0), current_target_policy.unsqueeze(0))
+            value_loss += F.mse_loss(value_pred, target_values[i])
+
+        # ... (rest of the function remains the same)
         l2_reg = torch.tensor(0., device=self.config.DEVICE)
         for param in self.model.parameters():
             l2_reg += torch.sum(param.pow(2))
 
-        # Average the primary losses and add the scaled L2 penalty
         total_loss = (policy_loss + value_loss) / len(memory) + self.config.L2_LAMBDA * l2_reg
-
 
         total_loss.backward()
         self.optimizer.step()
-        
-        return total_loss.item()
 
+        return total_loss.item()
+    
     def learn(self):
         """
         The main continuous training loop: self-play -> store -> train.
@@ -152,12 +156,12 @@ class AlphArmada:
             self.model.eval()
             # --- Self-Play Phase ---
             for self_play_iteration in range(self.config.SELF_PLAY_GAMES):
-                print(f"Starting {self_play_iteration}th self-play...")
+                print(f"Starting {self_play_iteration+1}th self-play...")
                 start_time = time.time()
                 new_memory = self.self_play()
                 replay_buffer.extend(new_memory)
                 end_time = time.time()
-                print(f"{self_play_iteration} Self-play finished in {end_time - start_time:.2f}s. Replay buffer size: {len(replay_buffer)}")
+                print(f"{self_play_iteration + 1}th Self-play finished in {end_time - start_time:.2f}s. Replay buffer size: {len(replay_buffer)}")
 
             # --- Training Phase ---
             if len(replay_buffer) < self.config.BATCH_SIZE:
@@ -210,9 +214,9 @@ def setup_game() -> Armada:
     return game
 
 def main():
-    random.seed(66)
-    np.random.seed(66)
-    torch.manual_seed(66)
+    # random.seed(66)
+    # np.random.seed(66)
+    # torch.manual_seed(66)
 
     config = Config()
     print(f"Starting training on device: {config.DEVICE}")
