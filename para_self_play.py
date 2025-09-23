@@ -16,7 +16,7 @@ from armada import Armada
 from ship import Ship
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
-from mcts import MCTS
+from para_mcts import MCTS
 from action_space import ActionManager
 from game_phase import GamePhase, ActionType, get_action_str
 from dice import roll_dice
@@ -27,7 +27,8 @@ class Config:
 
     # Training Loop
     ITERATIONS = 1 # update model ITERATION times
-    SELF_PLAY_GAMES = 1 # generate data for SELF_PLAY_GAMES games during one iteration
+    SELF_PLAY_GAMES = 200 # generate data for SELF_PLAY_GAMES games during one iteration
+    PARALLEL_PLAY = 100 # run games in batch
 
     # MCTS
     MCTS_ITERATION = 50
@@ -46,6 +47,14 @@ class Config:
     MODEL_PATH = "model.pth"
     CHECKPOINT_DIR = "model_checkpoints"
 
+class SelfPlayGame():
+    def __init__(self):
+        self.game = setup_game()
+        self.snapshot = self.game.get_snapshot()
+        self.memory : list[tuple[GamePhase, dict, np.ndarray]]= []
+        self.root = None
+        self.Node = None
+
 class AlphArmada:
     def __init__(self, model : ArmadaNet, optimizer : optim.AdamW, config : Config) :
         self.model = model
@@ -53,44 +62,103 @@ class AlphArmada:
         self.config = config
 
     def self_play(self) :
-        with open('simulation_log.txt', 'w') as f:
-            f.write("Game Start\n")
-        action_manager = ActionManager()
         memory : list[tuple[GamePhase, dict, np.ndarray]]= []
-        game = setup_game()
-        mcts_game = copy.deepcopy(game)
-        mcts = MCTS(mcts_game, action_manager, self.model, self.config)
+        action_manager = ActionManager()
+        self_play_games = [SelfPlayGame() for _ in range(self.config.PARALLEL_PLAY)]
+        mcts_games = copy.deepcopy(self_play_games)
+        self.mcts : MCTS = MCTS(mcts_games, action_manager, self.model, self.config)
 
-        for _ in range(self.config.MAX_GAME_STEP) :
-            if game.decision_player is None :
-                # chance node case
-                if game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : 
-                    if game.attack_info is None :
+        while self_play_games :
+            decision_games_indices = [i for i, g in enumerate(self_play_games) if g.game.decision_player is not None]
+            if decision_games_indices:
+                decision_sp_games = [self_play_games[i] for i in decision_games_indices]
+
+                # --- Perform MCTS search in parallel for decision nodes ---
+                # This part requires your MCTS to handle a batch of games.
+                # The ideal implementation would batch the neural network calls inside MCTS.
+                # For simplicity here, we call it sequentially, but you should aim to batch it.
+                action_probs_list = []
+                for spg in decision_sp_games:
+                    self.mcts.game = spg.game # Update MCTS with the current game
+                    action_probs = self.mcts.parallel_search(spg.game.decision_player)
+                    action_probs_list.append(action_probs)
+
+                # --- Store memory and choose actions ---
+                for i, spg in enumerate(decision_sp_games):
+                    action_probs = action_probs_list[i]
+                    spg.memory.append((spg.game.phase, encode_game_state(spg.game), action_probs))
+                    action = self.mcts.get_random_best_action(spg.game.decision_player)
+                    spg.action_to_apply = action # Store action to apply later
+            
+            # --- Process all games (decision and non-decision) for one step ---
+            for i in range(len(self_play_games))[::-1]:
+                spg = self_play_games[i]
+                game = spg.game
+                action = None
+
+                if game.decision_player is not None:
+                    action = getattr(spg, 'action_to_apply', None)
+                elif game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE:
+                    if game.attack_info is None:
                         raise ValueError("No attack info for the current game phase.")
                     dice_roll = roll_dice(game.attack_info.dice_to_roll)
                     action = ('roll_dice_action', dice_roll)
+                elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL:
+                    if len(game.get_valid_actions()) != 1:
+                        raise ValueError("Multiple valid actions in information set node.")
+                    action = game.get_valid_actions()[0]
 
-                 # information set node case
-                elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-                    mcts.game.simulation_player = game.current_player
-                    if len(mcts.game.get_valid_actions()) != 1 :
-                        raise ValueError(f"Multiple valid actions in information set node.\n{mcts.game.get_valid_actions()}")
-                    action = mcts.game.get_valid_actions()[0]
-
-            else :
-                action_probs = mcts.alpha_mcts_search(game.decision_player)
-                memory.append((game.phase, encode_game_state(game), action_probs))
-                action = mcts.get_random_best_action(game.decision_player)
+                if action:
+                    print(get_action_str(game, action))
+                    game.apply_action(action)
                 
-            print(get_action_str(game, action))
-            game.apply_action(action)
-            mcts.advance_tree(action, game.get_snapshot())
+                # --- Check for terminal states ---
+                if game.winner is not None or len(spg.memory) >= self.config.MAX_GAME_STEP:
+                    if game.winner is not None:
+                        # Game ended normally
+                        for phase, state, action_probs in spg.memory:
+                            return_memory.append((phase, state, action_probs, game.winner))
+                    else:
+                        # Max steps reached, consider it a draw
+                        print(f"Game reached max steps. Winner: 0")
+                        for phase, state, action_probs in spg.memory:
+                            return_memory.append((phase, state, action_probs, 0)) # Draw
+                    
+                    del self_play_games[i] # Remove finished game
+
+        return return_memory
 
 
-            if game.winner is not None : 
-                return_memory = [(phase, state, action_probs, game.winner) for phase, state, action_probs in memory]
-                return return_memory
-        raise RuntimeError(f'Maximum simulation steps reached\n{game.get_snapshot()}')
+        # for _ in range(self.config.MAX_GAME_STEP) :
+        #     if game.decision_player is None :
+        #         # chance node case
+        #         if game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : 
+        #             if game.attack_info is None :
+        #                 raise ValueError("No attack info for the current game phase.")
+        #             dice_roll = roll_dice(game.attack_info.dice_to_roll)
+        #             action = ('roll_dice_action', dice_roll)
+
+        #          # information set node case
+        #         elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL :
+        #             mcts.game.simulation_player = game.current_player
+        #             if len(mcts.game.get_valid_actions()) != 1 :
+        #                 raise ValueError(f"Multiple valid actions in information set node.\n{mcts.game.get_valid_actions()}")
+        #             action = mcts.game.get_valid_actions()[0]
+
+        #     else :
+        #         action_probs = mcts.alpha_mcts_search(game.decision_player)
+        #         memory.append((game.phase, encode_game_state(game), action_probs))
+        #         action = mcts.get_random_best_action(game.decision_player)
+                
+        #     print(get_action_str(game, action))
+        #     game.apply_action(action)
+        #     mcts.advance_tree(action, game.get_snapshot())
+
+
+        #     if game.winner is not None : 
+        #         return_memory = [(phase, state, action_probs, game.winner) for phase, state, action_probs in memory]
+        #         return return_memory
+        # raise RuntimeError(f'Maximum simulation steps reached\n{game.get_snapshot()}')
     
 
     def train(self, memory: list[tuple[GamePhase, dict, np.ndarray, float]]):

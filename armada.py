@@ -41,8 +41,6 @@ class Armada:
         self.debuging_visual : bool = False
         self.simulation_player : int | None = None
 
-        self.action_manager = ActionManager()
-
 
     def rollout(self, max_simulation_step : int = 1000) -> float :
         """
@@ -345,6 +343,7 @@ class Armada:
 
             case 'activate_ship_action', ship_id:
                 self.active_ship = self.ships[ship_id]
+                self.current_player = self.active_ship.player
                 self.phase = GamePhase.SHIP_REVEAL_COMMAND_DIAL
 
 
