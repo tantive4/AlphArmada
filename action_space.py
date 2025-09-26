@@ -164,7 +164,7 @@ class ActionManager:
     the essential action-to-index lookup dictionary for each phase.
     """
     def __init__(self, filepath='action_space.json'):
-        self.action_maps: dict[GamePhase, dict] = {}
+        self.action_maps: dict[GamePhase, dict[ActionType.Action, int]] = {}
         
         with open(filepath, 'r') as f:
             raw_maps = json.load(f)
@@ -175,18 +175,15 @@ class ActionManager:
                 phase = GamePhase[phase_name]
                 
                 # Create the action-to-index dictionary from the loaded list.
-                action_to_index_dict = {
+                action_to_index_dict :dict[ActionType.Action, int] = {
                     # Convert the action_value to a hashable tuple before creating the key
                     (action_name, _make_hashable(action_value)): i
                     for i, (action_name, action_value) in enumerate(total_actions_list)
                 }
                 
-                self.action_maps[phase] = {
-                    'total_actions': total_actions_list,
-                    'action_to_index': action_to_index_dict
-                }
+                self.action_maps[phase] = action_to_index_dict
 
-    def get_action_map(self, phase: GamePhase) -> dict:
+    def get_action_map(self, phase: GamePhase) -> dict[ActionType.Action, int]:
         """Returns the action map for a given game phase."""
         return self.action_maps[phase]
 
@@ -204,4 +201,4 @@ if __name__ == '__main__':
     for phase in GamePhase:
         if phase in action_manager.action_maps:
             action_map = action_manager.get_action_map(phase)
-            print(f"Phase: {phase.name:<35} Total Actions: {len(action_map['total_actions'])}")
+            print(f"Phase: {phase.name:<35} Total Actions: {len(action_map)}")

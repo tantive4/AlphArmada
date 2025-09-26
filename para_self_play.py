@@ -8,11 +8,9 @@ import random
 import os
 import time
 import copy
-import json
-import math
 
 # Import your custom modules
-from armada import Armada
+from armada import Armada, setup_game
 from ship import Ship
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
@@ -27,12 +25,14 @@ class Config:
 
     # Training Loop
     ITERATIONS = 1 # update model ITERATION times
-    SELF_PLAY_GAMES = 200 # generate data for SELF_PLAY_GAMES games during one iteration
-    PARALLEL_PLAY = 100 # run games in batch
+    SELF_PLAY_GAMES = 100 # generate data for SELF_PLAY_GAMES games during one iteration
+    PARALLEL_PLAY = 64 # run games in batch
+    TRAINING_STEPS = 100 # train model TRAINING_STEPS times after each iteration
 
     # MCTS
     MCTS_ITERATION = 50
     MAX_GAME_STEP = 1000
+    TEMPERATURE = 1.0
 
     # Replay Buffer
     REPLAY_BUFFER_SIZE = 30000
@@ -47,168 +47,132 @@ class Config:
     MODEL_PATH = "model.pth"
     CHECKPOINT_DIR = "model_checkpoints"
 
-class SelfPlayGame():
-    def __init__(self):
-        self.game = setup_game()
-        self.snapshot = self.game.get_snapshot()
-        self.memory : list[tuple[GamePhase, dict, np.ndarray]]= []
-        self.root = None
-        self.Node = None
-
 class AlphArmada:
     def __init__(self, model : ArmadaNet, optimizer : optim.AdamW, config : Config) :
-        self.model = model
-        self.optimizer = optimizer
-        self.config = config
+        self.model : ArmadaNet = model
+        self.optimizer : optim.AdamW = optimizer
+        self.config : Config = config
 
     def self_play(self) :
-        memory : list[tuple[GamePhase, dict, np.ndarray]]= []
+        memory : dict[int, list[tuple[GamePhase, dict, np.ndarray]]] = {para_index : list() for para_index in range(self.config.PARALLEL_PLAY)}
+        self_play_data : list[tuple[GamePhase, dict, np.ndarray, float]] = []
+
         action_manager = ActionManager()
-        self_play_games = [SelfPlayGame() for _ in range(self.config.PARALLEL_PLAY)]
-        mcts_games = copy.deepcopy(self_play_games)
-        self.mcts : MCTS = MCTS(mcts_games, action_manager, self.model, self.config)
+        para_games : list[Armada] = [setup_game() for _ in range(self.config.PARALLEL_PLAY)]
+        self.mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model, self.config)
 
-        while self_play_games :
-            decision_games_indices = [i for i, g in enumerate(self_play_games) if g.game.decision_player is not None]
-            if decision_games_indices:
-                decision_sp_games = [self_play_games[i] for i in decision_games_indices]
+        while any(game.winner is None for game in para_games) :
+            simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player is not None}
 
+            if simulation_players :
                 # --- Perform MCTS search in parallel for decision nodes ---
-                # This part requires your MCTS to handle a batch of games.
-                # The ideal implementation would batch the neural network calls inside MCTS.
-                # For simplicity here, we call it sequentially, but you should aim to batch it.
-                action_probs_list = []
-                for spg in decision_sp_games:
-                    self.mcts.game = spg.game # Update MCTS with the current game
-                    action_probs = self.mcts.parallel_search(spg.game.decision_player)
-                    action_probs_list.append(action_probs)
+                para_action_probs : dict[int, np.ndarray] = self.mcts.parallel_search(simulation_players)
 
-                # --- Store memory and choose actions ---
-                for i, spg in enumerate(decision_sp_games):
-                    action_probs = action_probs_list[i]
-                    spg.memory.append((spg.game.phase, encode_game_state(spg.game), action_probs))
-                    action = self.mcts.get_random_best_action(spg.game.decision_player)
-                    spg.action_to_apply = action # Store action to apply later
+                for para_index in para_action_probs:
+                    game : Armada = para_games[para_index]
+                    memory[para_index].append((game.phase, encode_game_state(game), para_action_probs[para_index]))
             
             # --- Process all games (decision and non-decision) for one step ---
-            for i in range(len(self_play_games))[::-1]:
-                spg = self_play_games[i]
-                game = spg.game
-                action = None
+            for para_index in range(self.config.PARALLEL_PLAY) :
+                game : Armada = para_games[para_index]
 
                 if game.decision_player is not None:
-                    action = getattr(spg, 'action_to_apply', None)
+                    action = self.mcts.get_random_best_action(para_index, game.decision_player)
+
+                # Chance Node
                 elif game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE:
                     if game.attack_info is None:
                         raise ValueError("No attack info for the current game phase.")
                     dice_roll = roll_dice(game.attack_info.dice_to_roll)
                     action = ('roll_dice_action', dice_roll)
+
+                # Information Set Node
                 elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL:
                     if len(game.get_valid_actions()) != 1:
                         raise ValueError("Multiple valid actions in information set node.")
                     action = game.get_valid_actions()[0]
 
-                if action:
-                    print(get_action_str(game, action))
-                    game.apply_action(action)
+                game.apply_action(action)
+                self.mcts.advance_tree(para_index, action, game.get_snapshot())
                 
                 # --- Check for terminal states ---
-                if game.winner is not None or len(spg.memory) >= self.config.MAX_GAME_STEP:
-                    if game.winner is not None:
-                        # Game ended normally
-                        for phase, state, action_probs in spg.memory:
-                            return_memory.append((phase, state, action_probs, game.winner))
-                    else:
-                        # Max steps reached, consider it a draw
-                        print(f"Game reached max steps. Winner: 0")
-                        for phase, state, action_probs in spg.memory:
-                            return_memory.append((phase, state, action_probs, 0)) # Draw
-                    
-                    del self_play_games[i] # Remove finished game
+                if game.winner is not None:
+                    for phase, encoded_state, action_probs in memory[para_index]:
+                        self_play_data.append((phase, encoded_state, action_probs, game.winner))
+                    memory[para_index].clear()
 
-        return return_memory
-
-
-        # for _ in range(self.config.MAX_GAME_STEP) :
-        #     if game.decision_player is None :
-        #         # chance node case
-        #         if game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE : 
-        #             if game.attack_info is None :
-        #                 raise ValueError("No attack info for the current game phase.")
-        #             dice_roll = roll_dice(game.attack_info.dice_to_roll)
-        #             action = ('roll_dice_action', dice_roll)
-
-        #          # information set node case
-        #         elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-        #             mcts.game.simulation_player = game.current_player
-        #             if len(mcts.game.get_valid_actions()) != 1 :
-        #                 raise ValueError(f"Multiple valid actions in information set node.\n{mcts.game.get_valid_actions()}")
-        #             action = mcts.game.get_valid_actions()[0]
-
-        #     else :
-        #         action_probs = mcts.alpha_mcts_search(game.decision_player)
-        #         memory.append((game.phase, encode_game_state(game), action_probs))
-        #         action = mcts.get_random_best_action(game.decision_player)
-                
-        #     print(get_action_str(game, action))
-        #     game.apply_action(action)
-        #     mcts.advance_tree(action, game.get_snapshot())
-
-
-        #     if game.winner is not None : 
-        #         return_memory = [(phase, state, action_probs, game.winner) for phase, state, action_probs in memory]
-        #         return return_memory
-        # raise RuntimeError(f'Maximum simulation steps reached\n{game.get_snapshot()}')
+        return self_play_data
     
 
     def train(self, memory: list[tuple[GamePhase, dict, np.ndarray, float]]):
         """
         Trains the neural network on a batch of experiences from self-play.
         """
+        if not memory:
+            return 0.0
+
         self.model.train()
         self.optimizer.zero_grad()
 
         phases, states, target_policies, target_values = zip(*memory)
-
-        # DO NOT convert target_policies to a single tensor here. Keep it as a list of numpy arrays.
-        # target_policies = torch.from_numpy(np.array(target_policies)).float().to(self.config.DEVICE) # <- REMOVE THIS LINE
-
-        target_values = torch.tensor(target_values, dtype=torch.float32).to(self.config.DEVICE).view(-1, 1)
-
+        
+        # Prepare batched tensors
+        target_values_tensor = torch.tensor(target_values, dtype=torch.float32).to(self.config.DEVICE).view(-1, 1)
         scalar_batch = torch.stack([torch.from_numpy(s['scalar']).float() for s in states]).to(self.config.DEVICE)
         entity_batch = torch.stack([torch.from_numpy(s['entities']).float() for s in states]).to(self.config.DEVICE)
         spatial_batch = torch.stack([torch.from_numpy(s['spatial']).float() for s in states]).to(self.config.DEVICE)
         relation_batch = torch.stack([torch.from_numpy(s['relations']).float() for s in states]).to(self.config.DEVICE)
-        phase_batch = list(phases)
+        
+        # --- Single Batched Forward Pass ---
+        policy_logits, value_pred = self.model(
+            scalar_batch, entity_batch, spatial_batch,
+            relation_batch, list(phases)
+        )
 
+        # --- Calculate Losses ---
+        
+        # Value loss can be calculated on the whole batch at once
+        value_loss = F.mse_loss(value_pred, target_values_tensor)
+
+        # Policy loss needs to be calculated per phase group due to different shapes
         policy_loss = torch.tensor(0.0, device=self.config.DEVICE)
-        value_loss = torch.tensor(0.0, device=self.config.DEVICE)
+        
+        # Group indices by phase
+        phase_indices = {}
+        for para_index, phase in enumerate(phases):
+            if phase.name not in phase_indices:
+                phase_indices[phase.name] = []
+            phase_indices[phase.name].append(para_index)
 
-        for i in range(len(memory)):
-            policy_logits, value_pred = self.model(
-                scalar_batch[i], entity_batch[i], spatial_batch[i],
-                relation_batch[i], phase_batch[i]
-            )
+        for phase_name, indices in phase_indices.items():
+            if not indices:
+                continue
+            
+            # Select predictions and targets for the current group
+            group_logits = policy_logits[indices]
+            group_target_policies = torch.from_numpy(np.stack([target_policies[para_index] for para_index in indices])).float().to(self.config.DEVICE)
+            
+            # Slice the logits to match the target action space size for this phase
+            action_space_size = group_target_policies.shape[1]
+            group_logits_sliced = group_logits[:, :action_space_size]
+            
+            # Add to total policy loss
+            policy_loss += F.cross_entropy(group_logits_sliced, group_target_policies)
 
-            # Convert the individual target policy to a tensor INSIDE the loop
-            # The shape of target_policies[i] will now correctly match the shape of policy_logits
-            current_target_policy = torch.from_numpy(target_policies[i]).float().to(self.config.DEVICE)
-
-            policy_loss += F.cross_entropy(policy_logits.unsqueeze(0), current_target_policy.unsqueeze(0))
-            value_loss += F.mse_loss(value_pred, target_values[i])
-
-        # ... (rest of the function remains the same)
+        # L2 Regularization
         l2_reg = torch.tensor(0., device=self.config.DEVICE)
         for param in self.model.parameters():
             l2_reg += torch.sum(param.pow(2))
 
-        total_loss = (policy_loss + value_loss) / len(memory) + self.config.L2_LAMBDA * l2_reg
+        # Combine losses
+        total_loss = policy_loss + value_loss + self.config.L2_LAMBDA * l2_reg
 
         total_loss.backward()
         self.optimizer.step()
 
         return total_loss.item()
     
+
     def learn(self):
         """
         The main continuous training loop: self-play -> store -> train.
@@ -224,7 +188,7 @@ class AlphArmada:
             self.model.eval()
             # --- Self-Play Phase ---
             for self_play_iteration in range(self.config.SELF_PLAY_GAMES):
-                print(f"Starting {self_play_iteration+1}th self-play...")
+                print(f"Starting {self_play_iteration+1}th self-play ({self.config.PARALLEL_PLAY} batch games)...")
                 start_time = time.time()
                 new_memory = self.self_play()
                 replay_buffer.extend(new_memory)
@@ -236,11 +200,16 @@ class AlphArmada:
                 print("Not enough data in replay buffer to train. Skipping...")
                 continue
             
-            print("Starting training...")
             start_time = time.time()
-            training_batch = random.sample(list(replay_buffer), self.config.BATCH_SIZE)
-            loss = self.train(training_batch)
-            loss_history.append(loss)
+            print("Starting training phase...")
+            self.model.train()
+            # Instead of one batch, loop for a set number of steps
+            for step in range(self.config.TRAINING_STEPS):
+                # Sample a new mini-batch from the buffer for each step
+                training_batch = random.sample(list(replay_buffer), self.config.BATCH_SIZE)
+                loss = self.train(training_batch)
+                if step % 100 == 0:
+                    print(f"  - Step {step}/{self.config.TRAINING_STEPS}, Loss: {loss:.4f}")
             end_time = time.time()
             print(f"Training finished in {end_time - start_time:.2f}s. Loss: {loss:.4f}")
 
@@ -253,33 +222,7 @@ class AlphArmada:
         print("\nTraining complete!")
         print(f"Loss history: {loss_history}")
 
-def setup_game() -> Armada: 
-    with open('ship_info.json', 'r') as f:
-        SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
-    game = Armada(random.choice([1, -1])) # randomly choose the first player
-    
-    rebel_ships = (
-        Ship(SHIP_DATA['CR90A'], 1), 
-        Ship(SHIP_DATA['CR90B'], 1),
-        Ship(SHIP_DATA['Neb-B Escort'], 1), 
-        Ship(SHIP_DATA['Neb-B Support'], 1))
-    
-    empire_ships = (
-        Ship(SHIP_DATA['VSD1'], -1),
-        Ship(SHIP_DATA['VSD2'], -1))
 
-    rebel_deployment = [250, 400, 500, 650]
-    empire_deployment = [350, 550]
-    random.shuffle(rebel_deployment)
-    random.shuffle(empire_deployment)
-
-    yaw_one_click = math.pi/8
-    for i, ship in enumerate(rebel_ships) :
-        game.deploy_ship(ship, rebel_deployment[i], 175, random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
-    for i, ship in enumerate(empire_ships): 
-        game.deploy_ship(ship, empire_deployment[i], 725, math.pi + random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
-
-    return game
 
 def main():
     # random.seed(66)
@@ -289,11 +232,8 @@ def main():
     config = Config()
     print(f"Starting training on device: {config.DEVICE}")
 
-    # Initialize a single game instance and action manager to pass around
-    game = setup_game()
-
     # Initialize the model and optimizer
-    model = ArmadaNet(game.action_manager).to(config.DEVICE)
+    model = ArmadaNet(ActionManager()).to(config.DEVICE)
     if os.path.exists(config.MODEL_PATH):
         print(f"Loading model from {config.MODEL_PATH} to continue training.")
         model.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))

@@ -183,47 +183,6 @@ def encode_entity_features(game: Armada) -> np.ndarray:
 
     return entity_vectors
 
-
-# def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
-    """
-    Creates 2D grid representations of the game board using the Per-Entity Plane approach.
-    This provides high-fidelity orientation and shape information.
-
-    Output Shape: (MAX_SHIPS + 2, resolution, resolution)
-    - Planes 0-5: Presence map for Ship ID 0-5 respectively.
-        - Value is +health_ratio for friendly ships.
-        - Value is -health_ratio for enemy ships.
-    - Plane 6: Friendly Threat Map
-    - Plane 7: Enemy Threat Map
-    """
-    planes = np.zeros((MAX_SHIPS + 2, resolution, resolution), dtype=np.float32)
-    width_step = game.player_edge / resolution
-    height_step = game.short_edge / resolution
-
-    for i, ship in enumerate(game.ships):
-        if ship.destroyed: continue
-        
-        value = (ship.hull / ship.max_hull) * ship.player
-        scaled_vertices = np.array(_cached_polygons(ship.get_ship_hash_state())['base'].exterior.coords) / [width_step, height_step]
-        rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=planes[i].shape)
-        planes[i, rr, cc] = value
-
-    threat_plane_offset = MAX_SHIPS
-    for ship in game.ships:
-        if ship.destroyed: continue
-            
-        threat_plane_idx = threat_plane_offset + (0 if ship.player == game.current_player else 1)
-        for r in range(resolution):
-            for c in range(resolution):
-                point = ((c + 0.5) * width_step, (r + 0.5) * height_step)
-                total_threat = 0
-                range_dict = _cached_point_range(ship.get_ship_hash_state(), point)
-                for attack_hull in HullSection:
-                    dice = ship.gather_dice(attack_hull, range_dict[attack_hull])
-                    total_threat += sum(dice)
-                if total_threat > 0:
-                    planes[threat_plane_idx, r, c] += total_threat / 10.0
-    return planes
 def _draw_ship_presence_planes(planes: np.ndarray, game: Armada, resolution: int):
     """Draws each ship's presence onto its dedicated plane."""
     width_step = game.player_edge / resolution

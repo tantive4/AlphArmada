@@ -128,7 +128,7 @@ class Ship:
         self.speed: int = speed
 
         self.hull: int = self.max_hull
-        self.shield: tuple[int, int, int, int] = tuple(self.max_shield[hull] for hull in HullSection)
+        self.shield: tuple[int, ...] = tuple(self.max_shield[hull] for hull in HullSection)
         self.ship_id: int = ship_id
         self.command_stack: tuple[Command, ...] = ()
         self.command_dial : tuple[Command, ...] = ()
@@ -1114,10 +1114,10 @@ def _cached_threat_plane(ship_state : tuple[str, float, float, float], width_ste
 
         # Now, downsample this max-threat map to the final 16x16 resolution
         # We use np.max here again to ensure the strongest threat in any 2x2 block is preserved
-        hull_threat_maps[hull] = block_reduce(max_threat_per_hull_hr, block_size=(2, 2), func=np.max)
+        hull_threat_maps[hull] = block_reduce(max_threat_per_hull_hr, block_size=2, func=np.max)
 
     # --- 4. Final Summation ---
     # Sum the 4 final hull maps to get the total threat, correctly capturing double-arcing
-    final_threat_map = np.sum(hull_threat_maps, axis=0)
+    final_threat_map = np.sum(hull_threat_maps, axis=0) / 8  # Normalize to [0, 1] range
 
     return final_threat_map

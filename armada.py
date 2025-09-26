@@ -3,6 +3,8 @@ import random
 import copy
 import itertools
 from typing import Callable
+import math
+import json
 
 from shapely.geometry import Polygon
 
@@ -14,6 +16,34 @@ from ship import Ship, HullSection, Command, _cached_range
 from defense_token import DefenseToken, TokenType
 from dice import Dice, CRIT_INDEX, ACCURACY_INDEX, DAMAGE_INDICES, EMPTY_DICE_POOL, roll_dice, Critical, dice_choice_combinations
 from measurement import AttackRange
+
+def setup_game() -> Armada: 
+    with open('ship_info.json', 'r') as f:
+        SHIP_DATA: dict[str, dict[str, str | int | list | float]] = json.load(f)
+    game = Armada(random.choice([1, -1])) # randomly choose the first player
+    
+    rebel_ships = (
+        Ship(SHIP_DATA['CR90A'], 1), 
+        Ship(SHIP_DATA['CR90B'], 1),
+        Ship(SHIP_DATA['Neb-B Escort'], 1), 
+        Ship(SHIP_DATA['Neb-B Support'], 1))
+    
+    empire_ships = (
+        Ship(SHIP_DATA['VSD1'], -1),
+        Ship(SHIP_DATA['VSD2'], -1))
+
+    rebel_deployment = [250, 400, 500, 650]
+    empire_deployment = [350, 550]
+    random.shuffle(rebel_deployment)
+    random.shuffle(empire_deployment)
+
+    yaw_one_click = math.pi/8
+    for i, ship in enumerate(rebel_ships) :
+        game.deploy_ship(ship, rebel_deployment[i], 175, random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
+    for i, ship in enumerate(empire_ships): 
+        game.deploy_ship(ship, empire_deployment[i], 725, math.pi + random.choice([-yaw_one_click, 0, yaw_one_click]), random.randint(1,len(ship.nav_chart)))
+
+    return game
 
 class Armada:
     def __init__(self, initiative: int) -> None:

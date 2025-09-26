@@ -70,7 +70,7 @@ class AlphArmada:
                     dice_roll = roll_dice(game.attack_info.dice_to_roll)
                     action = ('roll_dice_action', dice_roll)
 
-                 # information set node case
+                # information set node case
                 elif game.phase == GamePhase.SHIP_REVEAL_COMMAND_DIAL :
                     mcts.game.simulation_player = game.current_player
                     if len(mcts.game.get_valid_actions()) != 1 :
@@ -223,9 +223,10 @@ def main():
 
     # Initialize a single game instance and action manager to pass around
     game = setup_game()
+    action_manager = ActionManager()
 
     # Initialize the model and optimizer
-    model = ArmadaNet(game.action_manager).to(config.DEVICE)
+    model = ArmadaNet(action_manager).to(config.DEVICE)
     if os.path.exists(config.MODEL_PATH):
         print(f"Loading model from {config.MODEL_PATH} to continue training.")
         model.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))

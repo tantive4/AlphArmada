@@ -284,14 +284,12 @@ class MCTS:
 
                     # create policy mask for valid actions
                     action_map = self.action_manager.get_action_map(self.game.phase)
-                    action_to_index = action_map['action_to_index']
-                    total_actions_list = action_map['total_actions']
                     valid_actions = self.game.get_valid_actions()
                     valid_action_index = {}
 
-                    valid_moves_mask = np.zeros(len(total_actions_list), dtype=np.uint8)
+                    valid_moves_mask = np.zeros(len(action_map), dtype=np.uint8)
                     for i, action in enumerate(valid_actions):                      
-                        action_index = action_to_index[action]
+                        action_index = action_map[action]
                         valid_action_index[i] = action_index
                         valid_moves_mask[action_index] = 1
                         
@@ -324,7 +322,7 @@ class MCTS:
         
         # End of Search Iteration            
         action_map = self.action_manager.get_action_map(self.game.phase)
-        action_probs = np.zeros(len(action_map['total_actions']), dtype=np.float16)
+        action_probs = np.zeros(len(action_map), dtype=np.float16)
         for child in self.player_root[simulation_player].children:
             action_probs[child.action_index] = child.visits
 

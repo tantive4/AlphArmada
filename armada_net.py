@@ -51,6 +51,7 @@ class ArmadaNet(nn.Module):
         
         # Store the action manager to get phase-specific action space sizes
         self.action_manager = action_manager
+        self.max_action_space = max(len(amap) for amap in self.action_manager.action_maps.values())
 
         # --- 1. Specialized Encoders ---
 
@@ -70,7 +71,7 @@ class ArmadaNet(nn.Module):
         
         # Spatial Encoder (ResNet)
         self.spatial_encoder = nn.Sequential(
-            nn.Conv2d(MAX_SHIPS + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.Conv2d(MAX_SHIPS * 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             ResBlock(64, 64),
@@ -110,84 +111,91 @@ class ArmadaNet(nn.Module):
         # Policy Head: Predicts the probability for each possible action in a given phase.
         # We create a separate linear layer for each game phase.
         self.policy_heads = nn.ModuleDict({
-            phase.name: nn.Linear(256, len(self.action_manager.get_action_map(phase)['total_actions']))
+            phase.name: nn.Linear(256, len(self.action_manager.get_action_map(phase)))
             for phase in self.action_manager.action_maps.keys()
         })
 
+    def forward(self, scalar_input, entity_input, spatial_input, relation_input, phases: list[GamePhase]):
+        # --- 1. Process through Encoders (now with batch support) ---
+        batch_size = scalar_input.shape[0]
 
-    def forward(self, scalar_input, entity_input, spatial_input, relation_input, phase: GamePhase):
-        # --- 1. Process through Encoders ---
-        
-        scalar_features = self.scalar_encoder(scalar_input)
-        
-        # Transformer needs a batch dimension, so we unsqueeze and squeeze.
-        entity_features_attended = self.entity_encoder(entity_input.unsqueeze(0)).squeeze(0)
-        # Aggregate the features of all ships into one vector using the mean.
-        entity_features = self.entity_aggregator(entity_features_attended.mean(dim=0))
+        scalar_features = self.scalar_encoder(scalar_input) # [B, 64]
 
-        # Add a batch dimension for CNNs
-        spatial_features_raw = self.spatial_encoder(spatial_input.unsqueeze(0))
-        spatial_features = spatial_features_raw.view(spatial_features_raw.size(0), -1).squeeze(0)
+        # Transformer is already batch-first. No unsqueeze/squeeze needed.
+        entity_features_attended = self.entity_encoder(entity_input) # [B, MAX_SHIPS, F]
+        # Aggregate over the sequence dimension (dim=1)
+        entity_features_mean = entity_features_attended.mean(dim=1) # [B, F]
+        entity_features = self.entity_aggregator(entity_features_mean) # [B, 128]
 
-        # Add batch and channel dimensions for CNN
-        relation_features_raw = self.relation_encoder(relation_input.unsqueeze(0).unsqueeze(0))
-        relation_features = relation_features_raw.view(relation_features_raw.size(0), -1).squeeze(0)
+        # CNNs are already batch-first. No unsqueeze needed.
+        spatial_features_raw = self.spatial_encoder(spatial_input) # [B, 128, 1, 1]
+        spatial_features = spatial_features_raw.view(batch_size, -1) # [B, 128]
+
+        # Add channel dimension for CNN (dim=1)
+        relation_features_raw = self.relation_encoder(relation_input.unsqueeze(1)) # [B, 64, 1, 1]
+        relation_features = relation_features_raw.view(batch_size, -1) # [B, 64]
 
         # --- 2. Unify in Torso ---
+        # Concatenate along the feature dimension (dim=1)
+        combined_features = torch.cat([scalar_features, entity_features, spatial_features, relation_features], dim=1)
         
-        # Concatenate all features into a single master vector
-        combined_features = torch.cat([scalar_features, entity_features, spatial_features, relation_features], dim=0)
-        
-        torso_output = self.torso(combined_features)
+        torso_output = self.torso(combined_features) # [B, 256]
 
         # --- 3. Get Outputs from Heads ---
+        value = self.value_head(torso_output) # [B, 1]
         
-        value = self.value_head(torso_output)
+        # --- Handle multiple policy heads for the batch ---
+        # This is the most complex part. We group inputs by phase and process each group.
+        policy_logits = torch.zeros(batch_size, self.max_action_space, device=torso_output.device) # Initialize with max possible action size
         
-        # Select the correct policy head based on the current game phase
-        policy_logits = self.policy_heads[phase.name](torso_output)
-        policy_probabilities = F.softmax(policy_logits, dim=0)
-        
-        return policy_probabilities, value
+        # Group indices by phase
+        phase_indices = {}
+        for i, phase in enumerate(phases):
+            if phase.name not in phase_indices:
+                phase_indices[phase.name] = []
+            phase_indices[phase.name].append(i)
+
+        # Process each phase group
+        for phase_name, indices in phase_indices.items():
+            if not indices:
+                continue
+            
+            # Select the torso outputs for the current phase group
+            group_torso_output = torso_output[indices]
+            
+            # Get the logits from the correct policy head
+            group_logits = self.policy_heads[phase_name](group_torso_output)
+            
+            # Place the results back into the main tensor
+            # The slicing ensures we only fill up to the action space size for that phase
+            policy_logits[indices, :group_logits.shape[1]] = group_logits
+
+        return policy_logits, value
+
 
 # --- Example Usage (for testing the model's structure) ---
 if __name__ == '__main__':
-    # This block will only run when you execute `python model.py` directly.
-    
-    # Initialize the action manager to get action space sizes
     action_manager = ActionManager()
-
-    # Create an instance of the network
     model = ArmadaNet(action_manager)
     print(f"Model created successfully.\nTotal parameters: {sum(p.numel() for p in model.parameters())}")
 
-    # --- Create Dummy Input Data (mimicking the encoder's output) ---
-    # This simulates a single game state.
-    scalar_data = torch.randn(SCALAR_FEATURE_SIZE)
-    entity_data = torch.randn(MAX_SHIPS, ENTITY_FEATURE_SIZE)
-    spatial_data = torch.randn(MAX_SHIPS + 2, BOARD_RESOLUTION, BOARD_RESOLUTION)
-    relation_data = torch.randn(MAX_SHIPS * 4, MAX_SHIPS * 4) # 24x24
+    # --- Create Dummy BATCH Input Data (Batch size = 4) ---
+    B = 4
+    scalar_data = torch.randn(B, SCALAR_FEATURE_SIZE)
+    entity_data = torch.randn(B, MAX_SHIPS, ENTITY_FEATURE_SIZE)
+    spatial_data = torch.randn(B, MAX_SHIPS * 2, BOARD_RESOLUTION, BOARD_RESOLUTION)
+    relation_data = torch.randn(B, MAX_SHIPS * 4, MAX_SHIPS * 4)
 
-    # Select a phase to test, for example, the SHIP_PHASE
-    current_phase = GamePhase.SHIP_PHASE
+    # Test with a mixed batch of phases
+    current_phases = [GamePhase.SHIP_PHASE, GamePhase.COMMAND_PHASE, GamePhase.SHIP_PHASE, GamePhase.SHIP_ATTACK_DECLARE_TARGET]
 
     # --- Perform a Forward Pass ---
-    model.eval() # Set the model to evaluation mode
-    with torch.no_grad(): # We don't need to calculate gradients for this test
-        policy_output, value_output = model(scalar_data, entity_data, spatial_data, relation_data, current_phase)
+    model.eval()
+    with torch.no_grad():
+        policy_output, value_output = model(scalar_data, entity_data, spatial_data, relation_data, current_phases)
 
     # --- Check the Output Shapes ---
-    expected_policy_size = len(action_manager.get_action_map(current_phase)['total_actions'])
-    
-    print(f"\n--- Testing with GamePhase.{current_phase.name} ---")
-    print(f"Scalar input shape: {scalar_data.shape}")
-    print(f"Entity input shape: {entity_data.shape}")
-    print(f"Spatial input shape: {spatial_data.shape}")
-    print(f"Relation input shape: {relation_data.shape}")
-    print("-" * 30)
-    print(f"Policy head output shape: {policy_output.shape} (Expected: {expected_policy_size})")
-    print(f"Value head output shape: {value_output.shape} (Expected: torch.Size([1]))")
-    print(f"Predicted value: {value_output.item()}")
-
-    # You can uncomment this to see the raw policy logits
-    print(f"Policy logits: {policy_output}")
+    print(f"\n--- Testing with Batch Size {B} ---")
+    print(f"Policy head output shape: {policy_output.shape} (Expected: [{B}, {model.max_action_space}])")
+    print(f"Value head output shape: {value_output.shape} (Expected: [{B}, 1])")
+    print(f"Predicted values: {value_output.squeeze().tolist()}")
