@@ -29,14 +29,17 @@ class Node:
     def __init__(self, 
                  game : Armada,
                  action : ActionType.Action, 
+                 config : Config,
                  parent : Node | None =None, 
                  policy : float = 0,
-                 action_index : int = 0,) -> None :
+                 action_index : int = 0,
+                 ) -> None :
         
         self.snapshot = game.get_snapshot()
         self.decision_player : int | None = game.decision_player # decision player used when get_possible_action is called on this node
         self.chance_node : bool = self.snapshot['phase'] == GamePhase.SHIP_ATTACK_ROLL_DICE
         self.information_set : bool = self.snapshot['phase'] == GamePhase.SHIP_REVEAL_COMMAND_DIAL
+        self.config : Config = config
 
 
         self.parent : Node | None = parent
@@ -49,7 +52,7 @@ class Node:
         self.action_index : int = action_index # index of the action in the full action list from parent node state
 
 
-    def select_child(self, use_policy : bool = False) -> Node:
+    def select_child(self, use_policy : bool) -> Node:
         """
         Selects a child node using the UCT formula with random tie-breaking.
         """
@@ -78,18 +81,18 @@ class Node:
 
         return best_child
     
-    def get_ucb(self, child : Node, exploration_constant=2) -> float:
+    def get_ucb(self, child : Node) -> float:
         if child.visits == 0:
             return float('inf')
         q_value : float = child.wins / child.visits
-        return q_value + exploration_constant * math.sqrt(math.log(self.visits)) / child.visits
+        return q_value + self.config.EXPLORATION_CONSTANT * math.sqrt(math.log(self.visits)) / child.visits
 
-    def get_pucb(self, child : Node, exploration_constant=2) -> float:
+    def get_pucb(self, child : Node) -> float:
         if child.visits == 0:
             q_value : float = 0
         else: 
             q_value : float = child.wins / child.visits
-        return q_value + exploration_constant * child.policy * math.sqrt(self.visits) / (1 + child.visits)
+        return q_value + self.config.EXPLORATION_CONSTANT * child.policy * math.sqrt(self.visits) / (1 + child.visits)
 
 
     def add_child(self, action : ActionType.Action, game : Armada, policy : float = 0, action_index : int = 0) -> Node :
@@ -99,7 +102,7 @@ class Node:
             action : The action leading to the new child node.
             game : The game state after applying the action, used to determine the decision player for the child.
         """
-        node = Node(game=game, parent=self, action=action, policy=policy, action_index=action_index)
+        node = Node(game=game, parent=self, action=action, policy=policy, action_index=action_index, config=self.config)
         self.children.append(node)
         return node
 
@@ -141,10 +144,10 @@ class MCTS:
     """
 
     def __init__(self, games: list[Armada], action_manager : ActionManager, model : ArmadaNet, config : Config) -> None:
-        self.games : list[Armada] = games
+        self.para_games : list[Armada] = games
         self.snapshots :list[dict] = [game.get_snapshot() for game in games]
-        self.player_roots : list[dict[int, Node]] = [{ 1 : Node(game = game, action = ('initialize_game', None)),
-                                                      -1 : Node(game = game, action = ('initialize_game', None))} 
+        self.player_roots : list[dict[int, Node]] = [{ 1 : Node(game = game, action = ('initialize_game', None), config = config),
+                                                      -1 : Node(game = game, action = ('initialize_game', None), config = config)} 
                                                       for game in games]
         self.action_manager : ActionManager = action_manager
         self.model : ArmadaNet = model
@@ -158,27 +161,27 @@ class MCTS:
                 raise ValueError("Don't use MCTS for chance node and information set")
             
 
-            self.games[para_index].simulation_player = sim_player
+            self.para_games[para_index].simulation_player = sim_player
 
 
         # one game / two tree
         
 
         for _ in range(self.config.MCTS_ITERATION):
-            parallel_nodes : dict[int, Node] = {idx: self.player_roots[idx][simulation_players[para_index]] for idx in parallel_indices}
+            para_nodes : dict[int, Node] = {para_index: self.player_roots[para_index][simulation_players[para_index]] for para_index in parallel_indices}
             expandable_node_indices : list[int] = []
             for para_index in parallel_indices:
-                node = parallel_nodes[para_index]
+                node = para_nodes[para_index]
             
                 # 1. Selection
                 while node.children or node.chance_node or node.information_set:
 
                     if node.chance_node:
-                        self.games[para_index].revert_snapshot(node.snapshot)
+                        self.para_games[para_index].revert_snapshot(node.snapshot)
 
                         # For a chance node, sample a random outcome instead of using UCT.
                        
-                        if (attack_info := self.games[para_index].attack_info) is None :
+                        if (attack_info := self.para_games[para_index].attack_info) is None :
                             raise ValueError("Invalid game for chance node: missing attack/defend info.")
                         dice_roll = dice.roll_dice(attack_info.dice_to_roll)
                         action = ("roll_dice_action", dice_roll)
@@ -187,18 +190,18 @@ class MCTS:
                         if matching_child : node = matching_child
                         else :
                             # dynamically expansion
-                            self.games[para_index].apply_action(action)
-                            node.add_child(action, self.games[para_index])
+                            self.para_games[para_index].apply_action(action)
+                            node.add_child(action, self.para_games[para_index])
 
                     elif node.information_set :
 
                         if not node.children :
-                            self.games[para_index].revert_snapshot(node.snapshot)
+                            self.para_games[para_index].revert_snapshot(node.snapshot)
                             # expand all possible actions
-                            for action in self.games[para_index].get_valid_actions() :
-                                self.games[para_index].apply_action(action)
-                                node.add_child(action, self.games[para_index])
-                                self.games[para_index].revert_snapshot(node.snapshot)
+                            for action in self.para_games[para_index].get_valid_actions() :
+                                self.para_games[para_index].apply_action(action)
+                                node.add_child(action, self.para_games[para_index])
+                                self.para_games[para_index].revert_snapshot(node.snapshot)
                         
                         # don't use policy for secret information
                         # choose the best option using MCTS and UCB
@@ -208,14 +211,14 @@ class MCTS:
                         # Standard player decision node, use pUCT.
                         node = node.select_child(use_policy=True)
 
-                self.games[para_index].revert_snapshot(node.snapshot)
-                parallel_nodes[para_index] = node
+                self.para_games[para_index].revert_snapshot(node.snapshot)
+                para_nodes[para_index] = node
 
                 
                 # on terminal node, backpropagate the result
-                if (value := self.games[para_index].winner) is not None : 
-                    parallel_nodes[para_index].backpropagate(value)
-                    self.games[para_index].revert_snapshot(self.snapshots[para_index])
+                if (value := self.para_games[para_index].winner) is not None : 
+                    para_nodes[para_index].backpropagate(value)
+                    self.para_games[para_index].revert_snapshot(self.snapshots[para_index])
                 else :
                     expandable_node_indices.append(para_index)
 
@@ -224,16 +227,16 @@ class MCTS:
             if expandable_node_indices :
 
                 values, policies = self.get_value_policy(
-                    [encode_game_state(self.games[idx]) for idx in expandable_node_indices],
-                    [self.games[idx].phase for idx in expandable_node_indices],
+                    [encode_game_state(self.para_games[idx]) for idx in expandable_node_indices],
+                    [self.para_games[idx].phase for idx in expandable_node_indices],
                 )
                 for output_index, para_index in enumerate(expandable_node_indices):
-                    node = parallel_nodes[para_index]
+                    node = para_nodes[para_index]
                     value = float(values[output_index])
                     policy = policies[output_index]
 
-                    action_map = self.action_manager.get_action_map(self.games[para_index].phase)
-                    valid_actions: list[ActionType.Action] = self.games[para_index].get_valid_actions()
+                    action_map = self.action_manager.get_action_map(self.para_games[para_index].phase)
+                    valid_actions: list[ActionType.Action] = self.para_games[para_index].get_valid_actions()
                     
                     # Create the mask with the same size as the policy array
                     valid_moves_mask = np.zeros_like(policy, dtype=np.uint8)
@@ -252,7 +255,7 @@ class MCTS:
                     else:
                         # Handle rare cases where the network assigns 0 probability to all valid moves
                         # Or if there are no valid moves (should not happen for an expandable node)
-                        print(f"Warning: Zero policy sum for valid moves in phase {self.games[para_index].phase.name}. Using uniform distribution.")
+                        print(f"Warning: Zero policy sum for valid moves in phase {self.para_games[para_index].phase.name}. Using uniform distribution.")
                         valid_indices = [action_map.get(a) for a in valid_actions if action_map.get(a) is not None]
                         if valid_indices:
                             policy[valid_indices] = 1.0 / len(valid_indices)
@@ -262,11 +265,11 @@ class MCTS:
                         action_index = action_map[action]
                         action_policy: float = float(policy[action_index])
 
-                        self.games[para_index].apply_action(action)
-                        node.add_child(action, self.games[para_index], action_policy, action_index)
-                        self.games[para_index].revert_snapshot(node.snapshot)
+                        self.para_games[para_index].apply_action(action)
+                        node.add_child(action, self.para_games[para_index], action_policy, action_index)
+                        self.para_games[para_index].revert_snapshot(node.snapshot)
 
-                    self.games[para_index].revert_snapshot(self.snapshots[para_index])
+                    self.para_games[para_index].revert_snapshot(self.snapshots[para_index])
 
 
                     # 3. Backpropagation (Updated for -1 to 1 scoring)
@@ -277,8 +280,9 @@ class MCTS:
         for para_index in parallel_indices:
             max_size = self.model.max_action_space
             action_probs = np.zeros(max_size, dtype=np.float32)
+            sim_player = simulation_players[para_index]
+            root_node = self.player_roots[para_index][sim_player]
 
-            root_node = self.player_roots[para_index][simulation_players[para_index]]
             for child in root_node.children:
                 action_probs[child.action_index] = child.visits
             action_probs /= np.sum(action_probs)
@@ -334,7 +338,7 @@ class MCTS:
             snapshot: The game snapshot after applying the action.
         """
 
-        self.games[para_index].revert_snapshot(snapshot)
+        self.para_games[para_index].revert_snapshot(snapshot)
         self.snapshots[para_index] = snapshot
 
         # Find the child node that matches the action taken.
@@ -343,7 +347,7 @@ class MCTS:
             matching_child = next((child for child in self.player_roots[para_index][player].children if child.action == action), None)
 
             if matching_child is None :
-                matching_child = self.player_roots[para_index][player].add_child(action, self.games[para_index])
+                matching_child = self.player_roots[para_index][player].add_child(action, self.para_games[para_index])
 
             # The found child becomes the new root.
             self.player_roots[para_index][player] = matching_child
@@ -358,6 +362,7 @@ class MCTS:
 
     def get_random_best_action(self, para_index : int, decision_player : int) -> ActionType.Action:
         root_node = self.player_roots[para_index][decision_player]
+
         visit_weights = np.array([c.visits for c in root_node.children]) ** (1/self.config.TEMPERATURE)
         chosen_child = random.choices(population=root_node.children, weights=list(visit_weights), k=1)[0]
         return chosen_child.action

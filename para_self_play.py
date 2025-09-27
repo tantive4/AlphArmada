@@ -11,7 +11,7 @@ import copy
 
 # Import your custom modules
 from armada import Armada, setup_game
-from ship import Ship
+from ship import _cached_coordinate, _cached_distance, _cached_maneuver_tool, _cached_obstruction, _cached_overlapping, _cached_polygons, _cached_presence_plane, _cached_range, _cached_threat_plane
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
 from para_mcts import MCTS
@@ -24,15 +24,16 @@ class Config:
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
     # Training Loop
-    ITERATIONS = 1 # update model ITERATION times
-    SELF_PLAY_GAMES = 100 # generate data for SELF_PLAY_GAMES games during one iteration
-    PARALLEL_PLAY = 64 # run games in batch
-    TRAINING_STEPS = 100 # train model TRAINING_STEPS times after each iteration
+    ITERATIONS = 1 # self_play & train for ITERATIONS times
+    SELF_PLAY_GAMES = 1 # generate data for SELF_PLAY_GAMES games during one iteration
+    PARALLEL_PLAY = 2 # run games in batch
+    TRAINING_STEPS = 5 # train model TRAINING_STEPS times after each iteration
 
     # MCTS
     MCTS_ITERATION = 50
     MAX_GAME_STEP = 1000
     TEMPERATURE = 1.0
+    EXPLORATION_CONSTANT = 2
 
     # Replay Buffer
     REPLAY_BUFFER_SIZE = 30000
@@ -59,14 +60,14 @@ class AlphArmada:
 
         action_manager = ActionManager()
         para_games : list[Armada] = [setup_game() for _ in range(self.config.PARALLEL_PLAY)]
-        self.mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model, self.config)
+        mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model, self.config)
 
         while any(game.winner is None for game in para_games) :
-            simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player is not None}
+            simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player is not None and game.winner is None}
 
             if simulation_players :
                 # --- Perform MCTS search in parallel for decision nodes ---
-                para_action_probs : dict[int, np.ndarray] = self.mcts.parallel_search(simulation_players)
+                para_action_probs : dict[int, np.ndarray] = mcts.parallel_search(simulation_players)
 
                 for para_index in para_action_probs:
                     game : Armada = para_games[para_index]
@@ -77,7 +78,7 @@ class AlphArmada:
                 game : Armada = para_games[para_index]
 
                 if game.decision_player is not None:
-                    action = self.mcts.get_random_best_action(para_index, game.decision_player)
+                    action = mcts.get_random_best_action(para_index, game.decision_player)
 
                 # Chance Node
                 elif game.phase == GamePhase.SHIP_ATTACK_ROLL_DICE:
@@ -91,9 +92,9 @@ class AlphArmada:
                     if len(game.get_valid_actions()) != 1:
                         raise ValueError("Multiple valid actions in information set node.")
                     action = game.get_valid_actions()[0]
-
+                print(f"Game {para_index+1} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
                 game.apply_action(action)
-                self.mcts.advance_tree(para_index, action, game.get_snapshot())
+                mcts.advance_tree(para_index, action, game.get_snapshot())
                 
                 # --- Check for terminal states ---
                 if game.winner is not None:
@@ -101,6 +102,15 @@ class AlphArmada:
                         self_play_data.append((phase, encoded_state, action_probs, game.winner))
                     memory[para_index].clear()
 
+        _cached_threat_plane.cache_clear()
+        _cached_presence_plane.cache_clear()
+        _cached_polygons.cache_clear()
+        _cached_coordinate.cache_clear()
+        _cached_distance.cache_clear()
+        _cached_maneuver_tool.cache_clear()
+        _cached_obstruction.cache_clear()
+        _cached_overlapping.cache_clear()
+        _cached_range.cache_clear()
         return self_play_data
     
 

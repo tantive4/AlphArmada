@@ -183,41 +183,21 @@ def encode_entity_features(game: Armada) -> np.ndarray:
 
     return entity_vectors
 
-def _draw_ship_presence_planes(planes: np.ndarray, game: Armada, resolution: int):
-    """Draws each ship's presence onto its dedicated plane."""
-    width_step = game.player_edge / resolution
-    height_step = game.short_edge / resolution
-
-    for i, ship in enumerate(game.ships):
-        if ship.destroyed: continue
-
-        value = (ship.hull / ship.max_hull) * ship.player
-        planes[i] = _cached_presence_plane(ship.get_ship_hash_state(), value, width_step, height_step, resolution)
-
-def _draw_threat_maps(planes: np.ndarray, game: Armada, resolution: int):
-    """Calculates and draws friendly and enemy threat maps."""
-    width_step = game.player_edge / resolution
-    height_step = game.short_edge / resolution
-    threat_plane_offset = MAX_SHIPS
-
-    for ship in game.ships:
-        if ship.destroyed: continue
-
-        threat_plane_idx = threat_plane_offset + (0 if ship.player == game.current_player else 1)
-        planes[threat_plane_idx] += _cached_threat_plane(ship.get_ship_hash_state(), width_step, height_step, resolution)
-
 def encode_spatial_features(game: Armada, resolution: int) -> np.ndarray:
     """
     Creates 2D grid representations of the game board.
     This is now a wrapper function for clarity and profiling.
     """
-    planes = np.zeros((MAX_SHIPS + 2, resolution, resolution), dtype=np.float32)
-    
-    # Part 1: Draw the presence of each ship on its own plane
-    _draw_ship_presence_planes(planes, game, resolution)
+    planes = np.zeros((MAX_SHIPS * 2, resolution, resolution), dtype=np.float32)
 
-    # Part 2: Draw the friendly and enemy threat maps
-    _draw_threat_maps(planes, game, resolution)
+    width_step = game.player_edge / resolution
+    height_step = game.short_edge / resolution
+    for i, ship in enumerate(game.ships):
+        if ship.destroyed: continue
+
+        value = (ship.hull / ship.max_hull) * ship.player
+        planes[2 * i] = _cached_presence_plane(ship.get_ship_hash_state(), value, width_step, height_step, resolution)
+        planes[2 * i + 1] = _cached_threat_plane(ship.get_ship_hash_state(), width_step, height_step, resolution)
     
     return planes
 

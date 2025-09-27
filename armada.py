@@ -173,7 +173,7 @@ class Armada:
             
             # Reveal Command Sequence
             case GamePhase.SHIP_REVEAL_COMMAND_DIAL :
-                if active_ship.player == self.simulation_player :  # player's simulation
+                if active_ship.player == self.simulation_player or self.simulation_player is None:  # player's simulation
                     actions = [('reveal_command_action', active_ship.command_stack[0])]
                 else :                                                                          # secret information
                     actions = [('reveal_command_action', command) for command in Command]
