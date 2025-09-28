@@ -3,7 +3,7 @@ import numpy as np
 import math
 from typing import TYPE_CHECKING
 
-from ship import Ship, HullSection, Command, SizeClass, _cached_range, _cached_polygons, _cached_presence_plane, _cached_threat_plane
+from ship import Ship, HullSection, Command, SizeClass, _cached_range, create_hull_poly, _cached_presence_plane, _cached_threat_plane
 from game_phase import GamePhase
 from dice import Dice, Critical
 from measurement import AttackRange

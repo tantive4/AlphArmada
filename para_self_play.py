@@ -11,7 +11,7 @@ import copy
 
 # Import your custom modules
 from armada import Armada, setup_game
-from ship import _cached_coordinate, _cached_distance, _cached_maneuver_tool, _cached_obstruction, _cached_overlapping, _cached_polygons, _cached_presence_plane, _cached_range, _cached_threat_plane
+from ship import _cached_coordinate, _cached_distance, _cached_maneuver_tool, _cached_obstruction, _cached_overlapping, _cached_presence_plane, _cached_range, _cached_threat_plane
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
 from para_mcts import MCTS
@@ -25,7 +25,7 @@ class Config:
 
     # Training Loop
     ITERATIONS = 1 # self_play & train for ITERATIONS times
-    SELF_PLAY_GAMES = 1 # generate data for SELF_PLAY_GAMES games during one iteration
+    SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
     PARALLEL_PLAY = 2 # run games in batch
     TRAINING_STEPS = 5 # train model TRAINING_STEPS times after each iteration
 
@@ -76,6 +76,8 @@ class AlphArmada:
             # --- Process all games (decision and non-decision) for one step ---
             for para_index in range(self.config.PARALLEL_PLAY) :
                 game : Armada = para_games[para_index]
+                if game.winner is not None:
+                    continue
 
                 if game.decision_player is not None:
                     action = mcts.get_random_best_action(para_index, game.decision_player)
@@ -98,13 +100,13 @@ class AlphArmada:
                 
                 # --- Check for terminal states ---
                 if game.winner is not None:
+                    print(f"Game {para_index+1} ended. Winner: Player {game.winner}")
                     for phase, encoded_state, action_probs in memory[para_index]:
                         self_play_data.append((phase, encoded_state, action_probs, game.winner))
                     memory[para_index].clear()
 
         _cached_threat_plane.cache_clear()
         _cached_presence_plane.cache_clear()
-        _cached_polygons.cache_clear()
         _cached_coordinate.cache_clear()
         _cached_distance.cache_clear()
         _cached_maneuver_tool.cache_clear()
@@ -220,6 +222,7 @@ class AlphArmada:
                 loss = self.train(training_batch)
                 if step % 100 == 0:
                     print(f"  - Step {step}/{self.config.TRAINING_STEPS}, Loss: {loss:.4f}")
+                    loss_history.append(loss)
             end_time = time.time()
             print(f"Training finished in {end_time - start_time:.2f}s. Loss: {loss:.4f}")
 

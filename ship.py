@@ -16,7 +16,7 @@ from skimage.measure import block_reduce
 
 from dice import Dice, Critical
 from defense_token import DefenseToken, TokenType
-from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE
+from measurement import AttackRange, CLOSE_RANGE, MEDIUM_RANGE, LONG_RANGE, SAT_overlapping_check
 if TYPE_CHECKING:
     from armada import Armada
 
@@ -704,7 +704,7 @@ class Ship:
         """Returns a hashable tuple representing the ship's state."""
         return (self.name, self.x, self.y, self.orientation)
     
-
+@lru_cache(maxsize=None)
 def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str,np.ndarray] :
 
     ship_dict = SHIP_DATA[ship_state[0]]
@@ -757,25 +757,10 @@ def _cached_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str
         'tool_insert_points' : current_vertices[19:21],
     }
 
-@lru_cache(maxsize=None)
-def _cached_polygons(ship_state: tuple[str, float, float, float]) -> dict[HullSection | str, Polygon]:
-    """
-    Creates and caches all hull polygons for a given ship state.
-    """
-    coords = _cached_coordinate(ship_state)
-    arc_coords = coords['arc_points']
-    base_coords = coords['base_corners']
-    token_coords = coords['token_corners']
 
-    
-    return {
-        HullSection.FRONT: Polygon([arc_coords[0], arc_coords[2], arc_coords[7], arc_coords[6], arc_coords[1]]),
-        HullSection.RIGHT: Polygon([arc_coords[0], arc_coords[2], arc_coords[5], arc_coords[3]]),
-        HullSection.REAR: Polygon([arc_coords[3], arc_coords[5], arc_coords[8], arc_coords[9], arc_coords[4]]),
-        HullSection.LEFT: Polygon([arc_coords[0], arc_coords[1], arc_coords[4], arc_coords[3]]),
-        'token' : Polygon(token_coords),
-        'base' : Polygon(base_coords)
-    }
+
+
+
 
 
 
@@ -803,8 +788,20 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
     # if distance > 2 * LONG_RANGE :
     #     return target_dict, measure_dict
     
-    attacker_poly : dict[HullSection | str, Polygon] = _cached_polygons(attacker_state)
-    defender_poly : dict[HullSection | str, Polygon] = _cached_polygons(defender_state)
+    def create_hull_poly(arc_coords:np.ndarray) -> dict[HullSection,Polygon]:
+        """
+        Creates and caches all hull polygons for a given ship state.
+        """
+
+        return {
+            HullSection.FRONT: Polygon([arc_coords[0], arc_coords[2], arc_coords[7], arc_coords[6], arc_coords[1]]),
+            HullSection.RIGHT: Polygon([arc_coords[0], arc_coords[2], arc_coords[5], arc_coords[3]]),
+            HullSection.REAR: Polygon([arc_coords[3], arc_coords[5], arc_coords[8], arc_coords[9], arc_coords[4]]),
+            HullSection.LEFT: Polygon([arc_coords[0], arc_coords[1], arc_coords[4], arc_coords[3]])
+        }
+    
+    attacker_poly : dict[HullSection, Polygon] = create_hull_poly(attacker_coords['arc_poly'])
+    defender_poly : dict[HullSection, Polygon] = create_hull_poly(defender_coords['arc_poly'])
 
 
     for from_hull in HullSection :
@@ -883,87 +880,22 @@ def _cached_range(attacker_state : tuple[str, float, float, float], defender_sta
 
 @lru_cache(maxsize=None)
 def _cached_obstruction(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, float, float, float]) -> bool :
-    line_of_sight : LineString = LineString(targeting_point)
-    token_poly : Polygon = _cached_polygons(ship_state)['token']
+    line_of_sight : np.ndarray = np.array(targeting_point, dtype=float)
 
-    return line_of_sight.crosses(token_poly.exterior)
+    ship_token : np.ndarray = np.array(_cached_coordinate(ship_state)['token_corners'], dtype=float)
+
+    return SAT_overlapping_check(line_of_sight, ship_token)
 
 @lru_cache(maxsize=None)
 def _cached_overlapping(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> bool :
     self_coordinate = _cached_coordinate(self_state)['base_corners']
     other_coordinate = _cached_coordinate(ship_state)['base_corners']
-
-    def get_axes(corners):
-        """
-        Gets the two unique perpendicular axes from a rectangle's corners.
-        An axis is a normalized vector perpendicular to an edge.
-        """
-        axes = np.zeros((2, 2))
-        
-        # Axis for the first edge (e.g., from left-front to right-front)
-        edge1 = corners[1] - corners[0]
-        # The normal is (-edge.y, edge.x)
-        normal1 = np.array([-edge1[1], edge1[0]])
-        norm1_len = np.sqrt(normal1[0]**2 + normal1[1]**2)
-        if norm1_len > 0:
-            axes[0] = normal1 / norm1_len # Normalize the axis
-        
-        # Axis for the second edge (e.g., from right-front to right-rear)
-        edge2 = corners[2] - corners[1]
-        normal2 = np.array([-edge2[1], edge2[0]])
-        norm2_len = np.sqrt(normal2[0]**2 + normal2[1]**2)
-        if norm2_len > 0:
-            axes[1] = normal2 / norm2_len # Normalize the axis
-            
-        return axes
-
-    def check_overlap_numpy(corners1, corners2):
-        """
-        Checks if two rotated rectangles overlap using an AABB pre-check
-        followed by the Separating Axis Theorem (SAT).
-
-        Args:
-            corners1 (np.ndarray): A 4x2 NumPy array of the first rectangle's corners.
-            corners2 (np.ndarray): A 4x2 NumPy array of the second rectangle's corners.
-
-        Returns:
-            bool: True if they overlap, False otherwise.
-        """
-        # --- Step 1: Fast Axis-Aligned Bounding Box (AABB) Pre-Check ---
-        min1_x, min1_y = np.min(corners1, axis=0)
-        max1_x, max1_y = np.max(corners1, axis=0)
-        min2_x, min2_y = np.min(corners2, axis=0)
-        max2_x, max2_y = np.max(corners2, axis=0)
-        
-        if max1_x < min2_x or max2_x < min1_x or max1_y < min2_y or max2_y < min1_y:
-            return False
-
-        # --- Step 2: Separating Axis Theorem (SAT) ---
-        axes1 = get_axes(corners1)
-        axes2 = get_axes(corners2)
-        
-        all_axes = np.vstack((axes1, axes2))
-        
-        for axis in all_axes:
-            # Project all 8 corners onto the current axis
-            proj1 = np.dot(corners1, axis)
-            proj2 = np.dot(corners2, axis)
-            
-            min1, max1 = np.min(proj1), np.max(proj1)
-            min2, max2 = np.min(proj2), np.max(proj2)
-            
-            # Check for separation.
-            if max1 < min2 or max2 < min1:
-                return False
-
-        return True
-    
-    return check_overlap_numpy(self_coordinate, other_coordinate)
+    return SAT_overlapping_check(self_coordinate, other_coordinate)
 
 @lru_cache(maxsize=None)
 def _cached_distance(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> float :
-    self_poly : Polygon = _cached_polygons(self_state)['base']
-    ship_poly : Polygon = _cached_polygons(ship_state)['base']
+    self_poly : Polygon = Polygon(_cached_coordinate(self_state)['base_corners'])
+    ship_poly : Polygon = Polygon(_cached_coordinate(ship_state)['base_corners'])
 
     return self_poly.distance(ship_poly)
 
@@ -1037,12 +969,12 @@ def _cached_threat_plane(ship_state : tuple[str, float, float, float], width_ste
     width_step_hr = width_step / 2
     height_step_hr = height_step / 2
 
-    ship_token = _cached_polygons(ship_state)['token']
+    ship_token : Polygon = Polygon(_cached_coordinate(ship_state)['token_corners'])
 
     arc_coords = _cached_coordinate(ship_state)['arc_points']
-    long_zone = ship_token.buffer(LONG_RANGE)
-    medium_zone = ship_token.buffer(MEDIUM_RANGE)
-    close_zone = ship_token.buffer(CLOSE_RANGE)
+    long_zone : Polygon = ship_token.buffer(LONG_RANGE)
+    medium_zone : Polygon = ship_token.buffer(MEDIUM_RANGE)
+    close_zone : Polygon = ship_token.buffer(CLOSE_RANGE)
 
     for hull in HullSection:
         # Get the correct arc coordinates for each hull section

@@ -227,8 +227,8 @@ class MCTS:
             if expandable_node_indices :
 
                 values, policies = self.get_value_policy(
-                    [encode_game_state(self.para_games[idx]) for idx in expandable_node_indices],
-                    [self.para_games[idx].phase for idx in expandable_node_indices],
+                    [encode_game_state(self.para_games[para_index]) for para_index in expandable_node_indices],
+                    [self.para_games[para_index].phase for para_index in expandable_node_indices],
                 )
                 for output_index, para_index in enumerate(expandable_node_indices):
                     node = para_nodes[para_index]
@@ -282,6 +282,8 @@ class MCTS:
             action_probs = np.zeros(max_size, dtype=np.float32)
             sim_player = simulation_players[para_index]
             root_node = self.player_roots[para_index][sim_player]
+            if not root_node.children:
+                raise ValueError(f"No children found for root node after MCTS iterations.\n{self.para_games[para_index].get_snapshot()}\nsim_player: {sim_player}\npara_index: {para_index}")
 
             for child in root_node.children:
                 action_probs[child.action_index] = child.visits
@@ -362,7 +364,9 @@ class MCTS:
 
     def get_random_best_action(self, para_index : int, decision_player : int) -> ActionType.Action:
         root_node = self.player_roots[para_index][decision_player]
-
+        if not root_node.children:
+            raise ValueError(f"No children found for root node during Advancing Tree\n{self.para_games[para_index].get_snapshot()}\npara_index: {para_index}")
+        
         visit_weights = np.array([c.visits for c in root_node.children]) ** (1/self.config.TEMPERATURE)
         chosen_child = random.choices(population=root_node.children, weights=list(visit_weights), k=1)[0]
         return chosen_child.action

@@ -703,3 +703,99 @@ Game Start
 [(('determine_course_action', ((), 0)), 'win : -3.6', 'visit : 4', 'policy : 0.027'), (('determine_course_action', ((2,), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.027'), (('determine_course_action', ((-1,), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((-2,), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.027'), (('determine_course_action', ((1,), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.028'), (('determine_course_action', ((0,), -1)), 'win : -4.5', 'visit : 5', 'policy : 0.029'), (('determine_course_action', ((0,), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.028'), (('determine_course_action', ((0, 2), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((2, 2), 1)), 'win : -4.5', 'visit : 5', 'policy : 0.029'), (('determine_course_action', ((1, 0), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((1, 0), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((-1, -1), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.025'), (('determine_course_action', ((-1, -2), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((-2, -1), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((-2, -2), -1)), 'win : -1.34', 'visit : 1', 'policy : 0.028'), (('determine_course_action', ((-1, 1), 1)), 'win : -4.5', 'visit : 5', 'policy : 0.03'), (('determine_course_action', ((-2, 1), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.024'), (('determine_course_action', ((0, -1), -1)), 'win : -4.5', 'visit : 5', 'policy : 0.03'), (('determine_course_action', ((0, -2), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((0, 1), 1)), 'win : -4.5', 'visit : 5', 'policy : 0.028'), (('determine_course_action', ((2, -2), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.028'), (('determine_course_action', ((2, -1), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((1, 2), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.025'), (('determine_course_action', ((2, 1), 1)), 'win : -4.5', 'visit : 5', 'policy : 0.031'), (('determine_course_action', ((-1, 0), -1)), 'win : -4.5', 'visit : 5', 'policy : 0.028'), (('determine_course_action', ((-1, 0), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.028'), (('determine_course_action', ((-2, 0), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.028'), (('determine_course_action', ((-2, 0), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.027'), (('determine_course_action', ((-2, 2), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.025'), (('determine_course_action', ((0, 0), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((0, 0), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.024'), (('determine_course_action', ((1, 1), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.027'), (('determine_course_action', ((2, 0), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((2, 0), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.028'), (('determine_course_action', ((1, -2), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.027'), (('determine_course_action', ((1, -1), -1)), 'win : -3.6', 'visit : 4', 'policy : 0.026'), (('determine_course_action', ((-1, 2), 1)), 'win : -3.6', 'visit : 4', 'policy : 0.028')]
 ---------- Round 6 Ended ----------
 
+
+---------- Round 1 Ended ----------
+
+
+---------- Round 1 Ended ----------
+
+
+---------- Round 2 Ended ----------
+
+
+---------- Round 2 Ended ----------
+
+
+---------- Round 3 Ended ----------
+
+
+---------- Round 3 Ended ----------
+
+
+---------- Round 4 Ended ----------
+
+
+---------- Round 4 Ended ----------
+
+
+---------- Round 1 Ended ----------
+
+
+---------- Round 1 Ended ----------
+
+
+---------- Round 2 Ended ----------
+
+
+---------- Round 2 Ended ----------
+
+
+---------- Round 3 Ended ----------
+
+
+---------- Round 3 Ended ----------
+
+
+---------- Round 4 Ended ----------
+
+
+---------- Round 4 Ended ----------
+
+
+---------- Round 5 Ended ----------
+
+
+---------- Round 6 Ended ----------
+
+
+---------- Round 5 Ended ----------
+
+
+---------- Round 6 Ended ----------
+
+
+---------- Round 1 Ended ----------
+
+
+---------- Round 1 Ended ----------
+
+
+---------- Round 2 Ended ----------
+
+
+---------- Round 2 Ended ----------
+
+
+---------- Round 3 Ended ----------
+
+
+---------- Round 3 Ended ----------
+
+
+---------- Round 4 Ended ----------
+
+
+---------- Round 4 Ended ----------
+
+
+---------- Round 5 Ended ----------
+
+
+---------- Round 6 Ended ----------
+
+
+---------- Round 5 Ended ----------
+
+
+---------- Round 6 Ended ----------
+
