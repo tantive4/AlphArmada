@@ -244,7 +244,7 @@ class MCTS:
 
                     # Add Dirichlet noise for exploration at the root node only
                     if node.parent is None:
-                        policy = (1-self.config.DIRICHLET_EPSILON) * policy + self.config.DIRICHLET_EPSILON * np.random.dirichlet([self.config.DIRICHLET_ALPHA] * len(policy))
+                        policy = (1-self.config.DIRICHLET_EPSILON) * policy + self.config.DIRICHLET_EPSILON * np.random.dirichlet(np.full(len(policy), self.config.DIRICHLET_ALPHA))
 
 
                     action_map = self.action_manager.get_action_map(self.para_games[para_index].phase)

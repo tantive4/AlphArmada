@@ -1,19 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 # Import the configuration constants from your encoder to ensure the model's
 # input shapes match the encoder's output shapes perfectly.
-from game_encoder import (
-    SCALAR_FEATURE_SIZE,
-    SHIP_ENTITY_FEATURE_SIZE,
-    SQUAD_ENTITY_FEATURE_SIZE,
-    MAX_SHIPS,
-    MAX_SQUADS,
-    BOARD_RESOLUTION,
-    RELATION_FEATURE_SIZE
-)
+from configs import Config
 from action_space import ActionManager
 from action_phase import Phase
 
@@ -59,29 +50,29 @@ class ArmadaNet(nn.Module):
 
         # Scalar Encoder (MLP)
         self.scalar_encoder = nn.Sequential(
-            nn.Linear(SCALAR_FEATURE_SIZE, 128),
+            nn.Linear(Config.SCALAR_FEATURE_SIZE, 128),
             nn.ReLU(),
             nn.Linear(128, 64)
         )
 
         # Ship Entity Encoder (Transformer)
         # The TransformerEncoderLayer handles self-attention for the entities.
-        ship_encoder_layer = nn.TransformerEncoderLayer(d_model=SHIP_ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
+        ship_encoder_layer = nn.TransformerEncoderLayer(d_model=Config.SHIP_ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
         self.ship_entity_encoder = nn.TransformerEncoder(ship_encoder_layer, num_layers=3)
         # A simple linear layer to get a fixed-size output after attention
-        self.ship_entity_aggregator = nn.Linear(SHIP_ENTITY_FEATURE_SIZE, 128)
+        self.ship_entity_aggregator = nn.Linear(Config.SHIP_ENTITY_FEATURE_SIZE, 128)
 
         # Squad Entity Encoder (Transformer)
         # The TransformerEncoderLayer handles self-attention for the entities.
-        squad_encoder_layer = nn.TransformerEncoderLayer(d_model=SQUAD_ENTITY_FEATURE_SIZE, nhead=4, dim_feedforward=256, batch_first=True)
+        squad_encoder_layer = nn.TransformerEncoderLayer(d_model=Config.SQUAD_ENTITY_FEATURE_SIZE, nhead=4, dim_feedforward=256, batch_first=True)
         self.squad_entity_encoder = nn.TransformerEncoder(squad_encoder_layer, num_layers=3)
         # A simple linear layer to get a fixed-size output after attention
-        self.squad_entity_aggregator = nn.Linear(SQUAD_ENTITY_FEATURE_SIZE, 128)
+        self.squad_entity_aggregator = nn.Linear(Config.SQUAD_ENTITY_FEATURE_SIZE, 128)
 
         
         # Spatial Encoder (ResNet)
         self.spatial_encoder = nn.Sequential(
-            nn.Conv2d(MAX_SHIPS * 2 + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.Conv2d(Config.MAX_SHIPS * 2 + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             ResBlock(64, 64),
@@ -133,7 +124,7 @@ class ArmadaNet(nn.Module):
         self.hull_head = nn.Sequential(
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Linear(128, MAX_SHIPS),
+            nn.Linear(128, Config.MAX_SHIPS),
             nn.Sigmoid() # Output between 0 and 1
         )
 
@@ -141,7 +132,7 @@ class ArmadaNet(nn.Module):
         self.squad_head = nn.Sequential(
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Linear(128, MAX_SQUADS),
+            nn.Linear(128, Config.MAX_SQUADS),
             nn.Sigmoid() # Output probabilities
         )
         
@@ -241,14 +232,14 @@ if __name__ == '__main__':
 
     # --- Create Dummy BATCH Input Data (Batch size = 4) ---
     B = 4
-    scalar_data = torch.randn(B, SCALAR_FEATURE_SIZE)
-    ship_entity_data = torch.randn(B, MAX_SHIPS, SHIP_ENTITY_FEATURE_SIZE)
-    squad_entity_data = torch.randn(B, MAX_SQUADS, SQUAD_ENTITY_FEATURE_SIZE)
+    scalar_data = torch.randn(B, Config.SCALAR_FEATURE_SIZE)
+    ship_entity_data = torch.randn(B, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE)
+    squad_entity_data = torch.randn(B, Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE)
 
-    W, H = BOARD_RESOLUTION
+    W, H = Config.BOARD_RESOLUTION
 
-    spatial_data = torch.randn(B, MAX_SHIPS * 2, H, W)
-    relation_data = torch.randn(B, MAX_SHIPS * 4, MAX_SHIPS * 4)
+    spatial_data = torch.randn(B, Config.MAX_SHIPS * 2, H, W)
+    relation_data = torch.randn(B, Config.MAX_SHIPS * 4, Config.MAX_SHIPS * 4)
 
     # Test with a mixed batch of phases
     current_phases = [Phase.SHIP_ACTIVATE, Phase.COMMAND_PHASE, Phase.SHIP_ACTIVATE, Phase.SHIP_DECLARE_TARGET]

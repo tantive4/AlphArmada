@@ -11,6 +11,7 @@ import torch.nn.functional as F
 import pickle
 import numpy as np
 
+from configs import Config
 from armada import Armada, setup_game
 from cache_function import delete_cache
 from armada_net import ArmadaNet
@@ -20,47 +21,7 @@ from action_space import ActionManager
 from action_phase import Phase
 from dice import roll_dice
 
-class Config:
-    # Hardware
-    DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
-    # Training Loop
-    ITERATIONS = 4 # self_play & train for ITERATIONS times
-
-    # Self Play
-    SELF_PLAY_GAMES = 16 # run SELF_PLAY_GAMES batch self-play games in each iteration
-    PARALLEL_PLAY = 64 # run games in batch
-    # 4 x 64 x 400 x 0.25 = 12800 states per iteration
-
-    # MCTS
-    DEEP_SEARCH_RATIO = 0.25
-    MCTS_ITERATION = 200
-    MCTS_ITERATION_FAST = 50
-    MAX_GAME_STEP = 2000
-    TEMPERATURE = 1.25
-    EXPLORATION_CONSTANT = 2
-    DIRICHLET_ALPHA = 0.3
-    DIRICHLET_EPSILON = 0.25
-
-    # Replay Buffer
-    REPLAY_BUFFER_SIZE = 300000
-    REPLAY_BUFFER_DIR = "replay_buffers"
-
-    # Neural Network Training
-    TRAINING_STEPS = 100 
-    BATCH_SIZE = 64
-    # 100 x 64 = 6400 training samples per iteration
-
-    # Optimization
-    LEARNING_RATE = 0.0001
-    L2_LAMBDA = 1e-4
-    HULL_LOSS_WEIGHT = 0.05
-    SQUAD_LOSS_WEIGHT = 0.05
-    GAME_LENGTH_LOSS_WEIGHT = 0.05
-    
-
-    # Model Paths
-    CHECKPOINT_DIR = "model_checkpoints"
 
 class AlphArmada:
     def __init__(self, model : ArmadaNet, optimizer : optim.AdamW, config : Config) :
@@ -121,7 +82,6 @@ class AlphArmada:
                         self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))
                     memory[para_index].clear()
 
-        delete_cache()
         return self_play_data
     
 
@@ -237,12 +197,12 @@ class AlphArmada:
             os.makedirs(self.config.REPLAY_BUFFER_DIR, exist_ok=True)
 
             for i in range(start_iteration, self.config.ITERATIONS):
-                print(f"\n----- Iteration {i+1}/{self.config.ITERATIONS} -----")
+                print(f"\n----- Iteration {i+1}/{self.config.ITERATIONS} -----\n")
                 
                 # --- Step 1 & 2: Start fresh self-play and save batches ---
                 self.model.eval()
+                print("Starting self-play phase...")
                 for self_play_iteration in trange(self.config.SELF_PLAY_GAMES):
-                    print(f"Starting self-play batch {self_play_iteration+1}/{self.config.SELF_PLAY_GAMES}...")
                     
                     # self_play() generates a fresh list of experiences for this batch
                     new_memory = self.para_self_play()
@@ -256,9 +216,8 @@ class AlphArmada:
                     )
                     
                     # Save the freshly generated data and clear it from memory
-                    print(f"Saving {len(new_memory)} new experiences to {replay_buffer_path} from {self_play_iteration+1}/{self.config.SELF_PLAY_GAMES}...")
                     torch.save(new_memory, replay_buffer_path)
-                    
+                delete_cache()
                 
                 # --- Step 4: Before training, load all previous self-play data ---
                 print("\n--- Preparing for training phase: Loading replay buffers... ---")
@@ -282,17 +241,13 @@ class AlphArmada:
                         print(f"Warning: Could not load {replay_buffer_path}. File might be corrupted. Skipping.")
 
                 # --- Step 5: Start training on the loaded data ---
-                start_time = time.time()
                 print("Starting training phase...")
                 self.model.train()
                 for step in trange(self.config.TRAINING_STEPS):
                     training_batch = random.sample(list(replay_buffer), self.config.BATCH_SIZE)
                     loss = self.train(training_batch)
-                    if step % 2 == 0:
-                        # print(f"  - Step {step}/{self.config.TRAINING_STEPS}, Loss: {loss:.4f}")
-                        loss_history.append(loss)
-                end_time = time.time()
-                print(f"Training finished in {end_time - start_time:.2f}s. Final loss: {loss:.4f}")
+                loss_history.append(loss)
+                print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
 
                 # --- Save the model checkpoint ---
                 # The filename correctly continues from the current iteration number

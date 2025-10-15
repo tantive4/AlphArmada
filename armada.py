@@ -937,8 +937,8 @@ class Armada:
         return [squad for squad in self.squads if squad.player == player and not squad.destroyed and not squad.activated]
 
     def status_phase(self) -> None:
-        # if self.simulation_player is None:
-        #     print(f'Game {self.para_index+1 if self.para_index is not None else ''} Round {self.round} Ended')
+        if self.simulation_player is None:
+            print(f'Game {self.para_index+1 if self.para_index is not None else ''} Round {self.round} Ended')
             # with open('simulation_log.txt', 'a') as f: f.write(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n\n')
 
         # 1. Refresh all active ships for the next round

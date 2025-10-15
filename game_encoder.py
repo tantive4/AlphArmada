@@ -1,9 +1,10 @@
 from __future__ import annotations
-import numpy as np
 import math
 from typing import TYPE_CHECKING
 
-from ship import Ship
+import numpy as np
+
+from configs import Config
 from action_phase import Phase
 from dice import *
 from enum_class import *
@@ -12,29 +13,18 @@ import cache_function as cache
 if TYPE_CHECKING:
     from armada import Armada
 
-# --- Configuration Constants ---
-MAX_SHIPS = 6
-MAX_SQUADS = 9
-MAX_COMMAND_STACK = 3
-MAX_DEFENSE_TOKENS = 6 
-MAX_SQUAD_DEFENSE_TOKENS = 2
-BOARD_RESOLUTION = (32, 16)  # (player_edge width resolution, short_edge height resolution)
-SHIP_ENTITY_FEATURE_SIZE = 90
-SQUAD_ENTITY_FEATURE_SIZE = 32
-RELATION_FEATURE_SIZE = 12
-SCALAR_FEATURE_SIZE = 45
 
 def get_terminal_value(game: Armada) -> tuple[float, dict[str, np.ndarray]]:
     if game.winner is None:
         raise ValueError("Game is not in a terminal state.")
-    ship_hulls = np.zeros(MAX_SHIPS, dtype=np.float32)
+    ship_hulls = np.zeros(Config.MAX_SHIPS, dtype=np.float32)
     for i, ship in enumerate(game.ships):
-        if i >= MAX_SHIPS or ship.destroyed: continue
+        if i >= Config.MAX_SHIPS or ship.destroyed: continue
         ship_hulls[i] = ship.hull / ship.max_hull
 
-    squad_hulls = np.zeros(MAX_SQUADS, dtype=np.float32)
+    squad_hulls = np.zeros(Config.MAX_SQUADS, dtype=np.float32)
     for i, squad in enumerate(game.squads):
-        if i >= MAX_SQUADS or squad.destroyed: continue
+        if i >= Config.MAX_SQUADS or squad.destroyed: continue
         squad_hulls[i] = squad.hull / squad.max_hull
 
     game_length = np.zeros(6, dtype=np.float32)
@@ -49,7 +39,7 @@ def encode_game_state(game: Armada) -> dict[str, np.ndarray]:
         'scalar': encode_scalar_features(game),
         'ship_entities': encode_ship_entity_features(game),
         'squad_entities': encode_squad_entity_features(game),
-        'spatial': encode_spatial_features(game, BOARD_RESOLUTION),
+        'spatial': encode_spatial_features(game, Config.BOARD_RESOLUTION),
         'relations': encode_relation_matrix(game)
     }
 
@@ -116,29 +106,25 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
     """
     Encodes a detailed vector for each ship, now including its role in an active attack.
     """
-    ship_entity_vectors = np.zeros((MAX_SHIPS, SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
-    GLOBAL_MAX_HULL = 8.0
-    GLOBAL_MAX_SHIELDS = 4.0
-    GLOBAL_MAX_DICE = 4.0 
-    GLOBAL_MAX_SQUAD_VALUE = 4
-    GLOBAL_MAX_ENGINEER_VALUE = 4
+    ship_entity_vectors = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
+
 
     for i, ship in enumerate(game.ships):
-        if i >= MAX_SHIPS or ship.destroyed:
+        if i >= Config.MAX_SHIPS or ship.destroyed:
             continue
 
         # --- Base Stats and Position (14 features) ---
         base_and_pos = np.array([
-            ship.max_hull / GLOBAL_MAX_HULL,
-            ship.hull / GLOBAL_MAX_HULL,
-            ship.max_shield[HullSection.FRONT] / GLOBAL_MAX_SHIELDS,
-            ship.max_shield[HullSection.RIGHT] / GLOBAL_MAX_SHIELDS,
-            ship.max_shield[HullSection.REAR] / GLOBAL_MAX_SHIELDS,
-            ship.max_shield[HullSection.LEFT] / GLOBAL_MAX_SHIELDS,
-            ship.shield[HullSection.FRONT] / GLOBAL_MAX_SHIELDS,
-            ship.shield[HullSection.RIGHT] / GLOBAL_MAX_SHIELDS,
-            ship.shield[HullSection.REAR] / GLOBAL_MAX_SHIELDS,
-            ship.shield[HullSection.LEFT] / GLOBAL_MAX_SHIELDS,
+            ship.max_hull / Config.GLOBAL_MAX_HULL,
+            ship.hull / Config.GLOBAL_MAX_HULL,
+            ship.max_shield[HullSection.FRONT] / Config.GLOBAL_MAX_SHIELDS,
+            ship.max_shield[HullSection.RIGHT] / Config.GLOBAL_MAX_SHIELDS,
+            ship.max_shield[HullSection.REAR] / Config.GLOBAL_MAX_SHIELDS,
+            ship.max_shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS,
+            ship.shield[HullSection.FRONT] / Config.GLOBAL_MAX_SHIELDS,
+            ship.shield[HullSection.RIGHT] / Config.GLOBAL_MAX_SHIELDS,
+            ship.shield[HullSection.REAR] / Config.GLOBAL_MAX_SHIELDS,
+            ship.shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS,
             ship.x / game.player_edge,
             ship.y / game.short_edge,
             math.sin(ship.orientation),
@@ -146,11 +132,11 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
         ])
 
         # --- Command Info (17 features) ---
-        command_value = ship.command_value / MAX_COMMAND_STACK
-        squad_value = ship.squad_value / GLOBAL_MAX_SQUAD_VALUE
-        engineer_value = ship.engineer_value / GLOBAL_MAX_ENGINEER_VALUE
+        command_value = ship.command_value / Config.MAX_COMMAND_STACK
+        squad_value = ship.squad_value / Config.GLOBAL_MAX_SQUAD_VALUE
+        engineer_value = ship.engineer_value / Config.GLOBAL_MAX_ENGINEER_VALUE
         point_cost = ship.point / 100
-        command_stack_feature = np.zeros(MAX_COMMAND_STACK * len(Command), dtype=np.float32)
+        command_stack_feature = np.zeros(Config.MAX_COMMAND_STACK * len(Command), dtype=np.float32)
         if ship.player == game.simulation_player:
             for stack_idx, cmd in enumerate(ship.command_stack):
                 command_stack_feature[stack_idx * len(Command) + (cmd.value)] = 1.0
@@ -173,7 +159,7 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
                 attack_role[5 + attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
 
         # --- Defense Tokens (12 features: 2 states for 6 token slots) ---
-        defense_tokens = np.zeros(MAX_DEFENSE_TOKENS * 2, dtype=np.float32)
+        defense_tokens = np.zeros(Config.MAX_DEFENSE_TOKENS * 2, dtype=np.float32)
         for idx, token in ship.defense_tokens.items():
             is_unavailable = (
                 token.discarded or 
@@ -188,8 +174,8 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
         armament = np.zeros(15, dtype=np.float32)
         for hull in HullSection:
             if hull in ship.attack_impossible_hull : continue
-            armament[hull*3:(hull+1)*3] = [dice/GLOBAL_MAX_DICE for dice in ship.battery[hull]]
-        armament[12:15] = [dice/GLOBAL_MAX_DICE for dice in ship.anti_squad]
+            armament[hull*3:(hull+1)*3] = [dice/Config.GLOBAL_MAX_DICE for dice in ship.battery[hull]]
+        armament[12:15] = [dice/Config.GLOBAL_MAX_DICE for dice in ship.anti_squad]
 
         status = np.array([
             float(ship.activated), 
@@ -218,17 +204,16 @@ def encode_squad_entity_features(game: Armada) -> np.ndarray:
     """
     Encodes a detailed vector for each squad, summarizing the ships in the squad.
     """
-    squad_entity_vectors = np.zeros((MAX_SQUADS, SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
-    GLOBAL_MAX_HULL = 8.0
-    GLOBAL_MAX_DICE = 4.0
+    squad_entity_vectors = np.zeros((Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
+
 
     for i, squad in enumerate(game.squads):
-        if i >= MAX_SQUADS or squad.destroyed:
+        if i >= Config.MAX_SQUADS or squad.destroyed:
             continue
 
         # 8 features
         info = np.array([
-            squad.max_hull / GLOBAL_MAX_HULL,
+            squad.max_hull / Config.GLOBAL_MAX_HULL,
             float(squad.player),
             squad.speed / 5.0,
             squad.point / 20,
@@ -240,7 +225,7 @@ def encode_squad_entity_features(game: Armada) -> np.ndarray:
 
         # 12 features
         status = np.array([
-            squad.hull / GLOBAL_MAX_HULL,
+            squad.hull / Config.GLOBAL_MAX_HULL,
             float(squad.activated),
             float(squad.can_attack),
             float(squad.can_move),
@@ -248,15 +233,15 @@ def encode_squad_entity_features(game: Armada) -> np.ndarray:
             squad.coords[1] / game.short_edge,
         ])
 
-        overlap_ship = np.zeros(MAX_SHIPS, dtype=np.float32)
+        overlap_ship = np.zeros(Config.MAX_SHIPS, dtype=np.float32)
         if squad.overlap_ship_id is not None :
             overlap_ship[squad.overlap_ship_id] = 1.0
         status = np.concatenate([status, overlap_ship])
 
         # 6 features
         armament = np.zeros(6, dtype=np.float32)
-        armament[0:3] = [dice/GLOBAL_MAX_DICE for dice in squad.battery]
-        armament[3:6] = [dice/GLOBAL_MAX_DICE for dice in squad.anti_squad]
+        armament[0:3] = [dice/Config.GLOBAL_MAX_DICE for dice in squad.battery]
+        armament[3:6] = [dice/Config.GLOBAL_MAX_DICE for dice in squad.anti_squad]
 
         # 2 features
         attack_role = np.zeros(2, dtype=np.float32)
@@ -267,7 +252,7 @@ def encode_squad_entity_features(game: Armada) -> np.ndarray:
                 attack_role[1] = 1.0
 
         # 4 features
-        defense_tokens = np.zeros(MAX_SQUAD_DEFENSE_TOKENS * 2, dtype=np.float32)
+        defense_tokens = np.zeros(Config.MAX_SQUAD_DEFENSE_TOKENS * 2, dtype=np.float32)
         for idx, token in squad.defense_tokens.items():
             is_unavailable = (
                 token.discarded or 
@@ -291,7 +276,7 @@ def encode_spatial_features(game: Armada, resolution: tuple[int, int]) -> np.nda
     This is now a wrapper function for clarity and profiling.
     """
     width_res, height_res = resolution  # width along player_edge, height along short_edge
-    planes = np.zeros((MAX_SHIPS * 2 + 2, height_res, width_res), dtype=np.float32)
+    planes = np.zeros((Config.MAX_SHIPS * 2 + 2, height_res, width_res), dtype=np.float32)
 
     width_step = game.player_edge / width_res
     height_step = game.short_edge / height_res
@@ -314,13 +299,13 @@ def encode_relation_matrix(game: Armada) -> np.ndarray:
     """
     Encodes the pairwise range relationships between every hull section of every ship.
     """
-    num_hulls = MAX_SHIPS * len(HullSection)
+    num_hulls = Config.MAX_SHIPS * len(HullSection)
     matrix = np.zeros((num_hulls, num_hulls), dtype=np.float32)
 
     for i, attacker in enumerate(game.ships):
-        if i >= MAX_SHIPS or attacker.destroyed: continue
+        if i >= Config.MAX_SHIPS or attacker.destroyed: continue
         for j, defender in enumerate(game.ships):
-            if j >= MAX_SHIPS or defender.destroyed or i == j: continue
+            if j >= Config.MAX_SHIPS or defender.destroyed or i == j: continue
 
             _, range_dict = cache.attack_range_s2s(attacker.get_ship_hash_state(), defender.get_ship_hash_state())
 
