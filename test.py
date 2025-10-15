@@ -15,7 +15,7 @@ def _cached_coordinate(ship_state: Tuple[str, float, float, float]) -> Dict[str,
         A dictionary with the key 'token_corners' mapping to a list of corner points.
     """
     _, x, y, theta = ship_state
-    center = np.array([x, y])
+    center = np.array([x, y], dtype=float)
     # Example rectangle dimensions
     width = 4.0
     height = 2.0

@@ -1,12 +1,11 @@
-from PIL import Image, ImageDraw, ImageFont
-
 import math
 from typing import TYPE_CHECKING
 import os
 
-import ship as ship_module
+from PIL import Image, ImageDraw, ImageFont
 
-# Conditionally import Armada only for type checking
+import ship as ship_module
+from measurement import SQUAD_BASE_RADIUS
 if TYPE_CHECKING:
     from armada import Armada
     
@@ -50,7 +49,7 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
         draw.ellipse(bounding_box, fill='yellow', outline='yellow')
 
     # --- Draw Text Labels (relative to the pivot) ---
-    draw.text(to_template_coord((0, 15)), ship.name, font=font, fill='white', anchor="ms")
+    draw.text(to_template_coord((0, 15)), ship.name, font=font, fill='white' if not ship.activated else 'gray', anchor="ms")
     draw.text(to_template_coord((0, -24)), str(ship.hull), font=font, fill='yellow', anchor="mm")
     
     # Shields
@@ -104,14 +103,14 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
 
     ship_templates = {}
     for ship in game.ships:
-        if ship.ship_id not in ship_templates:
-             ship_templates[ship.ship_id] = _draw_ship_template(ship, font_small)
+        if ship.id not in ship_templates:
+             ship_templates[ship.id] = _draw_ship_template(ship, font_small)
 
     for ship in game.ships:
         if ship.destroyed:
             continue
 
-        template = ship_templates[ship.ship_id]
+        template = ship_templates[ship.id]
         
         # Negate angle for Pillow's counter-clockwise rotation
         angle_deg = -math.degrees(ship.orientation)
@@ -128,6 +127,28 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
         paste_y = int(img_pivot_y - rotated_template.height / 2)
 
         img.paste(rotated_template, (paste_x, paste_y), rotated_template)
+
+    for squad in game.squads:
+        if squad.destroyed:
+            continue
+
+        # Draw a simple circle for the squad
+        squad_center = transform_coord(squad.coords)
+        radius = SQUAD_BASE_RADIUS
+        bbox = [
+            (squad_center[0] - radius, squad_center[1] - radius),
+            (squad_center[0] + radius, squad_center[1] + radius)
+        ]
+        # Draw non-filled circle with white border
+        draw.ellipse(bbox, outline='white', fill=None)
+
+        # Draw hull value at the center (yellow)
+        draw.text(squad_center, squad.name, font=font_small, fill='white' if not squad.activated else 'gray', anchor='mm')
+
+        # Draw squad name just below the hull text (white), centered
+        name_pos = (squad_center[0], squad_center[1] + font_small.size)
+        draw.text(name_pos, str(squad.hull), font=font_small, fill='yellow', anchor='mm')
+
 
     if maneuver_tool:
         transformed_tool_path = [transform_coord(p) for p in maneuver_tool]

@@ -1,0 +1,25 @@
+{
+    "TIE Fighter": {
+        "name": "TIE/ln",
+        "unique": false,
+        "hull": 3,
+        "speed": 4,
+        "anti_squad": [0, 3, 0],
+        "battery": [0, 1, 0],
+        "defense_token": [],
+        "point": 8,
+        "keywords": ["swarm"]
+    },
+
+    "X-Wing": {
+        "name": "X-Wing",
+        "unique": false,
+        "hull": 5,
+        "speed": 3,
+        "anti_squad": [0, 4, 0],
+        "battery": [0, 0, 1],
+        "defense_token": [],
+        "point": 12,
+        "keywords": ["escort", "bomber"]
+    }
+}

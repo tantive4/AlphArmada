@@ -3,21 +3,18 @@ import math
 import random
 from typing import TYPE_CHECKING
 
-import torch
 import numpy as np
 
-from action_space import ActionManager
-from dummy_model import DummyModel
-from armada_net import ArmadaNet
-from game_encoder import encode_game_state
 import dice
-from game_phase import GamePhase, ActionType, get_action_str
-from ship import _cached_range
+from action_phase import Phase, ActionType, get_action_str
 if TYPE_CHECKING:
     from armada import Armada, AttackInfo
-    from self_play import Config
 
 
+class Config:
+
+    ITERATION =1600
+    EXPLORATION_CONSTANT =2
 
 
 class Node:
@@ -27,25 +24,25 @@ class Node:
     """
     def __init__(self, 
                  game : Armada,
-                 action : ActionType.Action, 
+                 action : ActionType, 
                  parent : Node | None =None, 
                  policy : float = 0,
                  action_index : int = 0,) -> None :
         
         self.snapshot = game.get_snapshot()
         self.decision_player : int | None = game.decision_player # decision player used when get_possible_action is called on this node
-        self.chance_node : bool = self.snapshot['phase'] == GamePhase.SHIP_ATTACK_ROLL_DICE
-        self.information_set : bool = self.snapshot['phase'] == GamePhase.SHIP_REVEAL_COMMAND_DIAL
+        self.chance_node : bool = self.snapshot['phase'] == Phase.ATTACK_ROLL_DICE
+        self.information_set : bool = self.snapshot['phase'] == Phase.SHIP_REVEAL_COMMAND_DIAL
 
 
         self.parent : Node | None = parent
-        self.action : ActionType.Action = action
+        self.action : ActionType = action
         self.children : list[Node] = []
         self.wins : float = 0
         self.visits : int = 0
         
         self.policy : float = policy # policy value from parent node state
-        self.action_index : int = action_index # index of the action in the full action list from parent node state
+        self_index : int = action_index # index of the action in the full action list from parent node state
 
 
     def select_child(self, use_policy : bool = False) -> Node:
@@ -91,7 +88,7 @@ class Node:
         return q_value + exploration_constant * child.policy * math.sqrt(self.visits) / (1 + child.visits)
 
 
-    def add_child(self, action : ActionType.Action, game : Armada, policy : float = 0, action_index : int = 0) -> Node :
+    def add_child(self, action : ActionType, game : Armada, policy : float = 0, action_index : int = 0) -> Node :
         """
         Adds a new child node for the given action and game.
         Args:
@@ -139,102 +136,31 @@ class MCTS:
 
     """
 
-    def __init__(self, initial_game: Armada, action_manager : ActionManager, model : ArmadaNet, config : Config) -> None:
+    def __init__(self, initial_game: Armada, config : Config) -> None:
         self.game = initial_game
         self.snapshot = self.game.get_snapshot()
         self.player_root : dict[int, Node] = { 1 : Node(game = initial_game, action = ('initialize_game', None)),
                                               -1 : Node(game = initial_game, action = ('initialize_game', None))}
         
-
-        self.action_manager = action_manager
-        self.model = model
         self.config = config
 
-    # def mcts_search(self, iterations: int) -> None:
+    def mcts_search(self, *,simulation_player :int) -> None:
 
-    #     # single decision optimization
-    #     possible_actions = self.root_game.get_valid_actions()
-    #     if len(possible_actions) == 1:
-    #         action = possible_actions[0]
-    #         self.root_game.apply_action(action)
-    #         self.player_root.add_child(action, self.root_game)
-    #         self.root_game.revert_snapshot(self.snapshot)
-    #         return
+        # single decision optimization
+        possible_actions = self.game.get_valid_actions()
+        if len(possible_actions) == 1:
+            action = possible_actions[0]
+            self.game.apply_action(action)
+            self.player_root[simulation_player].add_child(action, self.game)
+            self.game.revert_snapshot(self.snapshot)
+            return
 
-    #     for iteration in range(iterations):
-            
-    #         node : Node = self.player_root
-            
-    #         # 1. Selection
-    #         while node.children or node.chance_node:
-
-    #             if node.chance_node:
-    #                 self.root_game.revert_snapshot(node.snapshot)
-
-    #                 # For a chance node, sample a random outcome instead of using UCT.
-    #                 if self.root_game.attack_info is None :
-    #                     raise ValueError("Invalid game for chance node: missing attack/defend info.")
-                    
-    #                 dice_roll = dice.roll_dice(self.root_game.attack_info.dice_to_roll)
-    #                 action = ("roll_dice_action", dice_roll)
-
-    #                 dice_roll_result_node = next((child for child in node.children if child.action is not None and child.action[1] == dice_roll), None)
-    #                 if dice_roll_result_node:
-    #                     # If we've seen this random outcome before for this node, continue selection down that path.
-    #                     node = dice_roll_result_node
-    #                 else:
-    #                     # If it's a new outcome, this is the node we will expand and simulate.
-    #                     self.root_game.apply_action(action)
-    #                     node = node.add_child(action, self.root_game)
-                        
-    #                     break # Exit selection loop
-
-    #             else:
-    #                 # Standard player decision node, use UCT.
-    #                 node = node.select_child()
-            
-    #         leaf_snapshot = node.snapshot
-    #         self.root_game.revert_snapshot(leaf_snapshot)
-            
-    #         # 2. Expansion (for player decision nodes)
-    #         if not self.root_game.winner :
-    #             actions = self.root_game.get_valid_actions()
-
-    #             for action in actions:
-    #                 self.root_game.apply_action(action)
-    #                 node.add_child(action, self.root_game)
-    #                 self.root_game.revert_snapshot(leaf_snapshot)
-
-    #         # 3. Simulation
-    #         simulation_result = self.root_game.play(max_simulation_step=1000)
-    #         # with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
-    #         self.root_game.revert_snapshot(self.snapshot)
-            
-    #         # 4. Backpropagation (Updated for -1 to 1 scoring)
-    #         node.backpropagate(simulation_result)
-            
-    #         if (iteration+1) % (iterations//4) == 0:
-    #             print(f"Iteration {iteration + 1}/{iterations}: Total Visits : {self.player_root.visits} Total Wins: {round(sum([child.wins for child in self.player_root.children]), 2)}, Best Action | {ActionType.get_action_str(self.root_game, self.get_best_action())}")
-    #             with open('simulation_log.txt', 'a') as f: f.write(f"\n{iteration+1} iteration. Total Visits : {self.player_root.visits} Total Win {round(sum([child.wins for child in self.player_root.children]), 2)}. Best Action {self.get_best_action()} \n{[(node.action, round(node.wins,2), node.visits) for node in self.player_root.children]}")
-    #     print(f'_RANGE CACHE INFO : {_cached_range.cache_info()}')
-
-
-
-    def alpha_mcts_search(self, simulation_player : int) -> np.ndarray:
-        if self.player_root[simulation_player].chance_node or self.player_root[simulation_player].information_set :
-            raise ValueError("Don't use MCTS for chance node and information set")
-        
-
-        # one game / two tree
-        
-        self.game.simulation_player = simulation_player
-
-        for iteration in range(self.config.MCTS_ITERATION):
+        for iteration in range(self.config.ITERATION):
             
             node : Node = self.player_root[simulation_player]
             
             # 1. Selection
-            while node.children or node.chance_node or node.information_set:
+            while node.children or node.chance_node:
 
                 if node.chance_node:
                     self.game.revert_snapshot(node.snapshot)
@@ -242,116 +168,53 @@ class MCTS:
                     # For a chance node, sample a random outcome instead of using UCT.
                     if self.game.attack_info is None :
                         raise ValueError("Invalid game for chance node: missing attack/defend info.")
+                    
                     dice_roll = dice.roll_dice(self.game.attack_info.dice_to_roll)
                     action = ("roll_dice_action", dice_roll)
 
-                    matching_child = next((child for child in node.children if child.action[1] == dice_roll), None)
-                    if matching_child : node = matching_child
-                    else :
-                        # dynamically expansion
+                    dice_roll_result_node = next((child for child in node.children if child.action is not None and child.action[1] == dice_roll), None)
+                    if dice_roll_result_node:
+                        # If we've seen this random outcome before for this node, continue selection down that path.
+                        node = dice_roll_result_node
+                    else:
+                        # If it's a new outcome, this is the node we will expand and simulate.
                         self.game.apply_action(action)
-                        node.add_child(action, self.game)
+                        node = node.add_child(action, self.game)
+                        
+                        break # Exit selection loop
 
-                elif node.information_set :
-
-                    if not node.children :
-                        self.game.revert_snapshot(node.snapshot)
-                        # expand all possible actions
-                        for action in self.game.get_valid_actions() :
-                            self.game.apply_action(action)
-                            node.add_child(action, self.game)
-                            self.game.revert_snapshot(node.snapshot)
-                    
-                    # don't use policy for secret information
-                    # choose the best option using MCTS and UCB
-                    node = node.select_child(use_policy=False)
-                
                 else:
-                    # Standard player decision node, use pUCT.
-                    node = node.select_child(use_policy=True)
-
+                    # Standard player decision node, use UCT.
+                    node = node.select_child()
+            
             leaf_snapshot = node.snapshot
             self.game.revert_snapshot(leaf_snapshot)
-
-
-            if self.game.winner is not None : value = self.game.winner
-            else :
-
+            
             # 2. Expansion (for player decision nodes)
-            # note that leaf node is not chance node or information set node
+            if not self.game.winner :
+                actions = self.game.get_valid_actions()
 
-                    value, policy = self.get_value_policy(self.game)
+                for action in actions:
+                    self.game.apply_action(action)
+                    node.add_child(action, self.game)
+                    self.game.revert_snapshot(leaf_snapshot)
 
-                    # create policy mask for valid actions
-                    action_map = self.action_manager.get_action_map(self.game.phase)
-                    valid_actions = self.game.get_valid_actions()
-                    valid_action_index = {}
-
-                    valid_moves_mask = np.zeros(len(action_map), dtype=np.uint8)
-                    for i, action in enumerate(valid_actions):                      
-                        action_index = action_map[action]
-                        valid_action_index[i] = action_index
-                        valid_moves_mask[action_index] = 1
-                        
-                    policy *= valid_moves_mask
-                    policy_sum = np.sum(policy)
-                    if policy_sum > 0:
-                        policy /= policy_sum
-                    else:
-                        # zero division fallback
-                        policy = valid_moves_mask / np.sum(valid_moves_mask)
-
-                    # create child nodes for all valid actions
-                    for i, action in enumerate(valid_actions):
-                        action_index : int = valid_action_index[i] # get the corresponding index in the full action list
-                        action_policy : float = float(policy[action_index])
-
-                        self.game.apply_action(action)
-                        node.add_child(action, self.game, action_policy, action_index)
-                        self.game.revert_snapshot(leaf_snapshot)
-
+            # 3. Simulation
+            simulation_result = self.game.rollout(max_simulation_step=1000)
+            # with open('simulation_log.txt', 'a') as f: f.write(f"\nSimulation Result: {simulation_result}")
             self.game.revert_snapshot(self.snapshot)
             
+            # 4. Backpropagation (Updated for -1 to 1 scoring)
+            node.backpropagate(simulation_result)
 
-            # 3. Backpropagation (Updated for -1 to 1 scoring)
-            node.backpropagate(value)
-            
-            if (iteration+1) % (self.config.MCTS_ITERATION//1) == 0:
-                # print(f"Iteration {iteration + 1}/{self.config.MCTS_ITERATION}: Total Visits : {self.player_root[simulation_player].visits} Total Wins: {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}, Best Action | {get_action_str(self.game, self.get_best_action(simulation_player))}")
-                with open('simulation_log.txt', 'a') as f: f.write(f"\n{iteration+1} iteration. Total Visits : {self.player_root[simulation_player].visits} Total Win {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}. Best Action {self.get_best_action(simulation_player)} \n{[(node.action, f'win : {round(node.wins,2)}', f'visit : {node.visits}', f'policy : {round(node.policy, 3)}') for node in self.player_root[simulation_player].children]}")
-        
-        # End of Search Iteration            
-        action_map = self.action_manager.get_action_map(self.game.phase)
-        action_probs = np.zeros(len(action_map), dtype=np.float16)
-        for child in self.player_root[simulation_player].children:
-            action_probs[child.action_index] = child.visits
+            if (iteration+1) % (self.config.ITERATION//4) == 0:
+                print(f"Iteration {iteration + 1}/{self.config.ITERATION}: Total Visits : {self.player_root[simulation_player].visits} Total Wins: {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}, Best Action | {get_action_str(self.game, self.get_best_action(simulation_player))}")
+                with open('simulation_log.txt', 'a') as f: f.write(f"\n{iteration+1} iteration. Total Visits : {self.player_root[simulation_player].visits} Total Win {round(sum([child.wins for child in self.player_root[simulation_player].children]), 2)}. Best Action {self.get_best_action(simulation_player)} \n{[(node.action, round(node.wins,2), node.visits) for node in self.player_root[simulation_player].children]}")
 
-        action_probs /= np.sum(action_probs)
-        return action_probs
 
-    def get_value_policy(self, game : Armada) -> tuple:
-        encoded_state = encode_game_state(game)
-        
-        # Convert numpy arrays to PyTorch tensors for the model
-        scalar_tensor = torch.from_numpy(encoded_state['scalar']).float().to(self.config.DEVICE)
-        entity_tensor = torch.from_numpy(encoded_state['entities']).float().to(self.config.DEVICE)
-        spatial_tensor = torch.from_numpy(encoded_state['spatial']).float().to(self.config.DEVICE)
-        relation_tensor = torch.from_numpy(encoded_state['relations']).float().to(self.config.DEVICE)
-        
-        self.model.eval()
-        with torch.no_grad():
-            policy_logits, value_tensor = self.model(
-                scalar_tensor, 
-                entity_tensor, 
-                spatial_tensor, 
-                relation_tensor, 
-                self.game.phase
-            )
-        value = value_tensor.item()
-        policy = policy_logits.cpu().numpy()
-        return value, policy
 
-    def advance_tree(self, action: ActionType.Action, snapshot : dict) -> None:
+
+    def advance_tree(self, action: ActionType, snapshot : dict) -> None:
         """
         Advances the tree to the next state by selecting the child
         corresponding to the given action as the new root.
@@ -374,12 +237,12 @@ class MCTS:
 
 
 
-    def get_best_action(self, decision_player : int) -> ActionType.Action:
+    def get_best_action(self, decision_player : int) -> ActionType:
         root_node = self.player_root[decision_player]
         best_child = max(root_node.children, key=lambda c: c.visits)
         return best_child.action
     
-    def get_random_best_action(self, decision_player : int) -> ActionType.Action:
+    def get_random_best_action(self, decision_player : int) -> ActionType:
         root_node = self.player_root[decision_player]
         visit_weights = [c.visits for c in root_node.children]
         chosen_child = random.choices(population=root_node.children, weights=visit_weights, k=1)[0]

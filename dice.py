@@ -2,16 +2,10 @@ import random
 import itertools
 from collections import Counter
 from enum import Enum, IntEnum
+from enum_class import Dice
 
 
 
-class Dice(IntEnum) :
-    BLACK = 0
-    BLUE = 1
-    RED = 2
-    def __str__(self):
-        return self.name
-    __repr__ = __str__
 
 FULL_DICE_POOL = ((2,2,2), (2,2,2), (2,2,2,2,2))
 EMPTY_DICE_POOL = ((0,0,0), (0,0,0), (0,0,0,0,0))
@@ -23,10 +17,15 @@ ICON_INDICES = {
     Dice.BLUE : ['○', '¤', '@'],
     Dice.RED : ['_', '○', '¤', '○○', '@']
 }
-DAMAGE_INDICES = {
+SHIP_DAMAGE_INDICES = {
     Dice.BLACK: [0, 1, 2],
     Dice.BLUE:  [1, 1, 0],
     Dice.RED:   [0, 1, 1, 2, 1]
+}
+SQUAD_DAMAGE_INDICES = {
+    Dice.BLACK: [0, 1, 1],
+    Dice.BLUE:  [1, 0, 0],
+    Dice.RED:   [0, 1, 0, 2, 0]
 }
 
 def dice_icon(dice_pool : tuple[tuple[int, ...], ...]) -> dict[Dice, str] :
@@ -115,7 +114,7 @@ def roll_dice(dice_pool : tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
     return dice_result
 
 
-def dice_choice_combinations(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
+def dice_choices(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
     """
     Generates all possible outcomes of selecting a specific number of dice
     from a larger pool by working directly with the counts of each die face.
@@ -207,12 +206,8 @@ if __name__ == "__main__":
     dice_roll_result = roll_dice(dice_pool)
     print(dice_roll_result)
     print(f'result : {dice_icon(dice_roll_result)}')
-    for dice_choice in dice_choice_combinations(dice_roll_result, 2) :
+    for dice_choice in dice_choices(dice_roll_result, 2) :
         print(dice_choice)
 
-class Critical(IntEnum) :
-    STANDARD = 0
-    def __str__(self) :
-        return self.name
-    __repr__ = __str__
+
 

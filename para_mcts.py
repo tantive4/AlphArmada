@@ -8,15 +8,13 @@ import numpy as np
 import torch.nn.functional as F
 
 from action_space import ActionManager
-from dummy_model import DummyModel
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
 import dice
-from game_phase import GamePhase, ActionType, get_action_str
-from ship import _cached_range
+from action_phase import Phase, ActionType, get_action_str
 if TYPE_CHECKING:
-    from armada import Armada, AttackInfo
-    from para_self_play import Config
+    from armada import Armada
+    from self_play import Config
 
 
 
@@ -28,27 +26,29 @@ class Node:
     """
     def __init__(self, 
                  game : Armada,
-                 action : ActionType.Action, 
+                 action : ActionType, 
                  config : Config,
                  parent : Node | None =None, 
                  policy : float = 0,
+                 value : float = 0,
                  action_index : int = 0,
                  ) -> None :
         
         self.snapshot = game.get_snapshot()
         self.decision_player : int | None = game.decision_player # decision player used when get_possible_action is called on this node
-        self.chance_node : bool = self.snapshot['phase'] == GamePhase.SHIP_ATTACK_ROLL_DICE
-        self.information_set : bool = self.snapshot['phase'] == GamePhase.SHIP_REVEAL_COMMAND_DIAL
+        self.chance_node : bool = self.snapshot['phase'] == Phase.ATTACK_ROLL_DICE
+        self.information_set : bool = self.snapshot['phase'] == Phase.SHIP_REVEAL_COMMAND_DIAL
         self.config : Config = config
 
 
         self.parent : Node | None = parent
-        self.action : ActionType.Action = action
+        self.action : ActionType = action
         self.children : list[Node] = []
         self.wins : float = 0
         self.visits : int = 0
         
         self.policy : float = policy # policy value from parent node state
+        self.value : float = value # value from the perspective of the decision player at this node
         self.action_index : int = action_index # index of the action in the full action list from parent node state
 
 
@@ -61,7 +61,7 @@ class Node:
 
         if not self.children:
             # This should not happen if called on a non-terminal, expanded node
-            raise ValueError("uct_select_child called on a node with no children")
+            raise ValueError(f"uct_select_child called on a node with no children\n{self.snapshot}")
 
         if self.visits == 0:
             # Fallback for an unvisited node, though MCTS should ideally not call UCT here.
@@ -95,14 +95,14 @@ class Node:
         return q_value + self.config.EXPLORATION_CONSTANT * child.policy * math.sqrt(self.visits) / (1 + child.visits)
 
 
-    def add_child(self, action : ActionType.Action, game : Armada, policy : float = 0, action_index : int = 0) -> Node :
+    def add_child(self, action : ActionType, game : Armada, policy : float = 0, value : float = 0, action_index : int = 0) -> Node :
         """
         Adds a new child node for the given action and game.
         Args:
             action : The action leading to the new child node.
             game : The game state after applying the action, used to determine the decision player for the child.
         """
-        node = Node(game=game, parent=self, action=action, policy=policy, action_index=action_index, config=self.config)
+        node = Node(game=game, parent=self, action=action, policy=policy, value=value, action_index=action_index, config=self.config)
         self.children.append(node)
         return node
 
@@ -136,12 +136,17 @@ class Node:
             node.update(result_for_node)
             node = node.parent
 
+    def reset_node(self) -> None:
+        """
+        Resets the node's statistics and children.
+        """
+        self.wins = 0
+        self.visits = 0
+        for child in self.children:
+            child.reset_node()
+
 
 class MCTS:
-    """
-    Basic Monte Carlo Tree Search for Star Wars: Armada.
-
-    """
 
     def __init__(self, games: list[Armada], action_manager : ActionManager, model : ArmadaNet, config : Config) -> None:
         self.para_games : list[Armada] = games
@@ -153,7 +158,7 @@ class MCTS:
         self.model : ArmadaNet = model
         self.config : Config = config
 
-    def parallel_search(self, simulation_players : dict[int, int]) -> dict[int, np.ndarray]:
+    def parallel_search(self, simulation_players : dict[int, int], *,deep_search:bool = False) -> dict[int, np.ndarray]:
         parallel_indices = list(simulation_players.keys())
         for para_index in parallel_indices:
             sim_player = simulation_players[para_index]
@@ -166,15 +171,16 @@ class MCTS:
 
         # one game / two tree
         
+        mcts_iteration = self.config.MCTS_ITERATION if deep_search else self.config.MCTS_ITERATION_FAST
 
-        for _ in range(self.config.MCTS_ITERATION):
+        for _ in range(mcts_iteration):
             para_nodes : dict[int, Node] = {para_index: self.player_roots[para_index][simulation_players[para_index]] for para_index in parallel_indices}
             expandable_node_indices : list[int] = []
             for para_index in parallel_indices:
                 node = para_nodes[para_index]
             
                 # 1. Selection
-                while node.children or node.chance_node or node.information_set:
+                while (node.visits > 0 and node.children) or node.chance_node or node.information_set:
 
                     if node.chance_node:
                         self.para_games[para_index].revert_snapshot(node.snapshot)
@@ -216,8 +222,9 @@ class MCTS:
 
                 
                 # on terminal node, backpropagate the result
-                if (value := self.para_games[para_index].winner) is not None : 
-                    para_nodes[para_index].backpropagate(value)
+                if (winner := self.para_games[para_index].winner) is not None or node.children:
+                    value = winner if winner is not None else node.value
+                    node.backpropagate(value)
                     self.para_games[para_index].revert_snapshot(self.snapshots[para_index])
                 else :
                     expandable_node_indices.append(para_index)
@@ -235,8 +242,13 @@ class MCTS:
                     value = float(values[output_index])
                     policy = policies[output_index]
 
+                    # Add Dirichlet noise for exploration at the root node only
+                    if node.parent is None:
+                        policy = (1-self.config.DIRICHLET_EPSILON) * policy + self.config.DIRICHLET_EPSILON * np.random.dirichlet([self.config.DIRICHLET_ALPHA] * len(policy))
+
+
                     action_map = self.action_manager.get_action_map(self.para_games[para_index].phase)
-                    valid_actions: list[ActionType.Action] = self.para_games[para_index].get_valid_actions()
+                    valid_actions: list[ActionType] = self.para_games[para_index].get_valid_actions()
                     
                     # Create the mask with the same size as the policy array
                     valid_moves_mask = np.zeros_like(policy, dtype=np.uint8)
@@ -264,9 +276,11 @@ class MCTS:
                     for action in valid_actions:
                         action_index = action_map[action]
                         action_policy: float = float(policy[action_index])
+                        node_value : float = float(value)
+
 
                         self.para_games[para_index].apply_action(action)
-                        node.add_child(action, self.para_games[para_index], action_policy, action_index)
+                        node.add_child(action, self.para_games[para_index], policy=action_policy, value=node_value, action_index=action_index)
                         self.para_games[para_index].revert_snapshot(node.snapshot)
 
                     self.para_games[para_index].revert_snapshot(self.snapshots[para_index])
@@ -292,7 +306,7 @@ class MCTS:
             parallel_action_probs[para_index] = action_probs
         return parallel_action_probs
 
-    def get_value_policy(self, encoded_states: list[dict[str, np.ndarray]], phases: list[GamePhase]) -> tuple[np.ndarray, np.ndarray]:
+    def get_value_policy(self, encoded_states: list[dict[str, np.ndarray]], phases: list[Phase]) -> tuple[np.ndarray, np.ndarray]:
         """
         Compute value and policy for a BATCH of encoded states using a SINGLE model call.
         """
@@ -301,27 +315,32 @@ class MCTS:
 
         # Build batched numpy arrays
         scalar_batch = np.stack([state['scalar'] for state in encoded_states])
-        entity_batch = np.stack([state['entities'] for state in encoded_states])
+        ship_entity_batch = np.stack([state['ship_entities'] for state in encoded_states])
+        squad_entity_batch = np.stack([state['squad_entities'] for state in encoded_states])
         spatial_batch = np.stack([state['spatial'] for state in encoded_states])
         relation_batch = np.stack([state['relations'] for state in encoded_states])
 
         # Convert to PyTorch tensors
         scalar_tensor = torch.from_numpy(scalar_batch).float().to(self.config.DEVICE)
-        entity_tensor = torch.from_numpy(entity_batch).float().to(self.config.DEVICE)
+        ship_entity_tensor = torch.from_numpy(ship_entity_batch).float().to(self.config.DEVICE)
+        squad_entity_tensor = torch.from_numpy(squad_entity_batch).float().to(self.config.DEVICE)
         spatial_tensor = torch.from_numpy(spatial_batch).float().to(self.config.DEVICE)
         relation_tensor = torch.from_numpy(relation_batch).float().to(self.config.DEVICE)
 
         self.model.eval()
         with torch.no_grad():
             # Perform a single, batched forward pass
-            policy_logits, value_tensor = self.model(
+            outputs = self.model(
                 scalar_tensor,
-                entity_tensor,
+                ship_entity_tensor,
+                squad_entity_tensor,
                 spatial_tensor,
                 relation_tensor,
-                phases  # Pass the list of phases
+                phases
             )
 
+            policy_logits = outputs['policy_logits']
+            value_tensor = outputs['value']
             # Apply softmax to get probabilities
             policies = F.softmax(policy_logits, dim=1).cpu().numpy()
             
@@ -330,7 +349,7 @@ class MCTS:
 
         return values, policies
     
-    def advance_tree(self, para_index : int, action: ActionType.Action, snapshot : dict) -> None:
+    def advance_tree(self, para_index : int, action: ActionType, snapshot : dict) -> None:
         """
         Advances the tree to the next state by selecting the child
         corresponding to the given action as the new root.
@@ -348,24 +367,28 @@ class MCTS:
 
             matching_child = next((child for child in self.player_roots[para_index][player].children if child.action == action), None)
 
+            # on information set node or chance node, we might not have the child yet
             if matching_child is None :
                 matching_child = self.player_roots[para_index][player].add_child(action, self.para_games[para_index])
 
             # The found child becomes the new root.
             self.player_roots[para_index][player] = matching_child
             self.player_roots[para_index][player].parent = None # The new root has no parent.
+            self.player_roots[para_index][player].reset_node() # Reset statistics for the new root.
 
 
 
-    def get_best_action(self, para_index : int, decision_player : int) -> ActionType.Action:
+    def get_best_action(self, para_index : int, decision_player : int) -> ActionType:
         root_node = self.player_roots[para_index][decision_player]
         best_child = max(root_node.children, key=lambda c: c.visits)
         return best_child.action
 
-    def get_random_best_action(self, para_index : int, decision_player : int) -> ActionType.Action:
+    def get_random_best_action(self, para_index : int, decision_player : int, game_round : int) -> ActionType:
         root_node = self.player_roots[para_index][decision_player]
         if not root_node.children:
             raise ValueError(f"No children found for root node during Advancing Tree\n{self.para_games[para_index].get_snapshot()}\npara_index: {para_index}")
+        
+        temperature = self.config.TEMPERATURE / game_round
         
         visit_weights = np.array([c.visits for c in root_node.children]) ** (1/self.config.TEMPERATURE)
         chosen_child = random.choices(population=root_node.children, weights=list(visit_weights), k=1)[0]

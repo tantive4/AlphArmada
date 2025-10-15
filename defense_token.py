@@ -42,6 +42,7 @@ class TokenType(IntEnum):
     BRACE = 0
     REDIRECT = 1
     EVADE = 2
+    SCATTER = 3
 
 TOKEN_DICT = {
     2 * index + double : DefenseToken(TokenType(index).name) for index, double in product(TokenType, (0, 1))

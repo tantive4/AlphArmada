@@ -7,13 +7,15 @@ import math
 # input shapes match the encoder's output shapes perfectly.
 from game_encoder import (
     SCALAR_FEATURE_SIZE,
-    ENTITY_FEATURE_SIZE,
+    SHIP_ENTITY_FEATURE_SIZE,
+    SQUAD_ENTITY_FEATURE_SIZE,
     MAX_SHIPS,
+    MAX_SQUADS,
     BOARD_RESOLUTION,
     RELATION_FEATURE_SIZE
 )
 from action_space import ActionManager
-from game_phase import GamePhase
+from action_phase import Phase
 
 # --- Helper Modules ---
 
@@ -62,16 +64,24 @@ class ArmadaNet(nn.Module):
             nn.Linear(128, 64)
         )
 
-        # Entity Encoder (Transformer)
+        # Ship Entity Encoder (Transformer)
         # The TransformerEncoderLayer handles self-attention for the entities.
-        encoder_layer = nn.TransformerEncoderLayer(d_model=ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
-        self.entity_encoder = nn.TransformerEncoder(encoder_layer, num_layers=3)
+        ship_encoder_layer = nn.TransformerEncoderLayer(d_model=SHIP_ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
+        self.ship_entity_encoder = nn.TransformerEncoder(ship_encoder_layer, num_layers=3)
         # A simple linear layer to get a fixed-size output after attention
-        self.entity_aggregator = nn.Linear(ENTITY_FEATURE_SIZE, 128)
+        self.ship_entity_aggregator = nn.Linear(SHIP_ENTITY_FEATURE_SIZE, 128)
+
+        # Squad Entity Encoder (Transformer)
+        # The TransformerEncoderLayer handles self-attention for the entities.
+        squad_encoder_layer = nn.TransformerEncoderLayer(d_model=SQUAD_ENTITY_FEATURE_SIZE, nhead=4, dim_feedforward=256, batch_first=True)
+        self.squad_entity_encoder = nn.TransformerEncoder(squad_encoder_layer, num_layers=3)
+        # A simple linear layer to get a fixed-size output after attention
+        self.squad_entity_aggregator = nn.Linear(SQUAD_ENTITY_FEATURE_SIZE, 128)
+
         
         # Spatial Encoder (ResNet)
         self.spatial_encoder = nn.Sequential(
-            nn.Conv2d(MAX_SHIPS * 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.Conv2d(MAX_SHIPS * 2 + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             ResBlock(64, 64),
@@ -91,15 +101,15 @@ class ArmadaNet(nn.Module):
 
         # --- 2. Unification Torso ---
         # This combines the outputs of all encoders.
-        # 64 (scalar) + 128 (entity) + 128 (spatial) + 64 (relation) = 384
+        # 64 (scalar) + 128 (ship entity) + 128 (squad entity) + 128 (spatial) + 64 (relation) = 384
         self.torso = nn.Sequential(
-            nn.Linear(384, 512),
+            nn.Linear(512, 512),
             nn.ReLU(),
             nn.Linear(512, 256)
         )
 
         # --- 3. Output Heads ---
-        
+
         # Value Head: Predicts the game outcome (-1 to 1)
         self.value_head = nn.Sequential(
             nn.Linear(256, 64),
@@ -111,21 +121,54 @@ class ArmadaNet(nn.Module):
         # Policy Head: Predicts the probability for each possible action in a given phase.
         # We create a separate linear layer for each game phase.
         self.policy_heads = nn.ModuleDict({
-            phase.name: nn.Linear(256, len(self.action_manager.get_action_map(phase)))
+            phase.name: nn.Sequential(
+                nn.Linear(256, 128),
+                nn.ReLU(),
+                nn.Linear(128, len(self.action_manager.get_action_map(phase)))
+            )
             for phase in self.action_manager.action_maps.keys()
         })
 
-    def forward(self, scalar_input, entity_input, spatial_input, relation_input, phases: list[GamePhase]):
+        # Auxiliary Target Heads
+        self.hull_head = nn.Sequential(
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, MAX_SHIPS),
+            nn.Sigmoid() # Output between 0 and 1
+        )
+
+        # Squad Head: Predicts destruction status for each of the 24 possible squads
+        self.squad_head = nn.Sequential(
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, MAX_SQUADS),
+            nn.Sigmoid() # Output probabilities
+        )
+        
+        # Game Length Head: Predicts which round the game will end on (1-6, plus 7 for games that go the distance)
+        self.game_length_head = nn.Sequential(
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Linear(64, 6) # Logits for a 7-class classification
+        )
+
+    def forward(self, scalar_input, ship_entity_input, squad_entity_input, spatial_input, relation_input, phases: list[Phase]):
+
         # --- 1. Process through Encoders (now with batch support) ---
         batch_size = scalar_input.shape[0]
 
         scalar_features = self.scalar_encoder(scalar_input) # [B, 64]
 
         # Transformer is already batch-first. No unsqueeze/squeeze needed.
-        entity_features_attended = self.entity_encoder(entity_input) # [B, MAX_SHIPS, F]
+        ship_entity_features_attended = self.ship_entity_encoder(ship_entity_input) # [B, MAX_SHIPS, F]
         # Aggregate over the sequence dimension (dim=1)
-        entity_features_mean = entity_features_attended.mean(dim=1) # [B, F]
-        entity_features = self.entity_aggregator(entity_features_mean) # [B, 128]
+        ship_entity_features_mean = ship_entity_features_attended.mean(dim=1) # [B, F]
+        ship_entity_features = self.ship_entity_aggregator(ship_entity_features_mean) # [B, 128]
+
+        squad_entity_features_attended = self.squad_entity_encoder(squad_entity_input) # [B, MAX_SQUADS, F]
+        # Aggregate over the sequence dimension (dim=1)
+        squad_entity_features_mean = squad_entity_features_attended.mean(dim=1) # [B, F]
+        squad_entity_features = self.squad_entity_aggregator(squad_entity_features_mean) # [B, 128]
 
         # CNNs are already batch-first. No unsqueeze needed.
         spatial_features_raw = self.spatial_encoder(spatial_input) # [B, 128, 1, 1]
@@ -135,11 +178,13 @@ class ArmadaNet(nn.Module):
         relation_features_raw = self.relation_encoder(relation_input.unsqueeze(1)) # [B, 64, 1, 1]
         relation_features = relation_features_raw.view(batch_size, -1) # [B, 64]
 
+
         # --- 2. Unify in Torso ---
         # Concatenate along the feature dimension (dim=1)
-        combined_features = torch.cat([scalar_features, entity_features, spatial_features, relation_features], dim=1)
+        combined_features = torch.cat([scalar_features, ship_entity_features, squad_entity_features, spatial_features, relation_features], dim=1)
         
         torso_output = self.torso(combined_features) # [B, 256]
+
 
         # --- 3. Get Outputs from Heads ---
         value = self.value_head(torso_output) # [B, 1]
@@ -170,7 +215,22 @@ class ArmadaNet(nn.Module):
             # The slicing ensures we only fill up to the action space size for that phase
             policy_logits[indices, :group_logits.shape[1]] = group_logits
 
-        return policy_logits, value
+
+        # --- 4. Auxiliary Heads ---
+        predicted_hull = self.hull_head(torso_output)
+        predicted_squads = self.squad_head(torso_output)
+        predicted_game_length = self.game_length_head(torso_output)
+
+
+        # --- 5. Return all outputs ---
+        outputs = {
+            "policy_logits": policy_logits,
+            "value": value,
+            "predicted_hull": predicted_hull,
+            "predicted_squads": predicted_squads,
+            "predicted_game_length": predicted_game_length
+        }
+        return outputs
 
 
 # --- Example Usage (for testing the model's structure) ---
@@ -182,17 +242,21 @@ if __name__ == '__main__':
     # --- Create Dummy BATCH Input Data (Batch size = 4) ---
     B = 4
     scalar_data = torch.randn(B, SCALAR_FEATURE_SIZE)
-    entity_data = torch.randn(B, MAX_SHIPS, ENTITY_FEATURE_SIZE)
-    spatial_data = torch.randn(B, MAX_SHIPS * 2, BOARD_RESOLUTION, BOARD_RESOLUTION)
+    ship_entity_data = torch.randn(B, MAX_SHIPS, SHIP_ENTITY_FEATURE_SIZE)
+    squad_entity_data = torch.randn(B, MAX_SQUADS, SQUAD_ENTITY_FEATURE_SIZE)
+
+    W, H = BOARD_RESOLUTION
+
+    spatial_data = torch.randn(B, MAX_SHIPS * 2, H, W)
     relation_data = torch.randn(B, MAX_SHIPS * 4, MAX_SHIPS * 4)
 
     # Test with a mixed batch of phases
-    current_phases = [GamePhase.SHIP_PHASE, GamePhase.COMMAND_PHASE, GamePhase.SHIP_PHASE, GamePhase.SHIP_ATTACK_DECLARE_TARGET]
+    current_phases = [Phase.SHIP_ACTIVATE, Phase.COMMAND_PHASE, Phase.SHIP_ACTIVATE, Phase.SHIP_DECLARE_TARGET]
 
     # --- Perform a Forward Pass ---
     model.eval()
     with torch.no_grad():
-        policy_output, value_output = model(scalar_data, entity_data, spatial_data, relation_data, current_phases)
+        policy_output, value_output = model(scalar_data, ship_entity_data, squad_entity_data, spatial_data, relation_data, current_phases)
 
     # --- Check the Output Shapes ---
     print(f"\n--- Testing with Batch Size {B} ---")

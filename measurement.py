@@ -1,22 +1,24 @@
-from enum import IntEnum
 import numpy as np
+from enum_class import SizeClass
 
-class AttackRange(IntEnum) :
-    INVALID = -1
-    CLOSE = 0
-    MEDIUM = 1
-    LONG = 2
-    EXTREME = 3
 
-    def __str__(self) -> str:
-        return self.name
-    __repr__ = __str__
     
 CLOSE_RANGE = 123.3
 MEDIUM_RANGE = 186.5
 LONG_RANGE = 304.8
 
+DISTANCE = {i : distance for i, distance in enumerate((0, 77, 125, 185, 245, 304.8))} # check
 
+
+SHIP_BASE_SIZE : dict[SizeClass, tuple]= {SizeClass.SMALL : (43, 71), SizeClass.MEDIUM : (63, 102), SizeClass.LARGE : (77.5, 129)}
+SHIP_TOKEN_SIZE :  dict[SizeClass, tuple] = {SizeClass.SMALL : (38.5, 70.25), SizeClass.MEDIUM : (58.5, 101.5)}
+TOOL_WIDTH_HALF : float= 15.25 / 2
+TOOL_LENGTH : float= 46.13 
+TOOL_PART_LENGTH : float = 22.27
+
+SQUAD_BASE_RADIUS : float = 16.875 # check
+SQUAD_TOKEN_RADIUS : float = 16 # check
+SQUAD_RANGE = DISTANCE[1] + SQUAD_TOKEN_RADIUS * 2
 
 
 def SAT_overlapping_check(poly1: np.ndarray, poly2: np.ndarray) -> bool:
