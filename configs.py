@@ -24,16 +24,16 @@ class Config:
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
     # Training Loop
-    ITERATIONS = 4 # self_play & train for ITERATIONS times
+    ITERATIONS = 1 # self_play & train for ITERATIONS times
 
     # Self Play
-    SELF_PLAY_GAMES = 2 # run SELF_PLAY_GAMES batch self-play games in each iteration
+    SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
     PARALLEL_PLAY = 2 # run games in batch
     # 4 x 64 x 400 x 0.25 = 12800 states per iteration
 
     # MCTS
     DEEP_SEARCH_RATIO = 0.25
-    MCTS_ITERATION = 20
+    MCTS_ITERATION = 50
     MCTS_ITERATION_FAST = 10
     MAX_GAME_STEP = 2000
     TEMPERATURE = 1.25

@@ -2,7 +2,6 @@ from __future__ import annotations
 import random
 import math
 
-from shapely.geometry import Polygon
 import numpy as np
 
 from action_phase import Phase, ActionType, get_action_str
@@ -55,12 +54,6 @@ class Armada:
     def __init__(self, * ,initiative: Player, para_index:int | None = None) -> None:
         self.player_edge = 1800 # mm
         self.short_edge = 900 # mm
-        self.game_board = Polygon([
-            (0,0),
-            (0,self.player_edge),
-            (self.short_edge, self.player_edge),
-            (self.short_edge, 0),
-        ])
         self.ships : list[Ship] = []
         self.squads : list[Squad] = []
 
@@ -106,7 +99,9 @@ class Armada:
                 action : ActionType = player2()
             else :
                 action : ActionType = self.get_valid_actions()[0]
-
+            
+            # print(get_action_str(self, action))
+            
             self.apply_action(action)
 
             simulation_counter += 1
@@ -937,8 +932,8 @@ class Armada:
         return [squad for squad in self.squads if squad.player == player and not squad.destroyed and not squad.activated]
 
     def status_phase(self) -> None:
-        if self.simulation_player is None:
-            print(f'Game {self.para_index+1 if self.para_index is not None else ''} Round {self.round} Ended')
+        # if self.simulation_player is None:
+        #     print(f'Game {self.para_index+1 if self.para_index is not None else ''} Round {self.round} Ended')
             # with open('simulation_log.txt', 'a') as f: f.write(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n\n')
 
         # 1. Refresh all active ships for the next round

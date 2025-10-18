@@ -113,7 +113,7 @@ class Squad :
         check if the squad is engaged with any enemy squadron
         return: a list of engaged enemy squadrons
         """
-        engage_distance = SQUAD_RANGE
+        engage_distance = Q2Q_RANGE
         for squad in self.game.squads :
             if squad.player == self.player or squad.destroyed :
                 continue
@@ -137,7 +137,7 @@ class Squad :
             if squad.player == self.player or squad.destroyed :
                 continue
             distance = np.hypot(self.coords[0] - squad.coords[0], self.coords[1] - squad.coords[1])
-            if distance <= SQUAD_RANGE :
+            if distance <= Q2Q_RANGE :
                 valid_target.append(squad.id)
 
         if self.is_engaged() :

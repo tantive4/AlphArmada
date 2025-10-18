@@ -14,6 +14,7 @@ import numpy as np
 from configs import Config
 from armada import Armada, setup_game
 from cache_function import delete_cache
+from jit_geometry import pre_compile_jit_geometry
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state, get_terminal_value
 from para_mcts import MCTS
@@ -292,6 +293,9 @@ def main():
         print("No checkpoint found. Starting from scratch.")
 
     optimizer = optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
+
+    # pre_compile JIT geometry functions
+    pre_compile_jit_geometry(setup_game())
 
     # Create the training manager and start the learning process
     alpharmada_trainer = AlphArmada(model, optimizer, config)

@@ -204,7 +204,7 @@ class Ship:
 
         squad_placement_points = cache._ship_coordinate(self.get_ship_hash_state())['squad_placement_points']
         for index, point in enumerate(squad_placement_points):
-            coords = (float(point[0]), float(point[1]))
+            coords = tuple(point.tolist())
             squad.coords = coords
             if squad.out_of_board() or squad.is_overlap():
                 continue

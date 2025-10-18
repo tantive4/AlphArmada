@@ -1,20 +1,32 @@
 from functools import lru_cache
 
 import numpy as np
-from shapely.geometry import Polygon, LineString, Point
-import shapely.ops
+from shapely.geometry import Polygon
 import numpy as np
 from skimage.draw import polygon as draw_polygon
 from skimage.measure import block_reduce
 
 from enum_class import *
 from measurement import *
+import jit_geometry as jit
 
 def delete_cache():
     """
     Clear the cache for all functions in this module.
     This is useful for testing purposes to ensure fresh calculations.
     """
+    print(f"_ship_coordinate cache size before clear: {_ship_coordinate.cache_info()}")
+    print(f"attack_range_s2s cache size before clear: {attack_range_s2s.cache_info()}")
+    print(f"attack_range_s2q cache size before clear: {attack_range_s2q.cache_info()}")
+    print(f"attack_range_q2s cache size before clear: {attack_range_q2s.cache_info()}")
+    print(f"is_obstruct cache size before clear: {is_obstruct.cache_info()}")
+    print(f"is_overlap_s2s cache size before clear: {is_overlap_s2s.cache_info()}")
+    print(f"is_overlap_s2q cache size before clear: {is_overlap_s2q.cache_info()}")
+    print(f"distance_s2s cache size before clear: {distance_s2s.cache_info()}")
+    print(f"range_s2q cache size before clear: {range_s2q.cache_info()}")
+    print(f"maneuver_tool cache size before clear: {maneuver_tool.cache_info()}")
+    print(f"_ship_presence_plane cache size before clear: {_ship_presence_plane.cache_info()}")
+    print(f"_squad_presence_plane cache size before clear: {_squad_presence_plane.cache_info()}")
     _ship_coordinate.cache_clear()
     attack_range_s2s.cache_clear()
     attack_range_s2q.cache_clear()
@@ -29,7 +41,7 @@ def delete_cache():
     _squad_presence_plane.cache_clear()
     _threat_plane.cache_clear()
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def _ship_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str,np.ndarray] :
 
     ship_dict = SHIP_DATA[ship_state[0]]
@@ -80,18 +92,18 @@ def _ship_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str,n
     [ base_half_w*0.5, squad_on_front],
     [ base_half_w,     squad_on_front],
 
-    [-base_half_w,     squad_on_rear], 
-    [-base_half_w*0.5, squad_on_rear],
-    [ 0,               squad_on_rear],
-    [ base_half_w*0.5, squad_on_rear],
-    [ base_half_w,     squad_on_rear],
-
     [ squad_on_side, base_token_offset],
     [ squad_on_side, base_token_offset - base_size[1]*0.2],
     [ squad_on_side, base_token_offset - base_size[1]*0.4],
     [ squad_on_side, base_token_offset - base_size[1]*0.6],
     [ squad_on_side, base_token_offset - base_size[1]*0.8],
     [ squad_on_side, base_token_offset - base_size[1]],
+
+    [-base_half_w,     squad_on_rear], 
+    [-base_half_w*0.5, squad_on_rear],
+    [ 0,               squad_on_rear],
+    [ base_half_w*0.5, squad_on_rear],
+    [ base_half_w,     squad_on_rear],
 
     [-squad_on_side, base_token_offset],
     [-squad_on_side, base_token_offset - base_size[1]*0.2],
@@ -100,12 +112,12 @@ def _ship_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str,n
     [-squad_on_side, base_token_offset - base_size[1]*0.8],
     [-squad_on_side, base_token_offset - base_size[1]],
 
-    ])
+    ], dtype=np.float32)
 
     # CW rotation matrix
     c, s = np.cos(-ship_state[3]), np.sin(-ship_state[3])
-    rotation_matrix = np.array([[c, -s], [s, c]])
-    translation_vector = np.array([ship_state[1], ship_state[2]])
+    rotation_matrix = np.array([[c, -s], [s, c]], dtype=np.float32)
+    translation_vector = np.array([ship_state[1], ship_state[2]], dtype=np.float32)
 
     # Rotate each vertex by applying the transpose of the rotation matrix
     # to the (N,2) vertices array, then translate by (2,) vector.
@@ -120,309 +132,136 @@ def _ship_coordinate(ship_state : tuple[str, float, float, float]) -> dict[str,n
         'squad_placement_points' : current_vertices[21:43], 
     }
 
-
-def create_hull_poly(arc_coords:np.ndarray) -> dict[HullSection,Polygon]:
+@lru_cache(maxsize=64000)
+def attack_range_s2s(attacker_state, defender_state, extension_factor=500):
     """
-    Creates and caches all hull polygons for a given ship state.
+    High-performance version of attack_range_s2s using Numba.
+    This function prepares data and calls the jitted core function.
     """
-
-    return {
-        HullSection.FRONT: Polygon([arc_coords[0], arc_coords[2], arc_coords[7], arc_coords[6], arc_coords[1]]),
-        HullSection.RIGHT: Polygon([arc_coords[0], arc_coords[2], arc_coords[5], arc_coords[3]]),
-        HullSection.REAR: Polygon([arc_coords[3], arc_coords[5], arc_coords[8], arc_coords[9], arc_coords[4]]),
-        HullSection.LEFT: Polygon([arc_coords[0], arc_coords[1], arc_coords[4], arc_coords[3]])
-    }
-
-@lru_cache(maxsize=None)
-def attack_range_s2s(attacker_state : tuple[str, float, float, float], defender_state : tuple[str, float, float, float], extension_factor=500) -> tuple[dict[HullSection, bool],dict[HullSection, dict[HullSection, AttackRange]]]:
-    """
-    return:
-        target_dict : dict[HullSection, bool] : whether each hull section can target any hull section
-        measure_dict : dict[HullSection, dict[HullSection, AttackRange]] : the attack_range (AttackRange) for each hull section to each hull section
-    """
-    target_dict : dict[HullSection, bool] = {from_hull : False for from_hull in HullSection}
-    measure_dict : dict[HullSection, dict[HullSection, AttackRange]] = {from_hull : {to_hull : AttackRange.INVALID for to_hull in HullSection} for from_hull in HullSection}
-    
+    # 1. Prepare data in Python (unchanged)
     attacker_coords = _ship_coordinate(attacker_state)
     defender_coords = _ship_coordinate(defender_state)
 
-    attacker_center : np.ndarray = attacker_coords['center_point']
-    defender_center : np.ndarray = defender_coords['center_point']
-    # orientation vector points to the front of the ship
-    attacker_orientation_vector : np.ndarray = np.array([np.sin(-attacker_state[3]), np.cos(-attacker_state[3])])
+    attacker_orientation_vector = np.array([np.sin(attacker_state[3]), np.cos(attacker_state[3])], dtype=np.float32) 
+
+    # 2. Create NumPy representations of hulls
+    attacker_hulls = jit.create_hull_arrays(attacker_coords['arc_points'])
+    defender_hulls = jit.create_hull_arrays(defender_coords['arc_points'])
+
+    # 3. Call the Numba JIT function with primitive types
+    target_results, measure_results = jit.attack_range_s2s_numba(
+        attacker_coords['arc_points'], attacker_coords['targeting_points'], attacker_orientation_vector,
+        defender_coords['arc_points'], defender_coords['targeting_points'],
+        attacker_hulls, defender_hulls,
+        extension_factor
+    )
+
+    # 4. Convert results back to Python dictionaries and enums
+    target_dict = {HullSection(i): bool(res) for i, res in enumerate(target_results)}
+    measure_dict = {
+        HullSection(r): {
+            HullSection(c): AttackRange(val) for c, val in enumerate(row)
+        } for r, row in enumerate(measure_results)
+    }
     
-
-    # # distance check
-    # target_vector : np.ndarray = attacker_center - defender_center
-    # distance = np.linalg.norm(target_vector)
-    # if distance > 2 * LONG_RANGE :
-    #     return target_dict, measure_dict
-    
-
-    
-    attacker_poly : dict[HullSection, Polygon] = create_hull_poly(attacker_coords['arc_points'])
-    defender_poly : dict[HullSection, Polygon] = create_hull_poly(defender_coords['arc_points'])
-
-    ROTATION_MATRICES = [np.linalg.matrix_power(np.array([[0, -1], [1, 0]]), i) for i in range(4)]
-
-    for from_hull in HullSection :
-        for to_hull in HullSection :
-            from_hull_targeting_pt = attacker_coords['targeting_points'][from_hull]
-            to_hull_targeting_pt = defender_coords['targeting_points'][to_hull]
-
-            # attack hull orientation check
-            attack_orientation_vector = ROTATION_MATRICES[from_hull] @ attacker_orientation_vector
-            hull_target_vector = to_hull_targeting_pt - from_hull_targeting_pt
-            dot_product = np.dot(attack_orientation_vector, hull_target_vector)
-            if dot_product < 0 :
-                continue
-
-            # Line of Sight blocked
-            is_blocked : bool = False
-            line_of_sight = LineString([from_hull_targeting_pt, to_hull_targeting_pt])
-            for hull in HullSection:
-                if hull != to_hull and line_of_sight.crosses(defender_poly[hull].exterior):
-                    is_blocked = True
-                    continue
-            if is_blocked : continue
-
-            # Range
-            from_hull_poly = attacker_poly[from_hull]
-            to_hull_poly = defender_poly[to_hull]
-
-            if from_hull in (HullSection.FRONT, HullSection.RIGHT) :
-                arc1_center, arc1_end = attacker_coords['arc_points'][0], attacker_coords['arc_points'][2]
-            else :
-                arc1_center, arc1_end = attacker_coords['arc_points'][3], attacker_coords['arc_points'][4]
-
-            if from_hull in (HullSection.FRONT, HullSection.LEFT) :
-                arc2_center, arc2_end = attacker_coords['arc_points'][0], attacker_coords['arc_points'][1]
-            else :
-                arc2_center, arc2_end = attacker_coords['arc_points'][3], attacker_coords['arc_points'][5]
-
-            # Build the arc polygon. This logic works for ALL hull sections.
-            vec1 = np.array(arc1_end) - np.array(arc1_center)
-            vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
-            arc_polygon = Polygon([
-                arc1_end,
-                np.array(arc1_end) + vec1 * extension_factor,
-                np.array(arc2_end) + vec2 * extension_factor,
-                arc2_end
-            ])
-
-            target_hull = to_hull_poly.exterior
-            to_hull_in_arc = target_hull.intersection(arc_polygon)
-
-            if to_hull_in_arc.is_empty :
-                continue # not in arc
-
-            range_measure = LineString(shapely.ops.nearest_points(from_hull_poly.exterior, to_hull_in_arc))
-
-            for hull in HullSection :
-                if hull != to_hull and range_measure.crosses(defender_poly[hull].exterior) :
-                    is_blocked = True
-                    break
-            if is_blocked : continue
-
-            distance = range_measure.length
-
-            if distance <= CLOSE_RANGE : 
-                measure_dict[from_hull][to_hull] = AttackRange.CLOSE 
-                target_dict[from_hull] = True
-            elif distance <= MEDIUM_RANGE : 
-                measure_dict[from_hull][to_hull] = AttackRange.MEDIUM
-                target_dict[from_hull] = True
-            elif distance <= LONG_RANGE : 
-                measure_dict[from_hull][to_hull] = AttackRange.LONG
-                target_dict[from_hull] = True
-            else : measure_dict[from_hull][to_hull] = AttackRange.EXTREME 
-
     return target_dict, measure_dict
 
-@lru_cache(maxsize=None)
+
+@lru_cache(maxsize=64000)
 def attack_range_s2q(ship_state : tuple[str, float, float, float], squad_state : tuple[float, float], extension_factor=500) -> dict[HullSection, AttackRange]:
     """
     return:
         attack_range (AttackRange) for each hull section
     """
-    range_dict = {hull : AttackRange.INVALID for hull in HullSection}
 
     ship_coords = _ship_coordinate(ship_state)
-    squad_coords = np.array(squad_state)
-    attacker_orientation_vector : np.ndarray = np.array([np.sin(-ship_state[3]), np.cos(-ship_state[3])])
-    attacker_poly : dict[HullSection, Polygon] = create_hull_poly(ship_coords['arc_points'])
+    squad_coords = np.array(squad_state, dtype=np.float32)
+    attacker_orientation_vector : np.ndarray = np.array([np.sin(ship_state[3]), np.cos(ship_state[3])], dtype=np.float32)
+    attacker_hulls = jit.create_hull_arrays(ship_coords['arc_points'])
 
-    ROTATION_MATRICES = [np.linalg.matrix_power(np.array([[0, -1], [1, 0]]), i) for i in range(4)]
+    measure_results = jit.attack_range_s2q_numba(
+        ship_coords['arc_points'], ship_coords['targeting_points'], attacker_orientation_vector,
+        squad_coords,
+        attacker_hulls,
+        extension_factor
+    )
 
-    for ship_hull in HullSection :
-        from_hull_targeting_pt = ship_coords['targeting_points'][ship_hull]
-        squad_targeting_pt = squad_coords
+    measure_dict = {
+        HullSection(r): AttackRange(val) for r, val in enumerate(measure_results)
+    }
 
-        # attack hull orientation check
-        attack_orientation_vector = ROTATION_MATRICES[ship_hull] @ attacker_orientation_vector
-        hull_target_vector = squad_targeting_pt - from_hull_targeting_pt
-        dot_product = np.dot(attack_orientation_vector, hull_target_vector)
-        if dot_product < 0 :
-            continue
+    return measure_dict
 
-        # Range
-        hull_poly = attacker_poly[ship_hull]
-        squad_token = Point(squad_targeting_pt).buffer(SQUAD_TOKEN_RADIUS)
-
-        if ship_hull in (HullSection.FRONT, HullSection.RIGHT) :
-            arc1_center, arc1_end = ship_coords['arc_points'][0], ship_coords['arc_points'][2]
-        else :
-            arc1_center, arc1_end = ship_coords['arc_points'][3], ship_coords['arc_points'][4]
-
-        if ship_hull in (HullSection.FRONT, HullSection.LEFT) :
-            arc2_center, arc2_end = ship_coords['arc_points'][0], ship_coords['arc_points'][1]
-        else :
-            arc2_center, arc2_end = ship_coords['arc_points'][3], ship_coords['arc_points'][5]
-
-        # Build the arc polygon. This logic works for ALL hull sections.
-        vec1 = np.array(arc1_end) - np.array(arc1_center)
-        vec2 = np.array(arc2_end) - np.array(arc2_center) # Note: vector points away from the ship
-        arc_polygon = Polygon([
-            arc1_end,
-            np.array(arc1_end) + vec1 * extension_factor,
-            np.array(arc2_end) + vec2 * extension_factor,
-            arc2_end
-        ])
-
-        to_hull_in_arc = squad_token.intersection(arc_polygon)
-
-        if to_hull_in_arc.is_empty :
-            continue # not in arc
-
-        distance = LineString(shapely.ops.nearest_points(hull_poly.exterior, to_hull_in_arc)).length
-
-        if distance <= CLOSE_RANGE : 
-            range_dict[ship_hull]= AttackRange.CLOSE
-        elif distance <= MEDIUM_RANGE : 
-            range_dict[ship_hull]= AttackRange.MEDIUM 
-        elif distance <= LONG_RANGE : 
-            range_dict[ship_hull]= AttackRange.LONG 
-        else : range_dict[ship_hull]= AttackRange.EXTREME 
-
-    return range_dict
-
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def attack_range_q2s(squad_state : tuple[float, float], ship_state : tuple[str, float, float, float]) -> dict[HullSection, bool]:
     """
     return:
         in_range (bool) for each hull section
     """
-    in_range_dict = {hull : False for hull in HullSection}
 
     ship_coords = _ship_coordinate(ship_state)
-    squad_coords = np.array(squad_state)
-    ship_poly : dict[HullSection, Polygon] = create_hull_poly(ship_coords['arc_points'])
-    squad_token = Point(squad_coords).buffer(SQUAD_TOKEN_RADIUS)
+    ship_poly : tuple[np.ndarray,...] = jit.create_hull_arrays(ship_coords['arc_points'])
+    squad_coords : np.ndarray = np.array(squad_state, dtype=np.float32)
 
-    is_blocked : bool = False
-    for target_hull in HullSection :
-        hull_poly = ship_poly[target_hull]
-        attack_range = LineString(shapely.ops.nearest_points(hull_poly.exterior, squad_token))
-        for hull in HullSection :
-            if hull != target_hull and attack_range.crosses(ship_poly[hull].exterior) :
-                is_blocked = True
-                break
-            if is_blocked : continue
-
-        if attack_range.length <= DISTANCE[1] + SQUAD_TOKEN_RADIUS * 2 : 
-            in_range_dict[target_hull]= True
+    measure_results = jit.attack_range_q2s_numba(squad_coords, ship_coords['targeting_points'], ship_poly)
+    
+    in_range_dict = {hull : bool(measure_results[hull]) for hull in HullSection}
 
     return in_range_dict
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def is_obstruct(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, float, float, float]) -> bool :
-    line_of_sight : np.ndarray = np.array(targeting_point, dtype=float)
+    line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
-    ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['token_corners'], dtype=float)
+    ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['token_corners'], dtype=np.float32)
 
-    return SAT_overlapping_check(line_of_sight, ship_token)
+    return jit.SAT_overlapping_check(line_of_sight, ship_token)
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def is_overlap_s2s(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> bool :
     self_coordinate = _ship_coordinate(self_state)['base_corners']
     other_coordinate = _ship_coordinate(ship_state)['base_corners']
-    return SAT_overlapping_check(self_coordinate, other_coordinate)
+    return jit.SAT_overlapping_check(self_coordinate, other_coordinate)
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def is_overlap_s2q(ship_state : tuple[str, float, float, float], squad_state : tuple[float, float]) -> bool :
-    ship_base : Polygon = Polygon(_ship_coordinate(ship_state)['base_corners'])
-    squad_center : Point = Point(squad_state)
-    if squad_center.within(ship_base) : return True
-    return ship_base.distance(squad_center) <= SQUAD_BASE_RADIUS
+    ship_base : np.ndarray = _ship_coordinate(ship_state)['base_corners']
+    squad_center: np.ndarray = np.array([squad_state], dtype=np.float32)
+    if jit.SAT_overlapping_check(ship_base, squad_center) :
+        return True
 
-@lru_cache(maxsize=None)
+    return jit.polygon_polygon_nearest_points(ship_base, squad_center)[0] <= SQUAD_BASE_RADIUS
+
+@lru_cache(maxsize=64000)
 def distance_s2s(self_state : tuple[str, float, float, float], ship_state : tuple[str, float, float, float]) -> float :
-    self_poly : Polygon = Polygon(_ship_coordinate(self_state)['base_corners'])
-    ship_poly : Polygon = Polygon(_ship_coordinate(ship_state)['base_corners'])
+    self_poly : np.ndarray = _ship_coordinate(self_state)['base_corners']
+    ship_poly : np.ndarray = _ship_coordinate(ship_state)['base_corners']
+    return jit.polygon_polygon_nearest_points(self_poly, ship_poly)[0]
 
-    return self_poly.distance(ship_poly)
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def range_s2q(ship_state : tuple[str, float, float, float], squad_state : tuple[float, float]) -> AttackRange:
     """
     Returns:
         AttackRange : The best range from the ship to the squad, used for squad command activation
     """
-    ship_token = Polygon(_ship_coordinate(ship_state)['token_corners'])
-    squad_center = Point(squad_state)
-    distance = ship_token.distance(squad_center) - SQUAD_TOKEN_RADIUS
+    ship_token :np.ndarray = _ship_coordinate(ship_state)['token_corners']
+    squad_center :np.ndarray = np.array([squad_state], dtype=np.float32)
+    distance = jit.polygon_polygon_nearest_points(ship_token,squad_center)[0] - SQUAD_TOKEN_RADIUS
 
-    if distance <= CLOSE_RANGE:
-        return AttackRange.CLOSE
-    elif distance <= MEDIUM_RANGE:
-        return AttackRange.MEDIUM
-    elif distance <= LONG_RANGE:
-        return AttackRange.LONG
-    else:
-        return AttackRange.EXTREME
+    return AttackRange(jit.distance_to_range(distance))                                                                                                                                                                                                                                                                        
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : int) -> tuple[np.ndarray, float]:
     """
     translate maneuver tool coordination to ship coordination
     from ship.(x,y) to (x,y) after maneuver
     """
-    if not course :
-        return np.array([0.0, 0.0]), 0.0
+    base_size = np.array(SHIP_BASE_SIZE[size_class], dtype=np.float32)
+    token_size = np.array(SHIP_TOKEN_SIZE[size_class], dtype=np.float32)
+    return jit.maneuver_tool_numba(base_size, token_size, course, placement)
 
-    yaw_changes = np.array([0] + list(course)) * (np.pi / 8)
-    joint_orientations = np.cumsum(yaw_changes)
-
-    # --- Step 2: Get the final orientation directly ---
-    # The final orientation is simply the last element of the cumulative sum.
-    final_orientation = joint_orientations[-1]
-
-    # --- Step 3: Calculate the total displacement vector ---
-    # Get the orientations for the long and short segments of the path.
-    long_segment_orientations = joint_orientations[:-1]
-    short_segment_orientations = joint_orientations[1:]
-
-    # Sum the x and y components of all segment vectors without storing them.
-    # total_displacement_vector = sum(length * [sin(angle), cos(angle)])
-    total_dx = np.sum(TOOL_LENGTH * np.sin(long_segment_orientations)) + \
-               np.sum(TOOL_PART_LENGTH * np.sin(short_segment_orientations))
-               
-    total_dy = np.sum(TOOL_LENGTH * np.cos(long_segment_orientations)) + \
-               np.sum(TOOL_PART_LENGTH * np.cos(short_segment_orientations))
-
-
-    tool_offset = placement * (SHIP_BASE_SIZE[size_class][0]/2 + TOOL_WIDTH_HALF)
-    ship_to_tool = np.array([tool_offset, (SHIP_BASE_SIZE[size_class][1] - SHIP_TOKEN_SIZE[size_class][1])/2])
-    c, s = np.cos(-final_orientation), np.sin(-final_orientation)
-    rotation = np.array([[c, -s], [s, c]])
-    tool_to_ship = rotation @ -ship_to_tool
-
-
-    # --- Step 4: Calculate final position ---
-    final_position = ship_to_tool + np.array([total_dx, total_dy]) + tool_to_ship
-    return final_position, final_orientation
-
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def _ship_presence_plane(
     ship_state: tuple[str, float, float, float],
     value: float,
@@ -437,13 +276,13 @@ def _ship_presence_plane(
     """
 
     presence_plane = np.zeros((height_res, width_res), dtype=np.float32)
-    scaled_vertices = np.array(_ship_coordinate(ship_state)['base_corners']) / [width_step, height_step]
+    scaled_vertices = np.array(_ship_coordinate(ship_state)['base_corners'], dtype=np.float32) / [width_step, height_step]
     rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=presence_plane.shape)
     presence_plane[rr, cc] = value
 
     return presence_plane
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def _squad_presence_plane(
     squad_state: tuple[float, float],
     value: float,
@@ -460,7 +299,7 @@ def _squad_presence_plane(
     presence_plane = np.zeros((height_res, width_res), dtype=np.float32)
 
     # Convert world coordinates (x, y) to grid indices (col, row)
-    scaled = np.array(squad_state, dtype=float) / [width_step, height_step]
+    scaled = np.array(squad_state, dtype=np.float32) / [width_step, height_step]
     col = int(scaled[0])
     row = int(scaled[1])
 
@@ -471,7 +310,7 @@ def _squad_presence_plane(
 
     return presence_plane
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=64000)
 def _threat_plane(
     ship_state: tuple[str, float, float, float],
     width_step: float,
@@ -514,12 +353,12 @@ def _threat_plane(
             arc2_center, arc2_end = arc_coords[3], arc_coords[5]
 
         # Build the arc polygon for this hull section
-        vec1 = np.array(arc1_end) - np.array(arc1_center)
-        vec2 = np.array(arc2_end) - np.array(arc2_center)
+        vec1 = np.array(arc1_end, dtype=np.float32) - np.array(arc1_center, dtype=np.float32)
+        vec2 = np.array(arc2_end, dtype=np.float32) - np.array(arc2_center, dtype=np.float32)
         arc_polygon = Polygon([
             arc1_end,
-            np.array(arc1_end) + vec1 * extension_factor,
-            np.array(arc2_end) + vec2 * extension_factor,
+            np.array(arc1_end, dtype=np.float32) + vec1 * extension_factor,
+            np.array(arc2_end, dtype=np.float32) + vec2 * extension_factor,
             arc2_end
         ])
         
@@ -543,11 +382,11 @@ def _threat_plane(
         # Helper function to safely draw polygon on threat plane
         def draw_threat_zone(threat_zone, dice_count, plane_layer):
             if dice_count > 0 and not threat_zone.is_empty:
-                coords = np.array(threat_zone.exterior.coords)
+                coords = np.array(threat_zone.exterior.coords, dtype=np.float32)
                 scaled_verts = coords / [width_step, height_step]
                 # Clip to valid bounds
                 # --- 2. Scale vertices to the High-Resolution Grid ---
-                scaled_verts = np.array(threat_zone.exterior.coords) / [width_step_hr, height_step_hr]
+                scaled_verts = np.array(threat_zone.exterior.coords, dtype=np.float32) / [width_step_hr, height_step_hr]
                 rr, cc = draw_polygon(scaled_verts[:, 1], scaled_verts[:, 0], shape=(high_res_h, high_res_w))
                 threat_planes_hr[plane_layer, rr, cc] = dice_count
 
