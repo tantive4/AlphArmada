@@ -31,8 +31,8 @@ class Node:
         
         self.snapshot = game.get_snapshot()
         self.decision_player : int | None = game.decision_player # decision player used when get_possible_action is called on this node
-        self.chance_node : bool = self.snapshot['phase'] == Phase.ATTACK_ROLL_DICE
-        self.information_set : bool = self.snapshot['phase'] == Phase.SHIP_REVEAL_COMMAND_DIAL
+        self.chance_node : bool = game.phase == Phase.ATTACK_ROLL_DICE
+        self.information_set : bool = game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL
 
 
         self.parent : Node | None = parent
@@ -214,7 +214,7 @@ class MCTS:
 
 
 
-    def advance_tree(self, action: ActionType, snapshot : dict) -> None:
+    def advance_tree(self, action: ActionType, snapshot : tuple) -> None:
         """
         Advances the tree to the next state by selecting the child
         corresponding to the given action as the new root.

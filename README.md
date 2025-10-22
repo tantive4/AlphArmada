@@ -23,5 +23,3 @@ Next Move?
   - Upgrades
   
  - https://github.com/foersterrobert/AlphaZeroFromScratch
-
- - squad placement problem!!! wrong geometry & loop!!!

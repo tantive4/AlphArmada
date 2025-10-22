@@ -15,18 +15,6 @@ def delete_cache():
     Clear the cache for all functions in this module.
     This is useful for testing purposes to ensure fresh calculations.
     """
-    print(f"_ship_coordinate cache size before clear: {_ship_coordinate.cache_info()}")
-    print(f"attack_range_s2s cache size before clear: {attack_range_s2s.cache_info()}")
-    print(f"attack_range_s2q cache size before clear: {attack_range_s2q.cache_info()}")
-    print(f"attack_range_q2s cache size before clear: {attack_range_q2s.cache_info()}")
-    print(f"is_obstruct cache size before clear: {is_obstruct.cache_info()}")
-    print(f"is_overlap_s2s cache size before clear: {is_overlap_s2s.cache_info()}")
-    print(f"is_overlap_s2q cache size before clear: {is_overlap_s2q.cache_info()}")
-    print(f"distance_s2s cache size before clear: {distance_s2s.cache_info()}")
-    print(f"range_s2q cache size before clear: {range_s2q.cache_info()}")
-    print(f"maneuver_tool cache size before clear: {maneuver_tool.cache_info()}")
-    print(f"_ship_presence_plane cache size before clear: {_ship_presence_plane.cache_info()}")
-    print(f"_squad_presence_plane cache size before clear: {_squad_presence_plane.cache_info()}")
     _ship_coordinate.cache_clear()
     attack_range_s2s.cache_clear()
     attack_range_s2q.cache_clear()

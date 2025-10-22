@@ -268,34 +268,36 @@ class Squad :
         else :
             return self.anti_squad
         
-    def get_snapshot(self) -> dict :
+    def get_snapshot(self) -> tuple :
         """
         get a snapshot of the squad for saving and loading purpose
         """
-        return {
-            "hull": self.hull,
-            "coords": self.coords,
-            "destroyed": self.destroyed,
-            "activated": self.activated,
-            "can_move": self.can_move,
-            "can_attack": self.can_attack,
-            "overlap_ship_id": self.overlap_ship_id,
-            "defense_tokens": {
-                key: (dt.readied, dt.discarded, dt.accuracy) 
-                for key, dt in self.defense_tokens.items()
-            }
-        }
-    
-    def revert_snapshot(self, snapshot: dict) -> None :
+        return (
+            self.hull,
+            self.coords,
+            self.destroyed,
+            self.activated,
+            self.can_move,
+            self.can_attack,
+            self.overlap_ship_id,
+            {key: (dt.readied, dt.discarded, dt.accuracy)
+             for key, dt in self.defense_tokens.items()}
+        )
+
+    def revert_snapshot(self, snapshot: tuple) -> None :
         """
         revert the squad to a previous snapshot
         """
-        self.hull = snapshot["hull"]
-        self.coords = snapshot["coords"]
-        self.destroyed = snapshot["destroyed"]
-        self.activated = snapshot["activated"]
-        self.can_move = snapshot["can_move"]
-        self.can_attack = snapshot["can_attack"]
-        self.overlap_ship_id = snapshot["overlap_ship_id"]
-        for key, token_state in snapshot["defense_tokens"].items():
+        (
+            self.hull,
+            self.coords,
+            self.destroyed,
+            self.activated,
+            self.can_move,
+            self.can_attack,
+            self.overlap_ship_id,
+            defense_tokens_state
+        ) = snapshot
+
+        for key, token_state in defense_tokens_state.items():
             self.defense_tokens[key].readied, self.defense_tokens[key].discarded, self.defense_tokens[key].accuracy = token_state

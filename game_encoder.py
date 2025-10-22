@@ -138,8 +138,8 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
         point_cost = ship.point / 100
         command_stack_feature = np.zeros(Config.MAX_COMMAND_STACK * len(Command), dtype=np.float32)
         if ship.player == game.simulation_player:
-            for stack_idx, cmd in enumerate(ship.command_stack):
-                command_stack_feature[stack_idx * len(Command) + (cmd.value)] = 1.0
+            for stack_idx, command in enumerate(ship.command_stack):
+                command_stack_feature[stack_idx * len(Command) + command] = 1.0
         
         command_dials = np.zeros(len(Command), dtype=np.float32)
         command_tokens = np.zeros(len(Command), dtype=np.float32)

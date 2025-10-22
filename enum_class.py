@@ -64,3 +64,10 @@ class Critical(IntEnum) :
     def __str__(self) :
         return self.name
     __repr__ = __str__
+
+class TokenType(IntEnum):
+    BRACE = 0
+    REDIRECT = 1
+    EVADE = 2
+    SCATTER = 3
+

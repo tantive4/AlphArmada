@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum_class import *
 from itertools import product
 
 class DefenseToken:
@@ -9,7 +9,7 @@ class DefenseToken:
         self.accuracy : bool = False
 
     def __str__(self):
-        return f'{'Readied' if self.readied else 'Exhausted'} {self.type.name}'
+        return f'{"Readied" if self.readied else "Exhausted"} {self.type.name}'
     __repr__ = __str__
 
     def __eq__(self, other: object) -> bool:
@@ -37,12 +37,6 @@ class DefenseToken:
 
     def ready(self) -> None :
         self.readied = True
-
-class TokenType(IntEnum):
-    BRACE = 0
-    REDIRECT = 1
-    EVADE = 2
-    SCATTER = 3
 
 TOKEN_DICT = {
     2 * index + double : DefenseToken(TokenType(index).name) for index, double in product(TokenType, (0, 1))

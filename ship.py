@@ -707,52 +707,32 @@ class Ship:
                     elif course[-2] < 0 : valid_placement.remove(1)
         return valid_placement
 
-    def get_snapshot(self) -> dict :
-        return {
-            "x": self.x,
-            "y": self.y,
-            "orientation": self.orientation,
-            "speed": self.speed,
-            "hull": self.hull,
-            "shield": self.shield,
-            "destroyed": self.destroyed,
-            "activated": self.activated,
-            "command_stack": self.command_stack,
-            "command_dial": self.command_dial,
-            "command_token": self.command_token,
-            "resolved_command": self.resolved_command,
-            "attack_count": self.attack_count,
-            "attack_impossible_hull": self.attack_impossible_hull,
-            "engineer_point" : self.engineer_point,
-            "repaired_hull" : self.repaired_hull,
-            "defense_tokens": {
-                key: (dt.readied, dt.discarded, dt.accuracy) 
-                for key, dt in self.defense_tokens.items()
-            }
-        }
+    def get_snapshot(self) -> tuple :
+        return (
+            self.x, self.y, self.orientation, self.speed,
+            self.hull, self.shield,
+            self.destroyed, self.activated,
+            self.command_stack, self.command_dial, self.command_token, self.resolved_command,
+            self.attack_count, self.attack_impossible_hull, 
+            self.engineer_point, self.repaired_hull, 
+            {key: (dt.readied, dt.discarded, dt.accuracy) 
+             for key, dt in self.defense_tokens.items()}
+        )
     
-    def revert_snapshot(self, snapshot: dict) -> None:
+    def revert_snapshot(self, snapshot: tuple) -> None:
         """Restores the ship's state from a snapshot."""
-        self.x = snapshot["x"]
-        self.y = snapshot["y"]
-        self.orientation = snapshot["orientation"]
-        self.speed = snapshot["speed"]
-        self.hull = snapshot["hull"]
-        self.shield = snapshot["shield"]
-        self.destroyed = snapshot["destroyed"]
-        self.activated = snapshot["activated"]
-        self.command_stack = snapshot["command_stack"]
-        self.command_dial = snapshot["command_dial"]
-        self.command_token = snapshot["command_token"]
-        self.resolved_command = snapshot["resolved_command"]
-        self.attack_count = snapshot["attack_count"]
-        self.engineer_point = snapshot["engineer_point"]
-        self.repaired_hull = snapshot["repaired_hull"]
-        self.attack_impossible_hull = snapshot["attack_impossible_hull"]
+        (
+            self.x, self.y, self.orientation, self.speed,
+            self.hull, self.shield,
+            self.destroyed, self.activated,
+            self.command_stack, self.command_dial, self.command_token, self.resolved_command,
+            self.attack_count, self.attack_impossible_hull, 
+            self.engineer_point, self.repaired_hull, 
+            defense_tokens_state
+        ) = snapshot
 
-        for key, token_state in snapshot["defense_tokens"].items():
+        for key, token_state in defense_tokens_state.items():
             self.defense_tokens[key].readied, self.defense_tokens[key].discarded, self.defense_tokens[key].accuracy = token_state
-
 
     def get_ship_hash_state(self) -> tuple[str, float, float, float]:
         """Returns a hashable tuple representing the ship's state."""

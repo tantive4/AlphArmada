@@ -16,7 +16,7 @@ from defense_token import DefenseToken, TokenType
 
 
 
-def setup_game(*,debuging_visual:bool=False, para_index:int|None=None) -> Armada: 
+def setup_game(*,debuging_visual:bool=False, para_index:int=0) -> Armada: 
 
     game = Armada(initiative=Player.REBEL, para_index=para_index) # randomly choose the first player
     game.debuging_visual = debuging_visual
@@ -51,7 +51,7 @@ def setup_game(*,debuging_visual:bool=False, para_index:int|None=None) -> Armada
     return game
 
 class Armada:
-    def __init__(self, * ,initiative: Player, para_index:int | None = None) -> None:
+    def __init__(self, * ,initiative: Player, para_index:int = 0) -> None:
         self.player_edge = 1800 # mm
         self.short_edge = 900 # mm
         self.ships : list[Ship] = []
@@ -63,17 +63,17 @@ class Armada:
 
         self.phase : Phase = Phase.COMMAND_PHASE    
         self.current_player : int = self.first_player
-        self.decision_player : int | None = self.first_player
+        self.decision_player : int = self.first_player
         self.active_ship : Ship | None = None
         self.active_squad : Squad | None = None
         self.attack_info : AttackInfo | None = None
         self.squad_activation_count : int = 0
 
-        self.winner : float | None = None
+        self.winner : float = 0.0
         self.image_counter : int = 0
         self.debuging_visual : bool = False
-        self.simulation_player : int | None = None
-        self.para_index : int | None = para_index
+        self.simulation_player : int = 0
+        self.para_index : int = para_index
 
     def rollout(self, max_simulation_step : int = 2000) -> float :
         """
@@ -86,7 +86,7 @@ class Armada:
         simulation_counter = 0
 
     
-        while self.winner is None:
+        while self.winner == 0.0:
             if self.phase == Phase.ATTACK_ROLL_DICE : # chance node case
                 if self.attack_info is None :
                     raise ValueError("No attack info for the current game phase.")
@@ -134,7 +134,7 @@ class Armada:
         """
 
         if self.phase in (Phase.SHIP_REVEAL_COMMAND_DIAL, Phase.ATTACK_ROLL_DICE):
-            self.decision_player = None
+            self.decision_player = 0
         elif self.phase in (Phase.ATTACK_SPEND_DEFENSE_TOKENS, Phase.ATTACK_RESOLVE_DAMAGE, Phase.SHIP_PLACE_SQUAD):
             self.decision_player = -self.current_player
         else :
@@ -164,8 +164,6 @@ class Armada:
 
         match self.phase:
             case Phase.COMMAND_PHASE :
-                if self.winner is not None:
-                    raise ValueError('Game has already ended.')
                 ships_to_command = [ship.id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value] 
                 actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in ships_to_command]
             
@@ -175,7 +173,7 @@ class Armada:
             
             # Reveal Command Sequence
             case Phase.SHIP_REVEAL_COMMAND_DIAL :
-                if active_ship.player == self.simulation_player or self.simulation_player is None:  # player's simulation
+                if active_ship.player == self.simulation_player or self.simulation_player == 0 :  # player's simulation
                     actions = [('reveal_command_action', active_ship.command_stack[0])]
                 else :                                                                          # secret information
                     actions = [('reveal_command_action', command) for command in Command]
@@ -654,8 +652,6 @@ class Armada:
                                 self.phase = Phase.SQUAD_ACTIVATE
                             else :
                                 self.status_phase()
-                                if self.winner is None :
-                                    self.phase = Phase.COMMAND_PHASE
 
             case 'use_critical_action', critical :
                 attack_info.critical = critical
@@ -704,8 +700,6 @@ class Armada:
                             self.phase = Phase.SQUAD_ACTIVATE
                         else :
                             self.status_phase()
-                            if self.winner is None :
-                                self.phase = Phase.COMMAND_PHASE
 
             case 'declare_additional_squad_target_action', squad_id :
                 attack_ship = self.ships[attack_info.attack_ship_id]
@@ -757,8 +751,6 @@ class Armada:
                             self.phase = Phase.SQUAD_ACTIVATE
                         else :
                             self.status_phase()
-                            if self.winner is None :
-                                self.phase = Phase.COMMAND_PHASE
 
             case 'place_squad_action', (squad_id, coords_index) :
                 squad = self.squads[squad_id]
@@ -793,8 +785,6 @@ class Armada:
                             self.phase = Phase.SQUAD_ACTIVATE
                         else :
                             self.status_phase()
-                            if self.winner is None :
-                                self.phase = Phase.COMMAND_PHASE
 
             case 'activate_squad_move_action', squad_id :
                 active_squad = self.squads[squad_id]
@@ -836,8 +826,6 @@ class Armada:
                         self.phase = Phase.SQUAD_ACTIVATE
                     else :
                         self.status_phase()
-                        if self.winner is None :
-                            self.phase = Phase.COMMAND_PHASE
 
             case 'pass_activate_squad', _ :
                 self.squad_activation_count = 0
@@ -859,8 +847,6 @@ class Armada:
                         self.phase = Phase.SQUAD_ACTIVATE
                     else :
                         self.status_phase()
-                        if self.winner is None :
-                            self.phase = Phase.COMMAND_PHASE
             
             case 'pass_attack_squad', _ :
                 if active_squad.can_move and not active_squad.is_engaged(): self.phase = Phase.SQUAD_MOVE
@@ -877,8 +863,6 @@ class Armada:
                         self.phase = Phase.SQUAD_ACTIVATE
                     else :
                         self.status_phase()
-                        if self.winner is None :
-                            self.phase = Phase.COMMAND_PHASE
 
             case _ :
                 raise ValueError(f'Unknown Action {action}')
@@ -932,7 +916,7 @@ class Armada:
         return [squad for squad in self.squads if squad.player == player and not squad.destroyed and not squad.activated]
 
     def status_phase(self) -> None:
-        # if self.simulation_player is None:
+        # if self.simulation_player == 0:
         #     print(f'Game {self.para_index+1 if self.para_index is not None else ''} Round {self.round} Ended')
             # with open('simulation_log.txt', 'a') as f: f.write(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n\n')
 
@@ -974,6 +958,7 @@ class Armada:
         else:
             self.round += 1
             self.current_player = self.first_player
+            self.phase = Phase.COMMAND_PHASE
 
     def get_point(self, player : int) -> int :
         return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
@@ -983,39 +968,34 @@ class Armada:
             return
         visualizer.visualize(self, title, maneuver_tool)
 
-    def get_snapshot(self) -> dict:
+    def get_snapshot(self) -> tuple:
         """Captures the essential state of the entire game."""
-        return {
-            "winner": self.winner,
-            "round": self.round,
-            "phase": self.phase,
-            "current_player": self.current_player,
-            "decision_player": self.decision_player,
-            "active_ship_id": self.active_ship.id if self.active_ship else None,
-            "active_squad_id": self.active_squad.id if self.active_squad else None,
-            "squad_activation_count": self.squad_activation_count,
-            "attack_info": self.attack_info.get_snapshot() if self.attack_info else None,
-            "ship_states": [ship.get_snapshot() for ship in self.ships],
-            "squad_states": [squad.get_snapshot() for squad in self.squads]
-        }
+        return (
+            self.winner,
+            self.round,
+            self.phase,
+            self.current_player,
+            self.decision_player,
+            self.active_ship.id if self.active_ship else None,
+            self.active_squad.id if self.active_squad else None,
+            self.squad_activation_count,
+            self.attack_info.get_snapshot() if self.attack_info else None,
+            tuple(ship.get_snapshot() for ship in self.ships),
+            tuple(squad.get_snapshot() for squad in self.squads)
+        )
 
-    def revert_snapshot(self, snapshot: dict) -> None:
+    def revert_snapshot(self, snapshot: tuple) -> None:
         """Restores the entire game state from a snapshot."""
-        self.winner = snapshot["winner"]
-        self.round = snapshot["round"]
-        self.phase = snapshot["phase"]
-        self.current_player = snapshot["current_player"]
-        self.decision_player = snapshot["decision_player"]
-        self.attack_info = AttackInfo.from_snapshot(snapshot["attack_info"]) if snapshot["attack_info"] else None
+        (self.winner, self.round, self.phase, self.current_player, self.decision_player,
+         active_ship_id, active_squad_id, self.squad_activation_count, attack_info_snapshot,
+         ship_states, squad_states) = snapshot
+        self.attack_info = AttackInfo.from_snapshot(attack_info_snapshot) if attack_info_snapshot else None
 
-        active_ship_id = snapshot["active_ship_id"]
         self.active_ship = self.ships[active_ship_id] if active_ship_id is not None else None
-
-        active_squad_id = snapshot["active_squad_id"]
         self.active_squad = self.squads[active_squad_id] if active_squad_id is not None else None
 
-        for i, ship_snapshot in enumerate(snapshot["ship_states"]):
+        for i, ship_snapshot in enumerate(ship_states):
             self.ships[i].revert_snapshot(ship_snapshot)
-        for i, squad_snapshot in enumerate(snapshot["squad_states"]):
+        for i, squad_snapshot in enumerate(squad_states):
             self.squads[i].revert_snapshot(squad_snapshot)
 

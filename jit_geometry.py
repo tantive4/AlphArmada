@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import time
 
 import numpy as np
 import numba
@@ -11,10 +12,13 @@ if TYPE_CHECKING:
 
 def pre_compile_jit_geometry(dummy_game: Armada):
     """Pre-compiles the Numba-jitted functions to avoid runtime overhead."""
+    print("Pre-compiling JIT geometry functions...")
+    start = time.time()
     dummy_game.rollout()
-    print("Pre-compiled JIT geometry functions.")
+    end = time.time()
+    print(f"Pre-compiled JIT geometry functions in {end - start:.4f} seconds.")
 
-@numba.njit()
+@numba.njit(cache=True)
 def SAT_overlapping_check(poly1: np.ndarray, poly2: np.ndarray) -> bool:
     """
     Determines if two convex polygons or line segments intersect using the 
@@ -102,7 +106,7 @@ def SAT_overlapping_check(poly1: np.ndarray, poly2: np.ndarray) -> bool:
     # 5. If no separating axis was found after checking all axes, the polygons must be colliding.
     return True
 
-@numba.njit()
+@numba.njit(cache=True)
 def segments_intersect(p1, q1, p2, q2):
     """Checks if line segment 'p1q1' and 'p2q2' intersect."""
     def _orientation(p, q, r):
@@ -133,7 +137,7 @@ def segments_intersect(p1, q1, p2, q2):
 
     return False
 
-@numba.njit()
+@numba.njit(cache=True)
 def polygon_polygon_nearest_points(poly1:np.ndarray, poly2:np.ndarray) -> tuple[float, np.ndarray, np.ndarray]:
     """Finds the minimum distance and nearest points between two polygons."""
 
@@ -186,7 +190,7 @@ def polygon_polygon_nearest_points(poly1:np.ndarray, poly2:np.ndarray) -> tuple[
 
     return np.sqrt(min_dist_sq), p1_nearest, p2_nearest
 
-@numba.njit()
+@numba.njit(cache=True)
 def sutherland_hodgman_clip(subject_polygon, clip_polygon):
     """Clips a polygon using the Sutherland-Hodgman algorithm."""
     # Pre-allocate a large buffer.
@@ -243,7 +247,7 @@ def sutherland_hodgman_clip(subject_polygon, clip_polygon):
 
     return output_list[:output_len]
 
-@numba.njit()
+@numba.njit(cache=True)
 def create_hull_arrays(arc_coords: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Creates NumPy arrays for each hull section."""
     # HullSection enum must be 0, 1, 2, 3
@@ -253,7 +257,7 @@ def create_hull_arrays(arc_coords: np.ndarray) -> tuple[np.ndarray, np.ndarray, 
     left = np.stack((arc_coords[0], arc_coords[1], arc_coords[4], arc_coords[3]))
     return front, right, rear, left
 
-@numba.njit()
+@numba.njit(cache=True)
 def attack_range_s2s_numba(
     attacker_arc_pts, attacker_tgt_pts, attacker_orientation_vec,
     defender_arc_pts, defender_tgt_pts,
@@ -367,7 +371,7 @@ def attack_range_s2s_numba(
 
     return target_results, measure_results
 
-@numba.njit()
+@numba.njit(cache=True)
 def attack_range_s2q_numba(
     attacker_arc_pts, attacker_tgt_pts, attacker_orientation_vec,
     squad_center,
@@ -433,7 +437,7 @@ def attack_range_s2q_numba(
 
     return measure_results
 
-@numba.njit()
+@numba.njit(cache=True)
 def attack_range_q2s_numba(
     squad_center:np.ndarray,
     defender_tgt_pts:np.ndarray, defender_hulls:tuple[np.ndarray,...]
@@ -489,7 +493,7 @@ def attack_range_q2s_numba(
             target_results[to_hull_idx] = True
     return target_results
 
-@numba.njit()
+@numba.njit(cache=True)
 def maneuver_tool_numba(base_size : np.ndarray, token_size:np.ndarray, course:tuple[int,...], placement:int) -> tuple[np.ndarray, float]:
     if not course :
         return np.array([0.0, 0.0], dtype=np.float32), 0.0
@@ -526,7 +530,7 @@ def maneuver_tool_numba(base_size : np.ndarray, token_size:np.ndarray, course:tu
     final_position = ship_to_tool + np.array([total_dx, total_dy], dtype=np.float32) + tool_to_ship
     return final_position, final_orientation
 
-@numba.njit()
+@numba.njit(cache=True)
 def distance_to_range(distance: float) -> int:
     """Converts a distance to an AttackRange enum value."""
     if distance <= CLOSE_RANGE:
