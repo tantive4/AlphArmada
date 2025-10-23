@@ -3,6 +3,7 @@ import random
 import math
 
 import numpy as np
+cimport numpy as np
 
 from action_phase import Phase, ActionType, get_action_str
 import visualizer
@@ -1003,8 +1004,11 @@ cdef class Armada:
             self.current_player = self.first_player
             self.phase = Phase.COMMAND_PHASE
 
-    def get_point(self, player : int) -> int :
-        return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
+    cpdef int get_point(self, int player) :
+        cdef list ship_point, squad_point
+        ship_point = [(<Ship>ship).point for ship in self.ships if ship.player != player and ship.destroyed]
+        squad_point = [(<Squad>squad).point for squad in self.squads if squad.player != player and squad.destroyed]
+        return sum(ship_point) + sum(squad_point)
 
     def visualize(self, title : str, maneuver_tool : list[tuple[float, float]] | None = None) -> None:
         if not self.debuging_visual:

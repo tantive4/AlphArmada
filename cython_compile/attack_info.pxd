@@ -20,12 +20,12 @@ cdef class AttackInfo:
     cdef public object attack_hull
     cdef public object defend_hull
     cdef public object attack_range
-    cdef public object dice_to_roll
-    cdef public object squadron_target
+    cdef public tuple dice_to_roll
+    cdef public tuple squadron_target
     cdef public object phase
-    cdef public object attack_pool_result
-    cdef public object spent_token_indices
-    cdef public object spent_token_types
+    cdef public tuple attack_pool_result
+    cdef public tuple spent_token_indices
+    cdef public tuple spent_token_types
     cdef public object redirect_hull
     cdef public object critical
 

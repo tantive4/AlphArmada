@@ -961,7 +961,9 @@ class Armada:
             self.phase = Phase.COMMAND_PHASE
 
     def get_point(self, player : int) -> int :
-        return sum(ship.point for ship in self.ships if ship.player != player and ship.destroyed)
+        destroyed_ships = [ship for ship in self.ships if ship.player != player and ship.destroyed]
+        destroyed_squads = [squad for squad in self.squads if squad.player != player and squad.destroyed]
+        return sum(ship.point for ship in destroyed_ships) + sum(squad.point for squad in destroyed_squads)
 
     def visualize(self, title : str, maneuver_tool : list[tuple[float, float]] | None = None) -> None:
         if not self.debuging_visual:

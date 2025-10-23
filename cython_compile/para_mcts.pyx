@@ -77,7 +77,7 @@ cdef class Node:
         Selects a child node using the UCT formula with random tie-breaking.
         """
         cdef:
-            Node best_child = random.choice(self.children)
+            Node best_child = self.children[0]
             Node child
             float best_ucb = -float('inf')
             float ucb
@@ -92,7 +92,7 @@ cdef class Node:
         if self.visits == 0:
             # Fallback for an unvisited node, though MCTS should ideally not call UCT here.
             # The main loop should handle the initial expansion of each child once.
-            return random.choice(self.children)
+            return best_child
             
 
 
@@ -123,6 +123,7 @@ cdef class Node:
         
         self.wins = 0
         self.visits = 0
+        random.shuffle(self.children)
         for child in self.children:
             child.reset_node()
 
@@ -455,7 +456,7 @@ cdef class MCTS:
             game.apply_action(action)
             node.add_child(action, game, policy=action_policy, value=node_value, action_index=action_index)
             game.revert_snapshot(node_snapshot)
-
+        random.shuffle(node.children)
         game.revert_snapshot(self.root_snapshots[para_index])
 
     cdef void _backpropagate(self, object path, float value):

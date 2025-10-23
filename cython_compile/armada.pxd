@@ -16,3 +16,4 @@ cdef class Armada:
     cpdef object get_snapshot(self)
     cdef void revert_snapshot(self, object snapshot)
     cdef void update_decision_player(self)
+    cpdef int get_point(self, int player)

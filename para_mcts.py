@@ -68,9 +68,9 @@ class Node:
         if self.visits == 0:
             # Fallback for an unvisited node, though MCTS should ideally not call UCT here.
             # The main loop should handle the initial expansion of each child once.
-            return random.choice(self.children)
+            return self.children[0]
             
-        best_child = random.choice(self.children)
+        best_child = self.children[0]
         best_ucb = -np.inf
         
         for child in self.children:
@@ -96,6 +96,7 @@ class Node:
         """
         self.wins = 0
         self.visits = 0
+        random.shuffle(self.children)
         for child in self.children:
             child.reset_node()
 
@@ -114,7 +115,7 @@ class Node:
         return q_value + Config.EXPLORATION_CONSTANT * child.policy * math.sqrt(self.visits) / (1 + child.visits)
 
 
-class MCTS1:
+class MCTS:
     """
     Parallel Monte Carlo Tree Search for multiple Armada games.
     """
@@ -362,7 +363,7 @@ class MCTS1:
             self.para_games[para_index].apply_action(action)
             node.add_child(action, self.para_games[para_index], policy=action_policy, value=node_value, action_index=action_index)
             self.para_games[para_index].revert_snapshot(node.snapshot)
-
+        random.shuffle(node.children)
         self.para_games[para_index].revert_snapshot(self.root_snapshots[para_index])
 
     def _backpropagation(self, path: deque[Node], value: float) -> None:

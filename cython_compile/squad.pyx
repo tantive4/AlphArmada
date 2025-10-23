@@ -7,9 +7,9 @@ from measurement import *
 from enum_class import *
 from dice import *
 import cache_function as cache
-if TYPE_CHECKING:
-    from armada import Armada
-    from ship import Ship
+
+from armada cimport Armada
+from ship cimport Ship
 
 
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 cdef class Squad :
     def __init__(self, squad_dict : dict, player : Player) -> None:
-        self.player : Player = player
+        self.player : int = player.value
         self.name : str = squad_dict['name']
         self.unique : bool = squad_dict['unique']
 

@@ -129,7 +129,7 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
             ship.y / game.short_edge,
             math.sin(ship.orientation),
             math.cos(ship.orientation)
-        ])
+        ], dtype=np.float32)
 
         # --- Command Info (17 features) ---
         command_value = ship.command_value / Config.MAX_COMMAND_STACK
@@ -151,10 +151,10 @@ def encode_ship_entity_features(game: Armada) -> np.ndarray:
         # --- Attack Role (10 features) ---
         attack_role = np.zeros(10, dtype=np.float32)
         if attack_info := game.attack_info:
-            if attack_info.is_attacker_ship and attack_info.attack_ship_id == attack_info.attack_ship_id:
+            if attack_info.is_attacker_ship and ship.id == attack_info.attack_ship_id:
                 attack_role[0] = 1.0
                 attack_role[attack_info.attack_hull + 1] = 1.0 # is_attacking_hull (one-hot)
-            if attack_info.is_defender_ship and i == attack_info.defend_ship_id:
+            if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
                 attack_role[5] = 1.0
                 attack_role[5 + attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
 

@@ -3,6 +3,9 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
+        "include_dirs": [
+            "/home/codespace/.local/lib/python3.12/site-packages/numpy/_core/include"
+        ],
         "name": "defense_token",
         "sources": [
             "cython_compile/defense_token.pyx"

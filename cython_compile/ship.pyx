@@ -4,6 +4,7 @@ from collections import Counter
 import itertools
 
 import numpy as np
+cimport numpy as np
 
 
 from dice import *
@@ -11,16 +12,16 @@ from defense_token cimport DefenseToken
 from measurement import *
 from enum_class import *
 import cache_function as cache
-if TYPE_CHECKING:
-    from armada import Armada
-    from squad import Squad
+
+from armada cimport Armada
+from squad cimport Squad
 
 
 
 
 cdef class Ship:
     def __init__(self, ship_dict : dict, player : Player) -> None:
-        self.player : Player = player
+        self.player : int = player.value
         self.name : str = ship_dict['name']
 
         self.max_hull : int = ship_dict['hull']
@@ -57,6 +58,13 @@ cdef class Ship:
             token_counts[token_enum] += 1
 
         self.nav_chart : dict[int, list[int]] = {int(k) : v for k, v in ship_dict['navchart'].items()}
+        self.nav_chart_vector = np.zeros(10, dtype=np.float32)
+        for speed in range(5):
+            if speed in self.nav_chart:
+                 clicks = self.nav_chart[speed]
+                 for i, click in enumerate(clicks): 
+                     self.nav_chart_vector[speed+i-1] = click / 2.0 # Normalize by max clicks
+
         self.max_shield : dict[HullSection, int] = {HullSection.FRONT : ship_dict['shield'][0], 
                                                     HullSection.RIGHT : ship_dict['shield'][1], 
                                                     HullSection.REAR : ship_dict['shield'][2], 
