@@ -92,7 +92,7 @@ class ArmadaNet(nn.Module):
 
         # --- 2. Unification Torso ---
         # This combines the outputs of all encoders.
-        # 64 (scalar) + 128 (ship entity) + 128 (squad entity) + 128 (spatial) + 64 (relation) = 384
+        # 64 (scalar) + 128 (ship entity) + 128 (squad entity) + 128 (spatial) + 64 (relation) = 512
         self.torso = nn.Sequential(
             nn.Linear(512, 512),
             nn.ReLU(),
@@ -113,6 +113,8 @@ class ArmadaNet(nn.Module):
         # We create a separate linear layer for each game phase.
         self.policy_heads = nn.ModuleDict({
             phase.name: nn.Sequential(
+                nn.Linear(256, 256),
+                nn.ReLU(),
                 nn.Linear(256, 128),
                 nn.ReLU(),
                 nn.Linear(128, len(self.action_manager.get_action_map(phase)))
@@ -128,12 +130,12 @@ class ArmadaNet(nn.Module):
             nn.Sigmoid() # Output between 0 and 1
         )
 
-        # Squad Head: Predicts destruction status for each of the 24 possible squads
+        # Squad Head: Predicts remaining hull value for each of the 24 possible squads
         self.squad_head = nn.Sequential(
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Linear(128, Config.MAX_SQUADS),
-            nn.Sigmoid() # Output probabilities
+            nn.Sigmoid() # Output between 0 and 1
         )
         
         # Game Length Head: Predicts which round the game will end on (1-6, plus 7 for games that go the distance)

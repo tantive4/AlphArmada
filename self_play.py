@@ -76,7 +76,6 @@ class AlphArmada:
                 
                 # --- Check for terminal states ---
                 if game.winner != 0.0:
-                    print(f"Game {para_index+1} ended. Round: {game.round} Winner: Player {game.winner}")
                     winner, aux_target = get_terminal_value(game)
                     for phase, encoded_state, action_probs in memory[para_index]:
                         self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))
@@ -217,7 +216,6 @@ class AlphArmada:
                     
                     # Save the freshly generated data and clear it from memory
                     torch.save(new_memory, replay_buffer_path)
-                delete_cache()
                 
                 # --- Step 4: Before training, load all previous self-play data ---
                 print("\n--- Preparing for training phase: Loading replay buffers... ---")
@@ -243,7 +241,7 @@ class AlphArmada:
                 # --- Step 5: Start training on the loaded data ---
                 print("Starting training phase...")
                 self.model.train()
-                for step in trange(Config.TRAINING_STEPS):
+                for step in trange(Config.EPOCHS):
                     training_batch = random.sample(list(replay_buffer), Config.BATCH_SIZE)
                     loss = self.train(training_batch)
                 loss_history.append(loss)
