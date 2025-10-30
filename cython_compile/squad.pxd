@@ -11,3 +11,4 @@ cdef class Squad:
         public bint unique, swarm, escort, bomber, destroyed, activated, can_attack, can_move
     cdef object get_snapshot(self)
     cdef void revert_snapshot(self, object snapshot)
+    cpdef tuple get_squad_hash_state(self)

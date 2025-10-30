@@ -37,7 +37,7 @@ cdef class Ship:
             hull: {
                 attack_range : tuple(self.battery[hull][dice_type] if dice_type >= attack_range else 0 for dice_type in Dice)
                 for attack_range in AttackRange if attack_range != AttackRange.INVALID
-            } for hull in HullSection
+            } for hull in HULL_SECTIONS
         }
 
         self.anti_squad :tuple[int,...] = tuple(ship_dict['anti_squad'])
@@ -100,7 +100,7 @@ cdef class Ship:
         self.speed: int = speed
 
         self.hull: int = self.max_hull
-        self.shield: tuple[int, ...] = tuple(self.max_shield[hull] for hull in HullSection)
+        self.shield: tuple[int, ...] = tuple(self.max_shield[hull] for hull in HULL_SECTIONS)
         self.id: int = ship_id
         self.command_stack: tuple[Command, ...] = ()
         self.command_dial: tuple[Command, ...] = ()
@@ -326,7 +326,7 @@ cdef class Ship:
             hull (HullSection): The firing hull section of the attacking ship.
             squad (Squad): The target squad.
         """
-        line_of_sight : tuple[tuple[float, float], ...] = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), to_squad.get_squad_hash_state())
+        line_of_sight : tuple[tuple[float, float], ...] = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), to_squad.coords)
 
         for ship in self.game.ships:
 
@@ -375,7 +375,7 @@ cdef class Ship:
 
             if not target_dict[attack_hull] : continue
 
-            for target_hull in HullSection :
+            for target_hull in HULL_SECTIONS :
                 attack_range : AttackRange = range_dict[attack_hull][target_hull] 
                 
                 if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
@@ -411,7 +411,7 @@ cdef class Ship:
         Returns:
             valid_attacker (list[HullSection]): A list of valid attacking hull sections.
         """
-        valid_attacker = [hull for hull in HullSection if hull not in self.attack_impossible_hull]
+        valid_attacker = [hull for hull in HULL_SECTIONS if hull not in self.attack_impossible_hull]
 
         return valid_attacker
 
@@ -741,7 +741,9 @@ cdef class Ship:
 
     cpdef object get_ship_hash_state(self):
         """Returns a hashable tuple representing the ship's state."""
-        return (self.name, self.x, self.y, self.orientation)
-    
+        cdef int x_int = <int>(self.x * HASH_PRECISION)
+        cdef int y_int = <int>(self.y * HASH_PRECISION)
+        cdef int orientation_int = <int>(self.orientation * HASH_PRECISION)
 
- 
+        return (self.name, x_int, y_int, orientation_int)
+

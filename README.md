@@ -23,3 +23,5 @@ Next Move?
   - Upgrades
   
  - https://github.com/foersterrobert/AlphaZeroFromScratch
+
+ cache function and measurement (threat zone template method)

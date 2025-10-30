@@ -203,11 +203,11 @@ class Armada:
                 if active_ship.engineer_point >= 3 and active_ship.hull < active_ship.max_hull :
                     actions.append(('repair_hull_action', None))
                 if active_ship.engineer_point >= 2 :
-                    actions.extend([('recover_shield_action', hull) for hull in HullSection if active_ship.shield[hull] < active_ship.max_shield[hull]])
+                    actions.extend([('recover_shield_action', hull) for hull in HULL_SECTIONS if active_ship.shield[hull] < active_ship.max_shield[hull]])
                 if not actions : actions = [('pass_repair', None)]
 
                 if active_ship.engineer_point >= 1 :
-                    actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection
+                    actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HULL_SECTIONS for to_hull in HULL_SECTIONS
                                     if active_ship.shield[to_hull] < active_ship.max_shield[to_hull] and active_ship.shield[from_hull] > 0 and
                                         from_hull != to_hull and
                                         not from_hull in active_ship.repaired_hull])

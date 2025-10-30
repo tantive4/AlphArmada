@@ -30,6 +30,7 @@ class HullSection(IntEnum):
     def __str__(self):
         return self.name
     __repr__ = __str__
+HULL_SECTIONS = tuple(hull for hull in HullSection)
 
 class SizeClass(IntEnum) :
     SMALL = 1
@@ -58,6 +59,7 @@ class AttackRange(IntEnum) :
     def __str__(self) -> str:
         return self.name
     __repr__ = __str__
+ATTACK_RANGES = (AttackRange.CLOSE, AttackRange.MEDIUM, AttackRange.LONG)
 
 class Critical(IntEnum) :
     STANDARD = 0

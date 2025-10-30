@@ -234,7 +234,7 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_ship_entity_features(Armada game):
         
         # Armament (15 features)
         armament = np.zeros(15, dtype=np.float32)
-        for hull in HullSection:
+        for hull in HULL_SECTIONS:
             if hull in ship.attack_impossible_hull : continue
             armament[hull*3:(hull+1)*3] = [dice/Config.GLOBAL_MAX_DICE for dice in ship.battery[hull]]
         armament[12:15] = [dice/Config.GLOBAL_MAX_DICE for dice in ship.anti_squad]
@@ -384,8 +384,8 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_relation_matrix(Armada game) :
 
             _, range_dict = cache.attack_range_s2s(attacker.get_ship_hash_state(), defender.get_ship_hash_state())
 
-            for from_hull in HullSection:
-                for to_hull in HullSection:
+            for from_hull in HULL_SECTIONS:
+                for to_hull in HULL_SECTIONS:
                     # Calculate the flattened index for the matrix
                     from_idx = i * 4 + <int>from_hull
                     to_idx = j * 4 + <int>to_hull

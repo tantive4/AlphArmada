@@ -19,7 +19,7 @@ from armada_net import ArmadaNet
 from game_encoder import encode_game_state, get_terminal_value
 from para_mcts import MCTS
 from action_space import ActionManager
-from action_phase import Phase
+from action_phase import Phase, get_action_str
 from dice import roll_dice
 
 
@@ -70,7 +70,8 @@ class AlphArmada:
                     if len(game.get_valid_actions()) != 1:
                         raise ValueError("Multiple valid actions in information set node.")
                     action = game.get_valid_actions()[0]
-                # print(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
+                if para_index == 0:
+                    print(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
                 game.apply_action(action)
                 mcts.advance_tree(para_index, action, game.get_snapshot())
                 
@@ -201,7 +202,7 @@ class AlphArmada:
                 # --- Step 1 & 2: Start fresh self-play and save batches ---
                 self.model.eval()
                 print("Starting self-play phase...")
-                for self_play_iteration in trange(Config.SELF_PLAY_GAMES):
+                for self_play_iteration in range(Config.SELF_PLAY_GAMES):
                     
                     # self_play() generates a fresh list of experiences for this batch
                     new_memory = self.para_self_play()

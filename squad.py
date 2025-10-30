@@ -102,12 +102,12 @@ class Squad :
         if self.hull <= 0 :
             self.destroy()
 
-    def get_squad_hash_state(self) -> tuple[float, float] :
+    def get_squad_hash_state(self) -> tuple[int, int] :
         """
         get a hashable state of the squad for caching purpose
         """
-        return self.coords
-    
+        return int(self.coords[0]*HASH_PRECISION), int(self.coords[1]*HASH_PRECISION)
+
     def is_engaged(self) -> bool :
         """
         check if the squad is engaged with any enemy squadron
@@ -146,7 +146,7 @@ class Squad :
         for ship in self.game.ships :
             if ship.player == self.player or ship.destroyed :
                 continue
-            for hull in HullSection :
+            for hull in HULL_SECTIONS :
                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
                 if not in_range :
                     continue
@@ -164,7 +164,7 @@ class Squad :
         Args:
             squad (Squad): The target squad.
         """
-        line_of_sight : tuple[tuple[float, float], ...] = (self.get_squad_hash_state(), to_squad.get_squad_hash_state())
+        line_of_sight : tuple[tuple[float, float], ...] = (self.coords, to_squad.coords)
 
         for ship in self.game.ships:
             if ship.destroyed :
