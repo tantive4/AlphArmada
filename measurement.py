@@ -164,8 +164,7 @@ def create_threat_zones(name) -> tuple[np.ndarray, list[int]]:
         for length in (len(close_coords), len(medium_coords), len(long_coords)):
             current_total_index += length
             index_list.append(current_total_index)
-        if name == "VSD1":
-            print(len(close_coords), len(medium_coords), len(long_coords))
+
     threat_coords = np.concatenate(threat_zones_list, axis=0)
     return threat_coords, index_list[:-1]
 SHIP_THREAT_ZONES : dict[str, tuple[np.ndarray, list[int]]] = {name : create_threat_zones(name) for name in SHIP_DATA.keys()}

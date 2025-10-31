@@ -1,7 +1,6 @@
 from functools import lru_cache
 
 import numpy as np
-from shapely.geometry import Polygon
 import numpy as np
 from skimage.draw import polygon as draw_polygon
 from skimage.measure import block_reduce

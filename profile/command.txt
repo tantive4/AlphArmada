@@ -1,7 +1,7 @@
-python -m cProfile -o profile/result_2 self_play.py
+python -m cProfile -o profile/result-3 self_play.py
 
-python -m pstats profile/result_2
+python -m pstats profile/result-3
 sort cumtime
 stats 100
 
-snakeviz profile/result_2
+snakeviz profile/result-3
