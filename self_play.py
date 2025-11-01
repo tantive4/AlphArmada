@@ -36,8 +36,8 @@ class AlphArmada:
         action_manager = ActionManager()
         para_games : list[Armada] = [setup_game(para_index=para_index) for para_index in range(Config.PARALLEL_PLAY)]
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
-
-        while any(game.winner == 0.0 for game in para_games) :
+        action_counter : int = 0
+        while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
             simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0}
 
             if simulation_players :
@@ -81,7 +81,7 @@ class AlphArmada:
                     for phase, encoded_state, action_probs in memory[para_index]:
                         self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))
                     memory[para_index].clear()
-
+                action_counter += 1
         phases, states, action_probs, winners, aux_targets = zip(*self_play_data)
 
         # Collate the dictionaries into large numpy arrays

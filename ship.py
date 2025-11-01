@@ -213,7 +213,6 @@ class Ship:
         squad.coords = original_coords
         if not valid_placements:
             valid_placements = [None]
-            print(f"WARNING {squad} is destroyed due to no valid placement on {self}. This will be fixed in the future version.")
         return valid_placements
 
 

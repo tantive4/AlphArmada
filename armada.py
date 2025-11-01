@@ -755,6 +755,8 @@ class Armada:
             case 'place_squad_action', (squad_id, coords_index) :
                 squad = self.squads[squad_id]
                 if coords_index is None :
+                    print(f"WARNING {squad} is destroyed due to no valid placement on {self.ships[squad.overlap_ship_id]}. This will be fixed in the future version.")
+                    visualizer.visualize(self,f'\n{squad} is destroyed due to no valid placement on {self.ships[squad.overlap_ship_id]}.')
                     squad.destroy()
                 else :
                     coords : np.ndarray = cache._ship_coordinate(active_ship.get_ship_hash_state())['squad_placement_points'][coords_index]
