@@ -117,7 +117,7 @@ cdef class AttackInfo :
     def calculate_total_damage(self) -> int :
         total_damage = 0
         damage_indices = SHIP_DAMAGE_INDICES if (self.is_attacker_ship or self.bomber) and self.is_defender_ship else SQUAD_DAMAGE_INDICES
-        for dice_type in Dice :
+        for dice_type in DICE :
             total_damage += sum([face_count * damage_value for face_count, damage_value in zip(self.attack_pool_result[dice_type], damage_indices[dice_type])])
 
         if TokenType.BRACE in self.spent_token_types :

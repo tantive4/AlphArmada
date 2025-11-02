@@ -8,6 +8,7 @@ import torch.nn.functional as F
 cimport numpy as np
 
 from libc.math cimport log, sqrt
+from libc.stdlib cimport rand, RAND_MAX
 
 from action_space import ActionManager
 from armada_net import ArmadaNet
@@ -77,24 +78,13 @@ cdef class Node:
         Selects a child node using the UCT formula with random tie-breaking.
         """
         cdef:
-            Node best_child = self.children[0]
+            Node best_child
             Node child
             float best_ucb = -float('inf')
             float ucb
 
-        if self.chance_node:
-            raise ValueError("uct_select_child called on a chance node, which should not happen in MCTS.")
-
-        if not self.children:
-            # This should not happen if called on a non-terminal, expanded node
-            raise ValueError(f"uct_select_child called on a node with no children\n{self.snapshot}")
-
         if self.visits == 0:
-            # Fallback for an unvisited node, though MCTS should ideally not call UCT here.
-            # The main loop should handle the initial expansion of each child once.
-            return best_child
-            
-
+            return random.choice(self.children)
 
         for child in self.children:
             # Don't use policy for secret information
@@ -123,7 +113,6 @@ cdef class Node:
         
         self.wins = 0
         self.visits = 0
-        random.shuffle(self.children)
         for child in self.children:
             child.reset_node()
 
@@ -390,7 +379,6 @@ cdef class MCTS:
         spatial_tensor = torch.from_numpy(spatial_batch).float().to(Config.DEVICE)
         relation_tensor = torch.from_numpy(relation_batch).float().to(Config.DEVICE)
 
-        self.model.eval()
         with torch.no_grad():
             # Perform a single, batched forward pass
             outputs = self.model(
@@ -456,7 +444,6 @@ cdef class MCTS:
             game.apply_action(action)
             node.add_child(action, game, policy=action_policy, value=node_value, action_index=action_index)
             game.revert_snapshot(node_snapshot)
-        random.shuffle(node.children)
         game.revert_snapshot(self.root_snapshots[para_index])
 
     cdef void _backpropagate(self, object path, float value):

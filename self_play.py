@@ -81,7 +81,7 @@ class AlphArmada:
                     for phase, encoded_state, action_probs in memory[para_index]:
                         self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))
                     memory[para_index].clear()
-                action_counter += 1
+            action_counter += 1
         phases, states, action_probs, winners, aux_targets = zip(*self_play_data)
 
         # Collate the dictionaries into large numpy arrays
@@ -107,8 +107,7 @@ class AlphArmada:
         if not training_batch:
             return 0.0
 
-        self.model.train()
-        self.optimizer.zero_grad()
+        
         
         # Prepare batched tensors
         target_values_tensor : torch.Tensor = training_batch['target_values']
@@ -288,6 +287,7 @@ class AlphArmada:
                 # --- Step 5: Start training on the loaded data ---
                 print("Starting training phase...")
                 self.model.train()
+                self.optimizer.zero_grad()
                 for step in trange(Config.EPOCHS):
                     # 1. Sample BATCH_SIZE random indices
                     indices = torch.randint(0, total_samples, (Config.BATCH_SIZE,))

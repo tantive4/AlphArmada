@@ -165,7 +165,7 @@ class Armada:
         match self.phase:
             case Phase.COMMAND_PHASE :
                 ships_to_command = [ship.id for ship in self.ships if ship.player == self.current_player and len(ship.command_stack) < ship.command_value] 
-                actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in ships_to_command]
+                actions = [('set_command_action', (ship_id, command)) for command in COMMANDS for ship_id in ships_to_command]
             
             case Phase.SHIP_ACTIVATE :
                 valid_ships = self.get_valid_ship_activation(self.current_player)
@@ -176,7 +176,7 @@ class Armada:
                 if active_ship.player == self.simulation_player or self.simulation_player == 0 :  # player's simulation
                     actions = [('reveal_command_action', active_ship.command_stack[0])]
                 else :                                                                          # secret information
-                    actions = [('reveal_command_action', command) for command in Command]
+                    actions = [('reveal_command_action', command) for command in COMMANDS]
 
             case Phase.SHIP_GAIN_COMMAND_TOKEN :
                 actions = [('gain_command_token_action', command) for command in active_ship.command_dial if command not in active_ship.command_token]
@@ -227,7 +227,7 @@ class Armada:
 
                 if attack_info.obstructed:
                     if sum(dice_to_roll) <= 1 : raise ValueError('Empty Attack Pool. Invalid Attack')
-                    for dice_type in Dice :
+                    for dice_type in DICE :
                         if dice_to_roll[dice_type] > 0 :
                             dice_to_remove = tuple(1 if i == dice_type else 0 for i in range(3))
                             actions.append(('gather_dice_action', dice_to_remove))
@@ -265,7 +265,7 @@ class Armada:
 
                 # use con-fire command
                 if attack_info.con_fire_dial :
-                    actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in Dice if sum(attack_info.attack_pool_result[dice])])
+                    actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE if sum(attack_info.attack_pool_result[dice])])
 
                 if not actions : actions = [('pass_attack_effect', None)] # Above actions are MUST USED actions
 
@@ -281,11 +281,11 @@ class Armada:
                         actions.append(('resolve_con-fire_command_action', (False, True)))
 
                 if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
-                    actions.extend([('use_confire_token_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
+                    actions.extend([('use_confire_token_action', dice) for dice in DICE_choices(attack_info.attack_pool_result, 1)])
 
                 # swarm reroll
                 if attack_info.swarm:
-                    actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
+                    actions.extend([('swarm_reroll_action', dice) for dice in DICE_choices(attack_info.attack_pool_result, 1)])
 
             case Phase.ATTACK_SPEND_DEFENSE_TOKENS :
                 if attack_info.is_defender_ship:
@@ -526,13 +526,13 @@ class Armada:
             
             case 'gather_dice_action', dice_to_remove:
                 # update dice pool considering obstruction.etc
-                attack_info.dice_to_roll = tuple(attack_info.dice_to_roll[dice_type] - dice_to_remove[dice_type] for dice_type in Dice)
+                attack_info.dice_to_roll = tuple(attack_info.dice_to_roll[dice_type] - dice_to_remove[dice_type] for dice_type in DICE)
                 self.phase = Phase.ATTACK_ROLL_DICE
 
             case 'roll_dice_action', dice_roll:
-                attack_info.dice_to_roll = tuple(0 for _ in Dice)
+                attack_info.dice_to_roll = tuple(0 for _ in DICE)
                 attack_info.attack_pool_result = tuple(tuple(original + new for original, new 
-                                                             in zip(attack_info.attack_pool_result[dice_type], dice_roll[dice_type])) for dice_type in Dice)
+                                                             in zip(attack_info.attack_pool_result[dice_type], dice_roll[dice_type])) for dice_type in DICE)
                 attack_info.calculate_total_damage()
                 self.phase = attack_info.phase # either ATTACK_RESOLVE_EFFECTS or ATTACK_SPEND_DEFENSE_TOKENS
 
@@ -563,8 +563,8 @@ class Armada:
                 attack_info.con_fire_token = False
                 attack_info.attack_pool_result = tuple(tuple(original_count - removed_count 
                                                             for original_count, removed_count in zip(attack_info.attack_pool_result[dice_type], reroll_dice[dice_type])) 
-                                                            for dice_type in Dice)
-                attack_info.dice_to_roll = tuple(sum(reroll_dice[dice_type]) for dice_type in Dice)
+                                                            for dice_type in DICE)
+                attack_info.dice_to_roll = tuple(sum(reroll_dice[dice_type]) for dice_type in DICE)
                 attack_info.calculate_total_damage()
                 self.phase = Phase.ATTACK_ROLL_DICE
 
@@ -572,8 +572,8 @@ class Armada:
                 attack_info.swarm = False
                 attack_info.attack_pool_result = tuple(tuple(original_count - removed_count 
                                                             for original_count, removed_count in zip(attack_info.attack_pool_result[dice_type], reroll_dice[dice_type])) 
-                                                            for dice_type in Dice)
-                attack_info.dice_to_roll = tuple(sum(reroll_dice[dice_type]) for dice_type in Dice)
+                                                            for dice_type in DICE)
+                attack_info.dice_to_roll = tuple(sum(reroll_dice[dice_type]) for dice_type in DICE)
                 attack_info.calculate_total_damage()
                 self.phase = Phase.ATTACK_ROLL_DICE
 
@@ -609,11 +609,11 @@ class Armada:
                 token.spend()
                 attack_info.attack_pool_result = tuple(tuple(original_count - removed_count 
                                                             for original_count, removed_count in zip(attack_info.attack_pool_result[dice_type], evade_dice[dice_type]))
-                                                            for dice_type in Dice)
+                                                            for dice_type in DICE)
                 attack_info.calculate_total_damage()
                 if attack_info.attack_range in [AttackRange.CLOSE, AttackRange.MEDIUM]:
                     # Reroll Evade Dice
-                    attack_info.dice_to_roll = tuple(sum(evade_dice[dice_type]) for dice_type in Dice)
+                    attack_info.dice_to_roll = tuple(sum(evade_dice[dice_type]) for dice_type in DICE)
                     self.phase = Phase.ATTACK_ROLL_DICE
 
             case 'pass_defense_token', _ :

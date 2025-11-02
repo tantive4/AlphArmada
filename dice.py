@@ -1,14 +1,9 @@
-import numba
 import numpy as np
 
-import random
-import itertools
-from collections import Counter
-from enum import Enum, IntEnum
-from enum_class import Dice
+from enum_class import *
 
 
-
+RNG = np.random.default_rng()
 
 FULL_DICE_POOL = ((2,2,2), (2,2,2), (2,2,2,2,2))
 EMPTY_DICE_POOL = ((0,0,0), (0,0,0), (0,0,0,0,0))
@@ -44,8 +39,8 @@ def roll_dice(dice_pool: tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
     Simulates rolling Star Wars: Armada dice using NumPy's multinomial distribution.
     """
     return tuple(
-        tuple(np.random.multinomial(dice_pool[dice_type], PROBABILITIES[dice_type]).tolist())
-        for dice_type in Dice)
+        tuple(RNG.multinomial(dice_pool[dice_type], PROBABILITIES[dice_type]).tolist())
+        for dice_type in DICE)
 
 def dice_choices(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
     """

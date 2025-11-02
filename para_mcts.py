@@ -68,9 +68,9 @@ class Node:
         if self.visits == 0:
             # Fallback for an unvisited node, though MCTS should ideally not call UCT here.
             # The main loop should handle the initial expansion of each child once.
-            return self.children[0]
-            
-        best_child = self.children[0]
+            return random.choice(self.children)
+        
+        best_child : Node
         best_ucb = -np.inf
         
         for child in self.children:
@@ -308,7 +308,6 @@ class MCTS:
         spatial_tensor = torch.from_numpy(spatial_batch).float().to(Config.DEVICE)
         relation_tensor = torch.from_numpy(relation_batch).float().to(Config.DEVICE)
 
-        self.model.eval()
         with torch.no_grad():
             # Perform a single, batched forward pass
             outputs = self.model(

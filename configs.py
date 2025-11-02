@@ -29,7 +29,7 @@ class Config:
     # Self Play
     SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
     PARALLEL_PLAY = 128 # run games in batch
-    # 1 * 128 * 400 = 51200 states are created
+    # 1 * 128 * 400 * 0.25 = 12800 states are created
 
     # MCTS
     DEEP_SEARCH_RATIO = 0.25
@@ -42,13 +42,13 @@ class Config:
     DIRICHLET_EPSILON = 0.25
 
     # Replay Buffer
-    REPLAY_BUFFER_SIZE = 5120000  # 100 iteration to take for full buffer replacement
+    REPLAY_BUFFER_SIZE = 128000  # 10 iteration to take for full buffer replacement
     REPLAY_BUFFER_DIR = "replay_buffers"
 
     # Neural Network Training
-    EPOCHS = 800
+    EPOCHS = 100
     BATCH_SIZE = 128
-    # train on 128 * 800 = 102400 states per iteration
+    # train on 128 * 100 = 12800 states per iteration
 
 
     # Optimization

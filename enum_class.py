@@ -21,6 +21,7 @@ class Dice(IntEnum) :
     def __str__(self):
         return self.name
     __repr__ = __str__
+DICE = tuple(dice for dice in Dice)
 
 class HullSection(IntEnum):
     FRONT = 0
@@ -49,6 +50,7 @@ class Command(IntEnum) :
     def __str__(self):
         return self.name
     __repr__ = __str__
+COMMANDS = tuple(command for command in Command)
 
 class AttackRange(IntEnum) :
     INVALID = -1
