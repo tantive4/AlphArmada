@@ -286,11 +286,11 @@ cdef class Armada:
                     actions.append(('resolve_con-fire_command_action', (False, True)))
 
             if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
-                actions.extend([('use_confire_token_action', dice) for dice in DICE_choices(attack_info.attack_pool_result, 1)])
+                actions.extend([('use_confire_token_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
 
             # swarm reroll
             if attack_info.swarm:
-                actions.extend([('swarm_reroll_action', dice) for dice in DICE_choices(attack_info.attack_pool_result, 1)])
+                actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
 
         elif phase == Phase.ATTACK_SPEND_DEFENSE_TOKENS :
             if attack_info.is_defender_ship:

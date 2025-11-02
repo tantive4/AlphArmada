@@ -16,7 +16,7 @@ def pre_compile_jit_geometry(dummy_game: Armada):
     start = time.time()
     dummy_game.rollout()
     end = time.time()
-    print(f"Pre-compiled JIT geometry functions in {end - start:.4f} seconds.")
+    print(f"Compiling Complete in {end - start:.4f} seconds.")
 
 @numba.njit(cache=True)
 def SAT_overlapping_check(poly1: np.ndarray, poly2: np.ndarray) -> bool:
