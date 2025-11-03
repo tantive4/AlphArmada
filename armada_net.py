@@ -44,7 +44,7 @@ class ArmadaNet(nn.Module):
         
         # Store the action manager to get phase-specific action space sizes
         self.action_manager = action_manager
-        self.max_action_space = max(len(amap) for amap in self.action_manager.action_maps.values())
+        self.max_action_space = max(len(amap) for amap in self.action_manager.action_maps)
 
         # --- 1. Specialized Encoders ---
 
@@ -119,7 +119,7 @@ class ArmadaNet(nn.Module):
                 nn.ReLU(),
                 nn.Linear(128, len(self.action_manager.get_action_map(phase)))
             )
-            for phase in self.action_manager.action_maps.keys()
+            for phase in Phase if self.action_manager.get_action_map(phase)
         })
 
         # Auxiliary Target Heads

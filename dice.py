@@ -40,11 +40,11 @@ def roll_dice(dice_pool: tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
     """
     Simulates rolling Star Wars: Armada dice using NumPy's multinomial distribution.
     """
+    black_roll = tuple(RNG.multinomial(dice_pool[Dice.BLACK], PROBABILITIES[Dice.BLACK]).tolist())
+    blue_roll = tuple(RNG.multinomial(dice_pool[Dice.BLUE], PROBABILITIES[Dice.BLUE]).tolist())
     red_roll = tuple(RNG.multinomial(dice_pool[Dice.RED], PROBABILITIES[Dice.RED]).tolist())
-    blue_roll = tuple(RNG.multinomial(dice_pool[Dice.BLUE], PROBABILITIES[Dice.BLUE].tolist()))
-    black_roll = tuple(RNG.multinomial(dice_pool[Dice.BLACK], PROBABILITIES[Dice.BLACK].tolist()))
 
-    return (red_roll, blue_roll, black_roll)
+    return (black_roll, blue_roll, red_roll)
 
 def dice_choices(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
     """
