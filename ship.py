@@ -35,14 +35,14 @@ class Ship:
         self.battery_range : dict[HullSection, dict[AttackRange, tuple[int, ...]]] = {
             hull: {
                 attack_range : tuple(self.battery[hull][dice_type] if dice_type >= attack_range else 0 for dice_type in DICE)
-                for attack_range in AttackRange if attack_range != AttackRange.INVALID
+                for attack_range in ATTACK_RANGES if attack_range != AttackRange.INVALID
             } for hull in HULL_SECTIONS
         }
 
         self.anti_squad :tuple[int,...] = tuple(ship_dict['anti_squad'])
         self.anti_squad_range : dict[AttackRange, tuple[int, ...]] = {
             attack_range : tuple(self.anti_squad[dice_type] if dice_type >= attack_range else 0 for dice_type in DICE)
-            for attack_range in AttackRange if attack_range != AttackRange.INVALID
+            for attack_range in ATTACK_RANGES if attack_range != AttackRange.INVALID
         }
         
         self.defense_tokens: dict[int, DefenseToken] = {}

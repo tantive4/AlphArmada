@@ -1,5 +1,3 @@
-# cython: profile=True
-
 from enum_class import *
 from itertools import product
 

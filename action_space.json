@@ -195,6 +195,7 @@
       5
     ]
   ],
+  "SHIP_REVEAL_COMMAND_DIAL": [],
   "SHIP_GAIN_COMMAND_TOKEN": [
     [
       "gain_command_token_action",
@@ -14849,6 +14850,7 @@
       ]
     ]
   ],
+  "ATTACK_ROLL_DICE": [],
   "ATTACK_RESOLVE_EFFECTS": [
     [
       "spend_accuracy_action",

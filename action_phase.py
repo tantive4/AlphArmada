@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class Phase(IntEnum):
     # === COMMAND PHASE ===
-    COMMAND_PHASE = auto()
+    COMMAND_PHASE = 0
 
     # === SHIP PHASE ===
     SHIP_ACTIVATE = auto() 

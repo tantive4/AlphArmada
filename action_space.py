@@ -120,7 +120,7 @@ def generate_all_maps():
 
             # === Attack Step ===
             case Phase.ATTACK_GATHER_DICE :
-                for dice_type in Dice :
+                for dice_type in DICE :
                     dice_to_remove = [0,0,0]
                     dice_to_remove[dice_type] = 1
                     dice_to_remove = tuple(dice_to_remove)
@@ -133,7 +133,7 @@ def generate_all_maps():
             case Phase.ATTACK_RESOLVE_EFFECTS :
                 actions = [('spend_accuracy_action', (dice_type, index)) for dice_type in (Dice.BLUE, Dice.RED) for index in range(len(TokenType) * MAX_DEFENSE_TOKENS_PER_TYPE)]
                 actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
-                actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in Dice])
+                actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE])
                 actions.extend([('use_confire_token_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
                 actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
                 actions.append(('pass_attack_effect', None))
@@ -168,8 +168,8 @@ def generate_all_maps():
             case _:
                 print(f"Warning: No action generation logic defined for phase {phase.name}")
 
-        if actions:
-            all_maps_raw[phase.name] = actions
+
+        all_maps_raw[phase.name] = actions
             
     # --- NEW: Post-processing step to make everything hashable ---
     all_maps_hashable = {}
@@ -196,46 +196,5 @@ def generate_all_maps():
     
     print("action_space.json has been generated successfully!")
 
-class ActionManager:
-    """
-    Loads the pre-computed total action space from a JSON file and creates
-    the essential action-to-index lookup dictionary for each phase.
-    """
-    def __init__(self, filepath='action_space.json'):
-        self.action_maps: dict[Phase, dict[ActionType, int]] = {}
-        
-        with open(filepath, 'r') as f:
-            raw_maps = json.load(f)
-
-        for phase_name, total_actions_list in raw_maps.items():
-            # This check will skip phases that might not be in your Phase enum
-            if phase_name in Phase.__members__:
-                phase = Phase[phase_name]
-                
-                # Create the action-to-index dictionary from the loaded list.
-                action_to_index_dict :dict[ActionType, int] = {
-                    # Convert the action_value to a hashable tuple before creating the key
-                    (action_name, _make_hashable(action_value)): i
-                    for i, (action_name, action_value) in enumerate(total_actions_list)
-                }
-                
-                self.action_maps[phase] = action_to_index_dict
-
-    def get_action_map(self, phase: Phase) -> dict[ActionType, int]:
-        """Returns the action map for a given game phase."""
-        return self.action_maps[phase]
-
-
-
-    
-# --- Main execution block for testing ---
-if __name__ == '__main__':
+if __name__ == "__main__":
     generate_all_maps()
-
-    action_manager = ActionManager()
-    print("ActionManager initialized successfully.")
-    print("\n--- Action Space Sizes ---")
-    for phase in Phase:
-        if phase in action_manager.action_maps:
-            action_map = action_manager.get_action_map(phase)
-            print(f"Phase: {phase.name:<40} Total Actions: {len(action_map)}")

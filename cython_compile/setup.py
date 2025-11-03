@@ -12,13 +12,14 @@ extensions = [
     Extension("squad", ["cython_compile/squad.pyx"], include_dirs=[numpy.get_include()]),
     Extension("defense_token", ["cython_compile/defense_token.pyx"], include_dirs=[numpy.get_include()]),
     Extension("game_encoder", ["cython_compile/game_encoder.pyx"], include_dirs=[numpy.get_include()]),
+    Extension("action_manager", ["cython_compile/action_manager.pyx"]),
 ]
 
 # Run the setup
 setup(
     ext_modules=cythonize(
         extensions,
-        compiler_directives={'language_level': "3"} # Use Python 3 syntax
+        compiler_directives={'language_level': "3", 'profile': True}, # Use Python 3 syntax
     )
 )
 

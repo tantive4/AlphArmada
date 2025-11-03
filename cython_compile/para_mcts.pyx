@@ -1,5 +1,3 @@
-# cython: profile=True
-
 from __future__ import annotations
 import random
 from collections import deque
@@ -12,7 +10,7 @@ cimport numpy as np
 from libc.math cimport log, sqrt
 from libc.stdlib cimport rand, RAND_MAX
 
-from action_space import ActionManager
+from action_manager cimport ActionManager
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
 import dice
@@ -137,16 +135,16 @@ cdef class MCTS:
     """
     cdef :
         public list para_games, root_snapshots, player_roots
-        public object action_manager
+        public ActionManager action_manager
         public object model
 
-    def __init__(self, list games, object action_manager, object model) -> None:
+    def __init__(self, list games, ActionManager action_manager, object model) -> None:
         self.para_games = games
         self.root_snapshots = [(<Armada>game).get_snapshot() for game in games]
         self.player_roots = [{ 1 : Node(game = game, action = ('initialize_game', None)),
                                -1 : Node(game = game, action = ('initialize_game', None))} 
                               for game in games]
-        self.action_manager : ActionManager = action_manager
+        self.action_manager = action_manager
         self.model : ArmadaNet = model
 
     cpdef dict para_search(self, dict sim_players, bint deep_search):
@@ -155,7 +153,7 @@ cdef class MCTS:
             list para_indices, expandable_node_indices, valid_actions
             int para_index, sim_player, mcts_iteration, output_index, max_size
             Node root_node, node
-            dict action_map, para_path, para_action_probs
+            dict para_path, para_action_probs
             object path
             float value, winner
             np.ndarray policy_arr
@@ -219,12 +217,11 @@ cdef class MCTS:
                         policy_arr = (1-Config.DIRICHLET_EPSILON) * policy_arr + \
                                      Config.DIRICHLET_EPSILON * np.random.dirichlet(np.full(len(policy_arr), Config.DIRICHLET_ALPHA))
 
-                    action_map = self.action_manager.get_action_map(game.phase)
                     valid_actions: list[ActionType] = game.get_valid_actions()
-                    
-                    policy_arr = self._mask_policy(policy_arr, valid_actions, action_map)
 
-                    self._expand(node, para_index, valid_actions, action_map, value, policy_arr)
+                    policy_arr = self._mask_policy(policy_arr, <int>game.phase, valid_actions)
+
+                    self._expand(node, para_index, <int>game.phase, valid_actions, value, policy_arr)
 
                     # 3. Backpropagation (Updated for -1 to 1 scoring)
                     self._backpropagate(path, value)
@@ -401,8 +398,8 @@ cdef class MCTS:
             values = value_tensor.squeeze(1).cpu().numpy()
 
         return values, policies
-  
-    cdef np.ndarray _mask_policy(self, np.ndarray policy, list valid_actions, dict action_map):
+
+    cdef np.ndarray _mask_policy(self, np.ndarray policy, int phase, list valid_actions):
         cdef: 
             np.ndarray valid_moves_mask = np.zeros_like(policy, dtype=np.bool_)
             object action
@@ -411,7 +408,7 @@ cdef class MCTS:
 
         for action in valid_actions:
             # get the action's index in the full action space
-            action_index = action_map[action]
+            action_index = self.action_manager.get_action_index(phase, action)
             valid_moves_mask[action_index] = 1
         
         policy *= valid_moves_mask
@@ -428,7 +425,7 @@ cdef class MCTS:
 
         return policy
 
-    cdef void _expand(self, Node node, int para_index, list valid_actions, dict action_map, float value, np.ndarray policy) :
+    cdef void _expand(self, Node node, int para_index, int phase, list valid_actions, float value, np.ndarray policy) :
         cdef: 
             tuple action
             int action_index
@@ -439,7 +436,7 @@ cdef class MCTS:
         game = self.para_games[para_index]
 
         for action in valid_actions:
-            action_index = action_map[action]
+            action_index = self.action_manager.get_action_index(phase, action)
             action_policy = <float>(policy[action_index])
             node_value = value
 

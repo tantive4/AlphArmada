@@ -30,17 +30,21 @@ SQUAD_DAMAGE_INDICES = {
     Dice.RED:   [0, 1, 0, 2, 0]}
 
 def dice_icon(dice_pool : tuple[tuple[int, ...], ...]) -> dict[Dice, str] :
-    icon_dict = {dice_type : ' '.join([(f'{icon} ' * dice_count) for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type.value])]).replace('  ',' ').strip() for dice_type in Dice}
+    icon_dict = {dice_type : ' '.join([(f'{icon} ' * dice_count) 
+                                       for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type.value])]).replace('  ',' ').strip() 
+                                       for dice_type in DICE}
     return {dice_type : dice_pool for dice_type,dice_pool in icon_dict.items() if dice_pool}
 
-
+@
 def roll_dice(dice_pool: tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
     """
     Simulates rolling Star Wars: Armada dice using NumPy's multinomial distribution.
     """
-    return tuple(
-        tuple(RNG.multinomial(dice_pool[dice_type], PROBABILITIES[dice_type]).tolist())
-        for dice_type in DICE)
+    red_roll = tuple(RNG.multinomial(dice_pool[Dice.RED], PROBABILITIES[Dice.RED]).tolist())
+    blue_roll = tuple(RNG.multinomial(dice_pool[Dice.BLUE], PROBABILITIES[Dice.BLUE].tolist()))
+    black_roll = tuple(RNG.multinomial(dice_pool[Dice.BLACK], PROBABILITIES[Dice.BLACK].tolist()))
+
+    return (red_roll, blue_roll, black_roll)
 
 def dice_choices(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
     """
