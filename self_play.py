@@ -18,7 +18,7 @@ from jit_geometry import pre_compile_jit_geometry
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state, get_terminal_value
 from para_mcts import MCTS
-from action_space import ActionManager
+from action_manager import ActionManager
 from action_phase import Phase, get_action_str
 from dice import roll_dice
 

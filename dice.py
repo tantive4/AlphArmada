@@ -35,7 +35,7 @@ def dice_icon(dice_pool : tuple[tuple[int, ...], ...]) -> dict[Dice, str] :
                                        for dice_type in DICE}
     return {dice_type : dice_pool for dice_type,dice_pool in icon_dict.items() if dice_pool}
 
-@
+
 def roll_dice(dice_pool: tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
     """
     Simulates rolling Star Wars: Armada dice using NumPy's multinomial distribution.

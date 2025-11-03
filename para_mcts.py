@@ -7,7 +7,7 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 
-from action_space import ActionManager
+from action_manager import ActionManager
 from armada_net import ArmadaNet
 from game_encoder import encode_game_state
 import dice

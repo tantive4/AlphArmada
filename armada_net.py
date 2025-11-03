@@ -5,7 +5,7 @@ import torch.nn.functional as F
 # Import the configuration constants from your encoder to ensure the model's
 # input shapes match the encoder's output shapes perfectly.
 from configs import Config
-from action_space import ActionManager
+from action_manager import ActionManager
 from action_phase import Phase
 
 # --- Helper Modules ---
