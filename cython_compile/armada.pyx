@@ -1,9 +1,11 @@
+# cython: profile=True
+
 from __future__ import annotations
 import random
 import math
 
 import numpy as np
-cimport numpy as np
+cimport numpy as cnp
 
 from action_phase import Phase, ActionType, get_action_str
 import visualizer

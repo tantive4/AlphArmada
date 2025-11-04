@@ -1,4 +1,3 @@
-from defense_token cimport DefenseToken
 from armada cimport Armada
 cdef class Squad:
     cdef :

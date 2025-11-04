@@ -22,13 +22,20 @@ from action_manager import ActionManager
 from action_phase import Phase, get_action_str
 from dice import roll_dice
 
-
+try:
+    import builtins
+    profile = builtins.__dict__['profile']
+except KeyError:
+    # 'profile' not in builtins: not running line-profiler
+    def profile(func):
+        return func
 
 class AlphArmada:
     def __init__(self, model : ArmadaNet, optimizer : optim.AdamW) :
         self.model : ArmadaNet = model
         self.optimizer : optim.AdamW = optimizer
-
+        
+    @profile
     def para_self_play(self) :
         memory : dict[int, list[tuple[Phase, dict, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
         self_play_data : list[tuple[Phase, dict, np.ndarray, float, dict[str, np.ndarray]]] = []
@@ -82,6 +89,10 @@ class AlphArmada:
                         self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))
                     memory[para_index].clear()
             action_counter += 1
+
+        for game in [game for game in para_games if game.winner == 0.0]:
+            with open('simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
+            
         phases, states, action_probs, winners, aux_targets = zip(*self_play_data)
 
         # Collate the dictionaries into large numpy arrays

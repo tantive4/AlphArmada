@@ -1,3 +1,5 @@
+# cython: profile=True
+
 from __future__ import annotations
 import random
 from collections import deque
@@ -5,20 +7,18 @@ from collections import deque
 import torch
 import numpy as np
 import torch.nn.functional as F
-cimport numpy as np
+cimport numpy as cnp
 
 from libc.math cimport log, sqrt
-from libc.stdlib cimport rand, RAND_MAX
 
 from action_manager cimport ActionManager
 from armada_net import ArmadaNet
-from game_encoder import encode_game_state
+from game_encoder cimport encode_game_state
 import dice
 from action_phase import Phase, ActionType
 from armada cimport Armada
 from attack_info cimport AttackInfo
 from self_play import Config
-
 
 cdef class Node:
     """
@@ -156,7 +156,7 @@ cdef class MCTS:
             dict para_path, para_action_probs
             object path
             float value, winner
-            np.ndarray policy_arr
+            cnp.ndarray[cnp.float32_t, ndim=1] policy_arr
 
         para_indices = list(sim_players.keys())
         for para_index in para_indices:
@@ -215,7 +215,7 @@ cdef class MCTS:
                     # Add Dirichlet noise for exploration at the root node only
                     if len(path) == 1:
                         policy_arr = (1-Config.DIRICHLET_EPSILON) * policy_arr + \
-                                     Config.DIRICHLET_EPSILON * np.random.dirichlet(np.full(len(policy_arr), Config.DIRICHLET_ALPHA))
+                                     Config.DIRICHLET_EPSILON * np.random.dirichlet(np.full(len(policy_arr), Config.DIRICHLET_ALPHA)).astype(np.float32)
 
                     valid_actions: list[ActionType] = game.get_valid_actions()
 
@@ -252,7 +252,7 @@ cdef class MCTS:
             float temperature
             list children
             int num_children, i
-            np.ndarray visit_counts, visit_weights 
+            cnp.ndarray[cnp.float32_t, ndim=1] visit_counts, visit_weights 
 
         root_node = self.player_roots[para_index][decision_player]
         children = root_node.children
@@ -399,9 +399,9 @@ cdef class MCTS:
 
         return values, policies
 
-    cdef np.ndarray _mask_policy(self, np.ndarray policy, int phase, list valid_actions):
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] _mask_policy(self, cnp.ndarray[cnp.float32_t, ndim=1] policy, int phase, list valid_actions):
         cdef: 
-            np.ndarray valid_moves_mask = np.zeros_like(policy, dtype=np.bool_)
+            cnp.ndarray[cnp.npy_bool, ndim=1] valid_moves_mask = np.zeros_like(policy, dtype=np.bool_)
             object action
             int action_index
             float policy_sum
@@ -425,7 +425,7 @@ cdef class MCTS:
 
         return policy
 
-    cdef void _expand(self, Node node, int para_index, int phase, list valid_actions, float value, np.ndarray policy) :
+    cdef void _expand(self, Node node, int para_index, int phase, list valid_actions, float value, cnp.ndarray[cnp.float32_t, ndim=1] policy) :
         cdef: 
             tuple action
             int action_index
@@ -466,9 +466,9 @@ cdef class MCTS:
             
             node.update(result_for_node)
 
-    cdef np.ndarray _get_final_action_probs(self, int para_index, int sim_player, int max_size):
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self, int para_index, int sim_player, int max_size):
         cdef:
-            np.ndarray action_probs = np.zeros(max_size, dtype=np.float32)
+            cnp.ndarray[cnp.float32_t, ndim=1] action_probs = np.zeros(max_size, dtype=np.float32)
             Node root_node = self.player_roots[para_index][sim_player]
             Node child
             float total_visits

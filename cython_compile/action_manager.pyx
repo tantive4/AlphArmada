@@ -1,3 +1,5 @@
+# cython: profile=True
+
 from enum_class import *
 import json
 from action_phase import Phase, ActionType

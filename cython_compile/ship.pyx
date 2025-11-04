@@ -1,10 +1,12 @@
+# cython: profile=True
+
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from collections import Counter
 import itertools
 
 import numpy as np
-cimport numpy as np
+cimport numpy as cnp
 
 
 from dice import *

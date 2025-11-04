@@ -1,9 +1,12 @@
+# cython: profile=True
+
 from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
 import numpy as np
-cimport numpy as np
+cimport numpy as cnp
+cnp.import_array()
 
 from configs import Config
 from action_phase import Phase
@@ -25,7 +28,7 @@ cdef:
     int hull_type = len(HullSection)
 
 cpdef tuple get_terminal_value(Armada game):
-    cdef np.ndarray[np.float32_t, ndim=1] ship_hulls, squad_hulls, game_length
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] ship_hulls, squad_hulls, game_length
 
     if game.winner == 0.0 :
         raise ValueError("Game is not in a terminal state.")
@@ -56,7 +59,7 @@ cpdef dict encode_game_state(Armada game):
         'relations': encode_relation_matrix(game)
     }
 
-cdef np.ndarray[np.float32_t, ndim=1] encode_scalar_features(Armada game):
+cdef cnp.ndarray[cnp.float32_t, ndim=1] encode_scalar_features(Armada game):
     """
     Encodes high-level, non-spatial game state information, including crucial
     context about an ongoing attack from game.attack_info.
@@ -64,24 +67,24 @@ cdef np.ndarray[np.float32_t, ndim=1] encode_scalar_features(Armada game):
     # --- Base Game State Features (10 features) ---
     
     # Simple scalar values (3 features)
-    cdef np.ndarray[np.float32_t, ndim=1] base_scalars = np.array([
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] base_scalars = np.array([
         game.round / 6.0,
         game.get_point(1) / 200.0,
         game.get_point(-1) / 200.0
     ], dtype=np.float32)
 
     # One-hot encoded phase (len(Phase) features)
-    cdef np.ndarray[np.float32_t, ndim=1] phase_feature = np.zeros(phase_type, dtype=np.float32)
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] phase_feature = np.zeros(phase_type, dtype=np.float32)
     phase_feature[<int>game.phase - 1] = 1.0
 
     # One-hot encoded initiative (2 features)
-    cdef np.ndarray[np.float32_t, ndim=1] initiative_feature = np.array([1, 0] if game.first_player == 1 else [0, 1], dtype=np.float32)
-    
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] initiative_feature = np.array([1, 0] if game.first_player == 1 else [0, 1], dtype=np.float32)
+
     # One-hot encoded current player (2 features)
-    cdef np.ndarray[np.float32_t, ndim=1] player_feature = np.array([1, 0] if game.current_player == 1 else [0, 1], dtype=np.float32)
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] player_feature = np.array([1, 0] if game.current_player == 1 else [0, 1], dtype=np.float32)
 
     # Combine all base features using np.concatenate
-    cdef np.ndarray base_features = np.concatenate([
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] base_features = np.concatenate([
         base_scalars,
         initiative_feature,
         phase_feature,
@@ -89,9 +92,9 @@ cdef np.ndarray[np.float32_t, ndim=1] encode_scalar_features(Armada game):
     ])
 
     # --- Attack Context Features (17 features) ---
-    cdef np.ndarray[np.float32_t, ndim=1] attack_features = np.zeros(17, dtype=np.float32)
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] attack_features = np.zeros(17, dtype=np.float32)
     cdef AttackInfo attack_info
-    cdef np.ndarray[np.float32_t, ndim=1] availability_flags, dice_pool, crit_effect, range_obstruction
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] availability_flags, dice_pool, crit_effect, range_obstruction
 
     if game.attack_info is not None:
         attack_info = game.attack_info
@@ -132,15 +135,15 @@ cdef np.ndarray[np.float32_t, ndim=1] encode_scalar_features(Armada game):
     return np.concatenate([base_features, attack_features])
 
 
-cdef np.ndarray[np.float32_t, ndim=2] encode_ship_entity_features(Armada game):
+cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game):
     """
     Encodes a detailed vector for each ship, now including its role in an active attack.
     """
-    cdef np.ndarray[np.float32_t, ndim=2] ship_entity_vectors = np.zeros(
+    cdef cnp.ndarray[cnp.float32_t, ndim=2] ship_entity_vectors = np.zeros(
         (<int>Config.MAX_SHIPS, <int>Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32
     )
     cdef Ship ship
-    cdef np.ndarray[np.float32_t, ndim=1] hull_point, shield, position, command_scalars, command_stack, command_dials, command_tokens, \
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] hull_point, shield, position, command_scalars, command_stack, command_dials, command_tokens, \
                                           attack_role, defense_tokens, armament, status, nav_chart_vector
     cdef int stack_idx, defense_idx
     cdef object command
@@ -236,8 +239,8 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_ship_entity_features(Armada game):
         armament = np.zeros(15, dtype=np.float32)
         for hull in HULL_SECTIONS:
             if hull in ship.attack_impossible_hull : continue
-            armament[hull*3:(hull+1)*3] = [dice/Config.GLOBAL_MAX_DICE for dice in ship.battery[hull]]
-        armament[12:15] = [dice/Config.GLOBAL_MAX_DICE for dice in ship.anti_squad]
+            armament[hull*3:(hull+1)*3] = np.array(ship.battery[hull], dtype=np.float32) / Config.GLOBAL_MAX_DICE
+        armament[12:15] = np.array(ship.anti_squad, dtype=np.float32) / Config.GLOBAL_MAX_DICE
 
         # Status (6 features)
         status = np.array([
@@ -247,7 +250,7 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_ship_entity_features(Armada game):
             ship.speed / 4.0,
             ship.attack_count / 2.0,
         ], dtype=np.float32)
-        
+
         # Nav Chart Vector (10 features)
         nav_chart_vector = ship.nav_chart_vector
 
@@ -258,13 +261,13 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_ship_entity_features(Armada game):
 
     return ship_entity_vectors
 
-cdef np.ndarray[np.float32_t, ndim=2] encode_squad_entity_features(Armada game):
+cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_squad_entity_features(Armada game):
     """
     Encodes a detailed vector for each squad, summarizing the ships in the squad.
     """
-    cdef np.ndarray[np.float32_t, ndim=2] squad_entity_vectors = np.zeros((<int>Config.MAX_SQUADS, <int>Config.SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
+    cdef cnp.ndarray[cnp.float32_t, ndim=2] squad_entity_vectors = np.zeros((<int>Config.MAX_SQUADS, <int>Config.SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
     cdef Squad squad
-    cdef np.ndarray[np.float32_t, ndim=1] info, status, overlap_ship, attack_role, defense_tokens, armament
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] info, status, overlap_ship, attack_role, defense_tokens, armament
     cdef int defense_idx
     cdef DefenseToken token
 
@@ -307,8 +310,8 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_squad_entity_features(Armada game):
 
         # Armament (6 features)
         armament = np.zeros(6, dtype=np.float32)
-        armament[0:3] = [dice/Config.GLOBAL_MAX_DICE for dice in squad.battery]
-        armament[3:6] = [dice/Config.GLOBAL_MAX_DICE for dice in squad.anti_squad]
+        armament[0:3] = np.array(squad.battery, dtype=np.float32) / Config.GLOBAL_MAX_DICE
+        armament[3:6] = np.array(squad.anti_squad, dtype=np.float32) / Config.GLOBAL_MAX_DICE
 
         # Attack Role (2 features)
         attack_role = np.zeros(2, dtype=np.float32)
@@ -337,7 +340,7 @@ cdef np.ndarray[np.float32_t, ndim=2] encode_squad_entity_features(Armada game):
 
     return squad_entity_vectors
 
-cdef np.ndarray[np.float32_t, ndim=3] encode_spatial_features(Armada game, tuple resolution):
+cdef cnp.ndarray[cnp.float32_t, ndim=3] encode_spatial_features(Armada game, tuple resolution):
     """
     Creates 2D grid representations of the game board.
     This is now a wrapper function for clarity and profiling.
@@ -345,13 +348,17 @@ cdef np.ndarray[np.float32_t, ndim=3] encode_spatial_features(Armada game, tuple
     cdef int width_res, height_res
     width_res, height_res = resolution  # width along player_edge, height along short_edge
 
-    cdef np.ndarray[np.float32_t, ndim=3] planes = np.zeros((Config.MAX_SHIPS * 2 + 2, height_res, width_res), dtype=np.float32)
+    cdef cnp.ndarray[cnp.float32_t, ndim=3] planes = np.zeros((Config.MAX_SHIPS * 2 + 2, height_res, width_res), dtype=np.float32)
 
     cdef float width_step = game.player_edge / width_res
     cdef float height_step = game.short_edge / height_res
     cdef float value
     cdef Ship ship
-    for ship in game.ships:
+    cdef Squad squad
+    cdef int ship_idx, squad_idx
+
+    for ship_idx in range(Config.MAX_SHIPS):
+        ship = game.ships[ship_idx]
         if ship.destroyed: continue
 
         value = (ship.hull / ship.max_hull) * ship.player
@@ -361,34 +368,51 @@ cdef np.ndarray[np.float32_t, ndim=3] encode_spatial_features(Armada game, tuple
         planes[2 * ship.id + 1] = cache._threat_plane(
             ship.get_ship_hash_state(), width_step, height_step, width_res, height_res
         )
-        planes[-2] = sum(cache._squad_presence_plane(<Squad>squad.get_squad_hash_state(), (<Squad>squad).hull / (<Squad>squad).max_hull, width_step, height_step, width_res, height_res) for squad in game.squads if not squad.destroyed and squad.player == 1)
-        planes[-1] = sum(cache._squad_presence_plane(<Squad>squad.get_squad_hash_state(), (<Squad>squad).hull / (<Squad>squad).max_hull, width_step, height_step, width_res, height_res) for squad in game.squads if not squad.destroyed and squad.player == -1)
 
+    for squad_idx in range(Config.MAX_SQUADS):
+        squad = game.squads[squad_idx]
+        if squad.destroyed: continue
+        
+        # Call the cache function once
+        squad_plane = cache._squad_presence_plane(
+            squad.get_squad_hash_state(), 
+            squad.hull / squad.max_hull, 
+            width_step, height_step, width_res, height_res
+        )
+        
+        # Add to the correct plane
+        if squad.player == 1:
+            planes[-2] += squad_plane
+        else: # Assumes player == -1
+            planes[-1] += squad_plane
     return planes
 
-cdef np.ndarray[np.float32_t, ndim=2] encode_relation_matrix(Armada game) :
+cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_relation_matrix(Armada game) :
     """
     Encodes the pairwise range relationships between every hull section of every ship.
     """
     cdef int num_hulls = <int>Config.MAX_SHIPS * hull_type
-    cdef np.ndarray[np.float32_t, ndim=2] matrix = np.zeros((num_hulls, num_hulls), dtype=np.float32)
+    cdef cnp.ndarray[cnp.float32_t, ndim=2] matrix = np.zeros((num_hulls, num_hulls), dtype=np.float32)
     cdef Ship attacker, defender
-    cdef int i, j, from_idx, to_idx
+    cdef int i, j, from_hull, to_hull, from_idx, to_idx
     cdef dict range_dict
-    cdef object from_hull, to_hull
 
-    for i, attacker in enumerate(game.ships):
+    for i in range(Config.MAX_SHIPS):
+        attacker = <Ship>game.ships[i]
         if i >= <int>Config.MAX_SHIPS or attacker.destroyed: continue
-        for j, defender in enumerate(game.ships):
-            if j >= <int>Config.MAX_SHIPS or defender.destroyed or i == j: continue
+        
+        for j in range(Config.MAX_SHIPS):
+            if i == j: continue # Don't check against self
+            defender = <Ship>game.ships[j]
+            if j >= <int>Config.MAX_SHIPS or defender.destroyed: continue
 
             _, range_dict = cache.attack_range_s2s(attacker.get_ship_hash_state(), defender.get_ship_hash_state())
 
-            for from_hull in HULL_SECTIONS:
-                for to_hull in HULL_SECTIONS:
+            for from_hull in range(hull_type):
+                for to_hull in range(hull_type):
                     # Calculate the flattened index for the matrix
-                    from_idx = i * 4 + <int>from_hull
-                    to_idx = j * 4 + <int>to_hull
+                    from_idx = i * hull_type + from_hull
+                    to_idx = j * hull_type + to_hull
 
                     attack_range = range_dict[from_hull][to_hull]
                     

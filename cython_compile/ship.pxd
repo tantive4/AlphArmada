@@ -1,12 +1,12 @@
 from armada cimport Armada
-cimport numpy as np
+cimport numpy as cnp
 
 cdef class Ship:
     cdef :
         public Armada game
         public int player, max_hull, point, command_value, engineer_value, squad_value, id, speed, hull, engineer_point, attack_count
         public float x, y, orientation
-        public np.ndarray nav_chart_vector
+        public cnp.ndarray nav_chart_vector
         public str name
         public object size_class
         public dict battery, battery_range, anti_squad_range, defense_tokens, nav_chart, max_shield, _course_cache

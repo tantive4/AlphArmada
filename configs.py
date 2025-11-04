@@ -24,11 +24,11 @@ class Config:
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
     # Training Loop
-    ITERATIONS = 100 # self_play & train for ITERATIONS times
+    ITERATIONS = 1 # self_play & train for ITERATIONS times
 
     # Self Play
     SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
-    PARALLEL_PLAY = 128 # run games in batch
+    PARALLEL_PLAY = 32 # run games in batch
     # 1 * 128 * 400 * 0.25 = 12800 states are created
 
     # MCTS
