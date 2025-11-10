@@ -12,7 +12,7 @@ from defense_token import TokenType
 
 cdef class AttackInfo :
 
-    def __init__(self, attacker:tuple[Ship,HullSection]|Squad, defender:tuple[Ship, HullSection] | Squad) -> None :
+    def __init__(self, attacker:tuple[Ship,HullSection]|Squad, defender:tuple[Ship, HullSection] | Squad, is_counter:bool=False) -> None :
         cdef Ship attack_ship
         cdef Squad attack_squad
         cdef Ship defend_ship
@@ -26,7 +26,7 @@ cdef class AttackInfo :
             self.attack_ship_id : int = attack_ship.id
             self.attack_hull : HullSection = attack_hull
             attack_ship.attack_count += 1
-            attack_ship.attack_impossible_hull += (attack_hull,)
+
         else :
             self.is_attacker_ship : bool= False
             attack_squad = attacker
@@ -50,9 +50,17 @@ cdef class AttackInfo :
             self.con_fire_token = False
             
             if self.is_defender_ship :
+                attack_hist_list = list(attack_ship.attack_history)
+                attack_hist_list[attack_hull] = (defend_ship.id, defend_hull)
+                attack_ship.attack_history = tuple(attack_hist_list)
+
                 self.attack_range : AttackRange = cache.attack_range_s2s(attack_ship.get_ship_hash_state(), defend_ship.get_ship_hash_state())[1][attack_hull][defend_hull]
                 self.obstructed : bool = attack_ship.is_obstruct_s2s(attack_hull, defend_ship, defend_hull)
             else :
+                attack_hist_list = list(attack_ship.attack_history)
+                attack_hist_list[attack_hull] = (defend_squad.id,)
+                attack_ship.attack_history = tuple(attack_hist_list)
+
                 self.attack_range : AttackRange = cache.attack_range_s2q(attack_ship.get_ship_hash_state(), defend_squad.get_squad_hash_state())[attack_hull]
                 self.obstructed : bool = attack_ship.is_obstruct_s2q(attack_hull, defend_squad)
                 self.squadron_target : tuple[int, ...] = (self.defend_squad_id,)
@@ -62,7 +70,7 @@ cdef class AttackInfo :
 
         else :
             self.attack_range : AttackRange = AttackRange.CLOSE
-            self.dice_to_roll : tuple[int, ...] = attack_squad.gather_dice(is_ship=self.is_defender_ship)
+            self.dice_to_roll : tuple[int, ...] = attack_squad.gather_dice(is_ship=self.is_defender_ship, is_counter=is_counter)
             
             self.bomber : bool = attack_squad.bomber
 
@@ -88,6 +96,10 @@ cdef class AttackInfo :
         self.defend_squad_id = defend_squad.id
         self.squadron_target += (defend_squad.id,)
 
+        attack_hist_list = list(attack_ship.attack_history)
+        attack_hist_list[attack_hull] = self.squadron_target
+        attack_ship.attack_history = tuple(attack_hist_list)
+        
         self.attack_range : AttackRange = cache.attack_range_s2q(attack_ship.get_ship_hash_state(), defend_squad.get_squad_hash_state())[attack_hull]
         self.obstructed : bool = attack_ship.is_obstruct_s2q(attack_hull, defend_squad)
 

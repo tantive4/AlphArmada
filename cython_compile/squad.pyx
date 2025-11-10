@@ -4,6 +4,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from collections import Counter
 
+import numpy as np
+import math
+cimport numpy as cnp
+from libc.math cimport abs
+
 from defense_token cimport DefenseToken
 from measurement import *
 from enum_class import *
@@ -44,8 +49,8 @@ cdef class Squad :
         self.swarm : bool = 'swarm' in squad_dict['keywords']
         self.escort : bool = 'escort' in squad_dict['keywords']
         self.bomber : bool = 'bomber' in squad_dict['keywords']
-        
-        
+        self.heavy : bool = 'heavy' in squad_dict['keywords']
+        self.counter : int = squad_dict.get('counter', 0)
 
     def __str__(self):
         return self.name
@@ -111,38 +116,53 @@ cdef class Squad :
         cdef int y_int = <int>(self.coords[1] * HASH_PRECISION)
         return self.coords
     
-    def is_engaged(self) -> bool :
+    cpdef bint is_engaged(self):
         """
         check if the squad is engaged with any enemy squadron
         return: a list of engaged enemy squadrons
         """
-        engage_distance = Q2Q_RANGE
+        cdef:
+            float engage_distance = Q2Q_RANGE
+            float engage_distance_sq = engage_distance * engage_distance
         for squad in self.game.squads :
-            if squad.player == self.player or squad.destroyed :
+            if squad.player == self.player or squad.destroyed or squad.heavy :
                 continue
-            distance = np.hypot(self.coords[0] - squad.coords[0], self.coords[1] - squad.coords[1])
-            if distance > engage_distance :
+
+            if not self.in_distance(squad, engage_distance, engage_distance_sq):
                 continue
+
             if not self.is_obstruct_q2q(squad) :
                 return True
         return False
 
-    
+    cpdef bint is_engage_with(self, Squad other):
+        """
+        Check if this squad is engaged with another squad.
+        """
+        cdef:
+            float engage_distance = Q2Q_RANGE
+            float engage_distance_sq = engage_distance * engage_distance
+        return self.in_distance(other, engage_distance, engage_distance_sq) and not self.is_obstruct_q2q(other)
+
     def get_valid_target(self) -> list[int | tuple[int, HullSection]] :
         """
         get a list of valid targets for the squad to attack
         return: a list of valid targets, which can be either enemy squadrons or ship hull sections
         """
+        escort_target : list[int | tuple[int, HullSection]] = []
         valid_target : list[int | tuple[int, HullSection]] = []
 
         
         for squad in self.game.squads :
             if squad.player == self.player or squad.destroyed :
                 continue
-            distance = np.hypot(self.coords[0] - squad.coords[0], self.coords[1] - squad.coords[1])
-            if distance <= Q2Q_RANGE :
+            if self.in_distance(squad, <float>Q2Q_RANGE, <float>(Q2Q_RANGE)**2):
                 valid_target.append(squad.id)
+                if squad.escort and not self.is_obstruct_q2q(squad):
+                    escort_target.append(squad.id)
 
+        if escort_target :
+            return escort_target
         if self.is_engaged() :
             return valid_target
         
@@ -199,7 +219,7 @@ cdef class Squad :
             angle: the angle to move, in degree, 0 is to up **on player's perspective**, 90 is to right
         """
         angle_rad = np.deg2rad(angle) * self.player # go "up" on player's perspective
-        self.coords = (self.coords[0] + DISTANCE[speed] * np.sin(angle_rad), self.coords[1] + DISTANCE[speed] * np.cos(angle_rad))
+        self.coords = (self.coords[0] + DISTANCE[speed] * math.sin(angle_rad), self.coords[1] + DISTANCE[speed] * math.cos(angle_rad))
         self.can_move = False
 
     def get_valid_moves(self) -> list[tuple[int, float]] :
@@ -228,7 +248,21 @@ cdef class Squad :
 
         return valid_moves
 
-    def is_overlap(self) -> bool :
+    cpdef bint in_distance(self, Squad other, float distance, float distance_sq) :
+        
+        cdef:
+            float dx = self.coords[0] - other.coords[0]
+            float dy = self.coords[1] - other.coords[1]
+
+        # L1 Norm Check
+        if (abs(dx) > distance) or (abs(dy) > distance):
+            return False  # Skip to the next squad, don't do the expensive check
+
+        # Distance Check
+        if (dx**2 + dy**2) <= distance_sq:
+            return True
+
+    cpdef bint is_overlap(self) :
         """
         Check if the squad is overlapping with any other squad or ship.
         Args:
@@ -236,13 +270,20 @@ cdef class Squad :
         Returns:
             True if the squad is overlapping with any other squad or ship, False otherwise.
         """
-        for squad in self.game.squads :
+        cdef:
+            Squad squad
+            Ship ship
+            float dx, dy
+            float q2q_touch = SQUAD_BASE_RADIUS * 2
+            float q2q_touch_square = q2q_touch ** 2
+            
+        for squad in self.game.squads:
             if squad.id == self.id or squad.destroyed or squad.overlap_ship_id is not None:
                 continue
-            distance = np.hypot(self.coords[0] - squad.coords[0], self.coords[1] - squad.coords[1])
-            if distance <= SQUAD_BASE_RADIUS * 2 :
+            if self.in_distance(squad, q2q_touch, q2q_touch_square): 
                 return True
-        for ship in self.game.ships :
+
+        for ship in self.game.ships:
             # ignore destroyed ships and the ship this squad is currently overlapping with
             if ship.destroyed or ship.id == self.overlap_ship_id:
                 continue
@@ -265,11 +306,12 @@ cdef class Squad :
         """
         return self.coords[0] < SQUAD_BASE_RADIUS or self.coords[0] > self.game.player_edge - SQUAD_BASE_RADIUS or self.coords[1] < SQUAD_BASE_RADIUS or self.coords[1] > self.game.short_edge - SQUAD_BASE_RADIUS
 
-    def gather_dice(self, *, is_ship:bool) -> tuple[int, ...] :
+    def gather_dice(self, *, is_ship:bool, is_counter:bool) -> tuple[int, ...] :
         if is_ship :
             return self.battery
-        else :
-            return self.anti_squad
+        if is_counter:
+            return (0,self.counter, 0)
+        return self.anti_squad
         
     cdef object get_snapshot(self) :
         """
@@ -283,7 +325,7 @@ cdef class Squad :
             self.can_move,
             self.can_attack,
             self.overlap_ship_id,
-            {key: <DefenseToken>dt.get_snapshot()
+            {<int>key: <DefenseToken>dt.get_snapshot()
              for key, dt in self.defense_tokens.items()}
         )
 
@@ -303,4 +345,4 @@ cdef class Squad :
         ) = snapshot
 
         for key, token_state in defense_tokens_state.items():
-            (<DefenseToken>self.defense_tokens[key]).revert_snapshot(token_state)
+            (<DefenseToken>self.defense_tokens[<int>key]).revert_snapshot(token_state)

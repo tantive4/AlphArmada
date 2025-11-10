@@ -61,7 +61,7 @@ def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[H
     return coord_dict
 
 @lru_cache(maxsize=64000)
-def attack_range_s2s(attacker_state, defender_state, extension_factor=500):
+def attack_range_s2s(attacker_state, defender_state, extension_factor=500) -> tuple[list[bool], list[list[int]]]:
     """
     High-performance version of attack_range_s2s using Numba.
     This function prepares data and calls the jitted core function.
@@ -84,19 +84,15 @@ def attack_range_s2s(attacker_state, defender_state, extension_factor=500):
         extension_factor
     )
 
-    # 4. Convert results back to Python dictionaries and enums
-    target_dict = {HullSection(i): bool(res) for i, res in enumerate(target_results)}
-    measure_dict = {
-        HullSection(r): {
-            HullSection(c): AttackRange(val) for c, val in enumerate(row)
-        } for r, row in enumerate(measure_results)
-    }
+    # 4. Convert results back to Python list
+    target_list = target_results.tolist()
+    measure_list = measure_results.tolist()
     
-    return target_dict, measure_dict
+    return target_list, measure_list
 
 
 @lru_cache(maxsize=64000)
-def attack_range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int], extension_factor=500) -> dict[HullSection, AttackRange]:
+def attack_range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int], extension_factor=500) -> list[int]:
     """
     return:
         attack_range (AttackRange) for each hull section
@@ -114,14 +110,12 @@ def attack_range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple
         extension_factor
     )
 
-    measure_dict = {
-        HullSection(r): AttackRange(val) for r, val in enumerate(measure_results)
-    }
+    measure_list = measure_results.tolist()
 
-    return measure_dict
+    return measure_list
 
 @lru_cache(maxsize=64000)
-def attack_range_q2s(squad_state : tuple[int, int], ship_state : tuple[str, int, int, int]) -> dict[HullSection, bool]:
+def attack_range_q2s(squad_state : tuple[int, int], ship_state : tuple[str, int, int, int]) -> list[bool]:
     """
     return:
         in_range (bool) for each hull section
@@ -133,9 +127,9 @@ def attack_range_q2s(squad_state : tuple[int, int], ship_state : tuple[str, int,
 
     measure_results = jit.attack_range_q2s_numba(squad_coords, ship_coords['targeting_points'], ship_poly)
     
-    in_range_dict = {hull : bool(measure_results[hull]) for hull in HULL_SECTIONS}
+    in_range_list = measure_results.tolist()
 
-    return in_range_dict
+    return in_range_list
 
 
 @lru_cache(maxsize=64000)

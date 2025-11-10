@@ -47,6 +47,7 @@ class Phase(IntEnum):
     def __str__(self):
         return self.name
     __repr__ = __str__
+phase_type = len(Phase)
 
 ActionType: TypeAlias = (
     tuple[Literal['set_command_action'], tuple[int, Command]] |
@@ -235,3 +236,6 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             # if 'pass' in action[0] : return
             action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()} {f': {action[1]}' if action[1] else ''}'
     return action_str
+
+if __name__ == '__main__':
+    print(phase_type)

@@ -64,7 +64,7 @@ class ArmadaNet(nn.Module):
 
         # Squad Entity Encoder (Transformer)
         # The TransformerEncoderLayer handles self-attention for the entities.
-        squad_encoder_layer = nn.TransformerEncoderLayer(d_model=Config.SQUAD_ENTITY_FEATURE_SIZE, nhead=4, dim_feedforward=256, batch_first=True)
+        squad_encoder_layer = nn.TransformerEncoderLayer(d_model=Config.SQUAD_ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
         self.squad_entity_encoder = nn.TransformerEncoder(squad_encoder_layer, num_layers=3)
         # A simple linear layer to get a fixed-size output after attention
         self.squad_entity_aggregator = nn.Linear(Config.SQUAD_ENTITY_FEATURE_SIZE, 128)
@@ -195,8 +195,6 @@ class ArmadaNet(nn.Module):
 
         # Process each phase group
         for phase_name, indices in phase_indices.items():
-            if not indices:
-                continue
             
             # Select the torso outputs for the current phase group
             group_torso_output = torso_output[indices]

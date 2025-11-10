@@ -88,7 +88,7 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
     return template_img
 
 def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, float]] | None = None) -> None:
-    img = Image.new('RGB', (game.player_edge, game.short_edge), (0,0,0))
+    img = Image.new('RGB', (int(game.player_edge), int(game.short_edge)), (0,0,0))
     draw = ImageDraw.Draw(img)
 
     def transform_coord(coord):

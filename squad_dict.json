@@ -10,6 +10,40 @@
         "point": 8,
         "keywords": ["swarm"]
     },
+    "TIE Interceptor": {
+        "name": "TIE/in",
+        "unique": false,
+        "hull": 3,
+        "speed": 5,
+        "anti_squad": [0, 4, 0],
+        "battery": [0, 1, 0],
+        "defense_token": [],
+        "point": 11,
+        "keywords": ["swarm", "counter"],
+        "counter": 2
+    },
+    "TIE Bomber": {
+        "name": "TIE/sa",
+        "unique": false,
+        "hull": 5,
+        "speed": 4,
+        "anti_squad": [1, 0, 0],
+        "battery": [1, 0, 0],
+        "defense_token": [],
+        "point": 10,
+        "keywords": ["bomber", "heavy"]
+    },
+    "TIE Advanced": {
+        "name": "TIE/x1",
+        "unique": false,
+        "hull": 5,
+        "speed": 4,
+        "anti_squad": [0, 3, 0],
+        "battery": [0, 0, 1],
+        "defense_token": [],
+        "point": 12,
+        "keywords": ["escort"]
+    },
 
     "X-Wing": {
         "name": "X-Wing",
@@ -21,5 +55,39 @@
         "defense_token": [],
         "point": 12,
         "keywords": ["escort", "bomber"]
+    },
+    "Y-Wing": {
+        "name": "Y-Wing",
+        "unique": false,
+        "hull": 6,
+        "speed": 3,
+        "anti_squad": [0, 2, 0],
+        "battery": [1, 0, 0],
+        "defense_token": [],
+        "point": 10,
+        "keywords": ["bomber", "heavy"]
+    },
+    "A-Wing": {
+        "name": "A-Wing",
+        "unique": false,
+        "hull": 4,
+        "speed": 5,
+        "anti_squad": [0, 3, 0],
+        "battery": [1, 0, 0],
+        "defense_token": [],
+        "point": 11,
+        "keywords": ["counter"],
+        "counter": 2
+    },
+    "B-Wing": {
+        "name": "B-Wing",
+        "unique": false,
+        "hull": 5,
+        "speed": 2,
+        "anti_squad": [0, 3, 0],
+        "battery": [1, 1, 0],
+        "defense_token": [],
+        "point": 14,
+        "keywords": ["bomber"]
     }
 }

@@ -22,26 +22,20 @@ from action_manager import ActionManager
 from action_phase import Phase, get_action_str
 from dice import roll_dice
 
-try:
-    import builtins
-    profile = builtins.__dict__['profile']
-except KeyError:
-    # 'profile' not in builtins: not running line-profiler
-    def profile(func):
-        return func
 
 class AlphArmada:
     def __init__(self, model : ArmadaNet, optimizer : optim.AdamW) :
         self.model : ArmadaNet = model
         self.optimizer : optim.AdamW = optimizer
         
-    @profile
     def para_self_play(self) :
         memory : dict[int, list[tuple[Phase, dict, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
         self_play_data : list[tuple[Phase, dict, np.ndarray, float, dict[str, np.ndarray]]] = []
 
         action_manager = ActionManager()
         para_games : list[Armada] = [setup_game(para_index=para_index) for para_index in range(Config.PARALLEL_PLAY)]
+        for para_index in range(Config.PARALLEL_PLAY):
+            with open(f'simulation_log{para_index+1}.txt', 'w') as f: f.write(f"--- Starting Simulation for Game {para_index+1} ---\n")
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
         action_counter : int = 0
         while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
@@ -54,7 +48,11 @@ class AlphArmada:
                 if deep_search :
                     for para_index in para_action_probs:
                         game : Armada = para_games[para_index]
-                        memory[para_index].append((game.phase, encode_game_state(game), para_action_probs[para_index]))
+                        encoded_state_views = encode_game_state(game)
+                        encoded_state_copy = {
+                            key: array.copy() for key, array in encoded_state_views.items()
+                        }
+                        memory[para_index].append((game.phase, encoded_state_copy, para_action_probs[para_index]))
             
             # --- Process all games (decision and non-decision) for one step ---
             for para_index in range(Config.PARALLEL_PLAY) :
@@ -77,13 +75,13 @@ class AlphArmada:
                     if len(game.get_valid_actions()) != 1:
                         raise ValueError("Multiple valid actions in information set node.")
                     action = game.get_valid_actions()[0]
-                if para_index == 0:
-                    print(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
+                with open(f'simulation_log{para_index+1}.txt', 'a') as f: f.write(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}\n")
                 game.apply_action(action)
                 mcts.advance_tree(para_index, action, game.get_snapshot())
                 
                 # --- Check for terminal states ---
                 if game.winner != 0.0:
+                    print(f"Game {para_index+1} ended with winner: {game.winner}")
                     winner, aux_target = get_terminal_value(game)
                     for phase, encoded_state, action_probs in memory[para_index]:
                         self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))

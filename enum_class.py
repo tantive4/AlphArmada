@@ -7,6 +7,9 @@ with open('ship_dict.json', 'r') as f:
 with open('squad_dict.json', 'r') as f:
     SQUAD_DATA: dict = json.load(f)
 
+
+
+
 class Player(IntEnum):
     REBEL = 1
     EMPIRE = -1
@@ -22,6 +25,7 @@ class Dice(IntEnum) :
         return self.name
     __repr__ = __str__
 DICE = tuple(dice for dice in Dice)
+dice_type = len(DICE)
 
 class HullSection(IntEnum):
     FRONT = 0
@@ -32,6 +36,7 @@ class HullSection(IntEnum):
         return self.name
     __repr__ = __str__
 HULL_SECTIONS = tuple(hull for hull in HullSection)
+hull_type = len(HULL_SECTIONS)
 
 class SizeClass(IntEnum) :
     SMALL = 1
@@ -51,6 +56,7 @@ class Command(IntEnum) :
         return self.name
     __repr__ = __str__
 COMMANDS = tuple(command for command in Command)
+command_type = len(COMMANDS)
 
 class AttackRange(IntEnum) :
     INVALID = -1
@@ -68,6 +74,7 @@ class Critical(IntEnum) :
     def __str__(self) :
         return self.name
     __repr__ = __str__
+critical_type = len(Critical)
 
 class TokenType(IntEnum):
     BRACE = 0

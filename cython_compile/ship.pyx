@@ -110,7 +110,7 @@ cdef class Ship:
         self.resolved_command: tuple[Command, ...] = ()
         self.engineer_point: int = 0
         self.attack_count: int = 0
-        self.attack_impossible_hull: tuple[HullSection, ...] = ()
+        self.attack_history: tuple[tuple[int, HullSection]|tuple[int, ...]|None, ...] = (None, None, None, None)
         self.repaired_hull: tuple[HullSection, ...] = ()
         self.status_phase()
     
@@ -121,6 +121,12 @@ cdef class Ship:
 
     def destroy(self) -> None:
         self.destroyed = True
+        self.activated = True
+        self.attack_history = (None, None, None, None)
+        self.attack_count = 0
+        self.command_dial = ()
+        self.resolved_command = ()
+
         self.hull = 0
         self.shield = (0, 0, 0, 0)
         for token in self.defense_tokens.values() :
@@ -136,7 +142,7 @@ cdef class Ship:
     def end_activation(self) -> None :
         self.activated = True
         self.game.active_ship = None
-        self.attack_impossible_hull = ()
+        self.attack_history = (None, None, None, None)
         self.attack_count = 0
         self.command_dial = ()
         self.resolved_command = ()
@@ -148,15 +154,14 @@ cdef class Ship:
             self.game.visualize(f'{self} is out of board!')
             self.destroy()
             
-            
-
     def move_ship(self, course : tuple[int, ...], placement : int, overlap_ships : set[int]) -> set[int]:
         if not course :
             self.game.visualize(f'{self} executes speed 0 maneuver.')
             return overlap_ships
         if self.game.debuging_visual : tool_coord = self._tool_coordination(course, placement)[0]
         
-        original_position, original_orientation = np.array([self.x, self.y]), self.orientation
+        original_x, original_y = self.x, self.y
+        original_orientation = self.orientation
 
         tool_translation, tool_rotation = cache.maneuver_tool(self.size_class, course, placement)
         # change translation vector according to the current orientation
@@ -164,17 +169,20 @@ cdef class Ship:
         c = np.cos(-original_orientation)
         s = np.sin(-original_orientation)
         rotation_matrix = np.array([[c, -s],
-                                    [s,  c]])
+                                    [s,  c]], dtype=np.float32)
         tool_translation = rotation_matrix @ tool_translation
-        self.x, self.y = original_position + tool_translation
+
+        self.x = original_x + tool_translation[0]
+        self.y = original_y + tool_translation[1]
         self.orientation += tool_rotation
+
         if self.game.debuging_visual :self.game.visualize(f'{self} executes speed {len(course)} maneuver.',tool_coord)
         current_overlap = self.is_overlap()
         
         if current_overlap:
             if self.game.debuging_visual :self.game.visualize(f'{self} overlaps ships at speed {len(course)} maneuver.',tool_coord)
             overlap_ships = overlap_ships.union(current_overlap)
-            (self.x, self.y), self.orientation = original_position, original_orientation
+            self.x, self.y, self.orientation = original_x, original_y, original_orientation
             new_overlap = self.move_ship(course[:-1], placement, overlap_ships)
             overlap_ships = overlap_ships.union(new_overlap)
 
@@ -187,6 +195,7 @@ cdef class Ship:
         Returns:
             overlap_list (set[Squad]): A set indicating which squads were overlapped.
         """
+        if self.destroyed : return False
         is_overlap : bool = False
         for squad in self.game.squads:
             if squad.destroyed :
@@ -394,7 +403,7 @@ cdef class Ship:
         for squad in self.game.squads:
             if squad.player == self.player or squad.destroyed : continue
 
-            range_dict :dict[HullSection, AttackRange] =  cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())
+            range_dict :list[AttackRange] =  cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())
             attack_range : AttackRange = range_dict[attack_hull]
             if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
             dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=False))
@@ -412,7 +421,7 @@ cdef class Ship:
         Returns:
             valid_attacker (list[HullSection]): A list of valid attacking hull sections.
         """
-        valid_attacker = [hull for hull in HULL_SECTIONS if hull not in self.attack_impossible_hull]
+        valid_attacker = [hull for hull in HULL_SECTIONS if self.attack_history[hull] is None]
 
         return valid_attacker
 
@@ -719,7 +728,7 @@ cdef class Ship:
             self.hull, self.shield,
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
-            self.attack_count, self.attack_impossible_hull, 
+            self.attack_count, self.attack_history, 
             self.engineer_point, self.repaired_hull, 
             {key: (<DefenseToken>dt).get_snapshot() 
              for key, dt in self.defense_tokens.items()}
@@ -732,7 +741,7 @@ cdef class Ship:
             self.hull, self.shield,
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
-            self.attack_count, self.attack_impossible_hull, 
+            self.attack_count, self.attack_history, 
             self.engineer_point, self.repaired_hull, 
             defense_tokens_state
         ) = snapshot

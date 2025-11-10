@@ -137,6 +137,7 @@ cdef class MCTS:
         public list para_games, root_snapshots, player_roots
         public ActionManager action_manager
         public object model
+        public object action_mask
 
     def __init__(self, list games, ActionManager action_manager, object model) -> None:
         self.para_games = games
@@ -144,8 +145,13 @@ cdef class MCTS:
         self.player_roots = [{ 1 : Node(game = game, action = ('initialize_game', None)),
                                -1 : Node(game = game, action = ('initialize_game', None))} 
                               for game in games]
-        self.action_manager = action_manager
+        
         self.model : ArmadaNet = model
+
+        self.action_manager = action_manager
+        self.action_mask = np.zeros(model.max_action_space, dtype=np.bool_)
+        
+        
 
     cpdef dict para_search(self, dict sim_players, bint deep_search):
         cdef:
@@ -401,17 +407,18 @@ cdef class MCTS:
 
     cdef cnp.ndarray[cnp.float32_t, ndim=1] _mask_policy(self, cnp.ndarray[cnp.float32_t, ndim=1] policy, int phase, list valid_actions):
         cdef: 
-            cnp.ndarray[cnp.npy_bool, ndim=1] valid_moves_mask = np.zeros_like(policy, dtype=np.bool_)
             object action
             int action_index
             float policy_sum
-
+            cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view = self.action_mask
+        action_mask_view.fill(0)
+        
         for action in valid_actions:
             # get the action's index in the full action space
             action_index = self.action_manager.get_action_index(phase, action)
-            valid_moves_mask[action_index] = 1
-        
-        policy *= valid_moves_mask
+            action_mask_view[action_index] = 1
+
+        policy *= action_mask_view
 
         # Normalize the policy if there are any valid moves
         policy_sum = np.sum(policy)
@@ -421,7 +428,8 @@ cdef class MCTS:
             # Handle rare cases where the network assigns 0 probability to all valid moves
             # Or if there are no valid moves (should not happen for an expandable node)
             print(f"Warning: Zero policy sum for valid moves in {valid_actions}. Using uniform distribution.")
-            policy = np.ones_like(policy, dtype=np.float32) / np.sum(valid_moves_mask)
+            num_valid = np.sum(action_mask_view)
+            policy[action_mask_view] = 1.0 / num_valid
 
         return policy
 

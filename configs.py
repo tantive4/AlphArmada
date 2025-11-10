@@ -15,8 +15,8 @@ class Config:
 
     # Encoding
     BOARD_RESOLUTION = (32, 16)  # (player_edge width resolution, short_edge height resolution)
-    SHIP_ENTITY_FEATURE_SIZE = 90
-    SQUAD_ENTITY_FEATURE_SIZE = 32
+    SHIP_ENTITY_FEATURE_SIZE = 108
+    SQUAD_ENTITY_FEATURE_SIZE = 30
     RELATION_FEATURE_SIZE = 12
     SCALAR_FEATURE_SIZE = 45
 
@@ -28,7 +28,7 @@ class Config:
 
     # Self Play
     SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
-    PARALLEL_PLAY = 32 # run games in batch
+    PARALLEL_PLAY = 16 # run games in batch
     # 1 * 128 * 400 * 0.25 = 12800 states are created
 
     # MCTS

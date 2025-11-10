@@ -7,7 +7,8 @@ import math
 import numpy as np
 cimport numpy as cnp
 
-from action_phase import Phase, ActionType, get_action_str
+from configs import Config
+from action_phase import Phase, ActionType, get_action_str, phase_type
 import visualizer
 from ship cimport Ship
 from squad cimport Squad
@@ -81,6 +82,12 @@ cdef class Armada:
         self.simulation_player = 0
         self.para_index = para_index
 
+        self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
+        self.relation_encode_array = np.zeros((Config.SCALAR_FEATURE_SIZE * hull_type, Config.SCALAR_FEATURE_SIZE * hull_type), dtype=np.float32)
+        self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
+        self.squad_encode_array = np.zeros((Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
+        self.spatial_encode_array = np.zeros((Config.MAX_SHIPS * 2 + 2, Config.BOARD_RESOLUTION[1], Config.BOARD_RESOLUTION[0]), dtype=np.float32)
+
     def rollout(self, max_simulation_step : int = 2000) -> float :
         """
         The main game loop with two players defined by functions.
@@ -112,7 +119,7 @@ cdef class Armada:
 
             simulation_counter += 1
             if simulation_counter >= max_simulation_step:
-                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}\n{self.phase}')
+                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}\n{self.phase}\n{self.get_snapshot()}')
         return self.winner
 
     def random_decision(self) -> ActionType:
@@ -667,7 +674,12 @@ cdef class Armada:
 
                 # Squadron to Squadron Attack
                 else :
-                    if active_squad.can_move and not active_squad.is_engaged() :
+                    # Counter Attack
+                    if attack_info.attack_squad_id == active_squad.id and defender.counter:
+                        self.attack_info = AttackInfo(defender, active_squad)
+                        self.phase = Phase.ATTACK_GATHER_DICE
+                        
+                    elif active_squad.can_move and not active_squad.is_engaged() :
                         self.phase = Phase.SQUAD_MOVE
                     else :
                         active_squad.end_activation()
@@ -799,7 +811,7 @@ cdef class Armada:
                 squad.destroy()
             else :
                 coords : np.ndarray = cache._ship_coordinate(active_ship.get_ship_hash_state())['squad_placement_points'][coords_index]
-                squad.place_squad((float(coords[0]), float(coords[1])))
+                squad.place_squad(coords.tolist())
 
             if any(squad.overlap_ship_id is not None for squad in self.squads) :
                 self.phase = Phase.SHIP_PLACE_SQUAD
@@ -940,10 +952,59 @@ cdef class Armada:
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
         self.visualize(f'\n{ship.name} is deployed.')
 
+        ship_view = self.ship_encode_array[ship.id]
+        offset = 0
+        ship_view[offset] = ship.player; offset += 1
+        ship_view[offset] = <int>ship.size_class / <int>SizeClass.LARGE; offset += 1
+        ship_view[offset] = ship.command_value / Config.MAX_COMMAND_STACK; offset += 1
+        ship_view[offset] = ship.squad_value / Config.GLOBAL_MAX_SQUAD_VALUE; offset += 1
+        ship_view[offset] = ship.engineer_value / Config.GLOBAL_MAX_ENGINEER_VALUE; offset += 1
+        ship_view[offset] = ship.point / 100.0; offset += 1
+        ship_view[offset] = ship.max_hull / Config.GLOBAL_MAX_HULL; offset += 1
+
+        ship_view[offset] = ship.max_shield[HullSection.FRONT] / Config.GLOBAL_MAX_SHIELDS; offset += 1
+        ship_view[offset] = ship.max_shield[HullSection.RIGHT] / Config.GLOBAL_MAX_SHIELDS; offset += 1
+        ship_view[offset] = ship.max_shield[HullSection.REAR] / Config.GLOBAL_MAX_SHIELDS; offset += 1
+        ship_view[offset] = ship.max_shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS; offset += 1
+
+        for hull in range(hull_type):
+            ship_view[offset + hull*3 + 0] = ship.battery[hull][0] / Config.GLOBAL_MAX_DICE
+            ship_view[offset + hull*3 + 1] = ship.battery[hull][1] / Config.GLOBAL_MAX_DICE
+            ship_view[offset + hull*3 + 2] = ship.battery[hull][2] / Config.GLOBAL_MAX_DICE
+        ship_view[offset + 12] = ship.anti_squad[0] / Config.GLOBAL_MAX_DICE
+        ship_view[offset + 13] = ship.anti_squad[1] / Config.GLOBAL_MAX_DICE
+        ship_view[offset + 14] = ship.anti_squad[2] / Config.GLOBAL_MAX_DICE
+        offset += 15 # Advance offset by block size
+
+        ship_view[offset:offset + 10] = ship.nav_chart_vector
+        offset += 10 # Advance offset by block size
+
     def deploy_squad(self, squad : Squad, x : float, y : float) -> None :
         self.squads.append(squad)
         squad.deploy(self, x, y, len(self.squads) - 1)
         self.visualize(f'\n{str(squad)} is deployed.')
+
+        # Get a view to the specific row we will write to
+        squad_view = self.squad_encode_array[squad.id]
+        offset = 0 # Feature index for this row
+
+        # --- Stats (15 features) ---
+        squad_view[offset] = squad.max_hull / Config.GLOBAL_MAX_HULL; offset += 1
+        squad_view[offset] = squad.player; offset += 1
+        squad_view[offset] = squad.speed / 5.0; offset += 1
+        squad_view[offset] = squad.point / 20.0; offset += 1
+        squad_view[offset] = squad.swarm; offset += 1
+        squad_view[offset] = squad.bomber; offset += 1
+        squad_view[offset] = squad.escort; offset += 1
+        squad_view[offset] = squad.heavy; offset += 1
+        squad_view[offset] = squad.counter / 2.0; offset += 1
+
+        squad_view[offset] = squad.battery[0] / Config.GLOBAL_MAX_DICE; offset += 1
+        squad_view[offset] = squad.battery[1] / Config.GLOBAL_MAX_DICE; offset += 1
+        squad_view[offset] = squad.battery[2] / Config.GLOBAL_MAX_DICE; offset += 1
+        squad_view[offset] = squad.anti_squad[0] / Config.GLOBAL_MAX_DICE; offset += 1
+        squad_view[offset] = squad.anti_squad[1] / Config.GLOBAL_MAX_DICE; offset += 1
+        squad_view[offset] = squad.anti_squad[2] / Config.GLOBAL_MAX_DICE; offset += 1
 
     def total_destruction(self, player : int) -> bool:
         player_ship_exists = any(ship for ship in self.ships if ship.player == player and not ship.destroyed)
@@ -1009,10 +1070,17 @@ cdef class Armada:
             self.phase = Phase.COMMAND_PHASE
 
     cpdef int get_point(self, int player) :
+        cdef Ship ship
+        cdef Squad squad
         cdef list ship_point, squad_point
-        ship_point = [(<Ship>ship).point for ship in self.ships if ship.player != player and ship.destroyed]
-        squad_point = [(<Squad>squad).point for squad in self.squads if squad.player != player and squad.destroyed]
-        return sum(ship_point) + sum(squad_point)
+        cdef point = 0
+        for ship in self.ships :
+            if ship.player != player and ship.destroyed :
+                point += ship.point
+        for squad in self.squads :
+            if squad.player != player and squad.destroyed :
+                point += squad.point
+        return point
 
     def visualize(self, title : str, maneuver_tool : list[tuple[float, float]] | None = None) -> None:
         if not self.debuging_visual:
@@ -1040,20 +1108,20 @@ cdef class Armada:
             self.phase,
             self.current_player,
             self.decision_player,
-            (<Ship>self.active_ship).id if self.active_ship else None,
-            (<Squad>self.active_squad).id if self.active_squad else None,
+            (<Ship>self.active_ship).id if self.active_ship is not None else None,
+            (<Squad>self.active_squad).id if self.active_squad is not None else None,
             self.squad_activation_count,
-            self.attack_info.get_snapshot() if self.attack_info else None,
+            (<AttackInfo>self.attack_info).get_snapshot() if self.attack_info is not None else None,
             tuple(ship_snapshots),
             tuple(squad_snapshots)
         )
 
-    cdef void revert_snapshot(self, object snapshot):
+    cpdef void revert_snapshot(self, object snapshot):
         """Restores the entire game state from a snapshot."""
         (self.winner, self.round, self.phase, self.current_player, self.decision_player,
          active_ship_id, active_squad_id, self.squad_activation_count, attack_info_snapshot,
          ship_states, squad_states) = snapshot
-        self.attack_info = AttackInfo.from_snapshot(attack_info_snapshot) if attack_info_snapshot else None
+        self.attack_info = AttackInfo.from_snapshot(attack_info_snapshot) if attack_info_snapshot is not None else None
 
         self.active_ship = self.ships[<int>active_ship_id] if active_ship_id is not None else None
         self.active_squad = self.squads[<int>active_squad_id] if active_squad_id is not None else None
@@ -1062,4 +1130,3 @@ cdef class Armada:
             (<Ship>self.ships[i]).revert_snapshot(ship_snapshot)
         for i, squad_snapshot in enumerate(squad_states):
             (<Squad>self.squads[i]).revert_snapshot(squad_snapshot)
-
