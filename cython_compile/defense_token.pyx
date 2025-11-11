@@ -31,16 +31,16 @@ cdef class DefenseToken:
                 self.discarded == other_token.discarded and
                 self.accuracy == other_token.accuracy)
 
-    def spend(self) -> None :
+    cpdef void spend(self) :
         if self.readied:
             self.readied = False
         else : self.discard()
 
-    def discard(self) -> None :
+    cpdef void discard(self) :
         self.readied = False
         self.discarded = True
 
-    def ready(self) -> None :
+    cpdef void ready(self) :
         self.readied = True
 
     cdef tuple get_snapshot(self) :

@@ -179,6 +179,7 @@ def generate_all_maps():
             (action_name, _make_hashable(action_value))
             for action_name, action_value in action_list
         ]
+        print(f"Generated {len(action_list)} actions for phase {phase_name}")
 
 
 

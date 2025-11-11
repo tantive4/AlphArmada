@@ -11,7 +11,6 @@ cdef class ActionManager:
     the essential action-to-index lookup dictionary for each phase.
     """
 
-
     def __init__(self, filepath='action_space.json'):
         self.action_maps = []
         

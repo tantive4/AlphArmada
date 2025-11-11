@@ -7,9 +7,8 @@ from collections import Counter
 import numpy as np
 import math
 cimport numpy as cnp
-from libc.math cimport abs
+from libc.math cimport abs, M_PI, sin, cos
 
-from defense_token cimport DefenseToken
 from measurement import *
 from enum_class import *
 from dice import *
@@ -17,6 +16,7 @@ import cache_function as cache
 
 from armada cimport Armada
 from ship cimport Ship
+from defense_token cimport DefenseToken
 
 
 
@@ -56,7 +56,7 @@ cdef class Squad :
         return self.name
     __repr__ = __str__
 
-    def deploy(self, game : Armada , x : float, y : float, squad_id : int) -> None:
+    def deploy(self, Armada game, float x, float y, int squad_id):
         """
         deploy the squad in the game board
         param game: the Armada game instance
@@ -74,32 +74,34 @@ cdef class Squad :
         self.can_attack : bool = False
         self.overlap_ship_id : int|None = None
 
-    def status_phase(self) -> None :
+    cpdef void status_phase(self) :
         """
         refresh the squad status at the end of the round
         """
+        cdef DefenseToken token
         self.activated : bool = False
         for token in self.defense_tokens.values():
             token.ready()
 
-    def destroy(self) -> None:
+    cpdef void destroy(self) :
+        cdef DefenseToken token
         self.destroyed = True
         self.hull = 0
         for token in self.defense_tokens.values() :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
 
-    def start_activation(self) -> None :
+    cpdef void start_activation(self) :
         self.game.active_squad = self
         self.game.squad_activation_count -= 1
         self.can_move = True
         self.can_attack = True
-    
-    def end_activation(self) -> None :
+
+    cpdef void end_activation(self) :
         self.game.active_squad = None
         self.activated = True
 
-    def defend(self, total_damage) -> None :
+    cpdef void defend(self, int total_damage) :
         """
         apply damage to the squad
         param total_damage: the total damage to be applied
@@ -144,19 +146,27 @@ cdef class Squad :
             float engage_distance_sq = engage_distance * engage_distance
         return self.in_distance(other, engage_distance, engage_distance_sq) and not self.is_obstruct_q2q(other)
 
-    def get_valid_target(self) -> list[int | tuple[int, HullSection]] :
+    cpdef list get_valid_target(self) :
         """
         get a list of valid targets for the squad to attack
-        return: a list of valid targets, which can be either enemy squadrons or ship hull sections
+        Returns:
+            list[int | tuple[int, HullSection]]
         """
-        escort_target : list[int | tuple[int, HullSection]] = []
-        valid_target : list[int | tuple[int, HullSection]] = []
+        cdef:
+            list escort_target = []
+            list valid_target = []
+            Squad squad
+            Ship ship
+            float distance1 = <float>Q2Q_RANGE
+            float distance1_sq = distance1 * distance1
+            int hull
+            bint in_range
 
         
         for squad in self.game.squads :
             if squad.player == self.player or squad.destroyed :
                 continue
-            if self.in_distance(squad, <float>Q2Q_RANGE, <float>(Q2Q_RANGE)**2):
+            if self.in_distance(squad, distance1, distance1_sq):
                 valid_target.append(squad.id)
                 if squad.escort and not self.is_obstruct_q2q(squad):
                     escort_target.append(squad.id)
@@ -180,14 +190,16 @@ cdef class Squad :
         return valid_target
 
 
-    def is_obstruct_q2q(self, to_squad: Squad) -> bool :
+    cpdef bint is_obstruct_q2q(self, Squad to_squad) :
         """
         Checks if the line of sight between two squads is obstructed.
 
         Args:
             squad (Squad): The target squad.
         """
-        line_of_sight : tuple[tuple[float, float], ...] = (self.coords, to_squad.coords)
+        cdef:
+            tuple line_of_sight = (self.coords, to_squad.coords)
+            Ship ship
 
         for ship in self.game.ships:
             if ship.destroyed :
@@ -195,8 +207,8 @@ cdef class Squad :
             if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
                 return True
         return False
-    
-    def is_obstruct_q2s(self, to_ship: Ship, to_hull: HullSection) -> bool :
+
+    cpdef bint is_obstruct_q2s(self, Ship to_ship, int to_hull) :
         """
         Checks if the line of sight between a squad and a ship is obstructed.
 
@@ -204,32 +216,36 @@ cdef class Squad :
             squad (Squad): The target squad.
         """
         return to_ship.is_obstruct_s2q(to_hull, self)
-    
-    def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical] :
-        critical_list : list[Critical] = []
+
+    cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :
+        cdef list critical_list = []
         if black_crit or blue_crit or red_crit :
             critical_list.append(Critical.STANDARD)
         return critical_list
 
-    def move(self, speed: int, angle: float) -> None:
+    cpdef void move(self, int speed, float angle) :
         """
         move the squad
         Args:
             speed: the speed to move
             angle: the angle to move, in degree, 0 is to up **on player's perspective**, 90 is to right
         """
-        angle_rad = np.deg2rad(angle) * self.player # go "up" on player's perspective
-        self.coords = (self.coords[0] + DISTANCE[speed] * math.sin(angle_rad), self.coords[1] + DISTANCE[speed] * math.cos(angle_rad))
+        cdef float angle_rad = (M_PI*angle/180.0) * self.player # go "up" on player's perspective
+        self.coords = (<float>self.coords[0] + <float>DISTANCE[speed] * sin(angle_rad), <float>self.coords[1] + <float>DISTANCE[speed] * cos(angle_rad))
         self.can_move = False
 
-    def get_valid_moves(self) -> list[tuple[int, float]] :
+    cpdef list get_valid_moves(self) :
         """
         get a list of valid moves for the squad
         return: 
             a list of valid moves, each move is a tuple of (speed, angle)
         """
-        valid_moves : list[tuple[int, float]] = []
-        original_coords = self.coords
+        cdef:
+            list valid_moves = []
+            tuple original_coords = self.coords
+            int speed
+            float angle
+
         for speed in range(self.speed + 1) :
 
             if speed == 0 :
@@ -291,7 +307,7 @@ cdef class Squad :
                 return True
         return False
 
-    def place_squad(self, coords:tuple[float, float]) -> None :
+    cpdef void place_squad(self, tuple coords) :
         """
         place the squad at the given coordinates
         Args:
@@ -300,13 +316,17 @@ cdef class Squad :
         self.coords = coords
         self.overlap_ship_id = None
 
-    def out_of_board(self) -> bool :
+    cpdef bint out_of_board(self) :
         """
         check if the squad is out of the board
         """
-        return self.coords[0] < SQUAD_BASE_RADIUS or self.coords[0] > self.game.player_edge - SQUAD_BASE_RADIUS or self.coords[1] < SQUAD_BASE_RADIUS or self.coords[1] > self.game.short_edge - SQUAD_BASE_RADIUS
+        cdef:
+            float x = self.coords[0]
+            float y = self.coords[1]
+            float radius = SQUAD_BASE_RADIUS
+        return x < radius or x > self.game.player_edge - radius or y < radius or y > self.game.short_edge - radius
 
-    def gather_dice(self, *, is_ship:bool, is_counter:bool) -> tuple[int, ...] :
+    cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :
         if is_ship :
             return self.battery
         if is_counter:

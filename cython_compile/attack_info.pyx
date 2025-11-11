@@ -81,10 +81,14 @@ cdef class AttackInfo :
                 self.swarm : bool = attack_squad.swarm
 
 
-    def declare_additional_squad_target(self, attacker:tuple[Ship, HullSection], defend_squad : Squad) -> None :
+    cpdef void declare_additional_squad_target(self, tuple attacker, Squad defend_squad) :
         """
         Re-Initialize for additional squadron target
         """
+        cdef:
+            Ship attack_ship
+            int attack_hull
+            
         if not self.is_attacker_ship or self.is_defender_ship :
             raise ValueError('This is not a ship-to-squadron attack')
         if defend_squad.id in self.squadron_target :
@@ -128,17 +132,37 @@ cdef class AttackInfo :
         return str(self.get_snapshot())
     __repr__ = __str__
 
-    def calculate_total_damage(self) -> int :
-        total_damage = 0
+    cpdef int calculate_total_damage(self) :
+        cdef:
+            int total_damage = 0
+            tuple damage_indices
+            int dice_type
+            
         damage_indices = SHIP_DAMAGE_INDICES if (self.is_attacker_ship or self.bomber) and self.is_defender_ship else SQUAD_DAMAGE_INDICES
         for dice_type in DICE :
-            total_damage += sum([face_count * damage_value for face_count, damage_value in zip(self.attack_pool_result[dice_type], damage_indices[dice_type])])
+            total_damage += sum([<int>face_count * <int>damage_value for face_count, damage_value in zip(self.attack_pool_result[dice_type], damage_indices[dice_type])])
 
         if TokenType.BRACE in self.spent_token_types :
             total_damage = (total_damage+1) // 2
 
         self.total_damage = total_damage
         return total_damage
+
+    cpdef void remove_dice(self, tuple dice_to_remove) :
+        cdef:
+            list new_pool_result = []
+            int dice_type
+            int i, count
+
+        for dice_type in DICE :
+            new_result_list = []
+            for i, count in enumerate(self.attack_pool_result[dice_type]) :
+                new_result_list.append(count - dice_to_remove[dice_type][i])
+            new_pool_result.append(tuple(new_result_list))
+        
+        self.attack_pool_result = tuple(new_pool_result)
+        self.calculate_total_damage()
+    
 
     cpdef dict get_snapshot(self):
         return {

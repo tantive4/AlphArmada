@@ -7,6 +7,9 @@ RNG = np.random.default_rng()
 
 FULL_DICE_POOL = ((2,2,2), (2,2,2), (2,2,2,2,2))
 EMPTY_DICE_POOL = ((0,0,0), (0,0,0), (0,0,0,0,0))
+DICE_CHOICE_1 = ((1,0,0),
+                 (0,1,0),
+                 (0,0,1))
 
 CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
 ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 4}
@@ -14,24 +17,26 @@ ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 4}
 
 PROBABILITIES = [np.array(weight) / sum(weight) for weight in ((2, 4, 2), (4, 2, 2), (2, 2, 2, 1, 1))]
 
-ICON_INDICES = {
-    Dice.BLACK : ['_','○','○¤'],
-    Dice.BLUE : ['○', '¤', '@'],
-    Dice.RED : ['_', '○', '¤', '○○', '@']
-    }
-SHIP_DAMAGE_INDICES = {
-    Dice.BLACK: [0, 1, 2],
-    Dice.BLUE:  [1, 1, 0],
-    Dice.RED:   [0, 1, 1, 2, 1]}
+ICON_INDICES = (
+    ['_','○','○¤'],
+    ['○', '¤', '@'],
+    ['_', '○', '¤', '○○', '@']
+)
+SHIP_DAMAGE_INDICES = (
+    [0, 1, 2],
+    [1, 1, 0],
+    [0, 1, 1, 2, 1]
+)
 
-SQUAD_DAMAGE_INDICES = {
-    Dice.BLACK: [0, 1, 1],
-    Dice.BLUE:  [1, 0, 0],
-    Dice.RED:   [0, 1, 0, 2, 0]}
+SQUAD_DAMAGE_INDICES = (
+    [0, 1, 1],
+    [1, 0, 0],
+    [0, 1, 0, 2, 0]
+)
 
-def dice_icon(dice_pool : tuple[tuple[int, ...], ...]) -> dict[Dice, str] :
+def dice_icon(dice_pool : tuple[tuple[int, ...], ...]) -> dict[int, str] :
     icon_dict = {dice_type : ' '.join([(f'{icon} ' * dice_count) 
-                                       for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type.value])]).replace('  ',' ').strip() 
+                                       for icon, dice_count in zip(ICON_INDICES[dice_type], dice_pool[dice_type])]).replace('  ',' ').strip() 
                                        for dice_type in DICE}
     return {dice_type : dice_pool for dice_type,dice_pool in icon_dict.items() if dice_pool}
 

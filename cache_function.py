@@ -29,7 +29,7 @@ def delete_cache():
     _threat_plane.cache_clear()
 
 @lru_cache(maxsize=64000)
-def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[HullSection, AttackRange],np.ndarray] :
+def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[int, int], np.ndarray] :
 
     template_vertices : np.ndarray = SHIP_TEMPLATE_POLY[ship_state[0]]
     threat_zone_vertices, split_index = SHIP_THREAT_ZONES[ship_state[0]]
@@ -43,7 +43,7 @@ def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[H
     # to the (N,2) vertices array, then translate by (2,) vector.
     current_vertices =  template_vertices @ rotation_matrix.T + translation_vector
     
-    coord_dict : dict[str|tuple[HullSection, AttackRange],np.ndarray]= {
+    coord_dict : dict[str|tuple[int, int], np.ndarray]= {
         'arc_points' : current_vertices[0:10],
         'targeting_points' : current_vertices[10:14],
         'center_point' : current_vertices[14],
@@ -162,7 +162,7 @@ def distance_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[str,
     return jit.polygon_polygon_nearest_points(self_poly, ship_poly)[0]
 
 @lru_cache(maxsize=64000)
-def range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int]) -> AttackRange:
+def range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int]) -> int:
     """
     Returns:
         AttackRange : The best range from the ship to the squad, used for squad command activation
@@ -171,7 +171,7 @@ def range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, i
     squad_center :np.ndarray = np.array([squad_state], dtype=np.float32)*HASH_PRECISION_INV
     distance = jit.polygon_polygon_nearest_points(ship_token,squad_center)[0] - SQUAD_TOKEN_RADIUS
 
-    return AttackRange(jit.distance_to_range(distance))                                                                                                                                                                                                                                                                        
+    return jit.distance_to_range(distance)                                                                                                                                                                                                                                                        
 
 @lru_cache(maxsize=64000)
 def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : int) -> tuple[np.ndarray, float]:

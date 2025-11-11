@@ -1,4 +1,5 @@
 # cython: language_level=3
+from squad cimport Squad
 
 cdef class AttackInfo:
     
@@ -31,3 +32,6 @@ cdef class AttackInfo:
 
 
     cpdef dict get_snapshot(self)
+    cpdef int calculate_total_damage(self)
+    cpdef void declare_additional_squad_target(self, tuple attacker, Squad defend_squad)
+    cpdef void remove_dice(self, tuple dice_to_remove)

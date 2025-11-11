@@ -227,30 +227,31 @@ class ArmadaNet(nn.Module):
 # --- Example Usage (for testing the model's structure) ---
 if __name__ == '__main__':
     action_manager = ActionManager()
-    model = ArmadaNet(action_manager)
-    print(f"Model created successfully.\nTotal parameters: {sum(p.numel() for p in model.parameters())}")
+    print(max(len(amap) for amap in action_manager.action_maps))
+    # model = ArmadaNet(action_manager)
+    # print(f"Model created successfully.\nTotal parameters: {sum(p.numel() for p in model.parameters())}")
 
-    # --- Create Dummy BATCH Input Data (Batch size = 4) ---
-    B = 4
-    scalar_data = torch.randn(B, Config.SCALAR_FEATURE_SIZE)
-    ship_entity_data = torch.randn(B, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE)
-    squad_entity_data = torch.randn(B, Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE)
+    # # --- Create Dummy BATCH Input Data (Batch size = 4) ---
+    # B = 4
+    # scalar_data = torch.randn(B, Config.SCALAR_FEATURE_SIZE)
+    # ship_entity_data = torch.randn(B, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE)
+    # squad_entity_data = torch.randn(B, Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE)
 
-    W, H = Config.BOARD_RESOLUTION
+    # W, H = Config.BOARD_RESOLUTION
 
-    spatial_data = torch.randn(B, Config.MAX_SHIPS * 2, H, W)
-    relation_data = torch.randn(B, Config.MAX_SHIPS * 4, Config.MAX_SHIPS * 4)
+    # spatial_data = torch.randn(B, Config.MAX_SHIPS * 2, H, W)
+    # relation_data = torch.randn(B, Config.MAX_SHIPS * 4, Config.MAX_SHIPS * 4)
 
-    # Test with a mixed batch of phases
-    current_phases = [Phase.SHIP_ACTIVATE, Phase.COMMAND_PHASE, Phase.SHIP_ACTIVATE, Phase.SHIP_DECLARE_TARGET]
+    # # Test with a mixed batch of phases
+    # current_phases = [Phase.SHIP_ACTIVATE, Phase.COMMAND_PHASE, Phase.SHIP_ACTIVATE, Phase.SHIP_DECLARE_TARGET]
 
-    # --- Perform a Forward Pass ---
-    model.eval()
-    with torch.no_grad():
-        policy_output, value_output = model(scalar_data, ship_entity_data, squad_entity_data, spatial_data, relation_data, current_phases)
+    # # --- Perform a Forward Pass ---
+    # model.eval()
+    # with torch.no_grad():
+    #     policy_output, value_output = model(scalar_data, ship_entity_data, squad_entity_data, spatial_data, relation_data, current_phases)
 
-    # --- Check the Output Shapes ---
-    print(f"\n--- Testing with Batch Size {B} ---")
-    print(f"Policy head output shape: {policy_output.shape} (Expected: [{B}, {model.max_action_space}])")
-    print(f"Value head output shape: {value_output.shape} (Expected: [{B}, 1])")
-    print(f"Predicted values: {value_output.squeeze().tolist()}")
+    # # --- Check the Output Shapes ---
+    # print(f"\n--- Testing with Batch Size {B} ---")
+    # print(f"Policy head output shape: {policy_output.shape} (Expected: [{B}, {model.max_action_space}])")
+    # print(f"Value head output shape: {value_output.shape} (Expected: [{B}, 1])")
+    # print(f"Predicted values: {value_output.squeeze().tolist()}")

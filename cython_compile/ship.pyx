@@ -7,7 +7,7 @@ import itertools
 
 import numpy as np
 cimport numpy as cnp
-
+from libc.math cimport sin, cos
 
 from dice import *
 from defense_token cimport DefenseToken
@@ -84,7 +84,7 @@ cdef class Ship:
         return self.name
     __repr__ = __str__
 
-    def deploy(self, game : Armada , x : float, y : float, orientation : float, speed : int, ship_id : int) -> None:
+    def deploy(self, Armada game, float x, float y, float orientation, int speed, int ship_id):
         """
         deploy the ship to the game board
 
@@ -95,11 +95,11 @@ cdef class Ship:
             speed (int) : ship speed
             ship_id (int) : ship id
         """
-        self.game : Armada = game
-        self.x: float = x
-        self.y: float = y
-        self.orientation: float = orientation
-        self.speed: int = speed
+        self.game = game
+        self.x = x
+        self.y = y
+        self.orientation = orientation
+        self.speed = speed
 
         self.hull: int = self.max_hull
         self.shield: tuple[int, ...] = tuple(self.max_shield[hull] for hull in HULL_SECTIONS)
@@ -114,12 +114,33 @@ cdef class Ship:
         self.repaired_hull: tuple[HullSection, ...] = ()
         self.status_phase()
     
-    def asign_command(self, Command) -> None :
+    cpdef void asign_command(self, int command) :
         if len(self.command_stack) >= self.command_value : raise ValueError("Cannot asigne more command then Command Value")
-        self.command_stack += (Command,)
+        self.command_stack += (command,)
 
+    cpdef void spend_command_dial(self, int command) :
+        if command not in self.command_dial : raise ValueError("Cannot spend command not in command dial")
+        cdef: 
+            list new_dial = []
+            int dial
+        for dial in self.command_dial:
+            if dial != command:
+                new_dial.append(dial)
+        self.command_dial = tuple(new_dial)
 
-    def destroy(self) -> None:
+    cpdef void spend_command_token(self, int command) :
+        if command not in self.command_token : raise ValueError("Cannot spend command not in command token")
+        cdef: 
+            list new_token = []
+            int token
+        for token in self.command_token:
+            if token != command:
+                new_token.append(token)
+        self.command_token = tuple(new_token)
+
+    cpdef void destroy(self) :
+        cdef DefenseToken token
+
         self.destroyed = True
         self.activated = True
         self.attack_history = (None, None, None, None)
@@ -133,13 +154,15 @@ cdef class Ship:
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
 
-    def status_phase(self) -> None:
+    cpdef void status_phase(self) :
+        cdef DefenseToken token
+
         self.activated = False
         for token in self.defense_tokens.values():
             if not token.discarded:
                 token.ready()
 
-    def end_activation(self) -> None :
+    cpdef void end_activation(self) :
         self.activated = True
         self.game.active_ship = None
         self.attack_history = (None, None, None, None)
@@ -147,27 +170,35 @@ cdef class Ship:
         self.command_dial = ()
         self.resolved_command = ()
 
-    def execute_maneuver(self, course : tuple[int, ...], placement : int) -> None:
-        overlap_ships = self.move_ship(course, placement, set())
+    cpdef void execute_maneuver(self, tuple course, int placement) :
+        cdef set overlap_ships = self.move_ship(course, placement, set())
         self.overlap_damage(overlap_ships)
         if self.out_of_board() :
             self.game.visualize(f'{self} is out of board!')
             self.destroy()
-            
-    def move_ship(self, course : tuple[int, ...], placement : int, overlap_ships : set[int]) -> set[int]:
+
+    cpdef set move_ship(self, tuple course, int placement, set overlap_ships) :
+
+        cdef:
+            float original_x = self.x
+            float original_y = self.y
+            float original_orientation = self.orientation
+            cnp.ndarray[cnp.float32_t, ndim=1] tool_translation
+            float tool_rotation
+            float c, s
+            cnp.ndarray[cnp.float32_t, ndim=2] rotation_matrix
+            set current_overlap, new_overlap
+
         if not course :
             self.game.visualize(f'{self} executes speed 0 maneuver.')
             return overlap_ships
         if self.game.debuging_visual : tool_coord = self._tool_coordination(course, placement)[0]
-        
-        original_x, original_y = self.x, self.y
-        original_orientation = self.orientation
 
         tool_translation, tool_rotation = cache.maneuver_tool(self.size_class, course, placement)
         # change translation vector according to the current orientation
         # rotation matrix use CW orientation    
-        c = np.cos(-original_orientation)
-        s = np.sin(-original_orientation)
+        c = cos(-original_orientation)
+        s = sin(-original_orientation)
         rotation_matrix = np.array([[c, -s],
                                     [s,  c]], dtype=np.float32)
         tool_translation = rotation_matrix @ tool_translation
@@ -188,15 +219,18 @@ cdef class Ship:
 
         return overlap_ships
 
-    def is_overlap_squad(self) -> bool:
+    cpdef bint is_overlap_squad(self) :
         """
         determines which squad overlaps to this ship at current location
         
         Returns:
-            overlap_list (set[Squad]): A set indicating which squads were overlapped.
+            is_overlap(bool): A set indicating which squads were overlapped.
         """
+        cdef: 
+            Squad squad
+            bint is_overlap = False
+
         if self.destroyed : return False
-        is_overlap : bool = False
         for squad in self.game.squads:
             if squad.destroyed :
                 continue
@@ -206,17 +240,18 @@ cdef class Ship:
                 squad.overlap_ship_id = self.id
         return is_overlap
 
-    def get_valid_squad_placement(self, squad : Squad) -> list[int|None] :
+    cpdef list get_valid_squad_placement(self, Squad squad) :
         """
         Get a list of valid placements for a squad at the current ship location.
-
-        Returns:
-            valid_placements (list[tuple[float, float]]): A list of valid (x, y) placements for the squad.
         """
-        valid_placements : list[int|None] = []
-        original_coords = squad.coords
+        cdef:
+            list valid_placements = []
+            tuple original_coords = squad.coords
+            cnp.ndarray[cnp.float32_t, ndim=2] squad_placement_points = cache._ship_coordinate(self.get_ship_hash_state())['squad_placement_points']
+            int index
+            cnp.ndarray[cnp.float32_t, ndim=1] point
+            tuple coords
 
-        squad_placement_points = cache._ship_coordinate(self.get_ship_hash_state())['squad_placement_points']
         for index, point in enumerate(squad_placement_points):
             coords = tuple(point.tolist())
             squad.coords = coords
@@ -234,8 +269,7 @@ cdef class Ship:
 
     def _create_template_geometries(self, ship_dict : dict) -> None:
         """
-        Creates template vertices (points) for all ship shapes, relative to a single
-        (0,0) pivot at the token's front-center.
+        Used for visualizer (not game logic)
         """
         front_arc : tuple[float, float] = (ship_dict['front_arc_center'], ship_dict['front_arc_end']) 
         rear_arc : tuple[float, float] = (ship_dict['rear_arc_center'], ship_dict['rear_arc_end'])
@@ -302,7 +336,7 @@ cdef class Ship:
 
 
 # sub method for attack
-    def is_obstruct_s2s(self, from_hull : HullSection, to_ship : Ship, to_hull : HullSection) -> bool :
+    cpdef bint is_obstruct_s2s(self, int from_hull, Ship to_ship, int to_hull) :
         """
         Checks if the line of sight between two ships is obstructed.
 
@@ -314,7 +348,9 @@ cdef class Ship:
         Returns:
             obstructed (bool)
         """
-        line_of_sight : tuple[tuple[float, float], ...] = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(cache._ship_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
+        cdef:
+            tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(cache._ship_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
+            Ship ship
 
         for ship in self.game.ships:
 
@@ -328,7 +364,7 @@ cdef class Ship:
 
         return False
 
-    def is_obstruct_s2q(self, from_hull: HullSection, to_squad: Squad) -> bool :
+    cpdef bint is_obstruct_s2q(self, int from_hull, Squad to_squad) :
         """
         Checks if the line of sight between a ship and a squad is obstructed.
 
@@ -336,7 +372,9 @@ cdef class Ship:
             hull (HullSection): The firing hull section of the attacking ship.
             squad (Squad): The target squad.
         """
-        line_of_sight : tuple[tuple[float, float], ...] = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), to_squad.coords)
+        cdef:
+            tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), to_squad.coords)
+            Ship ship
 
         for ship in self.game.ships:
 
@@ -351,18 +389,17 @@ cdef class Ship:
         return False
         
 
-    def gather_dice(self, attack_hull : HullSection, attack_range : AttackRange, *, is_ship : bool) -> tuple[int, ...] :
+    cpdef tuple gather_dice(self, int attack_hull, int attack_range, bint is_ship) :
         if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): return (0, 0, 0)
-        if is_ship :
+        if is_ship : 
             return self.battery_range[attack_hull][attack_range]
         else :
             return self.anti_squad_range[attack_range]
 
-    def defend(self, defend_hull : HullSection, total_damage : int, critical: Critical | None) -> None:
-        # Absorb damage with shields first
-        shield_damage = min(total_damage, self.shield[defend_hull])
-
-        shield_list = list(self.shield)
+    cpdef void defend(self, int defend_hull, int total_damage, object critical) :
+        cdef:
+            int shield_damage = min(total_damage, self.shield[defend_hull])
+            list shield_list = list(self.shield) 
         shield_list[defend_hull] -= shield_damage
         self.shield = tuple(shield_list)
 
@@ -375,8 +412,13 @@ cdef class Ship:
 
         if self.hull <= 0 : self.destroy()
 
-    def get_valid_ship_target(self, attack_hull : HullSection) -> list[tuple[Ship, HullSection]] :
-        valid_ship_targets : list[tuple[Ship, HullSection]]= []
+    cpdef list get_valid_ship_target(self, int attack_hull) :
+        cdef:
+            list valid_ship_targets = []
+            Ship ship
+            list target_dict, range_dict
+            int target_hull, attack_range
+            int dice_count
 
         for ship in self.game.ships:
             if ship.id == self.id or ship.destroyed or ship.player == self.player: continue
@@ -386,7 +428,7 @@ cdef class Ship:
             if not target_dict[attack_hull] : continue
 
             for target_hull in HULL_SECTIONS :
-                attack_range : AttackRange = range_dict[attack_hull][target_hull] 
+                attack_range = range_dict[attack_hull][target_hull] 
                 
                 if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
 
@@ -398,13 +440,19 @@ cdef class Ship:
 
         return valid_ship_targets
 
-    def get_valid_squad_target(self, attack_hull:HullSection) -> list[Squad] :
-        valid_squad_targets : list[Squad]= []
+    cpdef list get_valid_squad_target(self, int attack_hull) :
+        cdef:
+            list valid_squad_targets = []
+            Squad squad
+            list range_dict
+            int attack_range
+            int dice_count
+
         for squad in self.game.squads:
             if squad.player == self.player or squad.destroyed : continue
 
-            range_dict :list[AttackRange] =  cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())
-            attack_range : AttackRange = range_dict[attack_hull]
+            range_dict =  cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())
+            attack_range = range_dict[attack_hull]
             if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
             dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=False))
             if dice_count == 0 : continue
@@ -414,34 +462,44 @@ cdef class Ship:
 
         return valid_squad_targets
 
-    def get_valid_attack_hull(self) -> list[HullSection]:
+    cpdef list get_valid_attack_hull(self) :
         """
         Get a list of valid attacking hull sections for the ship.
 
         Returns:
             valid_attacker (list[HullSection]): A list of valid attacking hull sections.
         """
-        valid_attacker = [hull for hull in HULL_SECTIONS if self.attack_history[hull] is None]
+        cdef:
+            int hull
+            list valid_attacker = []
+
+        for hull in HULL_SECTIONS :
+            if self.attack_history[hull] is None :
+                valid_attacker.append(hull)
 
         return valid_attacker
 
-    def get_critical_effect(self, black_crit : bool, blue_crit : bool, red_crit : bool) -> list[Critical] :
-        critical_list : list[Critical] = []
+    cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :
+        cdef list critical_list = []
         if black_crit or blue_crit or red_crit :
             critical_list.append(Critical.STANDARD)
         return critical_list
 
-    def get_squad_activation(self) -> list[Squad] :
+    cpdef list get_squad_activation(self) :
         """
         Get the number of squads that can be activated by this ship.
 
         Returns:
             list[Squad]: A list of squads that can be activated.
         """
-        return [squad for squad in self.game.squads 
-                if squad.player == self.player and not squad.activated and not squad.destroyed 
-                and cache.range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state()) <= AttackRange.MEDIUM]
-
+        cdef:
+            Squad squad
+            list valid_squads = []
+        for squad in self.game.squads:
+            if squad.player == self.player and not squad.activated and not squad.destroyed \
+               and cache.range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state()) <= AttackRange.MEDIUM:
+                valid_squads.append(squad)
+        return valid_squads
 
 # sub method for execute maneuver
     def _tool_coordination(self, course : tuple[int, ...], placement : int) -> tuple[list[tuple[float, float]], list[float]]:
@@ -489,14 +547,17 @@ cdef class Ship:
         # The shape will now be (speed + 1)
         return all_points.tolist(), joint_orientations.tolist()
         
-    def is_overlap(self) -> set[int] :        
+    cpdef set is_overlap(self) :        
         """
         determines which ship overlaps to this ship at current location
         
         Returns:
-            overlap_list (list[bool]): A list indicating which ships were overlapped.
+            overlap_list (set[int]): A list indicating which ships were overlapped.
         """
-        overlap_list = set()
+        cdef:
+            set overlap_list = set()
+            Ship ship
+
         for ship in self.game.ships:
             if self.id == ship.id or ship.destroyed :
                 continue
@@ -505,15 +566,20 @@ cdef class Ship:
                 overlap_list.add(ship.id)
         return overlap_list
 
-    def overlap_damage(self, overlap_list : set[int]) -> None:
+    cpdef void overlap_damage(self, set overlap_list) :
         """
         Determines which of the overlapping ships is closest and handles the collision.
 
         Args:
             overlap_list (set[int]): A set indicating which ships were overlapped.
         """
-        closest_ship = None
-        min_distance = float('inf')
+        if not overlap_list: return
+        cdef:
+            Ship closest_ship
+            float min_distance = float('inf')
+            int ship_id
+            Ship other_ship
+            float distance
 
         for ship_id in overlap_list:
             other_ship = self.game.ships[ship_id]
@@ -524,22 +590,23 @@ cdef class Ship:
                 min_distance = distance
                 closest_ship = other_ship
 
-        if closest_ship:
-            self.hull -= 1
-            closest_ship.hull -= 1
-            self.game.visualize(f"\n{self} overlaps to {closest_ship}.")
-            if self.hull <= 0 : self.destroy()
-            if closest_ship.hull <= 0 :closest_ship.destroy()
+        self.hull -= 1
+        closest_ship.hull -= 1
+        self.game.visualize(f"\n{self} overlaps to {closest_ship}.")
+        if self.hull <= 0 : self.destroy()
+        if closest_ship.hull <= 0 :closest_ship.destroy()
 
-    def out_of_board(self) -> bool:
+    cpdef bint out_of_board(self) :
         """
         Checks if the ship's base is completely within the game board.
 
         Returns:
             bool: True if the ship is out of the board, False otherwise.
         """
-        coords = cache._ship_coordinate(self.get_ship_hash_state())
-        base_corners = coords['base_corners']
+        cdef:
+            dict coords = cache._ship_coordinate(self.get_ship_hash_state())
+            cnp.ndarray[cnp.float32_t, ndim=2] base_corners = coords['base_corners']
+            float min_x, min_y, max_x, max_y
         min_x, min_y = base_corners.min(axis=0)
         max_x, max_y = base_corners.max(axis=0)
 
@@ -548,15 +615,17 @@ cdef class Ship:
         
         return True
     
-    def get_valid_speed(self) -> list[int]:
+    cpdef list get_valid_speed(self) :
         """
         Get a list of valid speeds for the ship based on its navchart.
 
         Returns:
             list[int]: A list of valid speeds.
         """
-        valid_speed = []
-        speed_change : int = int(Command.NAV in self.command_dial) + int(Command.NAV in self.command_token)
+        cdef:
+            list valid_speed = []
+            int speed_change = int(Command.NAV in self.command_dial) + int(Command.NAV in self.command_token)
+            int speed
 
         for speed in range(5):
             if abs(speed - self.speed) > speed_change:
@@ -565,8 +634,8 @@ cdef class Ship:
                 valid_speed.append(speed)
 
         return valid_speed
-    
-    def get_valid_yaw(self, speed : int, joint : int) -> list[int]:
+
+    cpdef list get_valid_yaw(self, int speed, int joint) :
         """
         Get a list of valid yaw adjustments for the ship based on its navchart.
 
@@ -577,67 +646,80 @@ cdef class Ship:
         Returns:
             list[int]: A list of valid yaw adjustments. -2 ~ 2
         """
-        valid_yaw = []
-        
+        cdef:
+            list valid_yaw = []
+            int yaw
+            int max_yaw = self.nav_chart[speed][joint]
+
         for yaw in range(5):
-            if abs(yaw - 2) > self.nav_chart[speed][joint]:
+            if abs(yaw - 2) > max_yaw:
                 continue
-            valid_yaw.append(yaw -2)
+            valid_yaw.append(yaw - 2)
 
         return valid_yaw
     
-    def nav_command_used(self, course: tuple[int, ...]) -> tuple[bool, bool] :
-            nav_dial_used = False
-            nav_token_used = False
-            new_speed = len(course)
+    cpdef tuple nav_command_used(self, tuple course) :
+        """
+        Args:
+            course (tuple[int, ...]): The maneuver course of the ship.
+        Returns:
+            tuple (nav_dial_used (bool), nav_token_used (bool))
+        """
+        cdef:
+            bint nav_dial_used = False
+            bint nav_token_used = False
+            int new_speed = len(course)
+            int speed_change = abs(new_speed - self.speed)
+            bint is_standard
 
-            # 1. SPEED CHANGE VALIDATION
-            speed_change = abs(new_speed - self.speed)
+        # 1. SPEED CHANGE VALIDATION
+        if speed_change > 2:
+            raise ValueError(f"Invalid speed change of {speed_change}. Maximum is 2.")
 
-            if speed_change > 2:
-                raise ValueError(f"Invalid speed change of {speed_change}. Maximum is 2.")
+        if speed_change == 1:
+            # Must use one NAVIGATE command from either dial or token
+            if Command.NAV in self.command_dial:
+                nav_dial_used = True
+            elif Command.NAV in self.command_token:
+                nav_token_used = True
+            else:
+                raise ValueError("Speed change of 1 requires a NAVIGATE command from a dial or token.")
 
-            if speed_change == 1:
-                # Must use one NAVIGATE command from either dial or token
-                if Command.NAV in self.command_dial:
-                    nav_dial_used = True
-                elif Command.NAV in self.command_token:
-                    nav_token_used = True
-                else:
-                    raise ValueError("Speed change of 1 requires a NAVIGATE command from a dial or token.")
+        if speed_change == 2:
+            # Must use two NAVIGATE commands, one from each source
+            if Command.NAV in self.command_dial and Command.NAV in self.command_token:
+                nav_dial_used = True
+                nav_token_used = True
+            else:
+                raise ValueError("Speed change of 2 requires NAVIGATE commands from BOTH a dial and a token.")
 
-            if speed_change == 2:
-                # Must use two NAVIGATE commands, one from each source
-                if Command.NAV in self.command_dial and Command.NAV in self.command_token:
-                    nav_dial_used = True
-                    nav_token_used = True
-                else:
-                    raise ValueError("Speed change of 2 requires NAVIGATE commands from BOTH a dial and a token.")
-
-            # 2. COURSE VALIDITY CHECK (for extra clicks)
-            is_standard = self.is_standard_course(course)
-            
-            if not is_standard:
-                # This is a special course that requires an extra click from the command dial.
-                if Command.NAV in self.command_dial:
-                    nav_dial_used = True
-                else:
-                    raise ValueError("This course requires an extra click, which needs a NAVIGATE command from the dial.")
-            return nav_dial_used, nav_token_used
+        # 2. COURSE VALIDITY CHECK (for extra clicks)
+        is_standard = self.is_standard_course(course)
+        
+        if not is_standard:
+            # This is a special course that requires an extra click from the command dial.
+            if Command.NAV in self.command_dial:
+                nav_dial_used = True
+            else:
+                raise ValueError("This course requires an extra click, which needs a NAVIGATE command from the dial.")
+        return nav_dial_used, nav_token_used
     
-    def is_standard_course(self, course:tuple[int, ...]) -> bool :
+    cpdef bint is_standard_course(self, tuple course) :
         """
         Checks if a given course is a standard maneuver for a given speed,
         without using any special abilities like adding a click.
         """
-        speed = len(course)
+        cdef:
+            int speed = len(course)
+            int joint, yaw, max_yaw
         if speed == 0 : return True
 
         for joint, yaw in enumerate(course) :
-            if abs(yaw) > self.nav_chart[speed][joint] : return False
+            max_yaw = self.nav_chart[speed][joint]
+            if abs(yaw) > max_yaw : return False
         return True
 
-    def get_all_possible_courses(self, speed: int) -> list[tuple[int, ...]]:
+    cpdef list get_all_possible_courses(self, int speed) :
         """
         Gets all possible maneuver courses for a given speed.
 
@@ -650,8 +732,14 @@ cdef class Ship:
         Returns:
             A list of all unique, valid course lists.
         """
-        has_nav_dial = Command.NAV in self.command_dial
-        cache_key = (speed, has_nav_dial)
+        cdef:
+            bint has_nav_dial = Command.NAV in self.command_dial
+            tuple cache_key = (speed, has_nav_dial)
+            list original_yaw_options
+            set all_courses, standard_courses
+            int i
+            list final_result
+            int original_yaw, modified_yaw_add, modified_yaw_sub
 
         if cache_key in self._course_cache :
             return self._course_cache[cache_key]
@@ -697,8 +785,8 @@ cdef class Ship:
         final_result = sorted(list(all_courses))
         self._course_cache[cache_key] = final_result
         return final_result
-    
-    def get_valid_placement(self, course : tuple[int, ...]) -> list[int]:
+
+    cpdef list get_valid_placement(self, tuple course) :
         """
         Get a list of valid placements for the ship based on its navchart.
 
@@ -709,15 +797,16 @@ cdef class Ship:
             list[int]: A list of valid placements. 
                 1 for right, -1 for left
         """
-        speed = len(course)
+        cdef:
+            int speed = len(course)
+            list valid_placement = [-1, 1]
         if speed == 0 : return [0]
         
-        valid_placement = [-1, 1]
         if speed > 0 :
             if course[-1] > 0 : valid_placement.remove(-1)
             elif course[-1] < 0 : valid_placement.remove(1)
             else : 
-                if speed >= 2 and self.size_class > SizeClass.SMALL :
+                if speed >= 2 and self.size_class > <int>SizeClass.SMALL :
                     if course[-2] > 0 : valid_placement.remove(-1)
                     elif course[-2] < 0 : valid_placement.remove(1)
         return valid_placement

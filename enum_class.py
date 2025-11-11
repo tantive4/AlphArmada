@@ -24,7 +24,7 @@ class Dice(IntEnum) :
     def __str__(self):
         return self.name
     __repr__ = __str__
-DICE = tuple(dice for dice in Dice)
+DICE = tuple(dice.value for dice in Dice)
 dice_type = len(DICE)
 
 class HullSection(IntEnum):
@@ -35,7 +35,7 @@ class HullSection(IntEnum):
     def __str__(self):
         return self.name
     __repr__ = __str__
-HULL_SECTIONS = tuple(hull for hull in HullSection)
+HULL_SECTIONS = tuple(hull.value for hull in HullSection)
 hull_type = len(HULL_SECTIONS)
 
 class SizeClass(IntEnum) :
@@ -67,7 +67,7 @@ class AttackRange(IntEnum) :
     def __str__(self) -> str:
         return self.name
     __repr__ = __str__
-ATTACK_RANGES = (AttackRange.CLOSE, AttackRange.MEDIUM, AttackRange.LONG)
+ATTACK_RANGES = (AttackRange.CLOSE.value, AttackRange.MEDIUM.value, AttackRange.LONG.value)
 
 class Critical(IntEnum) :
     STANDARD = 0

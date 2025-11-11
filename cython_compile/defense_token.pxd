@@ -4,3 +4,7 @@ cdef class DefenseToken:
         public bint readied, discarded, accuracy
     cdef tuple get_snapshot(self)
     cdef void revert_snapshot(self, tuple snapshot)
+    cpdef void spend(self)
+    cpdef void discard(self)
+    cpdef void ready(self)
+    
