@@ -149,6 +149,9 @@ cdef class AttackInfo :
         return total_damage
 
     cpdef void remove_dice(self, tuple dice_to_remove) :
+        """
+        Remove dice from the attack pool result ((black), (blue), (red))
+        """
         cdef:
             list new_pool_result = []
             int dice_type

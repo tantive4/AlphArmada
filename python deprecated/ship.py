@@ -307,7 +307,7 @@ class Ship:
             if ship.destroyed:
                 continue
 
-            if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
+            if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
                 return True
 
         return False
@@ -329,7 +329,7 @@ class Ship:
             if ship.destroyed:
                 continue
 
-            if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
+            if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
                 return True
 
         return False

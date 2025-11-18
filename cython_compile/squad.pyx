@@ -16,6 +16,7 @@ import cache_function as cache
 
 from armada cimport Armada
 from ship cimport Ship
+from obstacle cimport Obstacle
 from defense_token cimport DefenseToken
 
 
@@ -116,7 +117,7 @@ cdef class Squad :
         """
         cdef int x_int = <int>(self.coords[0] * HASH_PRECISION)
         cdef int y_int = <int>(self.coords[1] * HASH_PRECISION)
-        return self.coords
+        return (x_int, y_int)
     
     cpdef bint is_engaged(self):
         """
@@ -126,6 +127,8 @@ cdef class Squad :
         cdef:
             float engage_distance = Q2Q_RANGE
             float engage_distance_sq = engage_distance * engage_distance
+            Squad squad
+
         for squad in self.game.squads :
             if squad.player == self.player or squad.destroyed or squad.heavy :
                 continue
@@ -186,6 +189,8 @@ cdef class Squad :
                 if not self.is_obstruct_q2s(ship, hull) :
                     # since there is no 2 dice battery squad YET
                     valid_target.append((ship.id, hull))
+                elif sum(self.battery) > 1:
+                    valid_target.append((ship.id, hull))
 
         return valid_target
 
@@ -200,12 +205,18 @@ cdef class Squad :
         cdef:
             tuple line_of_sight = (self.coords, to_squad.coords)
             Ship ship
+            Obstacle obstacle
 
         for ship in self.game.ships:
             if ship.destroyed :
                 continue
-            if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
+            if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
                 return True
+
+        for obstacle in self.game.obstacles:
+            if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):
+                return True
+
         return False
 
     cpdef bint is_obstruct_q2s(self, Ship to_ship, int to_hull) :

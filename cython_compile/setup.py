@@ -10,6 +10,7 @@ extensions = [
     Extension("attack_info", ["cython_compile/attack_info.pyx"], include_dirs=[numpy.get_include()]),
     Extension("ship", ["cython_compile/ship.pyx"], include_dirs=[numpy.get_include()]),
     Extension("squad", ["cython_compile/squad.pyx"], include_dirs=[numpy.get_include()]),
+    Extension("obstacle", ["cython_compile/obstacle.pyx"], include_dirs=[numpy.get_include()]),
     Extension("defense_token", ["cython_compile/defense_token.pyx"], include_dirs=[numpy.get_include()]),
     Extension("game_encoder", ["cython_compile/game_encoder.pyx"], include_dirs=[numpy.get_include()]),
     Extension("action_manager", ["cython_compile/action_manager.pyx"]),

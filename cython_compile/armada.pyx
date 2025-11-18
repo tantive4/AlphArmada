@@ -6,67 +6,34 @@ import math
 
 import numpy as np
 cimport numpy as cnp
+from skimage.draw import polygon as draw_polygon
 
 from configs import Config
 from action_phase import Phase, ActionType, get_action_str, phase_type
 import visualizer
 from ship cimport Ship
 from squad cimport Squad
+from obstacle cimport Obstacle
 from attack_info cimport AttackInfo
 from enum_class import *
 from dice import *
 import cache_function as cache
 from defense_token cimport DefenseToken
 
-
-
-def setup_game(*,debuging_visual:bool=False, para_index:int=0) -> Armada: 
-
-    game = Armada(initiative=Player.REBEL, para_index=para_index) # randomly choose the first player
-    game.debuging_visual = <bint>debuging_visual
-    rebel_ships = (
-        Ship(SHIP_DATA['CR90B'], Player.REBEL),
-        Ship(SHIP_DATA['Neb-B Support'], Player.REBEL),  
-        Ship(SHIP_DATA['CR90A'], Player.REBEL),
-        Ship(SHIP_DATA['Neb-B Escort'], Player.REBEL))
-
-    
-    rebel_squads = (Squad(SQUAD_DATA['X-Wing'], Player.REBEL) for _ in range(3))
-
-    empire_ships = (
-        Ship(SHIP_DATA['VSD1'], Player.EMPIRE),
-        Ship(SHIP_DATA['VSD2'], Player.EMPIRE),)
-
-    empire_squads = (Squad(SQUAD_DATA['TIE Fighter'], Player.EMPIRE) for _ in range(6))
-
-    rebel_ship_deployment :list[tuple[float, float, float]] = [(600, 175, math.pi/16), (700, 175, math.pi/16), (1200, 175, 0), (1400, 175, 0)]
-    empire_ship_deployment :list[tuple[float, float, float]] = [(600, 725, math.pi*7/8), (1200, 725, math.pi)]
-
-    for i, ship in enumerate(rebel_ships) :
-        game.deploy_ship(ship, *rebel_ship_deployment[i], 3)
-    for i, ship in enumerate(empire_ships): 
-        game.deploy_ship(ship, *empire_ship_deployment[i], 2)
-
-    for i, squad in enumerate(rebel_squads) :
-        game.deploy_squad(squad,  1200 + i * 50, 250)
-    for i, squad in enumerate(empire_squads) :
-        game.deploy_squad(squad,  1000 - i * 50, 650)
-
-    return game
-
 cdef class Armada:
     """
     The main class representing the Armada game.
     """
-    def __init__(self, initiative: int, para_index:int = 0) -> None:
+    def __init__(self, initiative: Player, para_index:int = 0) -> None:
         self.player_edge = 1800 # mm
         self.short_edge = 900 # mm
         self.ships : list[Ship] = []
         self.squads : list[Squad] = []
+        self.obstacles : list[Obstacle] = []
 
         self.round = 1
-        self.first_player = initiative
-        self.second_player = -initiative
+        self.first_player = initiative.value
+        self.second_player = -initiative.value
 
         self.phase : Phase = Phase.COMMAND_PHASE    
         self.current_player : int = self.first_player
@@ -86,7 +53,7 @@ cdef class Armada:
         self.relation_encode_array = np.zeros((Config.SCALAR_FEATURE_SIZE * hull_type, Config.SCALAR_FEATURE_SIZE * hull_type), dtype=np.float32)
         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
         self.squad_encode_array = np.zeros((Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
-        self.spatial_encode_array = np.zeros((Config.MAX_SHIPS * 2 + 2, Config.BOARD_RESOLUTION[1], Config.BOARD_RESOLUTION[0]), dtype=np.float32)
+        self.spatial_encode_array = np.zeros((obstacle_type + Config.MAX_SHIPS * 2 + 2, Config.BOARD_RESOLUTION[1], Config.BOARD_RESOLUTION[0]), dtype=np.float32)
 
     def rollout(self, max_simulation_step : int = 2000) -> float :
         """
@@ -159,7 +126,7 @@ cdef class Armada:
         """
         cdef: 
             list actions = []
-            Ship active_ship, attack_ship, ship
+            Ship active_ship, attack_ship, ship, defend_ship
             Squad active_squad, attack_squad, squad
             AttackInfo attack_info
             int phase = self.phase
@@ -249,7 +216,7 @@ cdef class Armada:
                 if sum(dice_to_roll) <= 1 : raise ValueError('Empty Attack Pool. Invalid Attack')
                 for dice_type in DICE :
                     if dice_to_roll[dice_type] > 0 :
-                        dice_to_remove = DICE_REMOVE_1[dice_type]
+                        dice_to_remove = DICE_CHOICE_1[dice_type]
                         actions.append(('gather_dice_action', dice_to_remove))
             else:
                 actions = [('gather_dice_action', (0,0,0))]
@@ -328,8 +295,8 @@ cdef class Armada:
                             and defense_token.type not in attack_info.spent_token_types):
 
                         if defense_token.type == TokenType.REDIRECT :
-                            actions.append(('spend_redirect_token_action',(index, HullSection((<int>attack_info.defend_hull + 1) % 4))))
-                            actions.append(('spend_redirect_token_action',(index, HullSection((<int>attack_info.defend_hull - 1) % 4))))
+                            actions.append(('spend_redirect_token_action',(index, (<int>attack_info.defend_hull + 1) % 4)))
+                            actions.append(('spend_redirect_token_action',(index, (<int>attack_info.defend_hull - 1) % 4)))
 
                         elif defense_token.type == TokenType.EVADE :
                             # choose 1 die to affect
@@ -360,10 +327,10 @@ cdef class Armada:
 
         elif phase == Phase.ATTACK_RESOLVE_DAMAGE:
             total_damage = attack_info.total_damage
-            defender = <Ship>self.ships[attack_info.defend_ship_id]
+            defend_ship = self.ships[attack_info.defend_ship_id]
             redirect_hull = attack_info.redirect_hull
             if redirect_hull is not None :
-                for damage in range(min(total_damage, defender.shield[redirect_hull]) + 1):
+                for damage in range(min(total_damage, defend_ship.shield[redirect_hull]) + 1):
                     actions.append(('resolve_damage_action', (redirect_hull, damage)))
 
             actions.append(('resolve_damage_action', None))
@@ -438,6 +405,7 @@ cdef class Armada:
             Squad active_squad, defend_squad, squad
             AttackInfo attack_info
             DefenseToken defense_token
+            Obstacle obstacle
             str action_type
             object action_data
             bint dial, token
@@ -603,8 +571,11 @@ cdef class Armada:
             defend_ship = self.ships[attack_info.defend_ship_id]
             defense_token = defend_ship.defense_tokens[index]
             defense_token.accuracy = True
+
+            dice_pool = list(EMPTY_DICE_POOL)
+            dice_pool[accuracy_dice] = ACCURACY_DICE_1[accuracy_dice]
             
-            attack_info.remove_dice(DICE_CHOICE_1[accuracy_dice])
+            attack_info.remove_dice(tuple(dice_pool))
 
             attack_info.calculate_total_damage()
 
@@ -807,6 +778,10 @@ cdef class Armada:
 
             active_ship.speed = len(course)
             active_ship.execute_maneuver(course, placement)
+
+            for obstacle in self.obstacles:
+                if active_ship.check_overlap(obstacle) :
+                    active_ship.overlap_obstacle(obstacle)
 
 
             if active_ship.is_overlap_squad() :
@@ -1043,6 +1018,43 @@ cdef class Armada:
         squad_view[offset] = squad.anti_squad[0] / Config.GLOBAL_MAX_DICE; offset += 1
         squad_view[offset] = squad.anti_squad[1] / Config.GLOBAL_MAX_DICE; offset += 1
         squad_view[offset] = squad.anti_squad[2] / Config.GLOBAL_MAX_DICE; offset += 1
+
+    def place_obstacle(self, obstacle: Obstacle, x: float, y: float, orientation: float, flip: bool) -> None:
+        self.obstacles.append(obstacle)
+        self.obstacles.sort(key=lambda obstacle: obstacle.index)
+        obstacle.place_obstacle(x, y, orientation, flip)
+        self.visualize(f'\n{str(obstacle)} is placed.')
+
+        obstacle_view = self.spatial_encode_array[obstacle.type]
+        width_res, height_res = Config.BOARD_RESOLUTION
+        width_step = self.player_edge / width_res
+        height_step = self.short_edge / height_res
+        scale_factor = 2
+        scaled_vertices = obstacle.coordinates / [width_step, height_step]
+
+        # Important: We must scale the vertices *and* the shape constraint
+        high_res_vertices = scaled_vertices * scale_factor
+        high_res_shape = (obstacle_view.shape[0] * scale_factor, obstacle_view.shape[1] * scale_factor)
+
+        # 2. DRAW: Get coordinates on the high-res grid
+        # Note: We pass the high_res_shape so it doesn't clip incorrectly
+        rr, cc = draw_polygon(
+            high_res_vertices[:, 1], 
+            high_res_vertices[:, 0], 
+            shape=high_res_shape
+        )
+
+        # 3. DOWNSAMPLE INDICES
+        rr //= scale_factor
+        cc //= scale_factor
+
+        # 4. ACCUMULATE: Use add.at to handle overlapping indices correctly
+        # Value to add is 1.0 / (scale_factor^2) -> 1.0 / 4 = 0.25
+        value_per_hit = 1.0 / (scale_factor ** 2)
+
+        np.add.at(obstacle_view, (rr, cc), value_per_hit)
+
+
 
     cdef bint total_destruction(self, int player) :
         cdef Ship ship

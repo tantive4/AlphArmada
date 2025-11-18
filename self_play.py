@@ -34,8 +34,8 @@ class AlphArmada:
 
         action_manager = ActionManager()
         para_games : list[Armada] = [setup_game(para_index=para_index) for para_index in range(Config.PARALLEL_PLAY)]
-        for para_index in range(Config.PARALLEL_PLAY):
-            with open(f'simulation_log{para_index+1}.txt', 'w') as f: f.write(f"--- Starting Simulation for Game {para_index+1} ---\n")
+        # for para_index in range(Config.PARALLEL_PLAY):
+        #     with open(f'simulation_log{para_index+1}.txt', 'w') as f: f.write(f"--- Starting Simulation for Game {para_index+1} ---\n")
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
         action_counter : int = 0
         while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
@@ -75,7 +75,9 @@ class AlphArmada:
                     if len(game.get_valid_actions()) != 1:
                         raise ValueError("Multiple valid actions in information set node.")
                     action = game.get_valid_actions()[0]
-                with open(f'simulation_log{para_index+1}.txt', 'a') as f: f.write(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}\n")
+                # with open(f'simulation_log{para_index+1}.txt', 'a') as f: f.write(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}\n")
+                if para_index == 0:
+                    print(f"Game 1 Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
                 game.apply_action(action)
                 mcts.advance_tree(para_index, action, game.get_snapshot())
                 

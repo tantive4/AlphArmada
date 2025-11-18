@@ -409,7 +409,8 @@ cdef class MCTS:
         cdef: 
             object action
             int action_index
-            float policy_sum, num_valid
+            float policy_sum = 0.0
+            int num_valid
             cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view = self.action_mask
         action_mask_view.fill(0)
         
@@ -419,15 +420,16 @@ cdef class MCTS:
             action_mask_view[action_index] = 1
             policy_sum += policy[action_index]
 
-        policy *= action_mask_view
+        
 
         # Normalize the policy if there are any valid moves
         if policy_sum > 0:
+            policy *= action_mask_view
             policy /= policy_sum
         else:
             # Handle rare cases where the network assigns 0 probability to all valid moves
             # Or if there are no valid moves (should not happen for an expandable node)
-            print(f"Warning: Zero policy sum for valid moves in {valid_actions}. Using uniform distribution.")
+            print(f"Warning: Zero policy sum for valid moves in {valid_actions}. Using uniform distribution. Original Policy: {policy}, Action Mask: {action_mask_view}")
             num_valid = len(valid_actions)
             policy[action_mask_view] = 1.0 / num_valid
 

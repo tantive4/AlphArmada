@@ -169,7 +169,7 @@ class Squad :
         for ship in self.game.ships:
             if ship.destroyed :
                 continue
-            if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
+            if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
                 return True
         return False
     

@@ -117,39 +117,39 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
 
     match action:
         case 'set_command_action', (ship_id, command) :
-            action_str = f'Set {command} Command on {game.ships[ship_id]}'
+            action_str = f'Set {Command(command)} Command on {game.ships[ship_id]}'
 
         case 'activate_ship_action', ship_id:
             action_str = f'Activate Ship: {game.ships[ship_id].name}'
 
 
         case 'reveal_command_action', command :
-            action_str = f'{game.active_ship} reveals {command} Command'
+            action_str = f'{game.active_ship} reveals {Command(command)} Command'
 
         case 'gain_command_token_action', command :
-            action_str = f'{game.active_ship} gains {command} Token'
+            action_str = f'{game.active_ship} gains {Command(command)} Token'
 
         case 'discard_command_token_action', command :
-            action_str = f'{game.active_ship} discards {command} Token'
-        
+            action_str = f'{game.active_ship} discards {Command(command)} Token'
+
         case 'resolve_repair_command_action', (use_dial, use_token) :
             if use_dial or use_token :
                 action_str = f'Resolve Repair Command{" (Dial)" if use_dial else ""}{" (Token)" if use_token else ""}'
             else : action_str = None
 
         case 'move_shield_action', (from_hull, to_hull) :
-            action_str = f'Move Shield from {from_hull} to {to_hull}'
+            action_str = f'Move Shield from {HullSection(from_hull)} to {HullSection(to_hull)}'
 
 
         case 'declare_target_action', (attack_hull, defender):
             if isinstance(defender, tuple) :
                 defend_ship_id, defend_hull = defender
                 defend_ship = game.ships[defend_ship_id]
-                action_str = f'Declare Attack: from {game.active_ship} {attack_hull} to {defend_ship} {defend_hull}'
+                action_str = f'Declare Attack: from {game.active_ship} {HullSection(attack_hull)} to {defend_ship} {HullSection(defend_hull)}'
             else :
                 defend_squad_id = defender
                 defend_squad = game.squads[defend_squad_id]
-                action_str = f'Declare Attack: from {game.active_ship} {attack_hull} to {defend_squad}'
+                action_str = f'Declare Attack: from {game.active_ship} {HullSection(attack_hull)} to {defend_squad}'
 
         case 'declare_additional_squad_target_action', squad_id :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
@@ -172,7 +172,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
             defend_ship = game.ships[game.attack_info.defend_ship_id]
             token = defend_ship.defense_tokens[index]
-            action_str = f'Spend {dice_type} Accuracy : {token}'
+            action_str = f'Spend {Dice(dice_type)} Accuracy : {token}'
 
         case 'spend_evade_token_action', (index, evade_dice) :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
@@ -184,7 +184,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
             defend_ship = game.ships[game.attack_info.defend_ship_id]
             token = defend_ship.defense_tokens[index]
-            action_str = f'Spend {token} Token to {hull}'
+            action_str = f'Spend {token} Token to {HullSection(hull)}'
 
         case 'spend_defense_token_action', index :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
@@ -196,7 +196,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             action_str = f'Resolve Total {game.attack_info.total_damage} Damage'
             if redirect_damage : 
                 redirect_hull, damage = redirect_damage
-                action_str += f', Redirect {[f'{damage} to {redirect_hull}']}'
+                action_str += f', Redirect {[f'{damage} to {HullSection(redirect_hull)}']}'
 
 
         case 'determine_course_action', (course, placement) :
@@ -225,7 +225,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             if isinstance(defender, tuple) :
                 defend_ship_id, defend_hull = defender
                 defend_ship = game.ships[defend_ship_id]
-                action_str = f'Declare Squad Attack: from {game.active_squad} to {defend_ship} {defend_hull}'
+                action_str = f'Declare Squad Attack: from {game.active_squad} to {defend_ship} {HullSection(defend_hull)}'
             else :
                 defend_squad_id = defender
                 defend_squad = game.squads[defend_squad_id]

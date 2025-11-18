@@ -10,17 +10,16 @@ CLOSE_RANGE = 123.3
 MEDIUM_RANGE = 186.5
 LONG_RANGE = 304.8
 
-DISTANCE = {i : distance for i, distance in enumerate((0, 77, 125, 185, 245, 304.8))} # check
-
+DISTANCE = {i : distance for i, distance in enumerate((0, 76.5, 124.5, 185.5, 245.5, 304.8))}
 
 SHIP_BASE_SIZE : dict[SizeClass, tuple]= {SizeClass.SMALL : (43, 71), SizeClass.MEDIUM : (63, 102), SizeClass.LARGE : (77.5, 129)}
-SHIP_TOKEN_SIZE :  dict[SizeClass, tuple] = {SizeClass.SMALL : (38.5, 70.25), SizeClass.MEDIUM : (58.5, 101.5)}
+SHIP_TOKEN_SIZE : dict[SizeClass, tuple] = {SizeClass.SMALL : (38.5, 70.25), SizeClass.MEDIUM : (58.5, 101.5)}
 TOOL_WIDTH_HALF : float= 15.25 / 2
 TOOL_LENGTH : float= 46.13 
 TOOL_PART_LENGTH : float = 22.27
 
-SQUAD_BASE_RADIUS : float = 16.875 # check
-SQUAD_TOKEN_RADIUS : float = 16 # check
+SQUAD_BASE_RADIUS : float = 17
+SQUAD_TOKEN_RADIUS : float = 15.25
 Q2S_RANGE = DISTANCE[1] + SQUAD_TOKEN_RADIUS
 Q2Q_RANGE = DISTANCE[1] + SQUAD_TOKEN_RADIUS * 2
 
@@ -34,6 +33,87 @@ ROTATION_MATRICES = np.stack([
 SQUAD_TOKEN_POLY = np.array([
     [np.cos(theta), np.sin(theta)] for theta in np.linspace(0, 2 * np.pi, num=60, endpoint=False, dtype=np.float32)
 ], dtype=np.float32) * SQUAD_TOKEN_RADIUS
+
+STATION = np.array([
+    [23,  9],
+    [ 8, 19],
+    [ 6, 23],
+    [ 6, 38],
+    [11, 56],
+    [19, 67],
+    [26, 85],
+    [36, 92],
+    [43, 92],
+    [69, 79],
+    [78, 72],
+    [78, 62],
+    [84, 47],
+    [94, 38],
+    [94, 32],
+    [81, 25],
+    [68, 13],
+    [59,  9]], dtype=np.float32) - np.array([50, 50], dtype=np.float32)
+DEBRIS1 = np.array([
+    [35, 23],
+    [27, 34],
+    [27, 51],
+    [20, 63],
+    [22, 73],
+    [35, 81],
+    [77, 75],
+    [80, 63],
+    [72, 54],
+    [69, 34],
+    [65, 27],
+    [56, 19]], dtype=np.float32) - np.array([50, 50], dtype=np.float32)
+DEBRIS2 = np.array([
+    [18, 11],
+    [13, 17],
+    [14, 26],
+    [50, 58],
+    [50, 65],
+    [38, 84],
+    [38, 90],
+    [45, 91],
+    [86, 56],
+    [87, 44],
+    [71, 16],
+    [62, 10]], dtype=np.float32) - np.array([50, 50], dtype=np.float32)
+ASTEROID1 = np.array([
+    [50, 19],
+    [38, 36],
+    [27, 45],
+    [21, 64],
+    [35, 77],
+    [58, 80],
+    [71, 73],
+    [78, 62],
+    [78, 56],
+    [67, 44],
+    [59, 22]], dtype=np.float32) - np.array([50, 50], dtype=np.float32)
+ASTEROID2 = np.array([
+    [56, 19],
+    [51, 19],
+    [44, 25],
+    [31, 53],
+    [32, 65],
+    [40, 82],
+    [62, 76],
+    [68, 66],
+    [62, 41],
+    [57, 36]], dtype=np.float32) - np.array([50, 50], dtype=np.float32)
+ASTEROID3 = np.array([
+    [59, 19],
+    [50, 20],
+    [40, 28],
+    [38, 33],
+    [37, 73],
+    [45, 81],
+    [49, 81],
+    [54, 77],
+    [60, 59],
+    [62, 41]], dtype=np.float32) - np.array([50, 50], dtype=np.float32)
+OBSTACLE = (STATION, DEBRIS1, DEBRIS2, ASTEROID1, ASTEROID2, ASTEROID3)
 
 
 def create_template_polygons(ship_dict):

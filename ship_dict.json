@@ -1,29 +1,4 @@
 {
-  "VSD2": {
-    "name": "VSD2",
-    "hull": 8,
-    "size_class": "MEDIUM",
-    "command": 3,
-    "squadron": 3,
-    "engineering": 4,
-    "defense_token": ["brace", "redirect", "redirect"],
-    "anti_squad": [0, 1, 0],
-    "shield": [3, 3, 1],
-    "battery": [[0, 3, 3], [0, 1, 2], [0, 0, 2]],
-    "navchart": {
-      "1": [1],
-      "2": [0, 1]
-    },
-    "point": 80,
-    "front_arc_center": 47,
-    "front_arc_end": 20.25,
-    "rear_arc_center": 47,
-    "rear_arc_end": 78,
-    "front_targeting_point" : 11.4,
-    "rear_targeting_point" : 90.5,
-    "side_targeting_point" : [19.55, 51.5]
-  },
-
   "VSD1": {
     "name": "VSD1",
     "hull": 8,
@@ -49,6 +24,85 @@
     "side_targeting_point" : [19.55, 51.5]
   },
 
+  "VSD2": {
+    "name": "VSD2",
+    "hull": 8,
+    "size_class": "MEDIUM",
+    "command": 3,
+    "squadron": 3,
+    "engineering": 4,
+    "defense_token": ["brace", "redirect", "redirect"],
+    "anti_squad": [0, 1, 0],
+    "shield": [3, 3, 1],
+    "battery": [[0, 3, 3], [0, 1, 2], [0, 0, 2]],
+    "navchart": {
+      "1": [1],
+      "2": [0, 1]
+    },
+    "point": 80,
+    "front_arc_center": 47,
+    "front_arc_end": 20.25,
+    "rear_arc_center": 47,
+    "rear_arc_end": 78,
+    "front_targeting_point" : 11.4,
+    "rear_targeting_point" : 90.5,
+    "side_targeting_point" : [19.55, 51.5]
+  },
+
+
+  "GSD1": {
+    "name": "GSD1",
+    "hull": 5,
+    "size_class": "SMALL",
+    "command": 2,
+    "squadron": 2,
+    "engineering": 3,
+    "defense_token": ["brace", "redirect", "evade"],
+    "anti_squad": [0, 1, 0],
+    "shield": [3, 2, 1],
+    "battery": [[2, 0, 2], [4, 0, 0], [1, 0, 1]],
+    "navchart": {
+      "1": [2],
+      "2": [1, 1],
+      "3": [0, 1, 1]
+    },
+    "point": 56,
+    "front_arc_center": 34.75,
+    "front_arc_end": 6.5,
+    "rear_arc_center": 34.75,
+    "rear_arc_end": 63,
+    "front_targeting_point" : 8.25,
+    "rear_targeting_point" : 63.25,
+    "side_targeting_point" : [12.25, 35]
+  },
+
+  "GSD2": {
+    "name": "GSD2",
+    "hull": 5,
+    "size_class": "SMALL",
+    "command": 2,
+    "squadron": 2,
+    "engineering": 3,
+    "defense_token": ["brace", "redirect", "evade"],
+    "anti_squad": [0, 2, 0],
+    "shield": [3, 2, 1],
+    "battery": [[2, 0, 2], [3, 0, 1], [1, 0, 1]],
+    "navchart": {
+      "1": [2],
+      "2": [1, 1],
+      "3": [0, 1, 1]
+    },
+    "point": 62,
+    "front_arc_center": 34.75,
+    "front_arc_end": 6.5,
+    "rear_arc_center": 34.75,
+    "rear_arc_end": 63,
+    "front_targeting_point" : 8.25,
+    "rear_targeting_point" : 63.25,
+    "side_targeting_point" : [12.25, 35]
+  },
+
+  
 
   "CR90A": {
     "name": "CR90A",
@@ -155,5 +209,57 @@
     "front_targeting_point" : 7.75,
     "rear_targeting_point" : 63,
     "side_targeting_point" : [12, 35.25]
+  },
+  
+  "Assault A": {
+    "name": "Assault A",
+    "hull": 6,
+    "size_class": "MEDIUM",
+    "command": 3,
+    "squadron": 2,
+    "engineering": 4,
+    "defense_token": ["evade", "brace", "redirect"],
+    "anti_squad": [0, 2, 0],
+    "shield": [4, 3, 2],
+    "battery": [[0, 1, 2], [0, 1, 3], [0, 1, 2]],
+    "navchart": {
+      "1": [1],
+      "2": [1, 1],
+      "3": [0, 1, 1]
+    },
+    "point": 77,
+    "front_arc_center": 46.5,
+    "front_arc_end": 2.5,
+    "rear_arc_center": 45.5,
+    "rear_arc_end": 70.25,
+    "front_targeting_point" : 11.5,
+    "rear_targeting_point" : 90.5,
+    "side_targeting_point" : [18, 51.5]
+  },
+
+  "Assault B": {
+    "name": "Assault B",
+    "hull": 6,
+    "size_class": "MEDIUM",
+    "command": 3,
+    "squadron": 3,
+    "engineering": 4,
+    "defense_token": ["evade", "brace", "redirect"],
+    "anti_squad": [0, 1, 0],
+    "shield": [4, 3, 2],
+    "battery": [[0, 0, 2], [0, 1, 3], [0, 0, 2]],
+    "navchart": {
+      "1": [1],
+      "2": [1, 1],
+      "3": [0, 1, 1]
+    },
+    "point": 72,
+    "front_arc_center": 46.5,
+    "front_arc_end": 2.5,
+    "rear_arc_center": 45.5,
+    "rear_arc_end": 70.25,
+    "front_targeting_point" : 11.5,
+    "rear_targeting_point" : 90.5,
+    "side_targeting_point" : [18, 51.5]
   }
 }

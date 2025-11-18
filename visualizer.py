@@ -5,6 +5,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 import ship as ship_module
+from enum_class import *
 from measurement import SQUAD_BASE_RADIUS
 if TYPE_CHECKING:
     from armada import Armada
@@ -149,6 +150,13 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
         name_pos = (squad_center[0], squad_center[1] + font_small.size)
         draw.text(name_pos, str(squad.hull), font=font_small, fill='yellow', anchor='mm')
 
+    for obstacle in game.obstacles:
+        obstacle_coords = [transform_coord((x, y)) for x, y in obstacle.coordinates]
+        match obstacle.type:
+            case ObstacleType.ASTEROID: fill = 'dimgray'
+            case ObstacleType.DEBRIS: fill = 'darkslategray'
+            case ObstacleType.STATION: fill = 'lightblue'
+        draw.polygon(obstacle_coords, outline='brown', fill=fill)
 
     if maneuver_tool:
         transformed_tool_path = [transform_coord(p) for p in maneuver_tool]

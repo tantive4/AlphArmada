@@ -1,5 +1,5 @@
 import json
-from enum import IntEnum
+from enum import IntEnum, StrEnum, auto
 
 with open('ship_dict.json', 'r') as f:
     SHIP_DATA: dict = json.load(f)
@@ -75,6 +75,12 @@ class Critical(IntEnum) :
         return self.name
     __repr__ = __str__
 critical_type = len(Critical)
+
+class ObstacleType(IntEnum) :
+    STATION = 0
+    DEBRIS = auto()
+    ASTEROID = auto()
+obstacle_type = len(ObstacleType)
 
 class TokenType(IntEnum):
     BRACE = 0

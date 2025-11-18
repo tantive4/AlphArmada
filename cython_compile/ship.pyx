@@ -17,8 +17,7 @@ import cache_function as cache
 
 from armada cimport Armada
 from squad cimport Squad
-
-
+from obstacle cimport Obstacle
 
 
 cdef class Ship:
@@ -66,7 +65,7 @@ cdef class Ship:
                  clicks = self.nav_chart[speed]
                  for i, click in enumerate(clicks): 
                      self.nav_chart_vector[speed+i-1] = click / 2.0 # Normalize by max clicks
-
+        self.rotation_matrix = np.zeros((2,2), dtype=np.float32)
         self.max_shield : dict[HullSection, int] = {HullSection.FRONT : ship_dict['shield'][0], 
                                                     HullSection.RIGHT : ship_dict['shield'][1], 
                                                     HullSection.REAR : ship_dict['shield'][2], 
@@ -186,9 +185,7 @@ cdef class Ship:
             cnp.ndarray[cnp.float32_t, ndim=1] tool_translation
             float tool_rotation
             float c, s
-            cnp.ndarray[cnp.float32_t, ndim=2] rotation_matrix
             set current_overlap, new_overlap
-
         if not course :
             self.game.visualize(f'{self} executes speed 0 maneuver.')
             return overlap_ships
@@ -199,9 +196,12 @@ cdef class Ship:
         # rotation matrix use CW orientation    
         c = cos(-original_orientation)
         s = sin(-original_orientation)
-        rotation_matrix = np.array([[c, -s],
-                                    [s,  c]], dtype=np.float32)
-        tool_translation = rotation_matrix @ tool_translation
+        self.rotation_matrix[0, 0] = c
+        self.rotation_matrix[0, 1] = -s
+        self.rotation_matrix[1, 0] = s
+        self.rotation_matrix[1, 1] = c
+
+        tool_translation = self.rotation_matrix @ tool_translation
 
         self.x = original_x + tool_translation[0]
         self.y = original_y + tool_translation[1]
@@ -263,6 +263,33 @@ cdef class Ship:
         if not valid_placements:
             valid_placements = [None]
         return valid_placements
+
+    cpdef bint check_overlap(self, object obstacle) :
+        """
+        Check if the ship overlaps with the given obstacle.
+
+        Args:
+            obstacle (Obstacle): The obstacle to check against.
+
+        Returns:
+            bool: True if there is an overlap, False otherwise.
+        """
+        return cache.is_overlap_s2o(self.get_ship_hash_state(), obstacle.get_hash_state())
+
+    cpdef void overlap_obstacle(self, Obstacle obstacle) :
+        obstacle_type = obstacle.type
+        if obstacle_type == ObstacleType.STATION: 
+            self.hull = min(self.hull+1, self.max_hull)
+        elif obstacle_type == ObstacleType.DEBRIS: 
+            max_shield = max(self.shield)
+            for hull in HULL_SECTIONS:
+                if self.shield[hull] == max_shield: 
+                    selected_hull = hull
+                    break
+            self.defend(selected_hull,2,None)
+
+        elif obstacle_type == ObstacleType.ASTEROID: 
+            self.hull = self.hull - 2
 
 
 # sub method for ship dimension
@@ -333,8 +360,6 @@ cdef class Ship:
 
 
 
-
-
 # sub method for attack
     cpdef bint is_obstruct_s2s(self, int from_hull, Ship to_ship, int to_hull) :
         """
@@ -351,7 +376,12 @@ cdef class Ship:
         cdef:
             tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(cache._ship_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
             Ship ship
-
+            Obstacle obstacle
+            tuple self_point, other_point
+        
+        self_point = cache.los_point_ship(line_of_sight[0],line_of_sight[1], self.get_ship_hash_state())
+        other_point = cache.los_point_ship(line_of_sight[1],line_of_sight[0], to_ship.get_ship_hash_state())
+        line_of_sight = (self_point, other_point)
         for ship in self.game.ships:
 
             if ship.id == self.id or ship.id == to_ship.id:
@@ -359,7 +389,11 @@ cdef class Ship:
             if ship.destroyed:
                 continue
 
-            if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
+            if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
+                return True
+
+        for obstacle in self.game.obstacles:
+            if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):
                 return True
 
         return False
@@ -375,6 +409,11 @@ cdef class Ship:
         cdef:
             tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), to_squad.coords)
             Ship ship
+            Obstacle obstacle
+            tuple self_point
+
+        self_point = cache.los_point_ship(line_of_sight[0],line_of_sight[1], self.get_ship_hash_state())
+        line_of_sight = (self_point, line_of_sight[1])
 
         for ship in self.game.ships:
 
@@ -383,7 +422,11 @@ cdef class Ship:
             if ship.destroyed:
                 continue
 
-            if cache.is_obstruct(line_of_sight, ship.get_ship_hash_state()):
+            if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
+                return True
+                
+        for obstacle in self.game.obstacles:
+            if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):
                 return True
 
         return False

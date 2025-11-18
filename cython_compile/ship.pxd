@@ -1,5 +1,6 @@
 from armada cimport Armada
 from squad cimport Squad
+from obstacle cimport Obstacle
 cimport numpy as cnp
 
 cdef class Ship:
@@ -14,6 +15,7 @@ cdef class Ship:
         public bint destroyed, activated
         public tuple base_size, token_size, shield, command_stack, command_dial, command_token, resolved_command, attack_history, repaired_hull, anti_squad
         public object template_base_vertices, template_token_vertices, template_targeting_points_and_maneuver_tool_insert, template_hull_vertices
+        public cnp.ndarray rotation_matrix
     cdef object get_snapshot(self)
     cdef void revert_snapshot(self, object snapshot)
     cpdef object get_ship_hash_state(self)
@@ -45,3 +47,5 @@ cdef class Ship:
     cpdef list get_valid_placement(self, tuple course)
     cpdef void spend_command_dial(self, int command)
     cpdef void spend_command_token(self, int command)
+    cpdef bint check_overlap(self, object obstacle)
+    cpdef void overlap_obstacle(self, Obstacle obstacle)

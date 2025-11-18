@@ -27,6 +27,7 @@ cdef:
     int c_phase_type = phase_type
     int c_critical_type = critical_type
     int c_hull_type = hull_type
+    int c_obstacle_type = obstacle_type
     int max_ships = <int>Config.MAX_SHIPS
     int max_squads = <int>Config.MAX_SQUADS
     int max_command_stack = <int>Config.MAX_COMMAND_STACK
@@ -192,7 +193,7 @@ cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game)
     cdef cnp.float32_t[:] ship_view 
     
     # Indices and iterators
-    cdef int offset, stack_idx, defense_idx, hull, command
+    cdef int offset, stack_idx, defense_start_idx, defense_idx, hull, command
     
     # Booleans
     cdef bint is_attack = False
@@ -354,8 +355,8 @@ cdef cnp.ndarray[cnp.float32_t, ndim=3] encode_spatial_features(Armada game, tup
     cdef int width_res, height_res
     width_res, height_res = resolution
 
-    cdef cnp.ndarray[cnp.float32_t, ndim=3] planes = game.spatial_encode_array
-
+    cdef cnp.ndarray[cnp.float32_t, ndim=3] planes = game.spatial_encode_array[c_obstacle_type:]
+    
     # CRITICAL: Zero out the existing array
     planes.fill(0.0)
 

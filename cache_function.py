@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 import numpy as np
-import numpy as np
+from matplotlib.path import Path
 from skimage.draw import polygon as draw_polygon
 from skimage.measure import block_reduce
 
@@ -15,12 +15,16 @@ def delete_cache():
     This is useful for testing purposes to ensure fresh calculations.
     """
     _ship_coordinate.cache_clear()
+    _obstacle_coordinate.cache_clear()
+    los_point_ship.cache_clear()
     attack_range_s2s.cache_clear()
     attack_range_s2q.cache_clear()
     attack_range_q2s.cache_clear()
-    is_obstruct.cache_clear()
+    is_obstruct_ship.cache_clear()
+    is_obstruct_obstacle.cache_clear()
     is_overlap_s2s.cache_clear()
     is_overlap_s2q.cache_clear()
+    is_overlap_s2o.cache_clear()
     distance_s2s.cache_clear()
     range_s2q.cache_clear()
     maneuver_tool.cache_clear()
@@ -59,6 +63,28 @@ def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[i
             coord_dict[(hull, attack_range)] = current_threat_vertices[hull*3 + attack_range]
 
     return coord_dict
+
+@lru_cache(maxsize=64000)
+def _obstacle_coordinate(obstacle_state : tuple[int, float, float, float, bool]) -> np.ndarray :
+    """
+    Returns the world coordinates of the obstacle polygon corners.
+    """
+    # CW rotation matrix
+    orientation = obstacle_state[3]
+    c, s = np.cos(-orientation), np.sin(-orientation)
+    rotation_matrix = np.array([[c, -s], [s, c]], dtype=np.float32)
+    translation_vector = np.array([obstacle_state[1], obstacle_state[2]], dtype=np.float32)
+
+    # Rotate each vertex by applying the transpose of the rotation matrix
+    # to the (N,2) vertices array, then translate by (2,) vector.
+    if obstacle_state[4]:
+        flip_matrix = np.array([[-1, 0],
+                                [0, 1]])
+        current_vertices = rotation_matrix @ (flip_matrix @ OBSTACLE[obstacle_state[0]]) + translation_vector
+    else:
+        current_vertices =  OBSTACLE[obstacle_state[0]] @ rotation_matrix.T + translation_vector
+
+    return current_vertices
 
 @lru_cache(maxsize=64000)
 def attack_range_s2s(attacker_state, defender_state, extension_factor=500) -> tuple[list[bool], list[list[int]]]:
@@ -131,9 +157,25 @@ def attack_range_q2s(squad_state : tuple[int, int], ship_state : tuple[str, int,
 
     return in_range_list
 
+@lru_cache(maxsize=64000)
+def los_point_ship(start_point : tuple[float, float], end_point : tuple[float, float], ship_state : tuple[str, int, int, int]) -> tuple[float, float] :
+    self_los : np.ndarray = np.array(start_point, dtype=np.float32)
+    other_los : np.ndarray = np.array(end_point, dtype=np.float32)
+
+    ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['token_corners'], dtype=np.float32)
+
+    return jit.find_intersection(self_los, other_los, ship_token)
 
 @lru_cache(maxsize=64000)
-def is_obstruct(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, int, int, int]) -> bool :
+def is_obstruct_obstacle(targeting_point : tuple[tuple[float, float], tuple[float, float]], obstacle_state : tuple[int, float, float, float]) -> bool :
+    line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
+
+    obstacle_path : Path = Path(_obstacle_coordinate(obstacle_state))
+    line_path : Path = Path(line_of_sight)
+    return obstacle_path.intersects_path(line_path, filled=True)
+
+@lru_cache(maxsize=64000)
+def is_obstruct_ship(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, int, int, int]) -> bool :
     line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
     ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['token_corners'], dtype=np.float32)
@@ -154,6 +196,12 @@ def is_overlap_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[i
         return True
 
     return jit.polygon_polygon_nearest_points(ship_base, squad_center)[0] <= SQUAD_BASE_RADIUS
+
+@lru_cache(maxsize=64000)
+def is_overlap_s2o(ship_state : tuple[str, int, int, int], obstacle_state : tuple[int, float, float, float, bool]) -> bool :
+    ship_base: Path = Path(_ship_coordinate(ship_state)['base_corners'])
+    obstacle_poly: Path = Path(_obstacle_coordinate(obstacle_state))
+    return ship_base.intersects_path(obstacle_poly, filled=True)
 
 @lru_cache(maxsize=64000)
 def distance_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[str, int, int, int]) -> float :
@@ -300,9 +348,9 @@ def _threat_plane(
         # First, find the maximum threat across the 3 range bands for this hull
         max_threat_per_hull_hr = np.max(hull_range_layers_hr, axis=0)
 
-    # Now, downsample this max-threat map to the final HxW resolution
-    # We use np.max here again to ensure the strongest threat in any 2x2 block is preserved
-    hull_threat_maps[hull] = block_reduce(max_threat_per_hull_hr, block_size=2, func=np.max)
+        # Now, downsample this max-threat map to the final HxW resolution
+        # We use np.max here again to ensure the strongest threat in any 2x2 block is preserved
+        hull_threat_maps[hull] = block_reduce(max_threat_per_hull_hr, block_size=2, func=np.max)
 
     # --- 4. Final Summation ---
     # Sum the 4 final hull maps to get the total threat, correctly capturing double-arcing
