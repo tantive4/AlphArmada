@@ -28,9 +28,9 @@ def delete_cache():
     distance_s2s.cache_clear()
     range_s2q.cache_clear()
     maneuver_tool.cache_clear()
-    _ship_presence_plane.cache_clear()
-    _squad_presence_plane.cache_clear()
-    _threat_plane.cache_clear()
+    _ship_presence_indices.cache_clear()
+    _squad_presence_indices.cache_clear()
+    _threat_sparse.cache_clear()
 
 @lru_cache(maxsize=64000)
 def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[int, int], np.ndarray] :
@@ -232,63 +232,55 @@ def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : i
     return jit.maneuver_tool_numba(base_size, token_size, course, placement)
 
 @lru_cache(maxsize=64000)
-def _ship_presence_plane(
+def _ship_presence_indices(
     ship_state: tuple[str, int, int, int],
-    value: float,
     width_step: float,
     height_step: float,
     width_res: int,
     height_res: int,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Encodes the ship's position and orientation into a fixed-size NumPy array.
-    This encoding is suitable for use as input to machine learning models.
+    Returns the indices (rr, cc) for the ship's position on the grid.
+    Used to update the spatial encoding array in-place.
     """
-
-    presence_plane = np.zeros((height_res, width_res), dtype=np.float32)
+    # Calculate vertices scaled to the grid resolution
     scaled_vertices = np.array(_ship_coordinate(ship_state)['base_corners'], dtype=np.float32) / [width_step, height_step]
-    rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=presence_plane.shape)
-    presence_plane[rr, cc] = value
-
-    return presence_plane
+    
+    # Get the indices of the polygon
+    rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=(height_res, width_res))
+    
+    return rr, cc
 
 @lru_cache(maxsize=64000)
-def _squad_presence_plane(
+def _squad_presence_indices(
     squad_state: tuple[int, int],
-    value: float,
     width_step: float,
     height_step: float,
     width_res: int,
     height_res: int,
-) -> np.ndarray:
+) -> tuple[int, int]:
     """
-    Encodes the squad's position into a fixed-size NumPy array.
-    This encoding is suitable for use as input to machine learning models.
+    Returns the (row, col) indices for the squad's position on the grid.
     """
-    # Create empty plane
-    presence_plane = np.zeros((height_res, width_res), dtype=np.float32)
-
     # Convert world coordinates (x, y) to grid indices (col, row)
     scaled = np.array(squad_state, dtype=np.float32)*HASH_PRECISION_INV / [width_step, height_step]
     col = int(scaled[0])
     row = int(scaled[1])
 
-    # Clip to bounds and set a single pixel
+    # Check bounds
     if 0 <= row < height_res and 0 <= col < width_res:
-        presence_plane[row, col] = value
-    else : raise ValueError(f"Squad position out of bounds\n{squad_state}, scaled: {scaled}, grid: ({col}, {row}), grid size: ({width_res}, {height_res})")
-
-    return presence_plane
-    
+        return row, col
+    else : 
+        raise ValueError(f"Squad position out of bounds\n{squad_state}, scaled: {scaled}, grid: ({col}, {row}), grid size: ({width_res}, {height_res})")   
 
 @lru_cache(maxsize=64000)
-def _threat_plane(
+def _threat_sparse(
     ship_state: tuple[str, int, int, int],
     width_step: float,
     height_step: float,
     width_res: int,
     height_res: int,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Encodes the ship's threat area into two fixed-size NumPy arrays.
     This encoding is suitable for use as input to machine learning models.
@@ -352,8 +344,11 @@ def _threat_plane(
         # We use np.max here again to ensure the strongest threat in any 2x2 block is preserved
         hull_threat_maps[hull] = block_reduce(max_threat_per_hull_hr, block_size=2, func=np.max)
 
-    # --- 4. Final Summation ---
-    # Sum the 4 final hull maps to get the total threat, correctly capturing double-arcing
-    final_threat_map = np.sum(hull_threat_maps, axis=0) / 8  # Normalize to [0, 1] range
+    # --- 4. Sparse Extraction ---
+    final_threat_map = np.sum(hull_threat_maps, axis=0) / 8.0
+    
+    # Extract only the non-zero elements
+    rows, cols = np.nonzero(final_threat_map)
+    values = final_threat_map[rows, cols]
 
-    return final_threat_map
+    return rows, cols, values

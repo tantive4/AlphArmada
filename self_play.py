@@ -92,7 +92,8 @@ class AlphArmada:
 
         for game in [game for game in para_games if game.winner == 0.0]:
             with open('simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
-            
+        
+        delete_cache()
         phases, states, action_probs, winners, aux_targets = zip(*self_play_data)
 
         # Collate the dictionaries into large numpy arrays

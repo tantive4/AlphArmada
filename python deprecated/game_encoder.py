@@ -287,7 +287,7 @@ def encode_spatial_features(game: Armada, resolution: tuple[int, int]) -> np.nda
         planes[2 * i] = cache._ship_presence_plane(
             ship.get_ship_hash_state(), value, width_step, height_step, width_res, height_res
         )
-        planes[2 * i + 1] = cache._threat_plane(
+        planes[2 * i + 1] = cache._threat_sparse(
             ship.get_ship_hash_state(), width_step, height_step, width_res, height_res
         )
     planes[-2] = sum(cache._squad_presence_plane(squad.get_squad_hash_state(), squad.hull / squad.max_hull, width_step, height_step, width_res, height_res) for squad in game.squads if not squad.destroyed and squad.player == 1)

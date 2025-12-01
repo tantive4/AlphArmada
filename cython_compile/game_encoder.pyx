@@ -354,6 +354,8 @@ cdef cnp.ndarray[cnp.float32_t, ndim=3] encode_spatial_features(Armada game, tup
     """
     cdef int width_res, height_res
     width_res, height_res = resolution
+    cdef int width_res2x = width_res * 2
+    cdef int height_res2x = height_res * 2
 
     cdef cnp.ndarray[cnp.float32_t, ndim=3] planes = game.spatial_encode_array[c_obstacle_type:]
     
@@ -361,11 +363,16 @@ cdef cnp.ndarray[cnp.float32_t, ndim=3] encode_spatial_features(Armada game, tup
     planes.fill(0.0)
 
     cdef float width_step = game.player_edge / width_res
+    cdef float width_step2x = game.player_edge / width_res2x
     cdef float height_step = game.short_edge / height_res
+    cdef float height_step2x = game.short_edge / height_res2x
+    
     cdef float value
     cdef Ship ship
     cdef Squad squad
-    cdef cnp.ndarray[cnp.float32_t, ndim=2] squad_plane
+    cdef cnp.ndarray rr, cc
+    cdef cnp.ndarray tr, tc, tvals
+    cdef int row, col
 
     for ship in game.ships:
         if ship.id >= max_ships: 
@@ -373,30 +380,45 @@ cdef cnp.ndarray[cnp.float32_t, ndim=3] encode_spatial_features(Armada game, tup
         if ship.destroyed: 
             continue
 
+        # --- 1. Ship Presence (Binary) ---
         value = (ship.hull / ship.max_hull) * ship.player
         
-        planes[2 * ship.id] = cache._ship_presence_plane(
-            ship.get_ship_hash_state(), value, width_step, height_step, width_res, height_res
+        # Fetch indices only
+        rr, cc = cache._ship_presence_indices(
+            ship.get_ship_hash_state(), width_step2x, height_step2x, width_res2x, height_res2x
         )
-        planes[2 * ship.id + 1] = cache._threat_plane(
+
+        # In-place update using numpy fancy indexing
+        # planes[channel, rows, cols] = value
+        np.add.at(planes[2 * ship.id], (rr // 2, cc // 2), value / 4.0)
+
+        # --- 2. Ship Threat (Gradients) ---
+        # Retrieve sparse data: rows (tr), cols (tc), and intensity values (tvals)
+        tr, tc, tvals = cache._threat_sparse(
             ship.get_ship_hash_state(), width_step, height_step, width_res, height_res
         )
+        
+        # Apply values directly to the specific pixels
+        planes[2 * ship.id + 1, tr, tc] = tvals
 
     for squad in game.squads:
         if squad.id >= max_squads: 
             continue
         if squad.destroyed: continue
         
-        squad_plane = cache._squad_presence_plane(
+        # Fetch indices only
+        row, col = cache._squad_presence_indices(
             squad.get_squad_hash_state(), 
-            squad.hull / squad.max_hull, 
             width_step, height_step, width_res, height_res
         )
         
+        value = squad.hull / squad.max_hull
+        
+        # Direct array access instead of full-plane addition
         if squad.player == 1:
-            planes[2*max_ships] += squad_plane
+            planes[2*max_ships, row, col] += value
         else:
-            planes[2*max_ships + 1] += squad_plane
+            planes[2*max_ships + 1, row, col] += value
 
     # Return the reference to the array modified in-place
     return game.spatial_encode_array
