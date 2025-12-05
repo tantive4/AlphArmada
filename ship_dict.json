@@ -1,6 +1,7 @@
 {
   "VSD1": {
     "name": "VSD1",
+    "faction": "EMPIRE",
     "hull": 8,
     "size_class": "MEDIUM",
     "command": 3,
@@ -26,6 +27,7 @@
 
   "VSD2": {
     "name": "VSD2",
+    "faction": "EMPIRE",
     "hull": 8,
     "size_class": "MEDIUM",
     "command": 3,
@@ -52,6 +54,7 @@
 
   "GSD1": {
     "name": "GSD1",
+    "faction": "EMPIRE",
     "hull": 5,
     "size_class": "SMALL",
     "command": 2,
@@ -78,6 +81,7 @@
 
   "GSD2": {
     "name": "GSD2",
+    "faction": "EMPIRE",
     "hull": 5,
     "size_class": "SMALL",
     "command": 2,
@@ -106,6 +110,7 @@
 
   "CR90A": {
     "name": "CR90A",
+    "faction": "REBEL",
     "hull": 4,
     "size_class": "SMALL",
     "command": 1,
@@ -133,6 +138,7 @@
 
   "CR90B": {
     "name": "CR90B",
+    "faction": "REBEL",
     "hull": 4,
     "size_class": "SMALL",
     "command": 1,
@@ -161,6 +167,7 @@
 
   "Neb-B Escort": {
     "name": "Neb-B Escort",
+    "faction": "REBEL",
     "hull": 5,
     "size_class": "SMALL",
     "command": 2,
@@ -187,6 +194,7 @@
 
   "Neb-B Support": {
     "name": "Neb-B Support",
+    "faction": "REBEL",
     "hull": 5,
     "size_class": "SMALL",
     "command": 2,
@@ -213,6 +221,7 @@
   
   "Assault A": {
     "name": "Assault A",
+    "faction": "REBEL",
     "hull": 6,
     "size_class": "MEDIUM",
     "command": 3,
@@ -239,6 +248,7 @@
 
   "Assault B": {
     "name": "Assault B",
+    "faction": "REBEL",
     "hull": 6,
     "size_class": "MEDIUM",
     "command": 3,

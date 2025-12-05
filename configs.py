@@ -2,14 +2,14 @@ import torch
 
 class Config:
     # Game
-    MAX_SHIPS = 6
-    MAX_SQUADS = 9
+    MAX_SHIPS = 10
+    MAX_SQUADS = 16
     MAX_COMMAND_STACK = 3
-    MAX_DEFENSE_TOKENS = 6 
+    MAX_DEFENSE_TOKENS = 6
     MAX_SQUAD_DEFENSE_TOKENS = 2
     GLOBAL_MAX_HULL = 8.0
     GLOBAL_MAX_SHIELDS = 4.0
-    GLOBAL_MAX_DICE = 4.0 
+    GLOBAL_MAX_DICE = 4.0
     GLOBAL_MAX_SQUAD_VALUE = 4
     GLOBAL_MAX_ENGINEER_VALUE = 4
 
@@ -28,7 +28,9 @@ class Config:
 
     # Self Play
     SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
-    PARALLEL_PLAY = 16 # run games in batch
+    PARALLEL_DIVERSE_FACTOR = 4 # run games in batch
+    PARALLEL_SAME_GAME = 32 # same geometry game setup
+    PARALLEL_PLAY = PARALLEL_DIVERSE_FACTOR * PARALLEL_SAME_GAME
     # 1 * 128 * 400 * 0.25 = 12800 states are created
 
     # MCTS

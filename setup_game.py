@@ -1,61 +1,299 @@
 import math
+import random
+import json
+import os
+import shutil
+import numpy as np
+from shapely.geometry import Polygon, Point, box
+from shapely import affinity
 
 from armada import Armada
 from ship import Ship
 from squad import Squad
 from obstacle import Obstacle
 from enum_class import *
+import measurement
+import cache_function as cache
+
+# --- Data Loading ---
+def load_json_data(filename):
+    # Try to find the file in the current directory or the same directory as this script
+    current_dir = os.path.dirname(__file__)
+    path = os.path.join(current_dir, filename)
+    if not os.path.exists(path):
+        path = filename # Fallback to local check
+    with open(path, 'r') as f:
+        return json.load(f)
+
+# Load data into global variables
+try:
+    SHIP_DATA = load_json_data('ship_dict.json')
+    SQUAD_DATA = load_json_data('squad_dict.json')
+except FileNotFoundError:
+    print("Warning: dictionary files not found. Ensure ship_dict.json and squad_dict.json are accessible.")
+    SHIP_DATA = {}
+    SQUAD_DATA = {}
 
 
-def setup_game(*,debuging_visual:bool=False, para_index:int=0) -> Armada: 
+# --- Constants ---
+# Board dimensions (approx 6ft x 3ft in mm, based on coordinates in original file)
+BOARD_WIDTH = measurement.LONG_RANGE * 6
+BOARD_HEIGHT = measurement.LONG_RANGE * 3
 
-    game = Armada(initiative=Player.REBEL, para_index=para_index) 
+DIST_1 = measurement.DISTANCE[1] # 76.5
+DIST_2 = measurement.DISTANCE[2] # 124.5
+DIST_3 = measurement.DISTANCE[3] # 185.5
+DIST_5 = measurement.DISTANCE[5] # 304.8
+
+# Mapping Obstacle ID to measurement.py geometry
+OBSTACLE_GEOM_MAP = {
+    (ObstacleType.STATION, 0): measurement.OBSTACLE[0],
+    (ObstacleType.DEBRIS, 1): measurement.OBSTACLE[1],
+    (ObstacleType.DEBRIS, 2): measurement.OBSTACLE[2],
+    (ObstacleType.ASTEROID, 3): measurement.OBSTACLE[3],
+    (ObstacleType.ASTEROID, 4): measurement.OBSTACLE[4],
+    (ObstacleType.ASTEROID, 5): measurement.OBSTACLE[5],
+}
+
+# --- Helper Functions ---
+
+def get_random_fleet(faction: Player, max_points=200, max_squad_points=67):
+    """
+    Generates a random fleet by iteratively adding any valid unit that fits 
+    within the point constraints until no more units can be added.
+    """
+    target_faction_str = faction.name  # "REBEL" or "EMPIRE"
+    
+    # 1. Make a full list of ships and squads of given faction
+    faction_ships = [name for name, data in SHIP_DATA.items() if data.get('faction') == target_faction_str]
+    faction_squads = [name for name, data in SQUAD_DATA.items() if data.get('faction') == target_faction_str]
+    
+    selected_ships = []
+    selected_squads = []
+    current_points = 0
+    current_squad_points = 0
+    
+    while True:
+        candidates = []
+
+        # Check which Ships can be added (Mark True/False)
+        for name in faction_ships:
+            cost = SHIP_DATA[name]['point']
+            # Condition: Max total points <= 200
+            if current_points + cost <= max_points:
+                candidates.append((name, 'ship', cost))
+        
+        # Check which Squads can be added (Mark True/False)
+        for name in faction_squads:
+            cost = SQUAD_DATA[name]['point']
+            # Condition: Max total points <= 200 AND Max squad points <= 67
+            if (current_points + cost <= max_points) and (current_squad_points + cost <= max_squad_points):
+                candidates.append((name, 'squad', cost))
+        
+        # If no units can be added, stop
+        if not candidates:
+            break
+            
+        # Pick one unit from available units
+        pick_name, pick_type, pick_cost = random.choice(candidates)
+        
+        # Add to list and update points
+        if pick_type == 'ship':
+            selected_ships.append(pick_name)
+            current_points += pick_cost
+        else:
+            selected_squads.append(pick_name)
+            current_points += pick_cost
+            current_squad_points += pick_cost
+
+    # Sorting
+    selected_squads.sort()
+            
+    return selected_ships, selected_squads, current_points
+
+def random_coord_in_rect(rect):
+    """rect: (min_x, min_y, max_x, max_y)"""
+    x = random.uniform(rect[0], rect[2])
+    y = random.uniform(rect[1], rect[3])
+    return x, y
+
+def get_ship_polygon(ship, x, y, orientation):
+    """Returns the ship base polygon transformed to x, y, orientation."""
+    ship_state = (ship.name, int(x*measurement.HASH_PRECISION), int(y*measurement.HASH_PRECISION), int(orientation*measurement.HASH_PRECISION))
+    return Polygon(cache._ship_coordinate(ship_state)['base_corners'])
+
+def get_obstacle_polygon(obs_obj, x, y, orientation):
+    """Returns obstacle polygon."""
+    key = (obs_obj.type, obs_obj.index)
+    base_verts = OBSTACLE_GEOM_MAP[key]
+    poly = Polygon(base_verts)
+    poly = affinity.rotate(poly, orientation, origin=(0,0), use_radians=True)
+    poly = affinity.translate(poly, x, y)
+    return poly
+
+def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada: 
+
+    # 1. Generate Fleets
+    rebel_ship_names, rebel_squad_names, reb_points = get_random_fleet(Player.REBEL)
+    empire_ship_names, empire_squad_names, emp_points = get_random_fleet(Player.EMPIRE)
+
+    initiative = random.choice([Player.REBEL, Player.EMPIRE])
+
+    game = Armada(initiative=initiative, para_index=para_index)
     game.debuging_visual = debuging_visual
-    rebel_ships = (
-        Ship(SHIP_DATA['CR90B'], Player.REBEL),
-        Ship(SHIP_DATA['Neb-B Support'], Player.REBEL),  
-        Ship(SHIP_DATA['CR90A'], Player.REBEL),
-        Ship(SHIP_DATA['Neb-B Escort'], Player.REBEL))
 
+    # Create Objects
+    rebel_ships = [Ship(SHIP_DATA[name], Player.REBEL) for name in rebel_ship_names]
+    rebel_squads = [Squad(SQUAD_DATA[name], Player.REBEL) for name in rebel_squad_names]
+    empire_ships = [Ship(SHIP_DATA[name], Player.EMPIRE) for name in empire_ship_names]
+    empire_squads = [Squad(SQUAD_DATA[name], Player.EMPIRE) for name in empire_squad_names]
 
-    rebel_squads = (Squad(SQUAD_DATA['X-Wing'], Player.REBEL) for _ in range(3))
+    first_ship = rebel_ships if initiative == Player.REBEL else empire_ships
+    second_ship = empire_ships if initiative == Player.REBEL else rebel_ships
+    first_squad = rebel_squads if initiative == Player.REBEL else empire_squads
+    second_squad = empire_squads if initiative == Player.REBEL else rebel_squads
 
-    empire_ships = (
-        Ship(SHIP_DATA['VSD1'], Player.EMPIRE),
-        Ship(SHIP_DATA['VSD2'], Player.EMPIRE),)
-
-    empire_squads = (Squad(SQUAD_DATA['TIE Fighter'], Player.EMPIRE) for _ in range(6))
-
-    rebel_ship_deployment :list[tuple[float, float, float]] = [(600, 175, math.pi/16), (700, 175, math.pi/16), (1200, 175, 0), (1400, 175, 0)]
-    empire_ship_deployment :list[tuple[float, float, float]] = [(600, 725, math.pi*7/8), (1200, 725, math.pi)]
-
-    for i, ship in enumerate(rebel_ships) :
-        game.deploy_ship(ship, *rebel_ship_deployment[i], 3)
-    for i, ship in enumerate(empire_ships): 
-        game.deploy_ship(ship, *empire_ship_deployment[i], 2)
-
-    for i, squad in enumerate(rebel_squads) :
-        game.deploy_squad(squad,  1200 + i * 50, 250)
-    for i, squad in enumerate(empire_squads) :
-        game.deploy_squad(squad,  1000 - i * 50, 650)
-
-    obstacles = (
+    obstacles = [
         Obstacle(ObstacleType.ASTEROID, 1),
         Obstacle(ObstacleType.ASTEROID, 2),
         Obstacle(ObstacleType.ASTEROID, 3),
         Obstacle(ObstacleType.DEBRIS, 1),
         Obstacle(ObstacleType.DEBRIS, 2),
         Obstacle(ObstacleType.STATION, 1),
-    )
-    obstacle_placement :list[tuple[float, float, float, bool]] = [
-        (600, 400, math.pi/4, False),
-        (900, 600, math.pi/2, True),
-        (1300, 500, math.pi*3/4, False),
-        (800, 300, math.pi/6, False),
-        (1100, 400, math.pi/3, True),
-        (1500, 300, 0.0, False),
     ]
-    for obstacle, (x, y, orientation, flip) in zip(obstacles, obstacle_placement):
-        game.place_obstacle(obstacle, x, y, orientation, flip)
+
+    placed_polygons = [] # To store (polygon, type) for collision checks
+
+    # 2. Place Obstacles
+    # Zone: Distance 3 from player edges (Y), Distance 5 from short edges (X)
+    obs_rect = (DIST_5, DIST_3, BOARD_WIDTH - DIST_5, BOARD_HEIGHT - DIST_3)
+    obs_deployment_zone = box(*obs_rect)
+
+    for obs in obstacles:
+        placed = False
+        for _ in range(200): # Retry limit
+            x, y = random_coord_in_rect(obs_rect)
+            orientation = random.uniform(0, 2 * math.pi)
+            
+            poly = get_obstacle_polygon(obs, x, y, orientation)
+            
+            valid = True
+
+            # Check bounds
+            if not obs_deployment_zone.contains(poly):
+                valid = False
+
+            # Check overlap/distance with existing obstacles
+            for existing_poly in placed_polygons:
+                dist = poly.distance(existing_poly)
+                if dist <= DIST_1: 
+                    valid = False
+                    break
+            
+            if valid:
+                game.place_obstacle(obs, x, y, orientation, False)
+                placed_polygons.append(poly)
+                placed = True
+                break
+        
+        if not placed:
+            print(f"Warning: Could not place obstacle {obs} validly.")
+
+
+
+    first_ship_rect = (DIST_5, 0, BOARD_WIDTH - DIST_5, DIST_3)
+    first_ship_zone = box(*first_ship_rect)
+    second_ship_rect = (DIST_5, BOARD_HEIGHT - DIST_3, BOARD_WIDTH - DIST_5, BOARD_HEIGHT)
+    second_ship_zone = box(*second_ship_rect)
+    # 3. Place Ships
+    ships = first_ship + second_ship
+    for ship in ships:
+        is_first = ship in first_ship
+        speed = random.choice(list(ship.nav_chart.keys()))
+        placed = False
+        for _ in range(200): # Retry limit
+            if is_first:
+                x, y = random_coord_in_rect(first_ship_rect)
+                deployment_zone = first_ship_zone
+            else:
+                x, y = random_coord_in_rect(second_ship_rect)
+                deployment_zone = second_ship_zone
+
+            orientation = random.uniform(-math.pi/6, math.pi/6) if is_first else random.uniform(math.pi*5/6, math.pi*7/6)
+            poly = get_ship_polygon(ship, x, y, orientation)
+
+            valid = True
+
+            # Check bounds
+            if not deployment_zone.contains(poly):
+                valid = False
+
+            # Check overlap/distance with existing polygons
+            for existing_poly in placed_polygons:
+                if poly.intersects(existing_poly):
+                    valid = False
+                    break
+            
+            if valid:
+                game.deploy_ship(ship, x, y, orientation, speed)
+                placed_polygons.append(poly)
+                placed = True
+                break
+        
+        if not placed:
+            print(f"Warning: Could not place ship {ship.name} validly.")
+    
+    first_squad_rect = (DIST_5, DIST_3, BOARD_WIDTH - DIST_5, DIST_5)
+    first_squad_zone = box(*first_squad_rect)
+    second_squad_rect = (DIST_5, BOARD_HEIGHT - DIST_5, BOARD_WIDTH - DIST_5, BOARD_HEIGHT - DIST_3)
+    second_squad_zone = box(*second_squad_rect)
+    # 4. Place Squads
+    squads = first_squad + second_squad
+    for squad in squads:
+        is_first = squad in first_squad
+        placed = False
+        for _ in range(200): # Retry limit
+            if is_first:
+                x, y = random_coord_in_rect(first_squad_rect)
+                deployment_zone = first_squad_zone
+            else:
+                x, y = random_coord_in_rect(second_squad_rect)
+                deployment_zone = second_squad_zone
+
+            poly = Polygon(measurement.SQUAD_TOKEN_POLY + np.array([[x, y]]))
+
+            valid = True
+
+            # Check bounds
+            if not deployment_zone.contains(poly):
+                valid = False
+
+            friendly_ships = first_ship if is_first else second_ship
+            # Check distance from friendly ships
+            min_dist = min([poly.distance(get_ship_polygon(ship, ship.x, ship.y, ship.orientation)) for ship in friendly_ships])
+            if min_dist > DIST_2:
+                valid = False
+
+            # Check overlap/distance with existing polygons
+            for existing_poly in placed_polygons:
+                if poly.intersects(existing_poly):
+                    valid = False
+                    break
+            
+            if valid:
+                game.deploy_squad(squad, x, y)
+                placed_polygons.append(poly)
+                placed = True
+                break
+        
+        if not placed:
+            print(f"Warning: Could not place squad {squad.name} validly.")
+
 
     return game
+
+if __name__ == "__main__":
+    if os.path.exists("game_visuals"):
+        shutil.rmtree("game_visuals")
+    game = setup_game(debuging_visual=True, para_index=0)
+    print("Game setup complete.")

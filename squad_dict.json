@@ -1,6 +1,7 @@
 {
     "TIE Fighter": {
         "name": "TIE/ln",
+        "faction": "EMPIRE",
         "unique": false,
         "hull": 3,
         "speed": 4,
@@ -12,6 +13,7 @@
     },
     "TIE Interceptor": {
         "name": "TIE/in",
+        "faction": "EMPIRE",
         "unique": false,
         "hull": 3,
         "speed": 5,
@@ -24,6 +26,7 @@
     },
     "TIE Bomber": {
         "name": "TIE/sa",
+        "faction": "EMPIRE",
         "unique": false,
         "hull": 5,
         "speed": 4,
@@ -35,6 +38,7 @@
     },
     "TIE Advanced": {
         "name": "TIE/x1",
+        "faction": "EMPIRE",
         "unique": false,
         "hull": 5,
         "speed": 4,
@@ -47,6 +51,7 @@
 
     "X-Wing": {
         "name": "X-Wing",
+        "faction": "REBEL",
         "unique": false,
         "hull": 5,
         "speed": 3,
@@ -58,6 +63,7 @@
     },
     "Y-Wing": {
         "name": "Y-Wing",
+        "faction": "REBEL",
         "unique": false,
         "hull": 6,
         "speed": 3,
@@ -69,6 +75,7 @@
     },
     "A-Wing": {
         "name": "A-Wing",
+        "faction": "REBEL",
         "unique": false,
         "hull": 4,
         "speed": 5,
@@ -81,6 +88,7 @@
     },
     "B-Wing": {
         "name": "B-Wing",
+        "faction": "REBEL",
         "unique": false,
         "hull": 5,
         "speed": 2,

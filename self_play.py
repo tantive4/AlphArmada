@@ -12,7 +12,8 @@ import pickle
 import numpy as np
 
 from configs import Config
-from armada import Armada, setup_game
+from armada import Armada
+from setup_game import setup_game
 from cache_function import delete_cache
 from jit_geometry import pre_compile_jit_geometry
 from armada_net import ArmadaNet
@@ -33,7 +34,15 @@ class AlphArmada:
         self_play_data : list[tuple[Phase, dict, np.ndarray, float, dict[str, np.ndarray]]] = []
 
         action_manager = ActionManager()
-        para_games : list[Armada] = [setup_game(para_index=para_index) for para_index in range(Config.PARALLEL_PLAY)]
+        initial_games = [setup_game() for _ in range(Config.PARALLEL_DIVERSE_FACTOR)]
+        para_games: list[Armada] = [
+            copy.deepcopy(game) 
+            for game in initial_games 
+            for _ in range(Config.PARALLEL_SAME_GAME)
+        ]
+        for para_index, para_game in enumerate(para_games):
+            para_game.para_index = para_index
+
         # for para_index in range(Config.PARALLEL_PLAY):
         #     with open(f'simulation_log{para_index+1}.txt', 'w') as f: f.write(f"--- Starting Simulation for Game {para_index+1} ---\n")
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
