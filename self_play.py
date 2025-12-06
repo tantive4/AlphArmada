@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 import copy
 from tqdm import trange, tqdm
+import gc
 
 import torch
 import torch.optim as optim
@@ -32,7 +33,6 @@ class AlphArmada:
         
     def para_self_play(self, iter_num: int = 0, batch_num: int = 0) -> None:
         memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
-        self_play_data : list[tuple[Phase, dict, np.ndarray, float, dict[str, np.ndarray]]] = []
 
         action_manager = ActionManager()
         initial_games = [setup_game() for _ in range(Config.PARALLEL_DIVERSE_FACTOR)]
@@ -96,7 +96,7 @@ class AlphArmada:
                         pbar.set_postfix(last_round=f"{game.round:.1f}", last_winner=int(game.winner))
                         winner, aux_target = get_terminal_value(game)
                         game_data_buffer = []
-
+                        end_snapshop = game.get_snapshot()
                         # 'Rewind' the game using snapshots to generate encoded states
                         for phase, snapshot, action_probs in memory[para_index]:
                             game.revert_snapshot(snapshot)
@@ -109,6 +109,7 @@ class AlphArmada:
                             
                             game_data_buffer.append((phase, encoded_state_copy, action_probs, winner, aux_target))
                         
+                        game.revert_snapshot(end_snapshop)
                         # Clear memory for this game immediately
                         memory[para_index].clear()
 
@@ -121,8 +122,14 @@ class AlphArmada:
             with open('simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
         
         delete_cache()
+        del para_games
+        del mcts
+        del initial_games
+        
+        # Force collection
+        gc.collect()
         return
-    
+
     def save_game_data(self, game_data, iter_num, batch_num, para_index):
         """Helper to collate and save a single game's data to disk."""
         phases, states, action_probs, winners, aux_targets = zip(*game_data)

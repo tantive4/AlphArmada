@@ -8,7 +8,7 @@ from skimage.measure import block_reduce
 from enum_class import *
 from measurement import *
 import jit_geometry as jit
-
+CACHE_SIZE = 6400
 def delete_cache():
     """
     Clear the cache for all functions in this module.
@@ -32,7 +32,7 @@ def delete_cache():
     _squad_presence_indices.cache_clear()
     _threat_sparse.cache_clear()
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[int, int], np.ndarray] :
 
     template_vertices : np.ndarray = SHIP_TEMPLATE_POLY[ship_state[0]]
@@ -64,7 +64,7 @@ def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[i
 
     return coord_dict
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def _obstacle_coordinate(obstacle_state : tuple[int, float, float, float, bool]) -> np.ndarray :
     """
     Returns the world coordinates of the obstacle polygon corners.
@@ -86,7 +86,7 @@ def _obstacle_coordinate(obstacle_state : tuple[int, float, float, float, bool])
 
     return current_vertices
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def attack_range_s2s(attacker_state, defender_state, extension_factor=500) -> tuple[list[bool], list[list[int]]]:
     """
     High-performance version of attack_range_s2s using Numba.
@@ -117,7 +117,7 @@ def attack_range_s2s(attacker_state, defender_state, extension_factor=500) -> tu
     return target_list, measure_list
 
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def attack_range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int], extension_factor=500) -> list[int]:
     """
     return:
@@ -140,7 +140,7 @@ def attack_range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple
 
     return measure_list
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def attack_range_q2s(squad_state : tuple[int, int], ship_state : tuple[str, int, int, int]) -> list[bool]:
     """
     return:
@@ -157,7 +157,7 @@ def attack_range_q2s(squad_state : tuple[int, int], ship_state : tuple[str, int,
 
     return in_range_list
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def los_point_ship(start_point : tuple[float, float], end_point : tuple[float, float], ship_state : tuple[str, int, int, int]) -> tuple[float, float] :
     self_los : np.ndarray = np.array(start_point, dtype=np.float32)
     other_los : np.ndarray = np.array(end_point, dtype=np.float32)
@@ -166,7 +166,7 @@ def los_point_ship(start_point : tuple[float, float], end_point : tuple[float, f
 
     return jit.find_intersection(self_los, other_los, ship_token)
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def is_obstruct_obstacle(targeting_point : tuple[tuple[float, float], tuple[float, float]], obstacle_state : tuple[int, float, float, float]) -> bool :
     line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
@@ -174,7 +174,7 @@ def is_obstruct_obstacle(targeting_point : tuple[tuple[float, float], tuple[floa
     line_path : Path = Path(line_of_sight)
     return obstacle_path.intersects_path(line_path, filled=True)
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def is_obstruct_ship(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, int, int, int]) -> bool :
     line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
@@ -182,13 +182,13 @@ def is_obstruct_ship(targeting_point : tuple[tuple[float, float], tuple[float, f
 
     return jit.SAT_overlapping_check(line_of_sight, ship_token)
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def is_overlap_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[str, int, int, int]) -> bool :
     self_coordinate = _ship_coordinate(self_state)['base_corners']
     other_coordinate = _ship_coordinate(ship_state)['base_corners']
     return jit.SAT_overlapping_check(self_coordinate, other_coordinate)
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def is_overlap_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int]) -> bool :
     ship_base : np.ndarray = _ship_coordinate(ship_state)['base_corners']
     squad_center: np.ndarray = np.array([squad_state], dtype=np.float32)*HASH_PRECISION_INV
@@ -197,19 +197,19 @@ def is_overlap_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[i
 
     return jit.polygon_polygon_nearest_points(ship_base, squad_center)[0] <= SQUAD_BASE_RADIUS
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def is_overlap_s2o(ship_state : tuple[str, int, int, int], obstacle_state : tuple[int, float, float, float, bool]) -> bool :
     ship_base: Path = Path(_ship_coordinate(ship_state)['base_corners'])
     obstacle_poly: Path = Path(_obstacle_coordinate(obstacle_state))
     return ship_base.intersects_path(obstacle_poly, filled=True)
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def distance_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[str, int, int, int]) -> float :
     self_poly : np.ndarray = _ship_coordinate(self_state)['base_corners']
     ship_poly : np.ndarray = _ship_coordinate(ship_state)['base_corners']
     return jit.polygon_polygon_nearest_points(self_poly, ship_poly)[0]
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int]) -> int:
     """
     Returns:
@@ -221,7 +221,7 @@ def range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, i
 
     return jit.distance_to_range(distance)                                                                                                                                                                                                                                                        
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : int) -> tuple[np.ndarray, float]:
     """
     translate maneuver tool coordination to ship coordination
@@ -231,7 +231,7 @@ def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : i
     token_size = np.array(SHIP_TOKEN_SIZE[size_class], dtype=np.float32)
     return jit.maneuver_tool_numba(base_size, token_size, course, placement)
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def _ship_presence_indices(
     ship_state: tuple[str, int, int, int],
     width_step: float,
@@ -251,7 +251,7 @@ def _ship_presence_indices(
     
     return rr, cc
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def _squad_presence_indices(
     squad_state: tuple[int, int],
     width_step: float,
@@ -273,7 +273,7 @@ def _squad_presence_indices(
     else : 
         raise ValueError(f"Squad position out of bounds\n{squad_state}, scaled: {scaled}, grid: ({col}, {row}), grid size: ({width_res}, {height_res})")   
 
-@lru_cache(maxsize=64000)
+@lru_cache(maxsize=CACHE_SIZE)
 def _threat_sparse(
     ship_state: tuple[str, int, int, int],
     width_step: float,
