@@ -178,7 +178,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
             defend_ship = game.ships[game.attack_info.defend_ship_id]
             token = defend_ship.defense_tokens[index]
-            action_str = f'Spend {token} Token on {dice_icon(evade_dice)} ({game.attack_info.attack_range} Range)'
+            action_str = f'Spend {token} Token on {dice_icon(evade_dice)} ({AttackRange(game.attack_info.attack_range)} Range)'
 
         case 'spend_redirect_token_action', (index, hull) :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')

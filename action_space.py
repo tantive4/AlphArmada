@@ -5,6 +5,7 @@ from action_phase import Phase, ActionType
 from enum_class import *
 from dice import dice_choices, FULL_DICE_POOL
 from defense_token import TokenType, TOKEN_DICT
+from configs import Config
 
 def _make_hashable(action_value):
     """
@@ -24,8 +25,8 @@ def generate_all_maps():
     all_maps_raw = {}
 
     # Define the maximums your game will support
-    MAX_SHIPS = 6 
-    MAX_SQUADS = 9
+    MAX_SHIPS = Config.MAX_SHIPS
+    MAX_SQUADS = Config.MAX_SQUADS
     MAX_DEFENSE_TOKENS_PER_TYPE = 2
     SQUAD_PLACEMENT_RESOLUTION = 22
     

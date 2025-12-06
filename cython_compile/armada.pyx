@@ -17,6 +17,7 @@ from obstacle cimport Obstacle
 from attack_info cimport AttackInfo
 from enum_class import *
 from dice import *
+from measurement import *
 import cache_function as cache
 from defense_token cimport DefenseToken
 
@@ -25,8 +26,8 @@ cdef class Armada:
     The main class representing the Armada game.
     """
     def __init__(self, initiative: Player, para_index:int = 0) -> None:
-        self.player_edge = 1800 # mm
-        self.short_edge = 900 # mm
+        self.player_edge = LONG_RANGE * 6
+        self.short_edge = LONG_RANGE * 3
         self.ships : list[Ship] = []
         self.squads : list[Squad] = []
         self.obstacles : list[Obstacle] = []
@@ -213,7 +214,7 @@ cdef class Armada:
             dice_to_roll = attack_info.dice_to_roll
 
             if attack_info.obstructed:
-                if sum(dice_to_roll) <= 1 : raise ValueError('Empty Attack Pool. Invalid Attack')
+                if sum(dice_to_roll) <= 1 : print(f"WARNING: empty attack pool \n{self.get_snapshot()}\n{attack_info.get_snapshot()}")
                 for dice_type in DICE :
                     if dice_to_roll[dice_type] > 0 :
                         dice_to_remove = DICE_CHOICE_1[dice_type]
@@ -1129,8 +1130,8 @@ cdef class Armada:
                 winner = self.first_player if p1_points > p2_points else self.second_player
                 margin_of_victory = abs(p1_points - p2_points)
             
-            tournament_point : int = margin_of_victory // 50 + 1
-            self.winner = winner * tournament_point / 4
+            tournament_point : int = margin_of_victory // 20 + 1
+            self.winner = winner * tournament_point / 10
 
         # 4. If the game is not over, advance to the next round
         else:

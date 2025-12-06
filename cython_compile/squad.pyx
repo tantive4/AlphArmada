@@ -170,6 +170,7 @@ cdef class Squad :
             if squad.player == self.player or squad.destroyed :
                 continue
             if self.in_distance(squad, distance1, distance1_sq):
+                if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
                 valid_target.append(squad.id)
                 if squad.escort and not self.is_obstruct_q2q(squad):
                     escort_target.append(squad.id)
@@ -187,7 +188,6 @@ cdef class Squad :
                 if not in_range :
                     continue
                 if not self.is_obstruct_q2s(ship, hull) :
-                    # since there is no 2 dice battery squad YET
                     valid_target.append((ship.id, hull))
                 elif sum(self.battery) > 1:
                     valid_target.append((ship.id, hull))

@@ -543,68 +543,64 @@ def distance_to_range(distance: float) -> int:
     else:
         return 3  # AttackRange.EXTREME
 
-import numpy as np
-
 @numba.njit(cache=True)
 def find_intersection(P1: np.ndarray, P2: np.ndarray, R: np.ndarray) -> tuple[float, float]:
     """
     Finds the intersection point of a line segment (P1-P2) with a rectangle (R).
-    
-    Assumes P1 is inside R and P2 is outside R, guaranteeing one intersection.
-    This function skips safety checks for maximum performance.
-
-    Parameters:
-    P1 (np.ndarray): Shape (2,). The point inside the rectangle.
-    P2 (np.ndarray): Shape (2,). The point outside the rectangle.
-    R (np.ndarray): Shape (4, 2). Vertices of the rectangle in order.
-
-    Returns:
-    tuple[float, float]: The intersection point.
     """
     
     # 1. Define the line segment P1-P2
-    # P(t) = P1 + t * V, where V = P2 - P1
     V = P2 - P1
 
     # 2. Define the 4 rectangle edges
-    # R(u) = R_starts + u * S
     R_starts = R
-    R_ends = np.vstack((R[1:], R[0:1])) # Get R[1], R[2], R[3], R[0]
-    S = R_ends - R_starts           # (4, 2) array of edge vectors
+    # Efficient circular indexing for R_ends
+    R_ends = np.empty_like(R)
+    R_ends[:-1] = R[1:]
+    R_ends[-1] = R[0]
     
-    # 3. Solve for intersection P1 + t*V = R_starts + u*S
-    # This is a (4, 2x2) system of linear equations, solved vectorially.
-    # We solve for t and u using Cramer's rule via 2D cross products.
-    # t = cross(Delta_P, S) / cross(V, S)
-    # u = cross(Delta_P, V) / cross(V, S)
+    S = R_ends - R_starts 
     
-    Delta_P = R_starts - P1  # (4, 2) array of vectors from P1 to R_starts
+    # 3. Solve for intersection
+    Delta_P = R_starts - P1
 
     # Denominator: cross(V, S)
-    # V is (2,), S is (4, 2). Broadcasting V[0]*S[:,1] - V[1]*S[:,0]
-    cross_V_S = V[0] * S[:, 1] - V[1] * S[:, 0]  # Shape (4,)
+    cross_V_S = V[0] * S[:, 1] - V[1] * S[:, 0]
 
     # Numerator for t: cross(Delta_P, S)
-    t_num = Delta_P[:, 0] * S[:, 1] - Delta_P[:, 1] * S[:, 0] # Shape (4,)
+    t_num = Delta_P[:, 0] * S[:, 1] - Delta_P[:, 1] * S[:, 0]
     
     # Numerator for u: cross(Delta_P, V)
-    u_num = Delta_P[:, 0] * V[1] - Delta_P[:, 1] * V[0] # Shape (4,)
+    u_num = Delta_P[:, 0] * V[1] - Delta_P[:, 1] * V[0]
 
-    # 4. Calculate t and u, ignoring divide-by-zero (for parallel lines)
-    with np.errstate(divide='ignore', invalid='ignore'):
-        t = t_num / cross_V_S
-        u = u_num / cross_V_S
+    # 4. Calculate t and u
+    # Numba/LLVM will produce inf/nan here for parallel lines (div by zero).
+    # This is safe because the mask below will reject them.
+    t = t_num / cross_V_S
+    u = u_num / cross_V_S
 
     # 5. Find the valid intersection
-    # We need 0 <= t <= 1 (on P1-P2 segment)
-    # AND 0 <= u <= 1 (on rectangle edge)
-    # The problem guarantee means *exactly one* entry will be True.
+    # Comparisons with NaN are always False.
+    # Comparisons with Inf will fail the <= 1 check.
     mask = (t >= 0) & (t <= 1) & (u >= 0) & (u <= 1)
     
-    # 6. Select the valid t value and calculate the intersection
-    # t[mask] gives a (1,) array, so we select the first [0] element
-    t_intersect = t[mask][0]
+    # 6. Select the valid t value
+    # Note: We need to handle the case where no intersection is found 
+    # to avoid an index error on t[mask][0] if the assumption fails.
+    # However, based on your strict assumption (one point inside, one outside),
+    # we proceed as is.
+    
+    # Numba-friendly selection:
+    if not np.any(mask):
+        # Fallback or error handling if assumption is violated
+        return (np.nan, np.nan)
+
+    # Get the index where mask is True
+    # argmax on a boolean array returns the index of the first True
+    idx = np.argmax(mask)
+    t_intersect = t[idx]
     
     intersection = P1 + t_intersect * V
     
-    return tuple(intersection.tolist())
+    # Numba prefers explicit tuple construction over tolist()
+    return (intersection[0], intersection[1])

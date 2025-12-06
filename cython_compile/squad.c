@@ -4009,7 +4009,6 @@ static const char __pyx_k_Squad_get_critical_effect[] = "Squad.get_critical_effe
 static const char __pyx_k_Squad_get_squad_hash_state[] = "Squad.get_squad_hash_state";
 static const char __pyx_k_pyx_unpickle_Squad__set_state[] = "__pyx_unpickle_Squad__set_state";
 static const char __pyx_k_A_A_7r_IT_a_uHCt83e_c_a_t4_1G_A[] = "\200A\360\014\000\r%\240A\330\014'\320'7\260r\270\021\360\006\000\t\r\210I\220T\230\025\230a\330\014\017\210u\220H\230C\230t\2408\2503\250e\260;\270c\300\025\300a\330\020\021\340\014\017\210t\2204\220|\2401\240G\320+<\270A\330\020\021\340\014\017\210t\2204\320\027'\240q\250\001\330\020\027\220q\330\010\017\210q";
-static const char __pyx_k_A_gQ_2Q_IT_a_uHCt83e1_t_q_G1E_5[] = "\200A\360\016\000\r\"\240\021\330\014 \240\001\360\006\000\r\037\230g\240Q\330\014!\240\032\2502\250Q\360\n\000\t\r\210I\220T\230\025\230a\330\014\017\210u\220H\230C\230t\2408\2503\250e\2601\330\020\021\330\014\017\210t\220<\230q\240\007\240{\260!\330\020\034\230G\2401\240E\250\021\330\020\023\2205\230\010\240\004\240D\250\004\320,<\270A\270Q\330\024!\240\027\250\001\250\025\250a\340\010\013\2101\330\014\023\2201\330\010\013\2104\210{\230!\330\014\023\2201\340\010\014\210H\220D\230\005\230Q\330\014\017\210t\2208\2303\230d\240(\250#\250T\260\021\330\020\021\330\014\020\220\010\230\001\330\020\033\2305\320 1\260\021\260$\3206K\3104\310t\320Sg\320gj\320jk\320kl\330\020\023\2204\220q\330\024\025\330\020\023\2204\220t\320\033+\2501\250F\260!\340\024 \240\007\240r\250\024\250U\260!\330\025\030\230\001\230\024\230Z\240r\250\021\330\024 \240\007\240r\250\024\250U\260!\340\010\017\210q";
 static const char __pyx_k_O_a_F_N_AQ_Zq_j_O_Qa_Qj_E_AQ_7q[] = "\320\004$\240O\260;\270a\330\010\014\320\014\034\230F\240!\330\010\014\210N\230*\240A\240Q\330\010\014\320\014\035\230Z\240q\250\001\340\010\014\320\014\036\230j\250\001\250\021\330\010\014\210O\230:\240Q\240a\330\010\014\320\014(\250\005\250Q\250j\270\001\270\021\330\010\014\320\014,\250E\260\021\260*\270A\270Q\340\010\014\320\0147\260q\330\010\027\220w\230a\340\010\014\320\014\036\230j\250\001\250\021\330\014\031\230\031\240!\240>\260\026\260q\340\014\022\220+\230R\230r\240\022\240<\250q\260\001\340\014\020\220\017\230q\240\007\240|\2601\260A\330\014\030\230\001\230\037\250\001\340\010\014\210O\230:\240Q\240a\340\010\014\320\014\034\230H\240C\240z\260\021\260!\330\010\014\320\014\035\230Y\240c\250\032\2601\260A\330\010\014\320\014\035\230Y\240c\250\032\2601\260A\330\010\014\320\014\034\230H\240C\240z\260\021\260!\330\010\014\320\014\035\230Z\240t\2501\250K\260q";
 static const char __pyx_k_RSSWWccnnyyzz_K_K_U_U_a_a_e_e_q[] = "\200\001\330\004\020\220\r\230[\250\001\250\024\250\\\270\036\300{\320RS\320SW\320Wc\320cn\320ny\320yz\320z~\360\000\000\177\001K\002\360\000\000K\002U\002\360\000\000U\002`\002\360\000\000`\002a\002\360\000\000a\002e\002\360\000\000e\002q\002\360\000\000q\002\177\002\360\000\000\177\002J\003\360\000\000J\003K\003\360\000\000K\003O\003\360\000\000O\003[\003\360\000\000[\003g\003\360\000\000g\003r\003\360\000\000r\003s\003\360\000\000s\003w\003\360\000\000w\003C\004\360\000\000C\004M\004\360\000\000M\004X\004\360\000\000X\004Y\004\360\000\000Y\004]\004\360\000\000]\004i\004\360\000\000i\004t\004\360\000\000t\004\177\004\360\000\000\177\004@\005\360\000\000@\005D\005\360\000\000D\005P\005\360\000\000P\005b\005\360\000\000b\005m\005\360\000\000m\005n\005\360\000\000n\005r\005\360\000\000r\005~\005\360\000\000~\005K\006\360\000\000K\006V\006\360\000\000V\006W\006\360\000\000W\006[\006\360\000\000[\006g\006\360\000\000g\006q\006\360\000\000q\006|\006\360\000\000|\006}\006\360\000\000}\006B\007\360\000\000B\007N\007\360\000\000N\007V\007\360\000\000V\007a\007\360\000\000a\007b\007\360\000\000b\007g\007\360\000\000g\007s\007\360\000\000s\007|\007\360\000\000|\007G\010\360\000\000G\010H\010\360\000\000H\010M\010\360\000\000M\010Y\010\360\000\000Y\010a\010\360\000\000a\010l\010\360\000\000l\010m\010\360\000\000m\010r\010\360\000\000r\010~\010\360\000\000~\010D\t\360\000\000D\tO\t\360\000\000O\tP\t\360\000\000P\tU\t\360\000\000U\ta\t\360\000\000a\tm\t\360\000\000m\tx\t\360\000\000x\ty\t\360\000\000y\t~\t\360\000\000~\tJ\n\360\000\000J\nR\n\360\000\000R\n]\n\360\000\000]\n^\n\360\000\000^\nc\n\360\000\000c\no\n\360\000\000o\nB\013\360\000\000B\013M\013\360\000\000M\013N\013\360\000\000N\013S\013\360\000\000S\013_\013\360\000\000_\013i\013\360\000\000i\013t\013\360\000\000t\013u\013\360\000\000u\013z\013\360\000\000z\013F\014\360\000\000F\014O\014\360\000\000O\014Z\014\360\000\000Z\014[\014\360\000\000[\014`\014\360\000\000`\014l\014\360\000\000l\014u\014\360\000\000u\014@\r""\360\000\000@\rA\r\360\000\000A\rF\r\360\000\000F\rR\r\360\000\000R\r[\r\360\000\000[\rf\r\360\000\000f\rg\r\360\000\000g\rl\r\360\000\000l\rx\r\360\000\000x\rB\016\360\000\000B\016M\016\360\000\000M\016N\016\360\000\000N\016O\016\330\004\007\200s\210!\210=\230\002\230#\230T\240\027\250\001\250\036\260q\330\010\024\220I\230W\240A\240[\260\001\260\021";
 static const char __pyx_k_T_T_d_D_Z_iimmvvz_E_E_I_I_Z_Z_j[] = "\200\001\360\010\000\005\016\210T\220\034\230T\240\035\250d\260*\270D\300\t\310\024\310]\320Z^\320^i\320im\320mv\320vz\360\000\000{\001E\002\360\000\000E\002I\002\360\000\000I\002Z\002\360\000\000Z\002^\002\360\000\000^\002j\002\360\000\000j\002n\002\360\000\000n\002w\002\360\000\000w\002{\002\360\000\000{\002B\003\360\000\000B\003F\003\360\000\000F\003N\003\360\000\000N\003R\003\360\000\000R\003Y\003\360\000\000Y\003]\003\360\000\000]\003b\003\360\000\000b\003f\003\360\000\000f\003q\003\360\000\000q\003u\003\360\000\000u\003|\003\360\000\000|\003@\004\360\000\000@\004R\004\360\000\000R\004V\004\360\000\000V\004_\004\360\000\000_\004c\004\360\000\000c\004k\004\360\000\000k\004o\004\360\000\000o\004w\004\360\000\000w\004{\004\360\000\000{\004C\005\360\000\000C\005G\005\360\000\000G\005H\005\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220A\330\010\022\220!\330\010\027\220q\340\010\027\220t\230<\240w\250e\2603\260d\270)\3007\310%\310s\320RV\320V^\320^e\320ej\320jm\320mq\360\000\000r\001B\002\360\000\000B\002I\002\360\000\000I\002N\002\360\000\000N\002Q\002\360\000\000Q\002U\002\360\000\000U\002[\002\360\000\000[\002b\002\360\000\000b\002g\002\360\000\000g\002j\002\360\000\000j\002n\002\360\000\000n\002t\002\360\000\000t\002{\002\360\000\000{\002@\003\360\000\000@\003C\003\360\000\000C\003G\003\360\000\000G\003X\003\360\000\000X\003_\003\360\000\000_\003`\003\330\004\007\200q\330\010\017\320\017&\240d\250!\2507\260+\270W\300A\340\010\017\320\017&\240d\250!\2507\260+\270Q";
@@ -4018,6 +4017,7 @@ static const char __pyx_k_A_0_Zs_IT_a_uD_4t3e_c_OwVW_t_q_q[] = "\200A\360\030\00
 static const char __pyx_k_A_4y_HD_Q_t1_u_QoT9MQ_q_L_E_u_PQ[] = "\200A\360\020\000\r$\2404\240y\260\010\270\001\360\010\000\t\r\210H\220D\230\005\230Q\330\014\017\210t\2201\330\020\021\330\014\017\210u\320\024%\240Q\240o\260T\3209M\310Q\330\020\027\220q\340\010\014\210L\230\004\230E\240\021\330\014\017\210u\320\024)\250\021\250/\270\030\300\037\320PQ\330\020\027\220q\340\010\017\210q";
 static const char __pyx_k_A_AU_7_D_Kwd_Rwhawb_1LX__ccjjkkn[] = "\200A\360\016\000\t!\240\004\240A\240U\250!\2507\260\"\260D\270\001\330\010\014\210K\220w\230d\240'\250\021\250#\250R\250w\260h\270a\270w\300b\310\003\3101\310L\320X_\320_c\320cj\320jk\320kn\320np\320pw\320w\177\360\000\000@\002A\002\360\000\000A\002H\002\360\000\000H\002J\002\360\000\000J\002M\002\360\000\000M\002N\002\360\000\000N\002O\002\330\010\014\210L\230\001";
 static const char __pyx_k_A_d_d_1_r_7_Rr_U_r_2RwcQSSUUYY_j[] = "\200A\360\n\000\r\027\220d\230'\240\021\240!\330\014\026\220d\230'\240\021\240!\330\014\033\2301\330\010\017\210r\220\022\2207\230#\230R\230r\240\024\240U\250-\260r\270\027\300\003\3002\300R\300w\310c\320QS\320SU\320UY\320Y^\320^j\320jl\320lm";
+static const char __pyx_k_A_gQ_2Q_IT_a_uHCt83e1_t_q_3at_2T[] = "\200A\360\016\000\r\"\240\021\330\014 \240\001\360\006\000\r\037\230g\240Q\330\014!\240\032\2502\250Q\360\n\000\t\r\210I\220T\230\025\230a\330\014\017\210u\220H\230C\230t\2408\2503\250e\2601\330\020\021\330\014\017\210t\220<\230q\240\007\240{\260!\330\020\023\2203\220a\220t\230=\250\003\2502\250T\260\024\3205E\300Q\300h\310a\330\020\034\230G\2401\240E\250\021\330\020\023\2205\230\010\240\004\240D\250\004\320,<\270A\270Q\330\024!\240\027\250\001\250\025\250a\340\010\013\2101\330\014\023\2201\330\010\013\2104\210{\230!\330\014\023\2201\340\010\014\210H\220D\230\005\230Q\330\014\017\210t\2208\2303\230d\240(\250#\250T\260\021\330\020\021\330\014\020\220\010\230\001\330\020\033\2305\320 1\260\021\260$\3206K\3104\310t\320Sg\320gj\320jk\320kl\330\020\023\2204\220q\330\024\025\330\020\023\2204\220t\320\033+\2501\250F\260!\340\024 \240\007\240r\250\024\250U\260!\330\025\030\230\001\230\024\230Z\240r\250\021\330\024 \240\007\240r\250\024\250U\260!\340\010\017\210q";
 static const char __pyx_k_A_q_D_IU_4wb_vS_7_Cq_as_s_Q_E_4t[] = "\200A\360\016\000\r \230q\330\014$\240D\250\001\360\010\000\t\r\210I\220U\230!\2304\230w\240b\250\001\340\014\017\210v\220S\230\001\330\020\033\2307\240\"\240C\240q\330\020\021\360\006\000\r\021\220\t\230\025\230a\230s\240%\240s\250#\250Q\360\006\000\021\025\220E\230\021\230'\240\021\340\020\023\2204\220t\230=\250\003\2504\250t\2604\260{\300!\330\024\037\230w\240b\250\007\250q\330\020\024\220J\230a\340\010\017\210q";
 static const char __pyx_k_A_t7_3b_WAQ_t7_3b_WAQ_Cq_Bj_Cq_B[] = "\200A\360\006\000\r\030\220t\2307\240!\2403\240b\250\005\250W\260A\260Q\330\014\027\220t\2307\240!\2403\240b\250\005\250W\260A\260Q\360\006\000\t\r\210C\210q\220\004\220B\220j\240\004\240C\240q\250\004\250B\250a\330\014\023\2201\360\006\000\t\r\210B\210b\220\002\220\"\220B\220b\230\003\2303\230a\330\014\023\2201";
 static const char __pyx_k_Incompatible_checksums_0x_x_vs_0[] = "Incompatible checksums (0x%x vs (0x91d40ef, 0xd92f12b, 0x92583e9) = (activated, anti_squad, battery, bomber, can_attack, can_move, coords, counter, defense_tokens, destroyed, escort, game, heavy, hull, id, max_hull, name, overlap_ship_id, player, point, speed, swarm, unique))";
@@ -10227,7 +10227,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
  *             if squad.player == self.player or squad.destroyed :
  *                 continue             # <<<<<<<<<<<<<<
  *             if self.in_distance(squad, distance1, distance1_sq):
- *                 valid_target.append(squad.id)
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
 */
       goto __pyx_L3_continue;
 
@@ -10244,8 +10244,8 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
  *             if squad.player == self.player or squad.destroyed :
  *                 continue
  *             if self.in_distance(squad, distance1, distance1_sq):             # <<<<<<<<<<<<<<
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
  *                 valid_target.append(squad.id)
- *                 if squad.escort and not self.is_obstruct_q2q(squad):
 */
     __pyx_t_8 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->in_distance(__pyx_v_self, __pyx_v_squad, __pyx_v_distance1, __pyx_v_distance1_sq, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 172, __pyx_L1_error)
     if (__pyx_t_8) {
@@ -10253,17 +10253,52 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
       /* "squad.pyx":173
  *                 continue
  *             if self.in_distance(squad, distance1, distance1_sq):
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue             # <<<<<<<<<<<<<<
+ *                 valid_target.append(squad.id)
+ *                 if squad.escort and not self.is_obstruct_q2q(squad):
+*/
+      __pyx_t_4 = NULL;
+      __Pyx_INCREF(__pyx_builtin_sum);
+      __pyx_t_3 = __pyx_builtin_sum; 
+      __pyx_t_5 = 1;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_v_self->anti_squad};
+        __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      }
+      __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_mstate_global->__pyx_int_1, Py_LE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 173, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (__pyx_t_9) {
+      } else {
+        __pyx_t_8 = __pyx_t_9;
+        goto __pyx_L10_bool_binop_done;
+      }
+      __pyx_t_9 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_obstruct_q2q(__pyx_v_self, __pyx_v_squad, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 173, __pyx_L1_error)
+      __pyx_t_8 = __pyx_t_9;
+      __pyx_L10_bool_binop_done:;
+      if (__pyx_t_8) {
+        goto __pyx_L3_continue;
+      }
+
+      /* "squad.pyx":174
+ *             if self.in_distance(squad, distance1, distance1_sq):
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
  *                 valid_target.append(squad.id)             # <<<<<<<<<<<<<<
  *                 if squad.escort and not self.is_obstruct_q2q(squad):
  *                     escort_target.append(squad.id)
 */
-      __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_squad->id); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_target, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 173, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_squad->id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 174, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_target, __pyx_t_3); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 174, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "squad.pyx":174
- *             if self.in_distance(squad, distance1, distance1_sq):
+      /* "squad.pyx":175
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
  *                 valid_target.append(squad.id)
  *                 if squad.escort and not self.is_obstruct_q2q(squad):             # <<<<<<<<<<<<<<
  *                     escort_target.append(squad.id)
@@ -10272,28 +10307,28 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
       if (__pyx_v_squad->escort) {
       } else {
         __pyx_t_8 = __pyx_v_squad->escort;
-        goto __pyx_L10_bool_binop_done;
+        goto __pyx_L13_bool_binop_done;
       }
-      __pyx_t_9 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_obstruct_q2q(__pyx_v_self, __pyx_v_squad, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 174, __pyx_L1_error)
+      __pyx_t_9 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_obstruct_q2q(__pyx_v_self, __pyx_v_squad, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 175, __pyx_L1_error)
       __pyx_t_11 = (!__pyx_t_9);
       __pyx_t_8 = __pyx_t_11;
-      __pyx_L10_bool_binop_done:;
+      __pyx_L13_bool_binop_done:;
       if (__pyx_t_8) {
 
-        /* "squad.pyx":175
+        /* "squad.pyx":176
  *                 valid_target.append(squad.id)
  *                 if squad.escort and not self.is_obstruct_q2q(squad):
  *                     escort_target.append(squad.id)             # <<<<<<<<<<<<<<
  * 
  *         if escort_target :
 */
-        __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_squad->id); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_escort_target, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 175, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_squad->id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 176, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_escort_target, __pyx_t_3); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 176, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "squad.pyx":174
- *             if self.in_distance(squad, distance1, distance1_sq):
+        /* "squad.pyx":175
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
  *                 valid_target.append(squad.id)
  *                 if squad.escort and not self.is_obstruct_q2q(squad):             # <<<<<<<<<<<<<<
  *                     escort_target.append(squad.id)
@@ -10305,8 +10340,8 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
  *             if squad.player == self.player or squad.destroyed :
  *                 continue
  *             if self.in_distance(squad, distance1, distance1_sq):             # <<<<<<<<<<<<<<
+ *                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
  *                 valid_target.append(squad.id)
- *                 if squad.escort and not self.is_obstruct_q2q(squad):
 */
     }
 
@@ -10321,7 +10356,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "squad.pyx":177
+  /* "squad.pyx":178
  *                     escort_target.append(squad.id)
  * 
  *         if escort_target :             # <<<<<<<<<<<<<<
@@ -10330,13 +10365,13 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
 */
   {
     Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_v_escort_target);
-    if (unlikely(((!CYTHON_ASSUME_SAFE_SIZE) && __pyx_temp < 0))) __PYX_ERR(0, 177, __pyx_L1_error)
+    if (unlikely(((!CYTHON_ASSUME_SAFE_SIZE) && __pyx_temp < 0))) __PYX_ERR(0, 178, __pyx_L1_error)
     __pyx_t_8 = (__pyx_temp != 0);
   }
 
   if (__pyx_t_8) {
 
-    /* "squad.pyx":178
+    /* "squad.pyx":179
  * 
  *         if escort_target :
  *             return escort_target             # <<<<<<<<<<<<<<
@@ -10346,10 +10381,10 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_escort_target);
     __pyx_r = __pyx_v_escort_target;
-    __Pyx_TraceReturnValue(__pyx_r, 55, 0, __PYX_ERR(0, 178, __pyx_L1_error));
+    __Pyx_TraceReturnValue(__pyx_r, 68, 0, __PYX_ERR(0, 179, __pyx_L1_error));
     goto __pyx_L0;
 
-    /* "squad.pyx":177
+    /* "squad.pyx":178
  *                     escort_target.append(squad.id)
  * 
  *         if escort_target :             # <<<<<<<<<<<<<<
@@ -10358,17 +10393,17 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
 */
   }
 
-  /* "squad.pyx":179
+  /* "squad.pyx":180
  *         if escort_target :
  *             return escort_target
  *         if self.is_engaged() :             # <<<<<<<<<<<<<<
  *             return valid_target
  * 
 */
-  __pyx_t_8 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_engaged(__pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_8 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_engaged(__pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 180, __pyx_L1_error)
   if (__pyx_t_8) {
 
-    /* "squad.pyx":180
+    /* "squad.pyx":181
  *             return escort_target
  *         if self.is_engaged() :
  *             return valid_target             # <<<<<<<<<<<<<<
@@ -10378,10 +10413,10 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_valid_target);
     __pyx_r = __pyx_v_valid_target;
-    __Pyx_TraceReturnValue(__pyx_r, 61, 0, __PYX_ERR(0, 180, __pyx_L1_error));
+    __Pyx_TraceReturnValue(__pyx_r, 74, 0, __PYX_ERR(0, 181, __pyx_L1_error));
     goto __pyx_L0;
 
-    /* "squad.pyx":179
+    /* "squad.pyx":180
  *         if escort_target :
  *             return escort_target
  *         if self.is_engaged() :             # <<<<<<<<<<<<<<
@@ -10390,7 +10425,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
 */
   }
 
-  /* "squad.pyx":182
+  /* "squad.pyx":183
  *             return valid_target
  * 
  *         for ship in self.game.ships :             # <<<<<<<<<<<<<<
@@ -10399,7 +10434,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
 */
   if (unlikely(__pyx_v_self->game->ships == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 182, __pyx_L1_error)
+    __PYX_ERR(0, 183, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_v_self->game->ships; __Pyx_INCREF(__pyx_t_1);
   __pyx_t_7 = 0;
@@ -10407,19 +10442,19 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
     {
       Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 182, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 183, __pyx_L1_error)
       #endif
       if (__pyx_t_7 >= __pyx_temp) break;
     }
-    __pyx_t_2 = __Pyx_PyList_GetItemRef(__pyx_t_1, __pyx_t_7);
+    __pyx_t_3 = __Pyx_PyList_GetItemRef(__pyx_t_1, __pyx_t_7);
     ++__pyx_t_7;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 182, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 182, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_ship, ((struct __pyx_obj_4ship_Ship *)__pyx_t_2));
-    __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 183, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_ship, ((struct __pyx_obj_4ship_Ship *)__pyx_t_3));
+    __pyx_t_3 = 0;
 
-    /* "squad.pyx":183
+    /* "squad.pyx":184
  * 
  *         for ship in self.game.ships :
  *             if ship.player == self.player or ship.destroyed :             # <<<<<<<<<<<<<<
@@ -10430,22 +10465,22 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
     if (!__pyx_t_11) {
     } else {
       __pyx_t_8 = __pyx_t_11;
-      goto __pyx_L18_bool_binop_done;
+      goto __pyx_L21_bool_binop_done;
     }
     __pyx_t_8 = __pyx_v_ship->destroyed;
-    __pyx_L18_bool_binop_done:;
+    __pyx_L21_bool_binop_done:;
     if (__pyx_t_8) {
 
-      /* "squad.pyx":184
+      /* "squad.pyx":185
  *         for ship in self.game.ships :
  *             if ship.player == self.player or ship.destroyed :
  *                 continue             # <<<<<<<<<<<<<<
  *             for hull in HULL_SECTIONS :
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
 */
-      goto __pyx_L15_continue;
+      goto __pyx_L18_continue;
 
-      /* "squad.pyx":183
+      /* "squad.pyx":184
  * 
  *         for ship in self.game.ships :
  *             if ship.player == self.player or ship.destroyed :             # <<<<<<<<<<<<<<
@@ -10454,116 +10489,116 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
 */
     }
 
-    /* "squad.pyx":185
+    /* "squad.pyx":186
  *             if ship.player == self.player or ship.destroyed :
  *                 continue
  *             for hull in HULL_SECTIONS :             # <<<<<<<<<<<<<<
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
  *                 if not in_range :
 */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_HULL_SECTIONS); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
-      __pyx_t_4 = __pyx_t_2; __Pyx_INCREF(__pyx_t_4);
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_HULL_SECTIONS); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
+      __pyx_t_2 = __pyx_t_3; __Pyx_INCREF(__pyx_t_2);
       __pyx_t_12 = 0;
       __pyx_t_13 = NULL;
     } else {
-      __pyx_t_12 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 185, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_13 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 185, __pyx_L1_error)
+      __pyx_t_12 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_13 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 186, __pyx_L1_error)
     }
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     for (;;) {
       if (likely(!__pyx_t_13)) {
-        if (likely(PyList_CheckExact(__pyx_t_4))) {
+        if (likely(PyList_CheckExact(__pyx_t_2))) {
           {
-            Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_4);
+            Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 185, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 186, __pyx_L1_error)
             #endif
             if (__pyx_t_12 >= __pyx_temp) break;
           }
-          __pyx_t_2 = __Pyx_PyList_GetItemRef(__pyx_t_4, __pyx_t_12);
+          __pyx_t_3 = __Pyx_PyList_GetItemRef(__pyx_t_2, __pyx_t_12);
           ++__pyx_t_12;
         } else {
           {
-            Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_4);
+            Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_2);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 185, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 186, __pyx_L1_error)
             #endif
             if (__pyx_t_12 >= __pyx_temp) break;
           }
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_12));
+          __pyx_t_3 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_12));
           #else
-          __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_12);
+          __pyx_t_3 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_12);
           #endif
           ++__pyx_t_12;
         }
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
       } else {
-        __pyx_t_2 = __pyx_t_13(__pyx_t_4);
-        if (unlikely(!__pyx_t_2)) {
+        __pyx_t_3 = __pyx_t_13(__pyx_t_2);
+        if (unlikely(!__pyx_t_3)) {
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
-            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 185, __pyx_L1_error)
+            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 186, __pyx_L1_error)
             PyErr_Clear();
           }
           break;
         }
       }
-      __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_14 = __Pyx_PyLong_As_int(__pyx_t_2); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_14 = __Pyx_PyLong_As_int(__pyx_t_3); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 186, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_hull = __pyx_t_14;
 
-      /* "squad.pyx":186
+      /* "squad.pyx":187
  *                 continue
  *             for hull in HULL_SECTIONS :
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]             # <<<<<<<<<<<<<<
  *                 if not in_range :
  *                     continue
 */
-      __pyx_t_3 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_4 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 187, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_attack_range_q2s); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_attack_range_q2s); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 187, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_16);
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __pyx_t_15 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->get_squad_hash_state(__pyx_v_self, 0); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_15 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->get_squad_hash_state(__pyx_v_self, 0); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 187, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_17 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_17 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 187, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_17);
       __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
       if (unlikely(PyMethod_Check(__pyx_t_16))) {
-        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_16);
-        assert(__pyx_t_3);
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_16);
+        assert(__pyx_t_4);
         PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_16);
-        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(__pyx__function);
         __Pyx_DECREF_SET(__pyx_t_16, __pyx__function);
         __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[3] = {__pyx_t_3, __pyx_t_15, __pyx_t_17};
-        __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_16, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_t_15, __pyx_t_17};
+        __pyx_t_3 = __Pyx_PyObject_FastCall(__pyx_t_16, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
         __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 186, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
       }
-      __pyx_t_16 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_hull, int, 1, __Pyx_PyLong_From_int, 0, 1, 1, 1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_16 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_hull, int, 1, __Pyx_PyLong_From_int, 0, 1, 1, 1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 187, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_16); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 186, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_16); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 187, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
       __pyx_v_in_range = __pyx_t_8;
 
-      /* "squad.pyx":187
+      /* "squad.pyx":188
  *             for hull in HULL_SECTIONS :
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
  *                 if not in_range :             # <<<<<<<<<<<<<<
@@ -10573,16 +10608,16 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
       __pyx_t_8 = (!__pyx_v_in_range);
       if (__pyx_t_8) {
 
-        /* "squad.pyx":188
+        /* "squad.pyx":189
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
  *                 if not in_range :
  *                     continue             # <<<<<<<<<<<<<<
  *                 if not self.is_obstruct_q2s(ship, hull) :
  *                     # since there is no 2 dice battery squad YET
 */
-        goto __pyx_L20_continue;
+        goto __pyx_L23_continue;
 
-        /* "squad.pyx":187
+        /* "squad.pyx":188
  *             for hull in HULL_SECTIONS :
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
  *                 if not in_range :             # <<<<<<<<<<<<<<
@@ -10591,97 +10626,97 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
 */
       }
 
-      /* "squad.pyx":189
+      /* "squad.pyx":190
  *                 if not in_range :
  *                     continue
  *                 if not self.is_obstruct_q2s(ship, hull) :             # <<<<<<<<<<<<<<
  *                     # since there is no 2 dice battery squad YET
  *                     valid_target.append((ship.id, hull))
 */
-      __pyx_t_8 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_obstruct_q2s(__pyx_v_self, __pyx_v_ship, __pyx_v_hull, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 189, __pyx_L1_error)
+      __pyx_t_8 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_obstruct_q2s(__pyx_v_self, __pyx_v_ship, __pyx_v_hull, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L1_error)
       __pyx_t_11 = (!__pyx_t_8);
       if (__pyx_t_11) {
 
-        /* "squad.pyx":191
+        /* "squad.pyx":192
  *                 if not self.is_obstruct_q2s(ship, hull) :
  *                     # since there is no 2 dice battery squad YET
  *                     valid_target.append((ship.id, hull))             # <<<<<<<<<<<<<<
  *                 elif sum(self.battery) > 1:
  *                     valid_target.append((ship.id, hull))
 */
-        __pyx_t_16 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 191, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 192, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 191, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_17 = PyTuple_New(2); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 191, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_hull); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 192, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_17 = PyTuple_New(2); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 192, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_17);
         __Pyx_GIVEREF(__pyx_t_16);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_17, 0, __pyx_t_16) != (0)) __PYX_ERR(0, 191, __pyx_L1_error);
-        __Pyx_GIVEREF(__pyx_t_2);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_17, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 191, __pyx_L1_error);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_17, 0, __pyx_t_16) != (0)) __PYX_ERR(0, 192, __pyx_L1_error);
+        __Pyx_GIVEREF(__pyx_t_3);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_17, 1, __pyx_t_3) != (0)) __PYX_ERR(0, 192, __pyx_L1_error);
         __pyx_t_16 = 0;
-        __pyx_t_2 = 0;
-        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_target, __pyx_t_17); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 191, __pyx_L1_error)
+        __pyx_t_3 = 0;
+        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_target, __pyx_t_17); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 192, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
 
-        /* "squad.pyx":189
+        /* "squad.pyx":190
  *                 if not in_range :
  *                     continue
  *                 if not self.is_obstruct_q2s(ship, hull) :             # <<<<<<<<<<<<<<
  *                     # since there is no 2 dice battery squad YET
  *                     valid_target.append((ship.id, hull))
 */
-        goto __pyx_L23;
+        goto __pyx_L26;
       }
 
-      /* "squad.pyx":192
+      /* "squad.pyx":193
  *                     # since there is no 2 dice battery squad YET
  *                     valid_target.append((ship.id, hull))
  *                 elif sum(self.battery) > 1:             # <<<<<<<<<<<<<<
  *                     valid_target.append((ship.id, hull))
  * 
 */
-      __pyx_t_2 = NULL;
+      __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_builtin_sum);
       __pyx_t_16 = __pyx_builtin_sum; 
       __pyx_t_5 = 1;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_v_self->battery};
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_v_self->battery};
         __pyx_t_17 = __Pyx_PyObject_FastCall(__pyx_t_16, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 192, __pyx_L1_error)
+        if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 193, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_17);
       }
-      __pyx_t_16 = PyObject_RichCompare(__pyx_t_17, __pyx_mstate_global->__pyx_int_1, Py_GT); __Pyx_XGOTREF(__pyx_t_16); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 192, __pyx_L1_error)
+      __pyx_t_16 = PyObject_RichCompare(__pyx_t_17, __pyx_mstate_global->__pyx_int_1, Py_GT); __Pyx_XGOTREF(__pyx_t_16); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 193, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
-      __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_16); if (unlikely((__pyx_t_11 < 0))) __PYX_ERR(0, 192, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_16); if (unlikely((__pyx_t_11 < 0))) __PYX_ERR(0, 193, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
       if (__pyx_t_11) {
 
-        /* "squad.pyx":193
+        /* "squad.pyx":194
  *                     valid_target.append((ship.id, hull))
  *                 elif sum(self.battery) > 1:
  *                     valid_target.append((ship.id, hull))             # <<<<<<<<<<<<<<
  * 
  *         return valid_target
 */
-        __pyx_t_16 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 193, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 194, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_17 = __Pyx_PyLong_From_int(__pyx_v_hull); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 193, __pyx_L1_error)
+        __pyx_t_17 = __Pyx_PyLong_From_int(__pyx_v_hull); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 194, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_17);
-        __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 193, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
         __Pyx_GIVEREF(__pyx_t_16);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_16) != (0)) __PYX_ERR(0, 193, __pyx_L1_error);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_16) != (0)) __PYX_ERR(0, 194, __pyx_L1_error);
         __Pyx_GIVEREF(__pyx_t_17);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_17) != (0)) __PYX_ERR(0, 193, __pyx_L1_error);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_17) != (0)) __PYX_ERR(0, 194, __pyx_L1_error);
         __pyx_t_16 = 0;
         __pyx_t_17 = 0;
-        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_target, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 193, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_target, __pyx_t_3); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 194, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "squad.pyx":192
+        /* "squad.pyx":193
  *                     # since there is no 2 dice battery squad YET
  *                     valid_target.append((ship.id, hull))
  *                 elif sum(self.battery) > 1:             # <<<<<<<<<<<<<<
@@ -10689,31 +10724,31 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
  * 
 */
       }
-      __pyx_L23:;
+      __pyx_L26:;
 
-      /* "squad.pyx":185
+      /* "squad.pyx":186
  *             if ship.player == self.player or ship.destroyed :
  *                 continue
  *             for hull in HULL_SECTIONS :             # <<<<<<<<<<<<<<
  *                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
  *                 if not in_range :
 */
-      __pyx_L20_continue:;
+      __pyx_L23_continue:;
     }
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "squad.pyx":182
+    /* "squad.pyx":183
  *             return valid_target
  * 
  *         for ship in self.game.ships :             # <<<<<<<<<<<<<<
  *             if ship.player == self.player or ship.destroyed :
  *                 continue
 */
-    __pyx_L15_continue:;
+    __pyx_L18_continue:;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "squad.pyx":195
+  /* "squad.pyx":196
  *                     valid_target.append((ship.id, hull))
  * 
  *         return valid_target             # <<<<<<<<<<<<<<
@@ -10723,7 +10758,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_target(struct __pyx_obj_5squad_
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_valid_target);
   __pyx_r = __pyx_v_valid_target;
-  __Pyx_TraceReturnValue(__pyx_r, 122, 0, __PYX_ERR(0, 195, __pyx_L1_error));
+  __Pyx_TraceReturnValue(__pyx_r, 135, 0, __PYX_ERR(0, 196, __pyx_L1_error));
   goto __pyx_L0;
 
   /* "squad.pyx":152
@@ -10841,7 +10876,7 @@ static PyObject *__pyx_pf_5squad_5Squad_22get_valid_target(struct __pyx_obj_5squ
   return __pyx_r;
 }
 
-/* "squad.pyx":198
+/* "squad.pyx":199
  * 
  * 
  *     cpdef bint is_obstruct_q2q(self, Squad to_squad) :             # <<<<<<<<<<<<<<
@@ -10876,7 +10911,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[47]))
   __Pyx_RefNannySetupContext("is_obstruct_q2q", 0);
-  __Pyx_TraceStartFunc("is_obstruct_q2q", __pyx_f[0], 198, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 198, __pyx_L1_error));
+  __Pyx_TraceStartFunc("is_obstruct_q2q", __pyx_f[0], 199, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 199, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -10893,7 +10928,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_is_obstruct_q2q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_is_obstruct_q2q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_25is_obstruct_q2q)) {
         __pyx_t_3 = NULL;
@@ -10916,13 +10951,13 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 198, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 199, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
-        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 198, __pyx_L1_error));
+        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -10939,25 +10974,25 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
     #endif
   }
 
-  /* "squad.pyx":206
+  /* "squad.pyx":207
  *         """
  *         cdef:
  *             tuple line_of_sight = (self.coords, to_squad.coords)             # <<<<<<<<<<<<<<
  *             Ship ship
  *             Obstacle obstacle
 */
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_self->coords);
   __Pyx_GIVEREF(__pyx_v_self->coords);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_self->coords) != (0)) __PYX_ERR(0, 206, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_self->coords) != (0)) __PYX_ERR(0, 207, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_to_squad->coords);
   __Pyx_GIVEREF(__pyx_v_to_squad->coords);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_v_to_squad->coords) != (0)) __PYX_ERR(0, 206, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_v_to_squad->coords) != (0)) __PYX_ERR(0, 207, __pyx_L1_error);
   __pyx_v_line_of_sight = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "squad.pyx":210
+  /* "squad.pyx":211
  *             Obstacle obstacle
  * 
  *         for ship in self.game.ships:             # <<<<<<<<<<<<<<
@@ -10966,7 +11001,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
   if (unlikely(__pyx_v_self->game->ships == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 210, __pyx_L1_error)
+    __PYX_ERR(0, 211, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_v_self->game->ships; __Pyx_INCREF(__pyx_t_1);
   __pyx_t_7 = 0;
@@ -10974,19 +11009,19 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
     {
       Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 210, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 211, __pyx_L1_error)
       #endif
       if (__pyx_t_7 >= __pyx_temp) break;
     }
     __pyx_t_2 = __Pyx_PyList_GetItemRef(__pyx_t_1, __pyx_t_7);
     ++__pyx_t_7;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_ship, ((struct __pyx_obj_4ship_Ship *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "squad.pyx":211
+    /* "squad.pyx":212
  * 
  *         for ship in self.game.ships:
  *             if ship.destroyed :             # <<<<<<<<<<<<<<
@@ -10995,7 +11030,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
     if (__pyx_v_ship->destroyed) {
 
-      /* "squad.pyx":212
+      /* "squad.pyx":213
  *         for ship in self.game.ships:
  *             if ship.destroyed :
  *                 continue             # <<<<<<<<<<<<<<
@@ -11004,7 +11039,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
       goto __pyx_L3_continue;
 
-      /* "squad.pyx":211
+      /* "squad.pyx":212
  * 
  *         for ship in self.game.ships:
  *             if ship.destroyed :             # <<<<<<<<<<<<<<
@@ -11013,7 +11048,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
     }
 
-    /* "squad.pyx":213
+    /* "squad.pyx":214
  *             if ship.destroyed :
  *                 continue
  *             if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):             # <<<<<<<<<<<<<<
@@ -11021,12 +11056,12 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
  * 
 */
     __pyx_t_4 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_is_obstruct_ship); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_is_obstruct_ship); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 214, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_3 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_5 = 1;
     #if CYTHON_UNPACK_METHODS
@@ -11046,14 +11081,14 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 214, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 214, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (__pyx_t_6) {
 
-      /* "squad.pyx":214
+      /* "squad.pyx":215
  *                 continue
  *             if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
  *                 return True             # <<<<<<<<<<<<<<
@@ -11061,11 +11096,11 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
  *         for obstacle in self.game.obstacles:
 */
       __pyx_r = 1;
-      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 23, 0, __PYX_ERR(0, 214, __pyx_L1_error));
+      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 23, 0, __PYX_ERR(0, 215, __pyx_L1_error));
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       goto __pyx_L0;
 
-      /* "squad.pyx":213
+      /* "squad.pyx":214
  *             if ship.destroyed :
  *                 continue
  *             if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):             # <<<<<<<<<<<<<<
@@ -11074,7 +11109,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
     }
 
-    /* "squad.pyx":210
+    /* "squad.pyx":211
  *             Obstacle obstacle
  * 
  *         for ship in self.game.ships:             # <<<<<<<<<<<<<<
@@ -11085,7 +11120,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "squad.pyx":216
+  /* "squad.pyx":217
  *                 return True
  * 
  *         for obstacle in self.game.obstacles:             # <<<<<<<<<<<<<<
@@ -11094,7 +11129,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
   if (unlikely(__pyx_v_self->game->obstacles == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 216, __pyx_L1_error)
+    __PYX_ERR(0, 217, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_v_self->game->obstacles; __Pyx_INCREF(__pyx_t_1);
   __pyx_t_7 = 0;
@@ -11102,19 +11137,19 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
     {
       Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 216, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 217, __pyx_L1_error)
       #endif
       if (__pyx_t_7 >= __pyx_temp) break;
     }
     __pyx_t_2 = __Pyx_PyList_GetItemRef(__pyx_t_1, __pyx_t_7);
     ++__pyx_t_7;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_8obstacle_Obstacle))))) __PYX_ERR(0, 216, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_8obstacle_Obstacle))))) __PYX_ERR(0, 217, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_obstacle, ((struct __pyx_obj_8obstacle_Obstacle *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "squad.pyx":217
+    /* "squad.pyx":218
  * 
  *         for obstacle in self.game.obstacles:
  *             if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):             # <<<<<<<<<<<<<<
@@ -11122,12 +11157,12 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
  * 
 */
     __pyx_t_8 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_is_obstruct_obstacle); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_is_obstruct_obstacle); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = ((struct __pyx_vtabstruct_8obstacle_Obstacle *)__pyx_v_obstacle->__pyx_vtab)->get_hash_state(__pyx_v_obstacle, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_t_3 = ((struct __pyx_vtabstruct_8obstacle_Obstacle *)__pyx_v_obstacle->__pyx_vtab)->get_hash_state(__pyx_v_obstacle, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_5 = 1;
     #if CYTHON_UNPACK_METHODS
@@ -11147,14 +11182,14 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (__pyx_t_6) {
 
-      /* "squad.pyx":218
+      /* "squad.pyx":219
  *         for obstacle in self.game.obstacles:
  *             if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):
  *                 return True             # <<<<<<<<<<<<<<
@@ -11162,11 +11197,11 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
  *         return False
 */
       __pyx_r = 1;
-      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 38, 0, __PYX_ERR(0, 218, __pyx_L1_error));
+      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 38, 0, __PYX_ERR(0, 219, __pyx_L1_error));
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       goto __pyx_L0;
 
-      /* "squad.pyx":217
+      /* "squad.pyx":218
  * 
  *         for obstacle in self.game.obstacles:
  *             if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):             # <<<<<<<<<<<<<<
@@ -11175,7 +11210,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
 */
     }
 
-    /* "squad.pyx":216
+    /* "squad.pyx":217
  *                 return True
  * 
  *         for obstacle in self.game.obstacles:             # <<<<<<<<<<<<<<
@@ -11185,7 +11220,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "squad.pyx":220
+  /* "squad.pyx":221
  *                 return True
  * 
  *         return False             # <<<<<<<<<<<<<<
@@ -11193,10 +11228,10 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
  *     cpdef bint is_obstruct_q2s(self, Ship to_ship, int to_hull) :
 */
   __pyx_r = 0;
-  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 40, 0, __PYX_ERR(0, 220, __pyx_L1_error));
+  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 40, 0, __PYX_ERR(0, 221, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":198
+  /* "squad.pyx":199
  * 
  * 
  *     cpdef bint is_obstruct_q2q(self, Squad to_squad) :             # <<<<<<<<<<<<<<
@@ -11215,7 +11250,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2q(struct __pyx_obj_5squad_Squad *
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 198, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.is_obstruct_q2q", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -11268,32 +11303,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_to_squad,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 198, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 199, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 198, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 199, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "is_obstruct_q2q", 0) < 0) __PYX_ERR(0, 198, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "is_obstruct_q2q", 0) < 0) __PYX_ERR(0, 199, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("is_obstruct_q2q", 1, 1, 1, i); __PYX_ERR(0, 198, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("is_obstruct_q2q", 1, 1, 1, i); __PYX_ERR(0, 199, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 198, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 199, __pyx_L3_error)
     }
     __pyx_v_to_squad = ((struct __pyx_obj_5squad_Squad *)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("is_obstruct_q2q", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 198, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("is_obstruct_q2q", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 199, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -11304,7 +11339,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_to_squad), __pyx_mstate_global->__pyx_ptype_5squad_Squad, 1, "to_squad", 0))) __PYX_ERR(0, 198, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_to_squad), __pyx_mstate_global->__pyx_ptype_5squad_Squad, 1, "to_squad", 0))) __PYX_ERR(0, 199, __pyx_L1_error)
   __pyx_r = __pyx_pf_5squad_5Squad_24is_obstruct_q2q(((struct __pyx_obj_5squad_Squad *)__pyx_v_self), __pyx_v_to_squad);
 
   /* function exit code */
@@ -11335,10 +11370,10 @@ static PyObject *__pyx_pf_5squad_5Squad_24is_obstruct_q2q(struct __pyx_obj_5squa
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[47]))
   __Pyx_RefNannySetupContext("is_obstruct_q2q", 0);
-  __Pyx_TraceStartFunc("is_obstruct_q2q (wrapper)", __pyx_f[0], 198, 0, 0, 0, __PYX_ERR(0, 198, __pyx_L1_error));
+  __Pyx_TraceStartFunc("is_obstruct_q2q (wrapper)", __pyx_f[0], 199, 0, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_is_obstruct_q2q(__pyx_v_self, __pyx_v_to_squad, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 198, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_is_obstruct_q2q(__pyx_v_self, __pyx_v_to_squad, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -11351,7 +11386,7 @@ static PyObject *__pyx_pf_5squad_5Squad_24is_obstruct_q2q(struct __pyx_obj_5squa
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 198, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.is_obstruct_q2q", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -11362,7 +11397,7 @@ static PyObject *__pyx_pf_5squad_5Squad_24is_obstruct_q2q(struct __pyx_obj_5squa
   return __pyx_r;
 }
 
-/* "squad.pyx":222
+/* "squad.pyx":223
  *         return False
  * 
  *     cpdef bint is_obstruct_q2s(self, Ship to_ship, int to_hull) :             # <<<<<<<<<<<<<<
@@ -11393,7 +11428,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2s(struct __pyx_obj_5squad_Squad *
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[48]))
   __Pyx_RefNannySetupContext("is_obstruct_q2s", 0);
-  __Pyx_TraceStartFunc("is_obstruct_q2s", __pyx_f[0], 222, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 222, __pyx_L1_error));
+  __Pyx_TraceStartFunc("is_obstruct_q2s", __pyx_f[0], 223, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 223, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -11410,13 +11445,13 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2s(struct __pyx_obj_5squad_Squad *
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_is_obstruct_q2s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_is_obstruct_q2s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_27is_obstruct_q2s)) {
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_to_hull); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 222, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_to_hull); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 223, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_6 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -11436,13 +11471,13 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2s(struct __pyx_obj_5squad_Squad *
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 223, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_7;
-        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 222, __pyx_L1_error));
+        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 223, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -11459,19 +11494,19 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2s(struct __pyx_obj_5squad_Squad *
     #endif
   }
 
-  /* "squad.pyx":229
+  /* "squad.pyx":230
  *             squad (Squad): The target squad.
  *         """
  *         return to_ship.is_obstruct_s2q(to_hull, self)             # <<<<<<<<<<<<<<
  * 
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :
 */
-  __pyx_t_7 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_to_ship->__pyx_vtab)->is_obstruct_s2q(__pyx_v_to_ship, __pyx_v_to_hull, __pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_7 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_to_ship->__pyx_vtab)->is_obstruct_s2q(__pyx_v_to_ship, __pyx_v_to_hull, __pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L1_error)
   __pyx_r = __pyx_t_7;
-  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 1, 0, __PYX_ERR(0, 229, __pyx_L1_error));
+  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 1, 0, __PYX_ERR(0, 230, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":222
+  /* "squad.pyx":223
  *         return False
  * 
  *     cpdef bint is_obstruct_q2s(self, Ship to_ship, int to_hull) :             # <<<<<<<<<<<<<<
@@ -11490,7 +11525,7 @@ static int __pyx_f_5squad_5Squad_is_obstruct_q2s(struct __pyx_obj_5squad_Squad *
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 222, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 223, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.is_obstruct_q2s", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -11541,39 +11576,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_to_ship,&__pyx_mstate_global->__pyx_n_u_to_hull,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 222, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 223, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 222, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 223, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 222, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 223, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "is_obstruct_q2s", 0) < 0) __PYX_ERR(0, 222, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "is_obstruct_q2s", 0) < 0) __PYX_ERR(0, 223, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("is_obstruct_q2s", 1, 2, 2, i); __PYX_ERR(0, 222, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("is_obstruct_q2s", 1, 2, 2, i); __PYX_ERR(0, 223, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 222, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 223, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 222, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 223, __pyx_L3_error)
     }
     __pyx_v_to_ship = ((struct __pyx_obj_4ship_Ship *)values[0]);
-    __pyx_v_to_hull = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_to_hull == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L3_error)
+    __pyx_v_to_hull = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_to_hull == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 223, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("is_obstruct_q2s", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 222, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("is_obstruct_q2s", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 223, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -11584,7 +11619,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_to_ship), __pyx_mstate_global->__pyx_ptype_4ship_Ship, 1, "to_ship", 0))) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_to_ship), __pyx_mstate_global->__pyx_ptype_4ship_Ship, 1, "to_ship", 0))) __PYX_ERR(0, 223, __pyx_L1_error)
   __pyx_r = __pyx_pf_5squad_5Squad_26is_obstruct_q2s(((struct __pyx_obj_5squad_Squad *)__pyx_v_self), __pyx_v_to_ship, __pyx_v_to_hull);
 
   /* function exit code */
@@ -11615,10 +11650,10 @@ static PyObject *__pyx_pf_5squad_5Squad_26is_obstruct_q2s(struct __pyx_obj_5squa
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[48]))
   __Pyx_RefNannySetupContext("is_obstruct_q2s", 0);
-  __Pyx_TraceStartFunc("is_obstruct_q2s (wrapper)", __pyx_f[0], 222, 0, 0, 0, __PYX_ERR(0, 222, __pyx_L1_error));
+  __Pyx_TraceStartFunc("is_obstruct_q2s (wrapper)", __pyx_f[0], 223, 0, 0, 0, __PYX_ERR(0, 223, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_is_obstruct_q2s(__pyx_v_self, __pyx_v_to_ship, __pyx_v_to_hull, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_is_obstruct_q2s(__pyx_v_self, __pyx_v_to_ship, __pyx_v_to_hull, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 223, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -11631,7 +11666,7 @@ static PyObject *__pyx_pf_5squad_5Squad_26is_obstruct_q2s(struct __pyx_obj_5squa
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 222, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 223, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.is_obstruct_q2s", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -11642,7 +11677,7 @@ static PyObject *__pyx_pf_5squad_5Squad_26is_obstruct_q2s(struct __pyx_obj_5squa
   return __pyx_r;
 }
 
-/* "squad.pyx":231
+/* "squad.pyx":232
  *         return to_ship.is_obstruct_s2q(to_hull, self)
  * 
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :             # <<<<<<<<<<<<<<
@@ -11677,7 +11712,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[49]))
   __Pyx_RefNannySetupContext("get_critical_effect", 0);
-  __Pyx_TraceStartFunc("get_critical_effect", __pyx_f[0], 231, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 231, __pyx_L1_error));
+  __Pyx_TraceStartFunc("get_critical_effect", __pyx_f[0], 232, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 232, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -11694,18 +11729,18 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_critical_effect); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 231, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_critical_effect); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_29get_critical_effect)) {
         __Pyx_XDECREF(__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_black_crit); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 231, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_black_crit); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_blue_crit); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 231, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_blue_crit); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = __Pyx_PyBool_FromLong(__pyx_v_red_crit); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 231, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyBool_FromLong(__pyx_v_red_crit); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
         __pyx_t_8 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -11727,13 +11762,13 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 231, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_2))) __PYX_ERR(0, 231, __pyx_L1_error)
+        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_2))) __PYX_ERR(0, 232, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
-        __Pyx_TraceReturnValue(__pyx_r, 0, 0, __PYX_ERR(0, 231, __pyx_L1_error));
+        __Pyx_TraceReturnValue(__pyx_r, 0, 0, __PYX_ERR(0, 232, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -11750,19 +11785,19 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
     #endif
   }
 
-  /* "squad.pyx":232
+  /* "squad.pyx":233
  * 
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :
  *         cdef list critical_list = []             # <<<<<<<<<<<<<<
  *         if black_crit or blue_crit or red_crit :
  *             critical_list.append(Critical.STANDARD)
 */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_critical_list = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "squad.pyx":233
+  /* "squad.pyx":234
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :
  *         cdef list critical_list = []
  *         if black_crit or blue_crit or red_crit :             # <<<<<<<<<<<<<<
@@ -11783,22 +11818,22 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_9) {
 
-    /* "squad.pyx":234
+    /* "squad.pyx":235
  *         cdef list critical_list = []
  *         if black_crit or blue_crit or red_crit :
  *             critical_list.append(Critical.STANDARD)             # <<<<<<<<<<<<<<
  *         return critical_list
  * 
 */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_Critical); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_Critical); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_STANDARD); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_STANDARD); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_critical_list, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_critical_list, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "squad.pyx":233
+    /* "squad.pyx":234
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :
  *         cdef list critical_list = []
  *         if black_crit or blue_crit or red_crit :             # <<<<<<<<<<<<<<
@@ -11807,7 +11842,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
 */
   }
 
-  /* "squad.pyx":235
+  /* "squad.pyx":236
  *         if black_crit or blue_crit or red_crit :
  *             critical_list.append(Critical.STANDARD)
  *         return critical_list             # <<<<<<<<<<<<<<
@@ -11817,10 +11852,10 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_critical_list);
   __pyx_r = __pyx_v_critical_list;
-  __Pyx_TraceReturnValue(__pyx_r, 14, 0, __PYX_ERR(0, 235, __pyx_L1_error));
+  __Pyx_TraceReturnValue(__pyx_r, 14, 0, __PYX_ERR(0, 236, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":231
+  /* "squad.pyx":232
  *         return to_ship.is_obstruct_s2q(to_hull, self)
  * 
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :             # <<<<<<<<<<<<<<
@@ -11841,7 +11876,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_critical_effect(CYTHON_UNUSED struct 
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 231, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 232, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.get_critical_effect", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -11894,46 +11929,46 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_black_crit,&__pyx_mstate_global->__pyx_n_u_blue_crit,&__pyx_mstate_global->__pyx_n_u_red_crit,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 231, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 232, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 231, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 232, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 231, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 232, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 231, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 232, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_critical_effect", 0) < 0) __PYX_ERR(0, 231, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_critical_effect", 0) < 0) __PYX_ERR(0, 232, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_critical_effect", 1, 3, 3, i); __PYX_ERR(0, 231, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_critical_effect", 1, 3, 3, i); __PYX_ERR(0, 232, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 231, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 232, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 231, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 232, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 231, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 232, __pyx_L3_error)
     }
-    __pyx_v_black_crit = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_black_crit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 231, __pyx_L3_error)
-    __pyx_v_blue_crit = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_blue_crit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 231, __pyx_L3_error)
-    __pyx_v_red_crit = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_red_crit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 231, __pyx_L3_error)
+    __pyx_v_black_crit = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_black_crit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 232, __pyx_L3_error)
+    __pyx_v_blue_crit = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_blue_crit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 232, __pyx_L3_error)
+    __pyx_v_red_crit = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_red_crit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 232, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_critical_effect", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 231, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_critical_effect", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 232, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -11964,9 +11999,9 @@ static PyObject *__pyx_pf_5squad_5Squad_28get_critical_effect(struct __pyx_obj_5
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[49]))
   __Pyx_RefNannySetupContext("get_critical_effect", 0);
-  __Pyx_TraceStartFunc("get_critical_effect (wrapper)", __pyx_f[0], 231, 0, 0, 0, __PYX_ERR(0, 231, __pyx_L1_error));
+  __Pyx_TraceStartFunc("get_critical_effect (wrapper)", __pyx_f[0], 232, 0, 0, 0, __PYX_ERR(0, 232, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_get_critical_effect(__pyx_v_self, __pyx_v_black_crit, __pyx_v_blue_crit, __pyx_v_red_crit, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 231, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_get_critical_effect(__pyx_v_self, __pyx_v_black_crit, __pyx_v_blue_crit, __pyx_v_red_crit, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11979,7 +12014,7 @@ static PyObject *__pyx_pf_5squad_5Squad_28get_critical_effect(struct __pyx_obj_5
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 231, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 232, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.get_critical_effect", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -11990,7 +12025,7 @@ static PyObject *__pyx_pf_5squad_5Squad_28get_critical_effect(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "squad.pyx":237
+/* "squad.pyx":238
  *         return critical_list
  * 
  *     cpdef void move(self, int speed, float angle) :             # <<<<<<<<<<<<<<
@@ -12023,7 +12058,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[50]))
   __Pyx_RefNannySetupContext("move", 0);
-  __Pyx_TraceStartFunc("move", __pyx_f[0], 237, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 237, __pyx_L1_error));
+  __Pyx_TraceStartFunc("move", __pyx_f[0], 238, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 238, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -12040,15 +12075,15 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_move); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_move); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 238, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_31move)) {
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_speed); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_speed); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 238, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 237, __pyx_L1_error)
+        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 238, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __pyx_t_7 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -12069,7 +12104,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 238, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -12089,7 +12124,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
     #endif
   }
 
-  /* "squad.pyx":244
+  /* "squad.pyx":245
  *             angle: the angle to move, in degree, 0 is to up **on player's perspective**, 90 is to right
  *         """
  *         cdef float angle_rad = (M_PI*angle/180.0) * self.player # go "up" on player's perspective             # <<<<<<<<<<<<<<
@@ -12098,7 +12133,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
 */
   __pyx_v_angle_rad = (((M_PI * __pyx_v_angle) / 180.0) * __pyx_v_self->player);
 
-  /* "squad.pyx":245
+  /* "squad.pyx":246
  *         """
  *         cdef float angle_rad = (M_PI*angle/180.0) * self.player # go "up" on player's perspective
  *         self.coords = (<float>self.coords[0] + <float>DISTANCE[speed] * sin(angle_rad), <float>self.coords[1] + <float>DISTANCE[speed] * cos(angle_rad))             # <<<<<<<<<<<<<<
@@ -12107,44 +12142,44 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
 */
   if (unlikely(__pyx_v_self->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 245, __pyx_L1_error)
+    __PYX_ERR(0, 246, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_8 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_DISTANCE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_DISTANCE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_speed, int, 1, __Pyx_PyLong_From_int, 0, 1, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_speed, int, 1, __Pyx_PyLong_From_int, 0, 1, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyFloat_FromDouble((((float)__pyx_t_8) + (((float)__pyx_t_9) * sin(__pyx_v_angle_rad)))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble((((float)__pyx_t_8) + (((float)__pyx_t_9) * sin(__pyx_v_angle_rad)))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (unlikely(__pyx_v_self->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 245, __pyx_L1_error)
+    __PYX_ERR(0, 246, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_DISTANCE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_DISTANCE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_speed, int, 1, __Pyx_PyLong_From_int, 0, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_speed, int, 1, __Pyx_PyLong_From_int, 0, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_8 = __Pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble((((float)__pyx_t_9) + (((float)__pyx_t_8) * cos(__pyx_v_angle_rad)))); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble((((float)__pyx_t_9) + (((float)__pyx_t_8) * cos(__pyx_v_angle_rad)))); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2) != (0)) __PYX_ERR(0, 245, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2) != (0)) __PYX_ERR(0, 246, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_4) != (0)) __PYX_ERR(0, 245, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_4) != (0)) __PYX_ERR(0, 246, __pyx_L1_error);
   __pyx_t_2 = 0;
   __pyx_t_4 = 0;
   __Pyx_GIVEREF(__pyx_t_1);
@@ -12153,7 +12188,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
   __pyx_v_self->coords = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "squad.pyx":246
+  /* "squad.pyx":247
  *         cdef float angle_rad = (M_PI*angle/180.0) * self.player # go "up" on player's perspective
  *         self.coords = (<float>self.coords[0] + <float>DISTANCE[speed] * sin(angle_rad), <float>self.coords[1] + <float>DISTANCE[speed] * cos(angle_rad))
  *         self.can_move = False             # <<<<<<<<<<<<<<
@@ -12162,7 +12197,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
 */
   __pyx_v_self->can_move = 0;
 
-  /* "squad.pyx":237
+  /* "squad.pyx":238
  *         return critical_list
  * 
  *     cpdef void move(self, int speed, float angle) :             # <<<<<<<<<<<<<<
@@ -12171,7 +12206,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
 */
 
   /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 237, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 238, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
@@ -12184,7 +12219,7 @@ static void __pyx_f_5squad_5Squad_move(struct __pyx_obj_5squad_Squad *__pyx_v_se
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 237, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 238, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.move", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
@@ -12233,39 +12268,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_speed,&__pyx_mstate_global->__pyx_n_u_angle,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 237, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 238, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 237, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 238, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 237, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 238, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "move", 0) < 0) __PYX_ERR(0, 237, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "move", 0) < 0) __PYX_ERR(0, 238, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("move", 1, 2, 2, i); __PYX_ERR(0, 237, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("move", 1, 2, 2, i); __PYX_ERR(0, 238, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 237, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 238, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 237, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 238, __pyx_L3_error)
     }
-    __pyx_v_speed = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_speed == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 237, __pyx_L3_error)
-    __pyx_v_angle = __Pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_angle == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 237, __pyx_L3_error)
+    __pyx_v_speed = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_speed == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 238, __pyx_L3_error)
+    __pyx_v_angle = __Pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_angle == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 238, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("move", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 237, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("move", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 238, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -12296,10 +12331,10 @@ static PyObject *__pyx_pf_5squad_5Squad_30move(struct __pyx_obj_5squad_Squad *__
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[50]))
   __Pyx_RefNannySetupContext("move", 0);
-  __Pyx_TraceStartFunc("move (wrapper)", __pyx_f[0], 237, 0, 0, 0, __PYX_ERR(0, 237, __pyx_L1_error));
+  __Pyx_TraceStartFunc("move (wrapper)", __pyx_f[0], 238, 0, 0, 0, __PYX_ERR(0, 238, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_5squad_5Squad_move(__pyx_v_self, __pyx_v_speed, __pyx_v_angle, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 237, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __pyx_f_5squad_5Squad_move(__pyx_v_self, __pyx_v_speed, __pyx_v_angle, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 238, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12312,7 +12347,7 @@ static PyObject *__pyx_pf_5squad_5Squad_30move(struct __pyx_obj_5squad_Squad *__
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 237, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 238, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.move", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -12323,7 +12358,7 @@ static PyObject *__pyx_pf_5squad_5Squad_30move(struct __pyx_obj_5squad_Squad *__
   return __pyx_r;
 }
 
-/* "squad.pyx":248
+/* "squad.pyx":249
  *         self.can_move = False
  * 
  *     cpdef list get_valid_moves(self) :             # <<<<<<<<<<<<<<
@@ -12366,7 +12401,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[51]))
   __Pyx_RefNannySetupContext("get_valid_moves", 0);
-  __Pyx_TraceStartFunc("get_valid_moves", __pyx_f[0], 248, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 248, __pyx_L1_error));
+  __Pyx_TraceStartFunc("get_valid_moves", __pyx_f[0], 249, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 249, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -12383,7 +12418,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_valid_moves); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_valid_moves); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_33get_valid_moves)) {
         __Pyx_XDECREF(__pyx_r);
@@ -12407,13 +12442,13 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 249, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_2))) __PYX_ERR(0, 248, __pyx_L1_error)
+        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_2))) __PYX_ERR(0, 249, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
-        __Pyx_TraceReturnValue(__pyx_r, 0, 0, __PYX_ERR(0, 248, __pyx_L1_error));
+        __Pyx_TraceReturnValue(__pyx_r, 0, 0, __PYX_ERR(0, 249, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -12430,19 +12465,19 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
     #endif
   }
 
-  /* "squad.pyx":255
+  /* "squad.pyx":256
  *         """
  *         cdef:
  *             list valid_moves = []             # <<<<<<<<<<<<<<
  *             tuple original_coords = self.coords
  *             int speed
 */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 256, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_valid_moves = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "squad.pyx":256
+  /* "squad.pyx":257
  *         cdef:
  *             list valid_moves = []
  *             tuple original_coords = self.coords             # <<<<<<<<<<<<<<
@@ -12454,7 +12489,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
   __pyx_v_original_coords = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "squad.pyx":260
+  /* "squad.pyx":261
  *             float angle
  * 
  *         for speed in range(self.speed + 1) :             # <<<<<<<<<<<<<<
@@ -12466,7 +12501,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_speed = __pyx_t_8;
 
-    /* "squad.pyx":262
+    /* "squad.pyx":263
  *         for speed in range(self.speed + 1) :
  * 
  *             if speed == 0 :             # <<<<<<<<<<<<<<
@@ -12476,16 +12511,16 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
     __pyx_t_9 = (__pyx_v_speed == 0);
     if (__pyx_t_9) {
 
-      /* "squad.pyx":263
+      /* "squad.pyx":264
  * 
  *             if speed == 0 :
  *                 valid_moves.append((0, 0))             # <<<<<<<<<<<<<<
  *                 continue
  * 
 */
-      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_moves, __pyx_mstate_global->__pyx_tuple[0]); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 263, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_moves, __pyx_mstate_global->__pyx_tuple[0]); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 264, __pyx_L1_error)
 
-      /* "squad.pyx":264
+      /* "squad.pyx":265
  *             if speed == 0 :
  *                 valid_moves.append((0, 0))
  *                 continue             # <<<<<<<<<<<<<<
@@ -12494,7 +12529,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
 */
       goto __pyx_L3_continue;
 
-      /* "squad.pyx":262
+      /* "squad.pyx":263
  *         for speed in range(self.speed + 1) :
  * 
  *             if speed == 0 :             # <<<<<<<<<<<<<<
@@ -12503,7 +12538,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
 */
     }
 
-    /* "squad.pyx":267
+    /* "squad.pyx":268
  * 
  *             # 3 * speed directions, evenly distributed
  *             for angle in range(0, 360, 90 // speed) :             # <<<<<<<<<<<<<<
@@ -12515,13 +12550,13 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
     __pyx_t_4 = __pyx_builtin_range; 
     if (unlikely(__pyx_v_speed == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "integer division or modulo by zero");
-      __PYX_ERR(0, 267, __pyx_L1_error)
+      __PYX_ERR(0, 268, __pyx_L1_error)
     }
     else if (sizeof(long) == sizeof(long) && (!(((int)-1) > 0)) && unlikely(__pyx_v_speed == (int)-1)  && unlikely(__Pyx_UNARY_NEG_WOULD_OVERFLOW(90))) {
       PyErr_SetString(PyExc_OverflowError, "value too large to perform division");
-      __PYX_ERR(0, 267, __pyx_L1_error)
+      __PYX_ERR(0, 268, __pyx_L1_error)
     }
-    __pyx_t_3 = __Pyx_PyLong_From_long(__Pyx_div_long(90, __pyx_v_speed, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 267, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyLong_From_long(__Pyx_div_long(90, __pyx_v_speed, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_5 = 1;
     {
@@ -12530,7 +12565,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 267, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
@@ -12538,9 +12573,9 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
       __pyx_t_11 = 0;
       __pyx_t_12 = NULL;
     } else {
-      __pyx_t_11 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 267, __pyx_L1_error)
+      __pyx_t_11 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_12 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 267, __pyx_L1_error)
+      __pyx_t_12 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 268, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -12549,7 +12584,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
           {
             Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_4);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 267, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 268, __pyx_L1_error)
             #endif
             if (__pyx_t_11 >= __pyx_temp) break;
           }
@@ -12559,7 +12594,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
           {
             Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_4);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 267, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 268, __pyx_L1_error)
             #endif
             if (__pyx_t_11 >= __pyx_temp) break;
           }
@@ -12570,75 +12605,75 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
           #endif
           ++__pyx_t_11;
         }
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 267, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 268, __pyx_L1_error)
       } else {
         __pyx_t_1 = __pyx_t_12(__pyx_t_4);
         if (unlikely(!__pyx_t_1)) {
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
-            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 267, __pyx_L1_error)
+            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 268, __pyx_L1_error)
             PyErr_Clear();
           }
           break;
         }
       }
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_13 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 267, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_v_angle = __pyx_t_13;
 
-      /* "squad.pyx":270
+      /* "squad.pyx":271
  * 
  *                 # simulate the move
  *                 self.move(speed, angle)             # <<<<<<<<<<<<<<
  * 
  *                 if not self.out_of_board() and not self.is_overlap():
 */
-      ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->move(__pyx_v_self, __pyx_v_speed, __pyx_v_angle, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 270, __pyx_L1_error)
+      ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->move(__pyx_v_self, __pyx_v_speed, __pyx_v_angle, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 271, __pyx_L1_error)
 
-      /* "squad.pyx":272
+      /* "squad.pyx":273
  *                 self.move(speed, angle)
  * 
  *                 if not self.out_of_board() and not self.is_overlap():             # <<<<<<<<<<<<<<
  *                     valid_moves.append((speed, angle))
  *                 self.coords = original_coords
 */
-      __pyx_t_14 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->out_of_board(__pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 272, __pyx_L1_error)
+      __pyx_t_14 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->out_of_board(__pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 273, __pyx_L1_error)
       __pyx_t_15 = (!__pyx_t_14);
       if (__pyx_t_15) {
       } else {
         __pyx_t_9 = __pyx_t_15;
         goto __pyx_L9_bool_binop_done;
       }
-      __pyx_t_15 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_overlap(__pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 272, __pyx_L1_error)
+      __pyx_t_15 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->is_overlap(__pyx_v_self, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 273, __pyx_L1_error)
       __pyx_t_14 = (!__pyx_t_15);
       __pyx_t_9 = __pyx_t_14;
       __pyx_L9_bool_binop_done:;
       if (__pyx_t_9) {
 
-        /* "squad.pyx":273
+        /* "squad.pyx":274
  * 
  *                 if not self.out_of_board() and not self.is_overlap():
  *                     valid_moves.append((speed, angle))             # <<<<<<<<<<<<<<
  *                 self.coords = original_coords
  * 
 */
-        __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_speed); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 273, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_speed); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 273, __pyx_L1_error)
+        __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_GIVEREF(__pyx_t_1);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 273, __pyx_L1_error);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 274, __pyx_L1_error);
         __Pyx_GIVEREF(__pyx_t_3);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_3) != (0)) __PYX_ERR(0, 273, __pyx_L1_error);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_3) != (0)) __PYX_ERR(0, 274, __pyx_L1_error);
         __pyx_t_1 = 0;
         __pyx_t_3 = 0;
-        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_moves, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 273, __pyx_L1_error)
+        __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_valid_moves, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-        /* "squad.pyx":272
+        /* "squad.pyx":273
  *                 self.move(speed, angle)
  * 
  *                 if not self.out_of_board() and not self.is_overlap():             # <<<<<<<<<<<<<<
@@ -12647,7 +12682,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
 */
       }
 
-      /* "squad.pyx":274
+      /* "squad.pyx":275
  *                 if not self.out_of_board() and not self.is_overlap():
  *                     valid_moves.append((speed, angle))
  *                 self.coords = original_coords             # <<<<<<<<<<<<<<
@@ -12660,7 +12695,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
       __Pyx_DECREF(__pyx_v_self->coords);
       __pyx_v_self->coords = __pyx_v_original_coords;
 
-      /* "squad.pyx":267
+      /* "squad.pyx":268
  * 
  *             # 3 * speed directions, evenly distributed
  *             for angle in range(0, 360, 90 // speed) :             # <<<<<<<<<<<<<<
@@ -12672,7 +12707,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
     __pyx_L3_continue:;
   }
 
-  /* "squad.pyx":276
+  /* "squad.pyx":277
  *                 self.coords = original_coords
  * 
  *         return valid_moves             # <<<<<<<<<<<<<<
@@ -12682,10 +12717,10 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_valid_moves);
   __pyx_r = __pyx_v_valid_moves;
-  __Pyx_TraceReturnValue(__pyx_r, 56, 0, __PYX_ERR(0, 276, __pyx_L1_error));
+  __Pyx_TraceReturnValue(__pyx_r, 56, 0, __PYX_ERR(0, 277, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":248
+  /* "squad.pyx":249
  *         self.can_move = False
  * 
  *     cpdef list get_valid_moves(self) :             # <<<<<<<<<<<<<<
@@ -12703,7 +12738,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_valid_moves(struct __pyx_obj_5squad_S
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 248, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 249, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.get_valid_moves", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -12769,9 +12804,9 @@ static PyObject *__pyx_pf_5squad_5Squad_32get_valid_moves(struct __pyx_obj_5squa
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[51]))
   __Pyx_RefNannySetupContext("get_valid_moves", 0);
-  __Pyx_TraceStartFunc("get_valid_moves (wrapper)", __pyx_f[0], 248, 0, 0, 0, __PYX_ERR(0, 248, __pyx_L1_error));
+  __Pyx_TraceStartFunc("get_valid_moves (wrapper)", __pyx_f[0], 249, 0, 0, 0, __PYX_ERR(0, 249, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_get_valid_moves(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_get_valid_moves(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12784,7 +12819,7 @@ static PyObject *__pyx_pf_5squad_5Squad_32get_valid_moves(struct __pyx_obj_5squa
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 248, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 249, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.get_valid_moves", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -12795,7 +12830,7 @@ static PyObject *__pyx_pf_5squad_5Squad_32get_valid_moves(struct __pyx_obj_5squa
   return __pyx_r;
 }
 
-/* "squad.pyx":278
+/* "squad.pyx":279
  *         return valid_moves
  * 
  *     cpdef bint in_distance(self, Squad other, float distance, float distance_sq) :             # <<<<<<<<<<<<<<
@@ -12831,7 +12866,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[52]))
   __Pyx_RefNannySetupContext("in_distance", 0);
-  __Pyx_TraceStartFunc("in_distance", __pyx_f[0], 278, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 278, __pyx_L1_error));
+  __Pyx_TraceStartFunc("in_distance", __pyx_f[0], 279, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 279, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -12848,15 +12883,15 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_in_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 278, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_in_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 279, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_35in_distance)) {
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_distance); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_distance); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 279, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_distance_sq); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_distance_sq); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 279, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __pyx_t_7 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -12877,13 +12912,13 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_8;
-        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 278, __pyx_L1_error));
+        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 279, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -12900,7 +12935,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
     #endif
   }
 
-  /* "squad.pyx":281
+  /* "squad.pyx":282
  * 
  *         cdef:
  *             float dx = self.coords[0] - other.coords[0]             # <<<<<<<<<<<<<<
@@ -12909,25 +12944,25 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
 */
   if (unlikely(__pyx_v_self->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 281, __pyx_L1_error)
+    __PYX_ERR(0, 282, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 281, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 282, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_v_other->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 281, __pyx_L1_error)
+    __PYX_ERR(0, 282, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_GetItemInt_Tuple(__pyx_v_other->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 281, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt_Tuple(__pyx_v_other->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 281, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 282, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 281, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 282, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_dx = __pyx_t_9;
 
-  /* "squad.pyx":282
+  /* "squad.pyx":283
  *         cdef:
  *             float dx = self.coords[0] - other.coords[0]
  *             float dy = self.coords[1] - other.coords[1]             # <<<<<<<<<<<<<<
@@ -12936,25 +12971,25 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
 */
   if (unlikely(__pyx_v_self->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 283, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   if (unlikely(__pyx_v_other->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 283, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_GetItemInt_Tuple(__pyx_v_other->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt_Tuple(__pyx_v_other->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyNumber_Subtract(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_dy = __pyx_t_9;
 
-  /* "squad.pyx":285
+  /* "squad.pyx":286
  * 
  *         # L1 Norm Check
  *         if (abs(dx) > distance) or (abs(dy) > distance):             # <<<<<<<<<<<<<<
@@ -12974,7 +13009,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_8) {
 
-    /* "squad.pyx":286
+    /* "squad.pyx":287
  *         # L1 Norm Check
  *         if (abs(dx) > distance) or (abs(dy) > distance):
  *             return False  # Skip to the next squad, don't do the expensive check             # <<<<<<<<<<<<<<
@@ -12982,10 +13017,10 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
  *         # Distance Check
 */
     __pyx_r = 0;
-    __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 33, 0, __PYX_ERR(0, 286, __pyx_L1_error));
+    __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 33, 0, __PYX_ERR(0, 287, __pyx_L1_error));
     goto __pyx_L0;
 
-    /* "squad.pyx":285
+    /* "squad.pyx":286
  * 
  *         # L1 Norm Check
  *         if (abs(dx) > distance) or (abs(dy) > distance):             # <<<<<<<<<<<<<<
@@ -12994,7 +13029,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
 */
   }
 
-  /* "squad.pyx":289
+  /* "squad.pyx":290
  * 
  *         # Distance Check
  *         if (dx**2 + dy**2) <= distance_sq:             # <<<<<<<<<<<<<<
@@ -13004,7 +13039,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
   __pyx_t_8 = ((powf(__pyx_v_dx, 2.0) + powf(__pyx_v_dy, 2.0)) <= __pyx_v_distance_sq);
   if (__pyx_t_8) {
 
-    /* "squad.pyx":290
+    /* "squad.pyx":291
  *         # Distance Check
  *         if (dx**2 + dy**2) <= distance_sq:
  *             return True             # <<<<<<<<<<<<<<
@@ -13012,10 +13047,10 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
  *     cpdef bint is_overlap(self) :
 */
     __pyx_r = 1;
-    __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 45, 0, __PYX_ERR(0, 290, __pyx_L1_error));
+    __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 45, 0, __PYX_ERR(0, 291, __pyx_L1_error));
     goto __pyx_L0;
 
-    /* "squad.pyx":289
+    /* "squad.pyx":290
  * 
  *         # Distance Check
  *         if (dx**2 + dy**2) <= distance_sq:             # <<<<<<<<<<<<<<
@@ -13024,7 +13059,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
 */
   }
 
-  /* "squad.pyx":278
+  /* "squad.pyx":279
  *         return valid_moves
  * 
  *     cpdef bint in_distance(self, Squad other, float distance, float distance_sq) :             # <<<<<<<<<<<<<<
@@ -13034,7 +13069,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
 
   /* function exit code */
   __pyx_r = 0;
-  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 278, __pyx_L1_error));
+  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 279, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
@@ -13047,7 +13082,7 @@ static int __pyx_f_5squad_5Squad_in_distance(struct __pyx_obj_5squad_Squad *__py
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 278, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 279, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.in_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -13098,46 +13133,46 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_other,&__pyx_mstate_global->__pyx_n_u_distance,&__pyx_mstate_global->__pyx_n_u_distance_sq,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 278, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 279, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 278, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 279, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 278, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 279, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 278, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 279, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "in_distance", 0) < 0) __PYX_ERR(0, 278, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "in_distance", 0) < 0) __PYX_ERR(0, 279, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("in_distance", 1, 3, 3, i); __PYX_ERR(0, 278, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("in_distance", 1, 3, 3, i); __PYX_ERR(0, 279, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 278, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 279, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 278, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 279, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 278, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 279, __pyx_L3_error)
     }
     __pyx_v_other = ((struct __pyx_obj_5squad_Squad *)values[0]);
-    __pyx_v_distance = __Pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_distance == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 278, __pyx_L3_error)
-    __pyx_v_distance_sq = __Pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_distance_sq == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 278, __pyx_L3_error)
+    __pyx_v_distance = __Pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_distance == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L3_error)
+    __pyx_v_distance_sq = __Pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_distance_sq == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("in_distance", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 278, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("in_distance", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 279, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -13148,7 +13183,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_5squad_Squad, 1, "other", 0))) __PYX_ERR(0, 278, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_5squad_Squad, 1, "other", 0))) __PYX_ERR(0, 279, __pyx_L1_error)
   __pyx_r = __pyx_pf_5squad_5Squad_34in_distance(((struct __pyx_obj_5squad_Squad *)__pyx_v_self), __pyx_v_other, __pyx_v_distance, __pyx_v_distance_sq);
 
   /* function exit code */
@@ -13179,10 +13214,10 @@ static PyObject *__pyx_pf_5squad_5Squad_34in_distance(struct __pyx_obj_5squad_Sq
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[52]))
   __Pyx_RefNannySetupContext("in_distance", 0);
-  __Pyx_TraceStartFunc("in_distance (wrapper)", __pyx_f[0], 278, 0, 0, 0, __PYX_ERR(0, 278, __pyx_L1_error));
+  __Pyx_TraceStartFunc("in_distance (wrapper)", __pyx_f[0], 279, 0, 0, 0, __PYX_ERR(0, 279, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_in_distance(__pyx_v_self, __pyx_v_other, __pyx_v_distance, __pyx_v_distance_sq, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 278, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_in_distance(__pyx_v_self, __pyx_v_other, __pyx_v_distance, __pyx_v_distance_sq, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -13195,7 +13230,7 @@ static PyObject *__pyx_pf_5squad_5Squad_34in_distance(struct __pyx_obj_5squad_Sq
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 278, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 279, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.in_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -13206,7 +13241,7 @@ static PyObject *__pyx_pf_5squad_5Squad_34in_distance(struct __pyx_obj_5squad_Sq
   return __pyx_r;
 }
 
-/* "squad.pyx":292
+/* "squad.pyx":293
  *             return True
  * 
  *     cpdef bint is_overlap(self) :             # <<<<<<<<<<<<<<
@@ -13245,7 +13280,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[53]))
   __Pyx_RefNannySetupContext("is_overlap", 0);
-  __Pyx_TraceStartFunc("is_overlap", __pyx_f[0], 292, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 292, __pyx_L1_error));
+  __Pyx_TraceStartFunc("is_overlap", __pyx_f[0], 293, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 293, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -13262,7 +13297,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_is_overlap); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 292, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_is_overlap); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_37is_overlap)) {
         __pyx_t_3 = NULL;
@@ -13285,13 +13320,13 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 292, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 293, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
-        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 292, __pyx_L1_error));
+        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 293, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -13308,23 +13343,23 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
     #endif
   }
 
-  /* "squad.pyx":304
+  /* "squad.pyx":305
  *             Ship ship
  *             float dx, dy
  *             float q2q_touch = SQUAD_BASE_RADIUS * 2             # <<<<<<<<<<<<<<
  *             float q2q_touch_square = q2q_touch ** 2
  * 
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_SQUAD_BASE_RADIUS); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_SQUAD_BASE_RADIUS); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 305, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_MultiplyObjC(__pyx_t_1, __pyx_mstate_global->__pyx_int_2, 2, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_MultiplyObjC(__pyx_t_1, __pyx_mstate_global->__pyx_int_2, 2, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 305, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 305, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_q2q_touch = __pyx_t_7;
 
-  /* "squad.pyx":305
+  /* "squad.pyx":306
  *             float dx, dy
  *             float q2q_touch = SQUAD_BASE_RADIUS * 2
  *             float q2q_touch_square = q2q_touch ** 2             # <<<<<<<<<<<<<<
@@ -13333,7 +13368,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
   __pyx_v_q2q_touch_square = powf(__pyx_v_q2q_touch, 2.0);
 
-  /* "squad.pyx":307
+  /* "squad.pyx":308
  *             float q2q_touch_square = q2q_touch ** 2
  * 
  *         for squad in self.game.squads:             # <<<<<<<<<<<<<<
@@ -13342,7 +13377,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
   if (unlikely(__pyx_v_self->game->squads == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 307, __pyx_L1_error)
+    __PYX_ERR(0, 308, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_v_self->game->squads; __Pyx_INCREF(__pyx_t_2);
   __pyx_t_8 = 0;
@@ -13350,19 +13385,19 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
     {
       Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 307, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 308, __pyx_L1_error)
       #endif
       if (__pyx_t_8 >= __pyx_temp) break;
     }
     __pyx_t_1 = __Pyx_PyList_GetItemRef(__pyx_t_2, __pyx_t_8);
     ++__pyx_t_8;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 307, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 308, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5squad_Squad))))) __PYX_ERR(0, 307, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5squad_Squad))))) __PYX_ERR(0, 308, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_squad, ((struct __pyx_obj_5squad_Squad *)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "squad.pyx":308
+    /* "squad.pyx":309
  * 
  *         for squad in self.game.squads:
  *             if squad.id == self.id or squad.destroyed or squad.overlap_ship_id is not None:             # <<<<<<<<<<<<<<
@@ -13385,7 +13420,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
     __pyx_L6_bool_binop_done:;
     if (__pyx_t_6) {
 
-      /* "squad.pyx":309
+      /* "squad.pyx":310
  *         for squad in self.game.squads:
  *             if squad.id == self.id or squad.destroyed or squad.overlap_ship_id is not None:
  *                 continue             # <<<<<<<<<<<<<<
@@ -13394,7 +13429,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
       goto __pyx_L3_continue;
 
-      /* "squad.pyx":308
+      /* "squad.pyx":309
  * 
  *         for squad in self.game.squads:
  *             if squad.id == self.id or squad.destroyed or squad.overlap_ship_id is not None:             # <<<<<<<<<<<<<<
@@ -13403,17 +13438,17 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
     }
 
-    /* "squad.pyx":310
+    /* "squad.pyx":311
  *             if squad.id == self.id or squad.destroyed or squad.overlap_ship_id is not None:
  *                 continue
  *             if self.in_distance(squad, q2q_touch, q2q_touch_square):             # <<<<<<<<<<<<<<
  *                 return True
  * 
 */
-    __pyx_t_6 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->in_distance(__pyx_v_self, __pyx_v_squad, __pyx_v_q2q_touch, __pyx_v_q2q_touch_square, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 310, __pyx_L1_error)
+    __pyx_t_6 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->in_distance(__pyx_v_self, __pyx_v_squad, __pyx_v_q2q_touch, __pyx_v_q2q_touch_square, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 311, __pyx_L1_error)
     if (__pyx_t_6) {
 
-      /* "squad.pyx":311
+      /* "squad.pyx":312
  *                 continue
  *             if self.in_distance(squad, q2q_touch, q2q_touch_square):
  *                 return True             # <<<<<<<<<<<<<<
@@ -13421,11 +13456,11 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
  *         for ship in self.game.ships:
 */
       __pyx_r = 1;
-      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 36, 0, __PYX_ERR(0, 311, __pyx_L1_error));
+      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 36, 0, __PYX_ERR(0, 312, __pyx_L1_error));
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       goto __pyx_L0;
 
-      /* "squad.pyx":310
+      /* "squad.pyx":311
  *             if squad.id == self.id or squad.destroyed or squad.overlap_ship_id is not None:
  *                 continue
  *             if self.in_distance(squad, q2q_touch, q2q_touch_square):             # <<<<<<<<<<<<<<
@@ -13434,7 +13469,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
     }
 
-    /* "squad.pyx":307
+    /* "squad.pyx":308
  *             float q2q_touch_square = q2q_touch ** 2
  * 
  *         for squad in self.game.squads:             # <<<<<<<<<<<<<<
@@ -13445,7 +13480,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "squad.pyx":313
+  /* "squad.pyx":314
  *                 return True
  * 
  *         for ship in self.game.ships:             # <<<<<<<<<<<<<<
@@ -13454,7 +13489,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
   if (unlikely(__pyx_v_self->game->ships == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 313, __pyx_L1_error)
+    __PYX_ERR(0, 314, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_v_self->game->ships; __Pyx_INCREF(__pyx_t_2);
   __pyx_t_8 = 0;
@@ -13462,19 +13497,19 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
     {
       Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 313, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 314, __pyx_L1_error)
       #endif
       if (__pyx_t_8 >= __pyx_temp) break;
     }
     __pyx_t_1 = __Pyx_PyList_GetItemRef(__pyx_t_2, __pyx_t_8);
     ++__pyx_t_8;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 313, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 314, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 313, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 314, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_ship, ((struct __pyx_obj_4ship_Ship *)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "squad.pyx":315
+    /* "squad.pyx":316
  *         for ship in self.game.ships:
  *             # ignore destroyed ships and the ship this squad is currently overlapping with
  *             if ship.destroyed or ship.id == self.overlap_ship_id:             # <<<<<<<<<<<<<<
@@ -13486,17 +13521,17 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
       __pyx_t_6 = __pyx_v_ship->destroyed;
       goto __pyx_L14_bool_binop_done;
     }
-    __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 315, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = PyObject_RichCompare(__pyx_t_1, __pyx_v_self->overlap_ship_id, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 315, __pyx_L1_error)
+    __pyx_t_4 = PyObject_RichCompare(__pyx_t_1, __pyx_v_self->overlap_ship_id, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 315, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_6 = __pyx_t_9;
     __pyx_L14_bool_binop_done:;
     if (__pyx_t_6) {
 
-      /* "squad.pyx":316
+      /* "squad.pyx":317
  *             # ignore destroyed ships and the ship this squad is currently overlapping with
  *             if ship.destroyed or ship.id == self.overlap_ship_id:
  *                 continue             # <<<<<<<<<<<<<<
@@ -13505,7 +13540,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
       goto __pyx_L11_continue;
 
-      /* "squad.pyx":315
+      /* "squad.pyx":316
  *         for ship in self.game.ships:
  *             # ignore destroyed ships and the ship this squad is currently overlapping with
  *             if ship.destroyed or ship.id == self.overlap_ship_id:             # <<<<<<<<<<<<<<
@@ -13514,7 +13549,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
     }
 
-    /* "squad.pyx":317
+    /* "squad.pyx":318
  *             if ship.destroyed or ship.id == self.overlap_ship_id:
  *                 continue
  *             if cache.is_overlap_s2q(ship.get_ship_hash_state(), self.get_squad_hash_state()) :             # <<<<<<<<<<<<<<
@@ -13522,14 +13557,14 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
  *         return False
 */
     __pyx_t_1 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_is_overlap_s2q); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_is_overlap_s2q); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __pyx_t_3 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_11 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->get_squad_hash_state(__pyx_v_self, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __pyx_t_11 = ((struct __pyx_vtabstruct_5squad_Squad *)__pyx_v_self->__pyx_vtab)->get_squad_hash_state(__pyx_v_self, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __pyx_t_5 = 1;
     #if CYTHON_UNPACK_METHODS
@@ -13550,14 +13585,14 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 317, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 318, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     }
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 317, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_6) {
 
-      /* "squad.pyx":318
+      /* "squad.pyx":319
  *                 continue
  *             if cache.is_overlap_s2q(ship.get_ship_hash_state(), self.get_squad_hash_state()) :
  *                 return True             # <<<<<<<<<<<<<<
@@ -13565,11 +13600,11 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
  * 
 */
       __pyx_r = 1;
-      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 63, 0, __PYX_ERR(0, 318, __pyx_L1_error));
+      __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 63, 0, __PYX_ERR(0, 319, __pyx_L1_error));
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       goto __pyx_L0;
 
-      /* "squad.pyx":317
+      /* "squad.pyx":318
  *             if ship.destroyed or ship.id == self.overlap_ship_id:
  *                 continue
  *             if cache.is_overlap_s2q(ship.get_ship_hash_state(), self.get_squad_hash_state()) :             # <<<<<<<<<<<<<<
@@ -13578,7 +13613,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
 */
     }
 
-    /* "squad.pyx":313
+    /* "squad.pyx":314
  *                 return True
  * 
  *         for ship in self.game.ships:             # <<<<<<<<<<<<<<
@@ -13589,7 +13624,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "squad.pyx":319
+  /* "squad.pyx":320
  *             if cache.is_overlap_s2q(ship.get_ship_hash_state(), self.get_squad_hash_state()) :
  *                 return True
  *         return False             # <<<<<<<<<<<<<<
@@ -13597,10 +13632,10 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
  *     cpdef void place_squad(self, tuple coords) :
 */
   __pyx_r = 0;
-  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 65, 0, __PYX_ERR(0, 319, __pyx_L1_error));
+  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 65, 0, __PYX_ERR(0, 320, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":292
+  /* "squad.pyx":293
  *             return True
  * 
  *     cpdef bint is_overlap(self) :             # <<<<<<<<<<<<<<
@@ -13620,7 +13655,7 @@ static int __pyx_f_5squad_5Squad_is_overlap(struct __pyx_obj_5squad_Squad *__pyx
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 292, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 293, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.is_overlap", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -13686,10 +13721,10 @@ static PyObject *__pyx_pf_5squad_5Squad_36is_overlap(struct __pyx_obj_5squad_Squ
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[53]))
   __Pyx_RefNannySetupContext("is_overlap", 0);
-  __Pyx_TraceStartFunc("is_overlap (wrapper)", __pyx_f[0], 292, 0, 0, 0, __PYX_ERR(0, 292, __pyx_L1_error));
+  __Pyx_TraceStartFunc("is_overlap (wrapper)", __pyx_f[0], 293, 0, 0, 0, __PYX_ERR(0, 293, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_is_overlap(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 292, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_is_overlap(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -13702,7 +13737,7 @@ static PyObject *__pyx_pf_5squad_5Squad_36is_overlap(struct __pyx_obj_5squad_Squ
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 292, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 293, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.is_overlap", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -13713,7 +13748,7 @@ static PyObject *__pyx_pf_5squad_5Squad_36is_overlap(struct __pyx_obj_5squad_Squ
   return __pyx_r;
 }
 
-/* "squad.pyx":321
+/* "squad.pyx":322
  *         return False
  * 
  *     cpdef void place_squad(self, tuple coords) :             # <<<<<<<<<<<<<<
@@ -13741,7 +13776,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[54]))
   __Pyx_RefNannySetupContext("place_squad", 0);
-  __Pyx_TraceStartFunc("place_squad", __pyx_f[0], 321, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 321, __pyx_L1_error));
+  __Pyx_TraceStartFunc("place_squad", __pyx_f[0], 322, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 322, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -13758,7 +13793,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_place_squad); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 321, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_place_squad); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 322, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_39place_squad)) {
         __pyx_t_3 = NULL;
@@ -13781,7 +13816,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 322, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -13801,7 +13836,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
     #endif
   }
 
-  /* "squad.pyx":327
+  /* "squad.pyx":328
  *             coords: the coordinates to place the squad at
  *         """
  *         self.coords = coords             # <<<<<<<<<<<<<<
@@ -13814,7 +13849,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
   __Pyx_DECREF(__pyx_v_self->coords);
   __pyx_v_self->coords = __pyx_v_coords;
 
-  /* "squad.pyx":328
+  /* "squad.pyx":329
  *         """
  *         self.coords = coords
  *         self.overlap_ship_id = None             # <<<<<<<<<<<<<<
@@ -13827,7 +13862,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
   __Pyx_DECREF(__pyx_v_self->overlap_ship_id);
   __pyx_v_self->overlap_ship_id = Py_None;
 
-  /* "squad.pyx":321
+  /* "squad.pyx":322
  *         return False
  * 
  *     cpdef void place_squad(self, tuple coords) :             # <<<<<<<<<<<<<<
@@ -13836,7 +13871,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
 */
 
   /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 321, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 322, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
@@ -13847,7 +13882,7 @@ static void __pyx_f_5squad_5Squad_place_squad(struct __pyx_obj_5squad_Squad *__p
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 321, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 322, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.place_squad", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
@@ -13895,32 +13930,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_coords,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 321, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 322, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 321, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 322, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "place_squad", 0) < 0) __PYX_ERR(0, 321, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "place_squad", 0) < 0) __PYX_ERR(0, 322, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("place_squad", 1, 1, 1, i); __PYX_ERR(0, 321, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("place_squad", 1, 1, 1, i); __PYX_ERR(0, 322, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 321, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 322, __pyx_L3_error)
     }
     __pyx_v_coords = ((PyObject*)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("place_squad", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 321, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("place_squad", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 322, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -13931,7 +13966,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_coords), (&PyTuple_Type), 1, "coords", 1))) __PYX_ERR(0, 321, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_coords), (&PyTuple_Type), 1, "coords", 1))) __PYX_ERR(0, 322, __pyx_L1_error)
   __pyx_r = __pyx_pf_5squad_5Squad_38place_squad(((struct __pyx_obj_5squad_Squad *)__pyx_v_self), __pyx_v_coords);
 
   /* function exit code */
@@ -13961,10 +13996,10 @@ static PyObject *__pyx_pf_5squad_5Squad_38place_squad(struct __pyx_obj_5squad_Sq
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[54]))
   __Pyx_RefNannySetupContext("place_squad", 0);
-  __Pyx_TraceStartFunc("place_squad (wrapper)", __pyx_f[0], 321, 0, 0, 0, __PYX_ERR(0, 321, __pyx_L1_error));
+  __Pyx_TraceStartFunc("place_squad (wrapper)", __pyx_f[0], 322, 0, 0, 0, __PYX_ERR(0, 322, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_5squad_5Squad_place_squad(__pyx_v_self, __pyx_v_coords, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 321, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __pyx_f_5squad_5Squad_place_squad(__pyx_v_self, __pyx_v_coords, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13977,7 +14012,7 @@ static PyObject *__pyx_pf_5squad_5Squad_38place_squad(struct __pyx_obj_5squad_Sq
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 321, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 322, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.place_squad", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -13988,7 +14023,7 @@ static PyObject *__pyx_pf_5squad_5Squad_38place_squad(struct __pyx_obj_5squad_Sq
   return __pyx_r;
 }
 
-/* "squad.pyx":330
+/* "squad.pyx":331
  *         self.overlap_ship_id = None
  * 
  *     cpdef bint out_of_board(self) :             # <<<<<<<<<<<<<<
@@ -14023,7 +14058,7 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[55]))
   __Pyx_RefNannySetupContext("out_of_board", 0);
-  __Pyx_TraceStartFunc("out_of_board", __pyx_f[0], 330, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 330, __pyx_L1_error));
+  __Pyx_TraceStartFunc("out_of_board", __pyx_f[0], 331, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 331, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -14040,7 +14075,7 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_out_of_board); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 330, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_out_of_board); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 331, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_41out_of_board)) {
         __pyx_t_3 = NULL;
@@ -14063,13 +14098,13 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 330, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 331, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 330, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 331, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
-        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 330, __pyx_L1_error));
+        __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 0, 0, __PYX_ERR(0, 331, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -14086,7 +14121,7 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
     #endif
   }
 
-  /* "squad.pyx":335
+  /* "squad.pyx":336
  *         """
  *         cdef:
  *             float x = self.coords[0]             # <<<<<<<<<<<<<<
@@ -14095,15 +14130,15 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
 */
   if (unlikely(__pyx_v_self->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 335, __pyx_L1_error)
+    __PYX_ERR(0, 336, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_x = __pyx_t_7;
 
-  /* "squad.pyx":336
+  /* "squad.pyx":337
  *         cdef:
  *             float x = self.coords[0]
  *             float y = self.coords[1]             # <<<<<<<<<<<<<<
@@ -14112,28 +14147,28 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
 */
   if (unlikely(__pyx_v_self->coords == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 336, __pyx_L1_error)
+    __PYX_ERR(0, 337, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_self->coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_y = __pyx_t_7;
 
-  /* "squad.pyx":337
+  /* "squad.pyx":338
  *             float x = self.coords[0]
  *             float y = self.coords[1]
  *             float radius = SQUAD_BASE_RADIUS             # <<<<<<<<<<<<<<
  *         return x < radius or x > self.game.player_edge - radius or y < radius or y > self.game.short_edge - radius
  * 
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_SQUAD_BASE_RADIUS); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 337, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_SQUAD_BASE_RADIUS); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 337, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_radius = __pyx_t_7;
 
-  /* "squad.pyx":338
+  /* "squad.pyx":339
  *             float y = self.coords[1]
  *             float radius = SQUAD_BASE_RADIUS
  *         return x < radius or x > self.game.player_edge - radius or y < radius or y > self.game.short_edge - radius             # <<<<<<<<<<<<<<
@@ -14162,10 +14197,10 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
   __pyx_t_6 = __pyx_t_8;
   __pyx_L3_bool_binop_done:;
   __pyx_r = __pyx_t_6;
-  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 13, 0, __PYX_ERR(0, 338, __pyx_L1_error));
+  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 13, 0, __PYX_ERR(0, 339, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":330
+  /* "squad.pyx":331
  *         self.overlap_ship_id = None
  * 
  *     cpdef bint out_of_board(self) :             # <<<<<<<<<<<<<<
@@ -14183,7 +14218,7 @@ static int __pyx_f_5squad_5Squad_out_of_board(struct __pyx_obj_5squad_Squad *__p
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 330, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 331, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.out_of_board", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -14247,10 +14282,10 @@ static PyObject *__pyx_pf_5squad_5Squad_40out_of_board(struct __pyx_obj_5squad_S
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[55]))
   __Pyx_RefNannySetupContext("out_of_board", 0);
-  __Pyx_TraceStartFunc("out_of_board (wrapper)", __pyx_f[0], 330, 0, 0, 0, __PYX_ERR(0, 330, __pyx_L1_error));
+  __Pyx_TraceStartFunc("out_of_board (wrapper)", __pyx_f[0], 331, 0, 0, 0, __PYX_ERR(0, 331, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_out_of_board(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 330, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 330, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_out_of_board(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 331, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 331, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -14263,7 +14298,7 @@ static PyObject *__pyx_pf_5squad_5Squad_40out_of_board(struct __pyx_obj_5squad_S
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 330, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 331, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.out_of_board", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -14274,7 +14309,7 @@ static PyObject *__pyx_pf_5squad_5Squad_40out_of_board(struct __pyx_obj_5squad_S
   return __pyx_r;
 }
 
-/* "squad.pyx":340
+/* "squad.pyx":341
  *         return x < radius or x > self.game.player_edge - radius or y < radius or y > self.game.short_edge - radius
  * 
  *     cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :             # <<<<<<<<<<<<<<
@@ -14305,7 +14340,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[56]))
   __Pyx_RefNannySetupContext("gather_dice", 0);
-  __Pyx_TraceStartFunc("gather_dice", __pyx_f[0], 340, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 340, __pyx_L1_error));
+  __Pyx_TraceStartFunc("gather_dice", __pyx_f[0], 341, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 341, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -14322,16 +14357,16 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_gather_dice); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_gather_dice); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 341, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_5squad_5Squad_43gather_dice)) {
         __Pyx_XDECREF(__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_is_ship); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 340, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_is_ship); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 341, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_is_counter); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 340, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_is_counter); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 341, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __pyx_t_7 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -14352,13 +14387,13 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 340, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(PyTuple_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_2))) __PYX_ERR(0, 340, __pyx_L1_error)
+        if (!(likely(PyTuple_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_2))) __PYX_ERR(0, 341, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
-        __Pyx_TraceReturnValue(__pyx_r, 0, 0, __PYX_ERR(0, 340, __pyx_L1_error));
+        __Pyx_TraceReturnValue(__pyx_r, 0, 0, __PYX_ERR(0, 341, __pyx_L1_error));
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L0;
       }
@@ -14375,7 +14410,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
     #endif
   }
 
-  /* "squad.pyx":341
+  /* "squad.pyx":342
  * 
  *     cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :
  *         if is_ship :             # <<<<<<<<<<<<<<
@@ -14384,7 +14419,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
 */
   if (__pyx_v_is_ship) {
 
-    /* "squad.pyx":342
+    /* "squad.pyx":343
  *     cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :
  *         if is_ship :
  *             return self.battery             # <<<<<<<<<<<<<<
@@ -14394,10 +14429,10 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_self->battery);
     __pyx_r = __pyx_v_self->battery;
-    __Pyx_TraceReturnValue(__pyx_r, 3, 0, __PYX_ERR(0, 342, __pyx_L1_error));
+    __Pyx_TraceReturnValue(__pyx_r, 3, 0, __PYX_ERR(0, 343, __pyx_L1_error));
     goto __pyx_L0;
 
-    /* "squad.pyx":341
+    /* "squad.pyx":342
  * 
  *     cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :
  *         if is_ship :             # <<<<<<<<<<<<<<
@@ -14406,7 +14441,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
 */
   }
 
-  /* "squad.pyx":343
+  /* "squad.pyx":344
  *         if is_ship :
  *             return self.battery
  *         if is_counter:             # <<<<<<<<<<<<<<
@@ -14415,7 +14450,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
 */
   if (__pyx_v_is_counter) {
 
-    /* "squad.pyx":344
+    /* "squad.pyx":345
  *             return self.battery
  *         if is_counter:
  *             return (0,self.counter, 0)             # <<<<<<<<<<<<<<
@@ -14423,25 +14458,25 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
  * 
 */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->counter); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 344, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->counter); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 344, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 345, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_mstate_global->__pyx_int_0);
     __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_0);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_mstate_global->__pyx_int_0) != (0)) __PYX_ERR(0, 344, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_mstate_global->__pyx_int_0) != (0)) __PYX_ERR(0, 345, __pyx_L1_error);
     __Pyx_GIVEREF(__pyx_t_1);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_1) != (0)) __PYX_ERR(0, 344, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_1) != (0)) __PYX_ERR(0, 345, __pyx_L1_error);
     __Pyx_INCREF(__pyx_mstate_global->__pyx_int_0);
     __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_0);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_mstate_global->__pyx_int_0) != (0)) __PYX_ERR(0, 344, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_mstate_global->__pyx_int_0) != (0)) __PYX_ERR(0, 345, __pyx_L1_error);
     __pyx_t_1 = 0;
     __pyx_r = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
-    __Pyx_TraceReturnValue(__pyx_r, 8, 0, __PYX_ERR(0, 344, __pyx_L1_error));
+    __Pyx_TraceReturnValue(__pyx_r, 8, 0, __PYX_ERR(0, 345, __pyx_L1_error));
     goto __pyx_L0;
 
-    /* "squad.pyx":343
+    /* "squad.pyx":344
  *         if is_ship :
  *             return self.battery
  *         if is_counter:             # <<<<<<<<<<<<<<
@@ -14450,7 +14485,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
 */
   }
 
-  /* "squad.pyx":345
+  /* "squad.pyx":346
  *         if is_counter:
  *             return (0,self.counter, 0)
  *         return self.anti_squad             # <<<<<<<<<<<<<<
@@ -14460,10 +14495,10 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_self->anti_squad);
   __pyx_r = __pyx_v_self->anti_squad;
-  __Pyx_TraceReturnValue(__pyx_r, 13, 0, __PYX_ERR(0, 345, __pyx_L1_error));
+  __Pyx_TraceReturnValue(__pyx_r, 13, 0, __PYX_ERR(0, 346, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":340
+  /* "squad.pyx":341
  *         return x < radius or x > self.game.player_edge - radius or y < radius or y > self.game.short_edge - radius
  * 
  *     cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :             # <<<<<<<<<<<<<<
@@ -14483,7 +14518,7 @@ static PyObject *__pyx_f_5squad_5Squad_gather_dice(struct __pyx_obj_5squad_Squad
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 340, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 341, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.gather_dice", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -14534,39 +14569,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_is_ship,&__pyx_mstate_global->__pyx_n_u_is_counter,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 340, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 341, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 340, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 341, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 340, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 341, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "gather_dice", 0) < 0) __PYX_ERR(0, 340, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "gather_dice", 0) < 0) __PYX_ERR(0, 341, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("gather_dice", 1, 2, 2, i); __PYX_ERR(0, 340, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("gather_dice", 1, 2, 2, i); __PYX_ERR(0, 341, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 340, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 341, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 340, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 341, __pyx_L3_error)
     }
-    __pyx_v_is_ship = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_is_ship == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
-    __pyx_v_is_counter = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_is_counter == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
+    __pyx_v_is_ship = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_is_ship == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 341, __pyx_L3_error)
+    __pyx_v_is_counter = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_is_counter == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 341, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("gather_dice", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 340, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("gather_dice", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 341, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -14597,9 +14632,9 @@ static PyObject *__pyx_pf_5squad_5Squad_42gather_dice(struct __pyx_obj_5squad_Sq
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[56]))
   __Pyx_RefNannySetupContext("gather_dice", 0);
-  __Pyx_TraceStartFunc("gather_dice (wrapper)", __pyx_f[0], 340, 0, 0, 0, __PYX_ERR(0, 340, __pyx_L1_error));
+  __Pyx_TraceStartFunc("gather_dice (wrapper)", __pyx_f[0], 341, 0, 0, 0, __PYX_ERR(0, 341, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5squad_5Squad_gather_dice(__pyx_v_self, __pyx_v_is_ship, __pyx_v_is_counter, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5squad_5Squad_gather_dice(__pyx_v_self, __pyx_v_is_ship, __pyx_v_is_counter, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -14612,7 +14647,7 @@ static PyObject *__pyx_pf_5squad_5Squad_42gather_dice(struct __pyx_obj_5squad_Sq
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 340, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 341, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.gather_dice", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -14623,7 +14658,7 @@ static PyObject *__pyx_pf_5squad_5Squad_42gather_dice(struct __pyx_obj_5squad_Sq
   return __pyx_r;
 }
 
-/* "squad.pyx":347
+/* "squad.pyx":348
  *         return self.anti_squad
  * 
  *     cdef object get_snapshot(self) :             # <<<<<<<<<<<<<<
@@ -14657,9 +14692,9 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[57]))
   __Pyx_RefNannySetupContext("get_snapshot", 0);
-  __Pyx_TraceStartFunc("get_snapshot", __pyx_f[0], 347, 0, 0, 0, __PYX_ERR(0, 347, __pyx_L1_error));
+  __Pyx_TraceStartFunc("get_snapshot", __pyx_f[0], 348, 0, 0, 0, __PYX_ERR(0, 348, __pyx_L1_error));
 
-  /* "squad.pyx":351
+  /* "squad.pyx":352
  *         get a snapshot of the squad for saving and loading purpose
  *         """
  *         return (             # <<<<<<<<<<<<<<
@@ -14668,57 +14703,57 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
 */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "squad.pyx":352
+  /* "squad.pyx":353
  *         """
  *         return (
  *             self.hull,             # <<<<<<<<<<<<<<
  *             self.coords,
  *             self.destroyed,
 */
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->hull); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->hull); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "squad.pyx":354
+  /* "squad.pyx":355
  *             self.hull,
  *             self.coords,
  *             self.destroyed,             # <<<<<<<<<<<<<<
  *             self.activated,
  *             self.can_move,
 */
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->destroyed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->destroyed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "squad.pyx":355
+  /* "squad.pyx":356
  *             self.coords,
  *             self.destroyed,
  *             self.activated,             # <<<<<<<<<<<<<<
  *             self.can_move,
  *             self.can_attack,
 */
-  __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_v_self->activated); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_v_self->activated); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 356, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "squad.pyx":356
+  /* "squad.pyx":357
  *             self.destroyed,
  *             self.activated,
  *             self.can_move,             # <<<<<<<<<<<<<<
  *             self.can_attack,
  *             self.overlap_ship_id,
 */
-  __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_self->can_move); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 356, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_self->can_move); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "squad.pyx":357
+  /* "squad.pyx":358
  *             self.activated,
  *             self.can_move,
  *             self.can_attack,             # <<<<<<<<<<<<<<
  *             self.overlap_ship_id,
  *             {<int>key: <DefenseToken>dt.get_snapshot()
 */
-  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_self->can_attack); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 357, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_self->can_attack); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "squad.pyx":358
+  /* "squad.pyx":359
  *             self.can_move,
  *             self.can_attack,
  *             self.overlap_ship_id,             # <<<<<<<<<<<<<<
@@ -14727,17 +14762,17 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
 */
   { /* enter inner scope */
 
-    /* "squad.pyx":359
+    /* "squad.pyx":360
  *             self.can_attack,
  *             self.overlap_ship_id,
  *             {<int>key: <DefenseToken>dt.get_snapshot()             # <<<<<<<<<<<<<<
  *              for key, dt in self.defense_tokens.items()}
  *         )
 */
-    __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 359, __pyx_L5_error)
+    __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 360, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_6);
 
-    /* "squad.pyx":360
+    /* "squad.pyx":361
  *             self.overlap_ship_id,
  *             {<int>key: <DefenseToken>dt.get_snapshot()
  *              for key, dt in self.defense_tokens.items()}             # <<<<<<<<<<<<<<
@@ -14747,9 +14782,9 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
     __pyx_t_8 = 0;
     if (unlikely(__pyx_v_self->defense_tokens == Py_None)) {
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "items");
-      __PYX_ERR(0, 360, __pyx_L5_error)
+      __PYX_ERR(0, 361, __pyx_L5_error)
     }
-    __pyx_t_11 = __Pyx_dict_iterator(__pyx_v_self->defense_tokens, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_9), (&__pyx_t_10)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 360, __pyx_L5_error)
+    __pyx_t_11 = __Pyx_dict_iterator(__pyx_v_self->defense_tokens, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_9), (&__pyx_t_10)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 361, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_XDECREF(__pyx_t_7);
     __pyx_t_7 = __pyx_t_11;
@@ -14757,7 +14792,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
     while (1) {
       __pyx_t_13 = __Pyx_dict_iter_next(__pyx_t_7, __pyx_t_9, &__pyx_t_8, &__pyx_t_11, &__pyx_t_12, NULL, __pyx_t_10);
       if (unlikely(__pyx_t_13 == 0)) break;
-      if (unlikely(__pyx_t_13 == -1)) __PYX_ERR(0, 360, __pyx_L5_error)
+      if (unlikely(__pyx_t_13 == -1)) __PYX_ERR(0, 361, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_key, __pyx_t_11);
@@ -14765,15 +14800,15 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
       __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_dt, __pyx_t_12);
       __pyx_t_12 = 0;
 
-      /* "squad.pyx":359
+      /* "squad.pyx":360
  *             self.can_attack,
  *             self.overlap_ship_id,
  *             {<int>key: <DefenseToken>dt.get_snapshot()             # <<<<<<<<<<<<<<
  *              for key, dt in self.defense_tokens.items()}
  *         )
 */
-      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_7genexpr__pyx_v_key); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 359, __pyx_L5_error)
-      __pyx_t_12 = __Pyx_PyLong_From_int(((int)__pyx_t_13)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 359, __pyx_L5_error)
+      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_7genexpr__pyx_v_key); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 360, __pyx_L5_error)
+      __pyx_t_12 = __Pyx_PyLong_From_int(((int)__pyx_t_13)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 360, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_12);
       __pyx_t_14 = __pyx_7genexpr__pyx_v_dt;
       __Pyx_INCREF(__pyx_t_14);
@@ -14782,10 +14817,10 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
         PyObject *__pyx_callargs[2] = {__pyx_t_14, NULL};
         __pyx_t_11 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_get_snapshot, __pyx_callargs+__pyx_t_15, (1-__pyx_t_15) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 359, __pyx_L5_error)
+        if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 360, __pyx_L5_error)
         __Pyx_GOTREF(__pyx_t_11);
       }
-      if (unlikely(PyDict_SetItem(__pyx_t_6, (PyObject*)__pyx_t_12, (PyObject*)((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_11)))) __PYX_ERR(0, 359, __pyx_L5_error)
+      if (unlikely(PyDict_SetItem(__pyx_t_6, (PyObject*)__pyx_t_12, (PyObject*)((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_11)))) __PYX_ERR(0, 360, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     }
@@ -14800,33 +14835,33 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
     __pyx_L8_exit_scope:;
   } /* exit inner scope */
 
-  /* "squad.pyx":352
+  /* "squad.pyx":353
  *         """
  *         return (
  *             self.hull,             # <<<<<<<<<<<<<<
  *             self.coords,
  *             self.destroyed,
 */
-  __pyx_t_7 = PyTuple_New(8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 353, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->coords);
   __Pyx_GIVEREF(__pyx_v_self->coords);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_v_self->coords) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_v_self->coords) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_t_2) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_t_2) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_3);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 3, __pyx_t_3) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 3, __pyx_t_3) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 4, __pyx_t_4) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 4, __pyx_t_4) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_5);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 5, __pyx_t_5) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 5, __pyx_t_5) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->overlap_ship_id);
   __Pyx_GIVEREF(__pyx_v_self->overlap_ship_id);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 6, __pyx_v_self->overlap_ship_id) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 6, __pyx_v_self->overlap_ship_id) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_6);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 7, __pyx_t_6) != (0)) __PYX_ERR(0, 352, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 7, __pyx_t_6) != (0)) __PYX_ERR(0, 353, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
@@ -14835,10 +14870,10 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
   __pyx_t_6 = 0;
   __pyx_r = __pyx_t_7;
   __pyx_t_7 = 0;
-  __Pyx_TraceReturnValue(__pyx_r, 1, 0, __PYX_ERR(0, 351, __pyx_L1_error));
+  __Pyx_TraceReturnValue(__pyx_r, 1, 0, __PYX_ERR(0, 352, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "squad.pyx":347
+  /* "squad.pyx":348
  *         return self.anti_squad
  * 
  *     cdef object get_snapshot(self) :             # <<<<<<<<<<<<<<
@@ -14862,7 +14897,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 347, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 348, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.get_snapshot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
@@ -14875,7 +14910,7 @@ static PyObject *__pyx_f_5squad_5Squad_get_snapshot(struct __pyx_obj_5squad_Squa
   return __pyx_r;
 }
 
-/* "squad.pyx":363
+/* "squad.pyx":364
  *         )
  * 
  *     cdef void revert_snapshot(self, object snapshot):             # <<<<<<<<<<<<<<
@@ -14912,9 +14947,9 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[58]))
   __Pyx_RefNannySetupContext("revert_snapshot", 0);
-  __Pyx_TraceStartFunc("revert_snapshot", __pyx_f[0], 363, 0, 0, 0, __PYX_ERR(0, 363, __pyx_L1_error));
+  __Pyx_TraceStartFunc("revert_snapshot", __pyx_f[0], 364, 0, 0, 0, __PYX_ERR(0, 364, __pyx_L1_error));
 
-  /* "squad.pyx":376
+  /* "squad.pyx":377
  *             self.overlap_ship_id,
  *             defense_tokens_state
  *         ) = snapshot             # <<<<<<<<<<<<<<
@@ -14927,7 +14962,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
     if (unlikely(size != 8)) {
       if (size > 8) __Pyx_RaiseTooManyValuesError(8);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 368, __pyx_L1_error)
+      __PYX_ERR(0, 369, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -14949,28 +14984,28 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
       __Pyx_INCREF(__pyx_t_8);
     } else {
       __pyx_t_1 = __Pyx_PyList_GetItemRef(sequence, 0);
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_1);
       __pyx_t_2 = __Pyx_PyList_GetItemRef(sequence, 1);
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_2);
       __pyx_t_3 = __Pyx_PyList_GetItemRef(sequence, 2);
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_3);
       __pyx_t_4 = __Pyx_PyList_GetItemRef(sequence, 3);
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_4);
       __pyx_t_5 = __Pyx_PyList_GetItemRef(sequence, 4);
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_5);
       __pyx_t_6 = __Pyx_PyList_GetItemRef(sequence, 5);
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_6);
       __pyx_t_7 = __Pyx_PyList_GetItemRef(sequence, 6);
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_7);
       __pyx_t_8 = __Pyx_PyList_GetItemRef(sequence, 7);
-      if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 368, __pyx_L1_error)
+      if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 369, __pyx_L1_error)
       __Pyx_XGOTREF(__pyx_t_8);
     }
     #else
@@ -14978,7 +15013,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
       Py_ssize_t i;
       PyObject** temps[8] = {&__pyx_t_1,&__pyx_t_2,&__pyx_t_3,&__pyx_t_4,&__pyx_t_5,&__pyx_t_6,&__pyx_t_7,&__pyx_t_8};
       for (i=0; i < 8; i++) {
-        PyObject* item = __Pyx_PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 368, __pyx_L1_error)
+        PyObject* item = __Pyx_PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 369, __pyx_L1_error)
         __Pyx_GOTREF(item);
         *(temps[i]) = item;
       }
@@ -14987,7 +15022,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   } else {
     Py_ssize_t index = -1;
     PyObject** temps[8] = {&__pyx_t_1,&__pyx_t_2,&__pyx_t_3,&__pyx_t_4,&__pyx_t_5,&__pyx_t_6,&__pyx_t_7,&__pyx_t_8};
-    __pyx_t_9 = PyObject_GetIter(__pyx_v_snapshot); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 368, __pyx_L1_error)
+    __pyx_t_9 = PyObject_GetIter(__pyx_v_snapshot); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 369, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __pyx_t_10 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_9);
     for (index=0; index < 8; index++) {
@@ -14995,7 +15030,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
       __Pyx_GOTREF(item);
       *(temps[index]) = item;
     }
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_9), 8) < 0) __PYX_ERR(0, 368, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_9), 8) < 0) __PYX_ERR(0, 369, __pyx_L1_error)
     __pyx_t_10 = NULL;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     goto __pyx_L4_unpacking_done;
@@ -15003,31 +15038,31 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __pyx_t_10 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 368, __pyx_L1_error)
+    __PYX_ERR(0, 369, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
 
-  /* "squad.pyx":368
+  /* "squad.pyx":369
  *         """
  *         (
  *             self.hull,             # <<<<<<<<<<<<<<
  *             self.coords,
  *             self.destroyed,
 */
-  __pyx_t_11 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(PyTuple_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_2))) __PYX_ERR(0, 368, __pyx_L1_error)
-  __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
+  if (!(likely(PyTuple_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_2))) __PYX_ERR(0, 369, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_15 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_15 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_v_self->hull = __pyx_t_11;
 
-  /* "squad.pyx":369
+  /* "squad.pyx":370
  *         (
  *             self.hull,
  *             self.coords,             # <<<<<<<<<<<<<<
@@ -15040,7 +15075,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   __pyx_v_self->coords = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "squad.pyx":370
+  /* "squad.pyx":371
  *             self.hull,
  *             self.coords,
  *             self.destroyed,             # <<<<<<<<<<<<<<
@@ -15049,7 +15084,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
 */
   __pyx_v_self->destroyed = __pyx_t_12;
 
-  /* "squad.pyx":371
+  /* "squad.pyx":372
  *             self.coords,
  *             self.destroyed,
  *             self.activated,             # <<<<<<<<<<<<<<
@@ -15058,7 +15093,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
 */
   __pyx_v_self->activated = __pyx_t_13;
 
-  /* "squad.pyx":372
+  /* "squad.pyx":373
  *             self.destroyed,
  *             self.activated,
  *             self.can_move,             # <<<<<<<<<<<<<<
@@ -15067,7 +15102,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
 */
   __pyx_v_self->can_move = __pyx_t_14;
 
-  /* "squad.pyx":373
+  /* "squad.pyx":374
  *             self.activated,
  *             self.can_move,
  *             self.can_attack,             # <<<<<<<<<<<<<<
@@ -15076,7 +15111,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
 */
   __pyx_v_self->can_attack = __pyx_t_15;
 
-  /* "squad.pyx":374
+  /* "squad.pyx":375
  *             self.can_move,
  *             self.can_attack,
  *             self.overlap_ship_id,             # <<<<<<<<<<<<<<
@@ -15091,7 +15126,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   __pyx_v_defense_tokens_state = __pyx_t_8;
   __pyx_t_8 = 0;
 
-  /* "squad.pyx":378
+  /* "squad.pyx":379
  *         ) = snapshot
  * 
  *         for key, token_state in defense_tokens_state.items():             # <<<<<<<<<<<<<<
@@ -15100,9 +15135,9 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   __pyx_t_16 = 0;
   if (unlikely(__pyx_v_defense_tokens_state == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "items");
-    __PYX_ERR(0, 378, __pyx_L1_error)
+    __PYX_ERR(0, 379, __pyx_L1_error)
   }
-  __pyx_t_7 = __Pyx_dict_iterator(__pyx_v_defense_tokens_state, 0, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_17), (&__pyx_t_11)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 378, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_dict_iterator(__pyx_v_defense_tokens_state, 0, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_17), (&__pyx_t_11)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
   __pyx_t_8 = __pyx_t_7;
@@ -15110,7 +15145,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   while (1) {
     __pyx_t_18 = __Pyx_dict_iter_next(__pyx_t_8, __pyx_t_17, &__pyx_t_16, &__pyx_t_7, &__pyx_t_6, NULL, __pyx_t_11);
     if (unlikely(__pyx_t_18 == 0)) break;
-    if (unlikely(__pyx_t_18 == -1)) __PYX_ERR(0, 378, __pyx_L1_error)
+    if (unlikely(__pyx_t_18 == -1)) __PYX_ERR(0, 379, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_7);
@@ -15118,28 +15153,28 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
     __Pyx_XDECREF_SET(__pyx_v_token_state, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "squad.pyx":379
+    /* "squad.pyx":380
  * 
  *         for key, token_state in defense_tokens_state.items():
  *             (<DefenseToken>self.defense_tokens[<int>key]).revert_snapshot(token_state)             # <<<<<<<<<<<<<<
 */
     if (unlikely(__pyx_v_self->defense_tokens == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 379, __pyx_L1_error)
+      __PYX_ERR(0, 380, __pyx_L1_error)
     }
-    __pyx_t_18 = __Pyx_PyLong_As_int(__pyx_v_key); if (unlikely((__pyx_t_18 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 379, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyLong_From_int(((int)__pyx_t_18)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 379, __pyx_L1_error)
+    __pyx_t_18 = __Pyx_PyLong_As_int(__pyx_v_key); if (unlikely((__pyx_t_18 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 380, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyLong_From_int(((int)__pyx_t_18)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 380, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = __Pyx_PyDict_GetItem(__pyx_v_self->defense_tokens, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 379, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyDict_GetItem(__pyx_v_self->defense_tokens, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 380, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (!(likely(PyTuple_CheckExact(__pyx_v_token_state))||((__pyx_v_token_state) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_v_token_state))) __PYX_ERR(0, 379, __pyx_L1_error)
-    ((struct __pyx_vtabstruct_13defense_token_DefenseToken *)((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_7)->__pyx_vtab)->revert_snapshot(((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_7), ((PyObject*)__pyx_v_token_state)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 379, __pyx_L1_error)
+    if (!(likely(PyTuple_CheckExact(__pyx_v_token_state))||((__pyx_v_token_state) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_v_token_state))) __PYX_ERR(0, 380, __pyx_L1_error)
+    ((struct __pyx_vtabstruct_13defense_token_DefenseToken *)((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_7)->__pyx_vtab)->revert_snapshot(((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_7), ((PyObject*)__pyx_v_token_state)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 380, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "squad.pyx":363
+  /* "squad.pyx":364
  *         )
  * 
  *     cdef void revert_snapshot(self, object snapshot):             # <<<<<<<<<<<<<<
@@ -15148,7 +15183,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
 */
 
   /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 363, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 364, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
@@ -15164,7 +15199,7 @@ static void __pyx_f_5squad_5Squad_revert_snapshot(struct __pyx_obj_5squad_Squad 
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 363, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 364, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("squad.Squad.revert_snapshot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
@@ -20395,7 +20430,7 @@ __Pyx_RefNannySetupContext("PyInit_squad", 0);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
   /*--- Execution code ---*/
-  __Pyx_TraceStartFunc("PyInit_squad", __pyx_f[0], 1, 0, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceStartFunc("PyInit_squad", __pyx_f[0], 1, 1, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
   /* "squad.pyx":4
  * 
@@ -20646,124 +20681,124 @@ __Pyx_RefNannySetupContext("PyInit_squad", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_get_valid_target, __pyx_t_3) < 0) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":198
+  /* "squad.pyx":199
  * 
  * 
  *     cpdef bint is_obstruct_q2q(self, Squad to_squad) :             # <<<<<<<<<<<<<<
  *         """
  *         Checks if the line of sight between two squads is obstructed.
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_25is_obstruct_q2q, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_is_obstruct_q2q, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[47])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_25is_obstruct_q2q, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_is_obstruct_q2q, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[47])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_is_obstruct_q2q, __pyx_t_3) < 0) __PYX_ERR(0, 198, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_is_obstruct_q2q, __pyx_t_3) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":222
+  /* "squad.pyx":223
  *         return False
  * 
  *     cpdef bint is_obstruct_q2s(self, Ship to_ship, int to_hull) :             # <<<<<<<<<<<<<<
  *         """
  *         Checks if the line of sight between a squad and a ship is obstructed.
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_27is_obstruct_q2s, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_is_obstruct_q2s, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[48])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_27is_obstruct_q2s, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_is_obstruct_q2s, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[48])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_is_obstruct_q2s, __pyx_t_3) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_is_obstruct_q2s, __pyx_t_3) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":231
+  /* "squad.pyx":232
  *         return to_ship.is_obstruct_s2q(to_hull, self)
  * 
  *     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit) :             # <<<<<<<<<<<<<<
  *         cdef list critical_list = []
  *         if black_crit or blue_crit or red_crit :
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_29get_critical_effect, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_get_critical_effect, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[49])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 231, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_29get_critical_effect, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_get_critical_effect, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[49])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 232, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_get_critical_effect, __pyx_t_3) < 0) __PYX_ERR(0, 231, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_get_critical_effect, __pyx_t_3) < 0) __PYX_ERR(0, 232, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":237
+  /* "squad.pyx":238
  *         return critical_list
  * 
  *     cpdef void move(self, int speed, float angle) :             # <<<<<<<<<<<<<<
  *         """
  *         move the squad
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_31move, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_move, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[50])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_31move, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_move, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[50])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 238, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_move, __pyx_t_3) < 0) __PYX_ERR(0, 237, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_move, __pyx_t_3) < 0) __PYX_ERR(0, 238, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":248
+  /* "squad.pyx":249
  *         self.can_move = False
  * 
  *     cpdef list get_valid_moves(self) :             # <<<<<<<<<<<<<<
  *         """
  *         get a list of valid moves for the squad
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_33get_valid_moves, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_get_valid_moves, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[51])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_33get_valid_moves, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_get_valid_moves, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[51])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_get_valid_moves, __pyx_t_3) < 0) __PYX_ERR(0, 248, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_get_valid_moves, __pyx_t_3) < 0) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":278
+  /* "squad.pyx":279
  *         return valid_moves
  * 
  *     cpdef bint in_distance(self, Squad other, float distance, float distance_sq) :             # <<<<<<<<<<<<<<
  * 
  *         cdef:
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_35in_distance, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_in_distance, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[52])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 278, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_35in_distance, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_in_distance, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[52])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_in_distance, __pyx_t_3) < 0) __PYX_ERR(0, 278, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_in_distance, __pyx_t_3) < 0) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":292
+  /* "squad.pyx":293
  *             return True
  * 
  *     cpdef bint is_overlap(self) :             # <<<<<<<<<<<<<<
  *         """
  *         Check if the squad is overlapping with any other squad or ship.
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_37is_overlap, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_is_overlap, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[53])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_37is_overlap, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_is_overlap, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[53])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_is_overlap, __pyx_t_3) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_is_overlap, __pyx_t_3) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":321
+  /* "squad.pyx":322
  *         return False
  * 
  *     cpdef void place_squad(self, tuple coords) :             # <<<<<<<<<<<<<<
  *         """
  *         place the squad at the given coordinates
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_39place_squad, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_place_squad, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[54])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_39place_squad, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_place_squad, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[54])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_place_squad, __pyx_t_3) < 0) __PYX_ERR(0, 321, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_place_squad, __pyx_t_3) < 0) __PYX_ERR(0, 322, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":330
+  /* "squad.pyx":331
  *         self.overlap_ship_id = None
  * 
  *     cpdef bint out_of_board(self) :             # <<<<<<<<<<<<<<
  *         """
  *         check if the squad is out of the board
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_41out_of_board, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_out_of_board, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[55])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 330, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_41out_of_board, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_out_of_board, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[55])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 331, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_out_of_board, __pyx_t_3) < 0) __PYX_ERR(0, 330, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_out_of_board, __pyx_t_3) < 0) __PYX_ERR(0, 331, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "squad.pyx":340
+  /* "squad.pyx":341
  *         return x < radius or x > self.game.player_edge - radius or y < radius or y > self.game.short_edge - radius
  * 
  *     cpdef tuple gather_dice(self, bint is_ship, bint is_counter) :             # <<<<<<<<<<<<<<
  *         if is_ship :
  *             return self.battery
 */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_43gather_dice, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_gather_dice, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[56])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_5squad_5Squad_43gather_dice, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Squad_gather_dice, NULL, __pyx_mstate_global->__pyx_n_u_squad, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[56])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_gather_dice, __pyx_t_3) < 0) __PYX_ERR(0, 340, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_5squad_Squad, __pyx_mstate_global->__pyx_n_u_gather_dice, __pyx_t_3) < 0) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":1
@@ -20806,7 +20841,7 @@ __Pyx_RefNannySetupContext("PyInit_squad", 0);
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_3) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 1, 0, __PYX_ERR(0, 1, __pyx_L1_error));
   __Pyx_PyMonitoring_ExitScope(0);
 
   /*--- Wrapped vars code ---*/
@@ -20816,7 +20851,7 @@ __Pyx_RefNannySetupContext("PyInit_squad", 0);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
-  __Pyx_TraceExceptionUnwind(0, 0);
+  __Pyx_TraceExceptionUnwind(1, 0);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init squad", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -21108,8 +21143,8 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry const *t, PyObject **target, c
 
 static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
-  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_sum); if (!__pyx_builtin_sum) __PYX_ERR(0, 192, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_range); if (!__pyx_builtin_range) __PYX_ERR(0, 260, __pyx_L1_error)
+  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_sum); if (!__pyx_builtin_sum) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_range); if (!__pyx_builtin_range) __PYX_ERR(0, 261, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1051, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -21122,14 +21157,14 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "squad.pyx":263
+  /* "squad.pyx":264
  * 
  *             if speed == 0 :
  *                 valid_moves.append((0, 0))             # <<<<<<<<<<<<<<
  *                 continue
  * 
 */
-  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_int_0, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 263, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_int_0, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 264, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
 
@@ -21425,67 +21460,67 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[45] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_is_engage_with, __pyx_k_A_A_7r_t_q_88LDPTTXXhhiij, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[45])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 152, 289};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 152, 317};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[46] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_get_valid_target, __pyx_k_A_gQ_2Q_IT_a_uHCt83e1_t_q_G1E_5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[46])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[46] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_get_valid_target, __pyx_k_A_gQ_2Q_IT_a_uHCt83e1_t_q_3at_2T, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[46])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 198, 102};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 199, 102};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_to_squad};
     __pyx_mstate_global->__pyx_codeobj_tab[47] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_is_obstruct_q2q, __pyx_k_A_4y_HD_Q_t1_u_QoT9MQ_q_L_E_u_PQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[47])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 222, 18};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 223, 18};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_to_ship, __pyx_mstate->__pyx_n_u_to_hull};
     __pyx_mstate_global->__pyx_codeobj_tab[48] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_is_obstruct_q2s, __pyx_k_A_w_ay, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[48])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 231, 36};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 232, 36};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_black_crit, __pyx_mstate->__pyx_n_u_blue_crit, __pyx_mstate->__pyx_n_u_red_crit};
     __pyx_mstate_global->__pyx_codeobj_tab[49] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_get_critical_effect, __pyx_k_A_c_3a_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[49])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 237, 129};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 238, 129};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_speed, __pyx_mstate->__pyx_n_u_angle};
     __pyx_mstate_global->__pyx_codeobj_tab[50] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_move, __pyx_k_A_AU_7_D_Kwd_Rwhawb_1LX__ccjjkkn, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[50])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 248, 136};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 249, 136};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[51] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_get_valid_moves, __pyx_k_A_q_D_IU_4wb_vS_7_Cq_as_s_Q_E_4t, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[51])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 278, 106};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 279, 106};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_other, __pyx_mstate->__pyx_n_u_distance, __pyx_mstate->__pyx_n_u_distance_sq};
     __pyx_mstate_global->__pyx_codeobj_tab[52] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_in_distance, __pyx_k_A_t7_3b_WAQ_t7_3b_WAQ_Cq_Bj_Cq_B, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[52])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 292, 155};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 293, 155};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[53] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_is_overlap, __pyx_k_A_0_Zs_IT_a_uD_4t3e_c_OwVW_t_q_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[53])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 321, 19};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 322, 19};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_coords};
     __pyx_mstate_global->__pyx_codeobj_tab[54] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_place_squad, __pyx_k_A_Ja_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[54])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 330, 87};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 331, 87};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[55] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_out_of_board, __pyx_k_A_d_d_1_r_7_Rr_U_r_2RwcQSSUUYY_j, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[55])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 340, 37};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 341, 37};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_is_ship, __pyx_mstate->__pyx_n_u_is_counter};
     __pyx_mstate_global->__pyx_codeobj_tab[56] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_gather_dice, __pyx_k_A_1_4q_1_Bd_A_t1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[56])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 347, 72};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 348, 72};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_player, __pyx_mstate->__pyx_n_u_max_hull, __pyx_mstate->__pyx_n_u_speed, __pyx_mstate->__pyx_n_u_point, __pyx_mstate->__pyx_n_u_id, __pyx_mstate->__pyx_n_u_hull, __pyx_mstate->__pyx_n_u_name, __pyx_mstate->__pyx_n_u_battery, __pyx_mstate->__pyx_n_u_anti_squad, __pyx_mstate->__pyx_n_u_coords, __pyx_mstate->__pyx_n_u_overlap_ship_id, __pyx_mstate->__pyx_n_u_defense_tokens, __pyx_mstate->__pyx_n_u_destroyed, __pyx_mstate->__pyx_n_u_activated, __pyx_mstate->__pyx_n_u_can_attack, __pyx_mstate->__pyx_n_u_can_move, __pyx_mstate->__pyx_n_u_unique, __pyx_mstate->__pyx_n_u_swarm, __pyx_mstate->__pyx_n_u_escort, __pyx_mstate->__pyx_n_u_bomber, __pyx_mstate->__pyx_n_u_heavy, __pyx_mstate->__pyx_n_u_counter};
     __pyx_mstate_global->__pyx_codeobj_tab[57] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_get_snapshot, __pyx_k_A_U_R_A_fD_vQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[57])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 25, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 363, 79};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 25, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 364, 79};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_snapshot, __pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_player, __pyx_mstate->__pyx_n_u_max_hull, __pyx_mstate->__pyx_n_u_speed, __pyx_mstate->__pyx_n_u_point, __pyx_mstate->__pyx_n_u_id, __pyx_mstate->__pyx_n_u_hull, __pyx_mstate->__pyx_n_u_name, __pyx_mstate->__pyx_n_u_battery, __pyx_mstate->__pyx_n_u_anti_squad, __pyx_mstate->__pyx_n_u_coords, __pyx_mstate->__pyx_n_u_overlap_ship_id, __pyx_mstate->__pyx_n_u_defense_tokens, __pyx_mstate->__pyx_n_u_destroyed, __pyx_mstate->__pyx_n_u_activated, __pyx_mstate->__pyx_n_u_can_attack, __pyx_mstate->__pyx_n_u_can_move, __pyx_mstate->__pyx_n_u_unique, __pyx_mstate->__pyx_n_u_swarm, __pyx_mstate->__pyx_n_u_escort, __pyx_mstate->__pyx_n_u_bomber, __pyx_mstate->__pyx_n_u_heavy, __pyx_mstate->__pyx_n_u_counter};
     __pyx_mstate_global->__pyx_codeobj_tab[58] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_revert_snapshot, __pyx_k_A_E_4F_4_auE9I, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[58])) goto bad;
   }

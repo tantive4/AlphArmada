@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from configs import Config
 from action_manager import ActionManager
 from action_phase import Phase
+from enum_class import *
 
 # --- Helper Modules ---
 
@@ -72,7 +73,7 @@ class ArmadaNet(nn.Module):
         
         # Spatial Encoder (ResNet)
         self.spatial_encoder = nn.Sequential(
-            nn.Conv2d(Config.MAX_SHIPS * 2 + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.Conv2d(obstacle_type + Config.MAX_SHIPS * 2 + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             ResBlock(64, 64),

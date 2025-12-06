@@ -2,8 +2,9 @@ from collections import deque
 import random
 import os
 import time
+from datetime import datetime
 import copy
-from tqdm import trange
+from tqdm import trange, tqdm
 
 import torch
 import torch.optim as optim
@@ -29,8 +30,8 @@ class AlphArmada:
         self.model : ArmadaNet = model
         self.optimizer : optim.AdamW = optimizer
         
-    def para_self_play(self) :
-        memory : dict[int, list[tuple[Phase, dict, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
+    def para_self_play(self, iter_num: int = 0, batch_num: int = 0) -> None:
+        memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
         self_play_data : list[tuple[Phase, dict, np.ndarray, float, dict[str, np.ndarray]]] = []
 
         action_manager = ActionManager()
@@ -42,70 +43,90 @@ class AlphArmada:
         ]
         for para_index, para_game in enumerate(para_games):
             para_game.para_index = para_index
-
-        # for para_index in range(Config.PARALLEL_PLAY):
-        #     with open(f'simulation_log{para_index+1}.txt', 'w') as f: f.write(f"--- Starting Simulation for Game {para_index+1} ---\n")
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
+        
+        if os.path.exists("game_visuals"):import shutil; shutil.rmtree("game_visuals")
+        para_games[0].debuging_visual = True
+
+
         action_counter : int = 0
-        while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
-            simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0}
+        with tqdm(total=Config.PARALLEL_PLAY, desc=f"Self-Play Batch {batch_num + 1}", unit="game") as pbar:
+            while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
+                simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0}
 
-            if simulation_players :
-                # --- Perform MCTS search in parallel for decision nodes ---
-                deep_search = random.random() < Config.DEEP_SEARCH_RATIO
-                para_action_probs : dict[int, np.ndarray] = mcts.para_search(simulation_players, deep_search=deep_search)
-                if deep_search :
-                    for para_index in para_action_probs:
-                        game : Armada = para_games[para_index]
-                        encoded_state_views = encode_game_state(game)
-                        encoded_state_copy = {
-                            key: array.copy() for key, array in encoded_state_views.items()
-                        }
-                        memory[para_index].append((game.phase, encoded_state_copy, para_action_probs[para_index]))
-            
-            # --- Process all games (decision and non-decision) for one step ---
-            for para_index in range(Config.PARALLEL_PLAY) :
-                game : Armada = para_games[para_index]
-                if game.winner != 0.0:
-                    continue
-
-                if game.decision_player :
-                    action = mcts.get_random_best_action(para_index, game.decision_player, game.round)
-
-                # Chance Node
-                elif game.phase == Phase.ATTACK_ROLL_DICE:
-                    if game.attack_info is None:
-                        raise ValueError("No attack info for the current game phase.")
-                    dice_roll = roll_dice(game.attack_info.dice_to_roll)
-                    action = ('roll_dice_action', dice_roll)
-
-                # Information Set Node
-                elif game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL:
-                    if len(game.get_valid_actions()) != 1:
-                        raise ValueError("Multiple valid actions in information set node.")
-                    action = game.get_valid_actions()[0]
-                # with open(f'simulation_log{para_index+1}.txt', 'a') as f: f.write(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}\n")
-                if para_index == 0:
-                    print(f"Game 1 Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
-                game.apply_action(action)
-                mcts.advance_tree(para_index, action, game.get_snapshot())
+                if simulation_players :
+                    # --- Perform MCTS search in parallel for decision nodes ---
+                    deep_search = random.random() < Config.DEEP_SEARCH_RATIO
+                    para_action_probs : dict[int, np.ndarray] = mcts.para_search(simulation_players, deep_search=deep_search)
+                    if deep_search :
+                        for para_index in para_action_probs:
+                            game : Armada = para_games[para_index]
+                            snapshot = game.get_snapshot()
+                            memory[para_index].append((game.phase, snapshot, para_action_probs[para_index]))
                 
-                # --- Check for terminal states ---
-                if game.winner != 0.0:
-                    print(f"Game {para_index+1} ended with winner: {game.winner}")
-                    winner, aux_target = get_terminal_value(game)
-                    for phase, encoded_state, action_probs in memory[para_index]:
-                        self_play_data.append((phase, encoded_state, action_probs, winner, aux_target))
-                    memory[para_index].clear()
-            action_counter += 1
+                # --- Process all games (decision and non-decision) for one step ---
+                for para_index in range(Config.PARALLEL_PLAY) :
+                    game : Armada = para_games[para_index]
+                    if game.winner != 0.0:
+                        continue
+
+                    if game.decision_player :
+                        action = mcts.get_random_best_action(para_index, game.decision_player, game.round)
+
+                    # Chance Node
+                    elif game.phase == Phase.ATTACK_ROLL_DICE:
+                        if game.attack_info is None:
+                            raise ValueError("No attack info for the current game phase.")
+                        dice_roll = roll_dice(game.attack_info.dice_to_roll)
+                        action = ('roll_dice_action', dice_roll)
+
+                    # Information Set Node
+                    elif game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL:
+                        if len(game.get_valid_actions()) != 1:
+                            raise ValueError("Multiple valid actions in information set node.")
+                        action = game.get_valid_actions()[0]
+                    # with open(f'simulation_log{para_index+1}.txt', 'a') as f: f.write(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}\n")
+                    # if para_index == 0: print(f"Game 1 Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
+                    game.apply_action(action)
+                    mcts.advance_tree(para_index, action, game.get_snapshot())
+                    
+                    # --- Check for terminal states ---
+                    if game.winner != 0.0:
+                        pbar.update(1)
+                        pbar.set_postfix(last_round=f"{game.round:.1f}", last_winner=int(game.winner))
+                        winner, aux_target = get_terminal_value(game)
+                        game_data_buffer = []
+
+                        # 'Rewind' the game using snapshots to generate encoded states
+                        for phase, snapshot, action_probs in memory[para_index]:
+                            game.revert_snapshot(snapshot)
+                            
+                            # Now we encode, only when needed
+                            encoded_state_views = encode_game_state(game)
+                            encoded_state_copy = {
+                                key: array.copy() for key, array in encoded_state_views.items()
+                            }
+                            
+                            game_data_buffer.append((phase, encoded_state_copy, action_probs, winner, aux_target))
+                        
+                        # Clear memory for this game immediately
+                        memory[para_index].clear()
+
+                        # Save this specific game's data immediately to disk
+                        if game_data_buffer:
+                            self.save_game_data(game_data_buffer, iter_num, batch_num, para_index)
+                action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
             with open('simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
         
         delete_cache()
-        phases, states, action_probs, winners, aux_targets = zip(*self_play_data)
-
-        # Collate the dictionaries into large numpy arrays
+        return
+    
+    def save_game_data(self, game_data, iter_num, batch_num, para_index):
+        """Helper to collate and save a single game's data to disk."""
+        phases, states, action_probs, winners, aux_targets = zip(*game_data)
+        
         collated_data = {
             'phases': list(phases),
             'scalar': np.stack([s['scalar'] for s in states]),
@@ -119,7 +140,12 @@ class AlphArmada:
             'target_squad_hulls': np.stack([t['squad_hulls'] for t in aux_targets]),
             'target_game_length': np.stack([t['game_length'] for t in aux_targets])
         }
-        return collated_data
+
+        timestamp = int(time.time() * 1000)
+        filename = f"replay_{timestamp}_iter_{iter_num}_batch_{batch_num}_game_{para_index}.pth"
+        path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
+        torch.save(collated_data, path)
+
 
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
         """
@@ -184,7 +210,7 @@ class AlphArmada:
             log_probs = F.log_softmax(group_logits_sliced, dim=1)
             policy_loss += -(group_target_policies * log_probs).sum(dim=1).mean()
 
-        # --- Auxiliary Losses (now much simpler) ---
+        # --- Auxiliary Losses ---
         target_hull : torch.Tensor = training_batch['target_ship_hulls']
         hull_loss = F.mse_loss(model_output["predicted_hull"], target_hull)
 
@@ -223,7 +249,6 @@ class AlphArmada:
             until the replay buffer is full.
             3. Trains the model on this buffer of recent experiences.
             """
-            loss_history = []
             
             # Create directories if they don't exist
             os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
@@ -236,20 +261,11 @@ class AlphArmada:
                 self.model.eval()
                 print("Starting self-play phase...")
                 for self_play_iteration in range(Config.SELF_PLAY_GAMES):
-                    new_data_dict = self.para_self_play() 
+                    self.para_self_play(iter_num=i, batch_num=self_play_iteration)
                     print(f"Self-play batch {self_play_iteration + 1}/{Config.SELF_PLAY_GAMES} completed.")
-                    if new_data_dict: # Only save if data was generated
-                        timestamp = int(time.time() * 1000)
-                        replay_buffer_path = os.path.join(
-                            Config.REPLAY_BUFFER_DIR,
-                            f"replay_{timestamp}_iter_{i}_batch_{self_play_iteration}.pth"
-                        )
-                        
-                        # This is VERY FAST. torch saves dicts of numpy arrays efficiently.
-                        torch.save(new_data_dict, replay_buffer_path)
 
                 
-                # --- Step 4: Before training, load all previous self-play data ---
+                # --- Step 3: Before training, load all previous self-play data ---
                 print("\n--- Preparing for training phase: Loading replay buffers... ---")
 
                 # This dict will hold all data in concatenated form
@@ -283,6 +299,10 @@ class AlphArmada:
                     except (EOFError, pickle.UnpicklingError):
                         print(f"Warning: Could not load {replay_buffer_path}. File might be corrupted. Skipping.")
 
+                if total_samples < Config.REPLAY_BUFFER_SIZE:
+                    print("Not enough samples to form a batch. Skipping training for this iteration.")
+                    continue
+
                 # --- Concatenate all chunks into single giant arrays ---
                 print(f"Loaded {total_samples} total experiences.")
                 total_array_dict = {}
@@ -290,22 +310,7 @@ class AlphArmada:
                 for key in list(batch_array_dict.keys())[1:]:
                     total_array_dict[key] = np.concatenate(batch_array_dict[key], axis=0)
 
-                # --- Convert to Tensors ONCE and move to GPU ONCE ---
-                all_data_tensors = {
-                    'phases': total_array_dict['phases'], # Keep phases as a list
-                    'scalar': torch.from_numpy(total_array_dict['scalar']).float().to(Config.DEVICE),
-                    'ship_entities': torch.from_numpy(total_array_dict['ship_entities']).float().to(Config.DEVICE),
-                    'squad_entities': torch.from_numpy(total_array_dict['squad_entities']).float().to(Config.DEVICE),
-                    'spatial': torch.from_numpy(total_array_dict['spatial']).float().to(Config.DEVICE),
-                    'relations': torch.from_numpy(total_array_dict['relations']).float().to(Config.DEVICE),
-                    'target_policies': torch.from_numpy(total_array_dict['target_policies']).float().to(Config.DEVICE),
-                    'target_values': torch.from_numpy(total_array_dict['target_values']).float().to(Config.DEVICE).view(-1, 1),
-                    'target_ship_hulls': torch.from_numpy(total_array_dict['target_ship_hulls']).float().to(Config.DEVICE),
-                    'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls']).float().to(Config.DEVICE),
-                    'target_game_length': torch.from_numpy(total_array_dict['target_game_length']).float().to(Config.DEVICE),
-                }
-
-                # --- Step 5: Start training on the loaded data ---
+                # --- Step 4: Start training on the loaded data ---
                 print("Starting training phase...")
                 self.model.train()
                 self.optimizer.zero_grad()
@@ -315,23 +320,25 @@ class AlphArmada:
                     
                     # 2. Create the batch *instantly* via tensor indexing
                     training_batch_tensors = {
-                        'phases': [all_data_tensors['phases'][i] for i in indices],
-                        'scalar': all_data_tensors['scalar'][indices],
-                        'ship_entities': all_data_tensors['ship_entities'][indices],
-                        'squad_entities': all_data_tensors['squad_entities'][indices],
-                        'spatial': all_data_tensors['spatial'][indices],
-                        'relations': all_data_tensors['relations'][indices],
-                        'target_policies': all_data_tensors['target_policies'][indices],
-                        'target_values': all_data_tensors['target_values'][indices],
-                        'target_ship_hulls': all_data_tensors['target_ship_hulls'][indices],
-                        'target_squad_hulls': all_data_tensors['target_squad_hulls'][indices],
-                        'target_game_length': all_data_tensors['target_game_length'][indices],
+                        'phases': [total_array_dict['phases'][i] for i in indices],
+                        'scalar': torch.from_numpy(total_array_dict['scalar'][indices]).float().to(Config.DEVICE),
+                        'ship_entities': torch.from_numpy(total_array_dict['ship_entities'][indices]).float().to(Config.DEVICE),
+                        'squad_entities': torch.from_numpy(total_array_dict['squad_entities'][indices]).float().to(Config.DEVICE),
+                        'spatial': torch.from_numpy(total_array_dict['spatial'][indices]).float().to(Config.DEVICE),
+                        'relations': torch.from_numpy(total_array_dict['relations'][indices]).float().to(Config.DEVICE),
+                        'target_policies': torch.from_numpy(total_array_dict['target_policies'][indices]).float().to(Config.DEVICE),
+                        'target_values': torch.from_numpy(total_array_dict['target_values'][indices]).float().to(Config.DEVICE).view(-1, 1),
+                        'target_ship_hulls': torch.from_numpy(total_array_dict['target_ship_hulls'][indices]).float().to(Config.DEVICE),
+                        'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls'][indices]).float().to(Config.DEVICE),
+                        'target_game_length': torch.from_numpy(total_array_dict['target_game_length'][indices]).float().to(Config.DEVICE),
                     }
                     
                     # 3. Pass this ready-to-use batch to train
                     loss = self.train(training_batch_tensors)
-                loss_history.append(loss)
                 print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                with open('loss.txt', 'a') as f:
+                    f.write(f"{timestamp}: {loss:.4f}\n")
 
                 # --- Save the model checkpoint ---
                 # The filename correctly continues from the current iteration number
@@ -340,7 +347,6 @@ class AlphArmada:
                 print(f"Model checkpoint saved to {checkpoint_path}")
 
             print("\nTraining complete!")
-            print(f"Loss history: {loss_history}")
 
 def main():
     # random.seed(66)
@@ -373,6 +379,9 @@ def main():
         print(f"Resuming training from iteration {start_iteration + 1}")
     else:
         print("No checkpoint found. Starting from scratch.")
+        init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
+        torch.save(model.state_dict(), init_checkpoint_path)
+        print(f"Randomly initialized model saved to {init_checkpoint_path}")
 
     optimizer = optim.AdamW(model.parameters(), lr=Config.LEARNING_RATE)
 
