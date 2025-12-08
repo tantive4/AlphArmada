@@ -54,7 +54,7 @@ cdef class Squad :
         self.counter : int = squad_dict.get('counter', 0)
 
     def __str__(self):
-        return self.name
+        return f"{self.name}(ID:{self.id})"
     __repr__ = __str__
 
     def deploy(self, Armada game, float x, float y, int squad_id):

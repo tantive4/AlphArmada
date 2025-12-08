@@ -120,7 +120,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             action_str = f'Set {Command(command)} Command on {game.ships[ship_id]}'
 
         case 'activate_ship_action', ship_id:
-            action_str = f'Activate Ship: {game.ships[ship_id].name}'
+            action_str = f'Activate Ship: {game.ships[ship_id]}'
 
 
         case 'reveal_command_action', command :

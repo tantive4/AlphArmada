@@ -102,11 +102,23 @@ cdef class Armada:
 
     def player_decision(self) -> ActionType:
         actions = self.get_valid_actions()
-        if len(actions) == 1 : return actions[0]
-        for i, action in enumerate(actions,1) :
-            print(f'{i} : {get_action_str(self, action)}')
-        player_index = int(input('Enter the action index (1, 2, 3 ...) : '))
-        return actions[player_index - 1]
+        if len(actions) == 1: 
+            return actions[0]
+
+        # Write valid actions to a temporary text file to keep terminal clean
+        with open("actions.txt", "w") as f:
+            for i, action in enumerate(actions, 1):
+                f.write(f'{i} : {get_action_str(self, action)}\n')
+        
+        while True:
+            try:
+                player_index = int(input('Enter the action index (1, 2, 3 ...) : '))
+                if 1 <= player_index <= len(actions):
+                    return actions[player_index - 1]
+                else:
+                    print(f"Invalid index. Please enter a number between 1 and {len(actions)}.")
+            except ValueError:
+                print("Invalid input. Please enter an integer.")
 
     
     cdef void update_decision_player(self):

@@ -18,7 +18,7 @@ import dice
 from action_phase import Phase, ActionType
 from armada cimport Armada
 from attack_info cimport AttackInfo
-from self_play import Config
+from configs import Config
 
 cdef class Node:
     """
@@ -153,7 +153,7 @@ cdef class MCTS:
         
         
 
-    cpdef dict para_search(self, dict sim_players, bint deep_search):
+    cpdef dict para_search(self, dict sim_players, bint deep_search, int manual_iteration = 0):
         cdef:
             Armada game
             list para_indices, expandable_node_indices, valid_actions
@@ -178,6 +178,7 @@ cdef class MCTS:
         
 
         mcts_iteration = Config.MCTS_ITERATION if deep_search else Config.MCTS_ITERATION_FAST
+        if manual_iteration : mcts_iteration = manual_iteration
         for _ in range(mcts_iteration):
             para_path = {}
             expandable_node_indices = []

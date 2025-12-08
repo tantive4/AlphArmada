@@ -3216,6 +3216,32 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_SubtractObjC(PyObject *op1, PyObject
     (inplace ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2))
 #endif
 
+/* PyUnicode_Unicode.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj);
+
+/* BuildPyUnicode.proto */
+static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, const char* chars, int clength,
+                                                int prepend_sign, char padding_char);
+
+/* COrdinalToPyUnicode.proto */
+static CYTHON_INLINE int __Pyx_CheckUnicodeValue(int value);
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_ssize_t width, char padding_char);
+
+/* GCCDiagnostics.proto */
+#if !defined(__INTEL_COMPILER) && defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#define __Pyx_HAS_GCC_DIAGNOSTIC
+#endif
+
+/* IncludeStdlibH.proto */
+#include <stdlib.h>
+
+/* CIntToPyUnicode.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char);
+
+/* JoinPyUnicode.proto */
+static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength,
+                                      Py_UCS4 max_char);
+
 /* PySequenceContains.proto */
 static CYTHON_INLINE int __Pyx_PySequence_ContainsTF(PyObject* item, PyObject* seq, int eq) {
     int result = PySequence_Contains(seq, item);
@@ -3313,28 +3339,8 @@ static void __Pyx_RaiseBufferFallbackError(void);
 static void __Pyx_RaiseBufferIndexError(int axis);
 
 #define __Pyx_BufPtrStrided1d(type, buf, i0, s0) (type)((char*)buf + i0 * s0)
-/* BuildPyUnicode.proto */
-static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, const char* chars, int clength,
-                                                int prepend_sign, char padding_char);
-
-/* COrdinalToPyUnicode.proto */
-static CYTHON_INLINE int __Pyx_CheckUnicodeValue(int value);
-static CYTHON_INLINE PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_ssize_t width, char padding_char);
-
-/* GCCDiagnostics.proto */
-#if !defined(__INTEL_COMPILER) && defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
-#define __Pyx_HAS_GCC_DIAGNOSTIC
-#endif
-
-/* IncludeStdlibH.proto */
-#include <stdlib.h>
-
 /* CIntToPyUnicode.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_Py_ssize_t(Py_ssize_t value, Py_ssize_t width, char padding_char, char format_char);
-
-/* JoinPyUnicode.proto */
-static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength,
-                                      Py_UCS4 max_char);
 
 /* PyObjectCall2Args.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2);
@@ -3568,9 +3574,6 @@ static PyObject *__Pyx_Object_VectorcallMethod_CallFromBuilder(PyObject *name, P
 
 /* dict_getitem_default.proto */
 static PyObject* __Pyx_PyDict_GetItemDefault(PyObject* d, PyObject* key, PyObject* default_value);
-
-/* CIntToPyUnicode.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char);
 
 /* ListCompAppend.proto */
 #if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
@@ -4322,7 +4325,7 @@ static PyObject *__pyx_builtin_max;
 static PyObject *__pyx_builtin_sum;
 static PyObject *__pyx_builtin_ImportError;
 /* #### Code section: string_decls ### */
-static const char __pyx_k_[] = "\n";
+static const char __pyx_k_[] = ")";
 static const char __pyx_k_1[] = "\210\001\360\006\000\r\024\320\023*\250!\2501";
 static const char __pyx_k_6[] = "\200\001\330\004\"\240!\2406\250\021";
 static const char __pyx_k_A[] = "\270A";
@@ -4341,17 +4344,18 @@ static const char __pyx_k_x[] = "x";
 static const char __pyx_k_y[] = "y";
 static const char __pyx_k_1A[] = "\210\001\360\006\000\r\024\320\023#\2401\240A";
 static const char __pyx_k_AQ[] = "\210\001\340\014\023\320\023$\240A\240Q";
+static const char __pyx_k_ID[] = "(ID:";
 static const char __pyx_k_QR[] = "\320QR";
 static const char __pyx_k_XY[] = "\320XY";
 static const char __pyx_k_YZ[] = "\320YZ";
-static const char __pyx_k__2[] = ".";
-static const char __pyx_k__3[] = "*";
-static const char __pyx_k__4[] = "?";
-static const char __pyx_k__5[] = "\210\001\360\006\000\r\024\320\023)\250\021\250!";
-static const char __pyx_k__6[] = "\210\001\360\016\000\r\024\220=\240\001\240\021";
-static const char __pyx_k__7[] = "\240\021";
-static const char __pyx_k__8[] = "\320\\]";
-static const char __pyx_k__9[] = "\230\001";
+static const char __pyx_k__2[] = "\n";
+static const char __pyx_k__3[] = ".";
+static const char __pyx_k__4[] = "*";
+static const char __pyx_k__5[] = "?";
+static const char __pyx_k__6[] = "\210\001\360\006\000\r\024\320\023)\250\021\250!";
+static const char __pyx_k__7[] = "\210\001\360\016\000\r\024\220=\240\001\240\021";
+static const char __pyx_k__8[] = "\240\021";
+static const char __pyx_k__9[] = "\320\\]";
 static const char __pyx_k_aq[] = "\210\001\340\014\023\320\023&\240a\240q";
 static const char __pyx_k_cd[] = "\320cd";
 static const char __pyx_k_ef[] = "\320ef";
@@ -4382,8 +4386,9 @@ static const char __pyx_k_Q_2[] = "\220Q";
 static const char __pyx_k_Q_3[] = "\230Q";
 static const char __pyx_k_R_S[] = "\360\000\000R\002S\002";
 static const char __pyx_k_T_2[] = "\200\001\360\016\000\005\r\320\014%\240T\250\021";
-static const char __pyx_k__10[] = "\240\001";
-static const char __pyx_k__11[] = "\320{|";
+static const char __pyx_k__10[] = "\230\001";
+static const char __pyx_k__11[] = "\240\001";
+static const char __pyx_k__12[] = "\320{|";
 static const char __pyx_k_a_2[] = "\220a";
 static const char __pyx_k_a_3[] = "\270a";
 static const char __pyx_k_a_4[] = "\310a";
@@ -4414,7 +4419,6 @@ static const char __pyx_k_str[] = "__str__";
 static const char __pyx_k_sum[] = "sum";
 static const char __pyx_k_8_AQ[] = "\210\001\340\014\023\2208\320\033,\250A\250Q";
 static const char __pyx_k_AQ_2[] = "\210\001\360\006\000\r\024\320\023,\250A\250Q";
-static const char __pyx_k_A_t1[] = "\200A\330\010\017\210t\2201";
 static const char __pyx_k_DICE[] = "DICE";
 static const char __pyx_k_LEFT[] = "LEFT";
 static const char __pyx_k_None[] = "None";
@@ -4499,6 +4503,7 @@ static const char __pyx_k_typing[] = "typing";
 static const char __pyx_k_update[] = "update";
 static const char __pyx_k_values[] = "values";
 static const char __pyx_k_vstack[] = "vstack";
+static const char __pyx_k_A_r_T_D[] = "\200A\330\010\017\210r\220\024\220T\230\033\240D\250\001";
 static const char __pyx_k_Command[] = "Command";
 static const char __pyx_k_Counter[] = "Counter";
 static const char __pyx_k_EXTREME[] = "EXTREME";
@@ -5075,7 +5080,7 @@ typedef struct {
   PyObject *__pyx_slice[5];
   PyObject *__pyx_tuple[9];
   PyObject *__pyx_codeobj_tab[189];
-  PyObject *__pyx_string_tab[412];
+  PyObject *__pyx_string_tab[415];
   PyObject *__pyx_float_2_0;
   PyObject *__pyx_int_0;
   PyObject *__pyx_int_1;
@@ -5170,401 +5175,404 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_HASH_PRECISION __pyx_string_tab[14]
 #define __pyx_n_u_HULL_SECTIONS __pyx_string_tab[15]
 #define __pyx_n_u_HullSection __pyx_string_tab[16]
-#define __pyx_n_u_INVALID __pyx_string_tab[17]
-#define __pyx_n_u_ImportError __pyx_string_tab[18]
-#define __pyx_kp_u_Incompatible_checksums_0x_x_vs_0 __pyx_string_tab[19]
-#define __pyx_kp_u_Invalid_speed_change_of __pyx_string_tab[20]
-#define __pyx_n_u_LEFT __pyx_string_tab[21]
-#define __pyx_n_u_MEDIUM __pyx_string_tab[22]
-#define __pyx_kp_u_Maximum_is_2 __pyx_string_tab[23]
-#define __pyx_n_u_NAV __pyx_string_tab[24]
-#define __pyx_n_u_None __pyx_string_tab[25]
-#define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[26]
-#define __pyx_n_u_ObstacleType __pyx_string_tab[27]
-#define __pyx_n_u_PickleError __pyx_string_tab[28]
-#define __pyx_n_u_PyArray_MultiIterNew1 __pyx_string_tab[29]
-#define __pyx_n_u_PyArray_MultiIterNew2 __pyx_string_tab[30]
-#define __pyx_n_u_PyArray_MultiIterNew3 __pyx_string_tab[31]
-#define __pyx_n_u_PyArray_MultiIterNew4 __pyx_string_tab[32]
-#define __pyx_n_u_PyArray_MultiIterNew5 __pyx_string_tab[33]
-#define __pyx_n_u_PyDataType_SHAPE __pyx_string_tab[34]
-#define __pyx_n_u_PyDatetimeArrType_Type __pyx_string_tab[35]
-#define __pyx_n_u_PyTimedeltaArrType_Type __pyx_string_tab[36]
-#define __pyx_n_u_REAR __pyx_string_tab[37]
-#define __pyx_n_u_RIGHT __pyx_string_tab[38]
-#define __pyx_n_u_SHIP_BASE_SIZE __pyx_string_tab[39]
-#define __pyx_n_u_SHIP_TOKEN_SIZE __pyx_string_tab[40]
-#define __pyx_n_u_SMALL __pyx_string_tab[41]
-#define __pyx_n_u_STANDARD __pyx_string_tab[42]
-#define __pyx_n_u_STATION __pyx_string_tab[43]
-#define __pyx_n_u_Ship __pyx_string_tab[44]
-#define __pyx_n_u_Ship___reduce_cython __pyx_string_tab[45]
-#define __pyx_n_u_Ship___setstate_cython __pyx_string_tab[46]
-#define __pyx_n_u_Ship__create_template_geometries __pyx_string_tab[47]
-#define __pyx_n_u_Ship__tool_coordination __pyx_string_tab[48]
-#define __pyx_n_u_Ship_asign_command __pyx_string_tab[49]
-#define __pyx_n_u_Ship_check_overlap __pyx_string_tab[50]
-#define __pyx_n_u_Ship_defend __pyx_string_tab[51]
-#define __pyx_n_u_Ship_deploy __pyx_string_tab[52]
-#define __pyx_n_u_Ship_destroy __pyx_string_tab[53]
-#define __pyx_n_u_Ship_end_activation __pyx_string_tab[54]
-#define __pyx_n_u_Ship_execute_maneuver __pyx_string_tab[55]
-#define __pyx_n_u_Ship_gather_dice __pyx_string_tab[56]
-#define __pyx_n_u_Ship_get_all_possible_courses __pyx_string_tab[57]
-#define __pyx_n_u_Ship_get_critical_effect __pyx_string_tab[58]
-#define __pyx_n_u_Ship_get_ship_hash_state __pyx_string_tab[59]
-#define __pyx_n_u_Ship_get_squad_activation __pyx_string_tab[60]
-#define __pyx_n_u_Ship_get_valid_attack_hull __pyx_string_tab[61]
-#define __pyx_n_u_Ship_get_valid_placement __pyx_string_tab[62]
-#define __pyx_n_u_Ship_get_valid_ship_target __pyx_string_tab[63]
-#define __pyx_n_u_Ship_get_valid_speed __pyx_string_tab[64]
-#define __pyx_n_u_Ship_get_valid_squad_placement __pyx_string_tab[65]
-#define __pyx_n_u_Ship_get_valid_squad_target __pyx_string_tab[66]
-#define __pyx_n_u_Ship_get_valid_yaw __pyx_string_tab[67]
-#define __pyx_n_u_Ship_is_obstruct_s2q __pyx_string_tab[68]
-#define __pyx_n_u_Ship_is_obstruct_s2s __pyx_string_tab[69]
-#define __pyx_n_u_Ship_is_overlap __pyx_string_tab[70]
-#define __pyx_n_u_Ship_is_overlap_squad __pyx_string_tab[71]
-#define __pyx_n_u_Ship_is_standard_course __pyx_string_tab[72]
-#define __pyx_n_u_Ship_move_ship __pyx_string_tab[73]
-#define __pyx_n_u_Ship_nav_command_used __pyx_string_tab[74]
-#define __pyx_n_u_Ship_out_of_board __pyx_string_tab[75]
-#define __pyx_n_u_Ship_overlap_damage __pyx_string_tab[76]
-#define __pyx_n_u_Ship_overlap_obstacle __pyx_string_tab[77]
-#define __pyx_n_u_Ship_spend_command_dial __pyx_string_tab[78]
-#define __pyx_n_u_Ship_spend_command_token __pyx_string_tab[79]
-#define __pyx_n_u_Ship_status_phase __pyx_string_tab[80]
-#define __pyx_n_u_SizeClass __pyx_string_tab[81]
-#define __pyx_kp_u_Speed_change_of_1_requires_a_NAV __pyx_string_tab[82]
-#define __pyx_kp_u_Speed_change_of_2_requires_NAVIG __pyx_string_tab[83]
-#define __pyx_n_u_T __pyx_string_tab[84]
-#define __pyx_n_u_TOOL_LENGTH __pyx_string_tab[85]
-#define __pyx_n_u_TOOL_PART_LENGTH __pyx_string_tab[86]
-#define __pyx_n_u_TOOL_WIDTH_HALF __pyx_string_tab[87]
-#define __pyx_n_u_TYPE_CHECKING __pyx_string_tab[88]
-#define __pyx_kp_u_This_course_requires_an_extra_cl __pyx_string_tab[89]
-#define __pyx_n_u_TokenType __pyx_string_tab[90]
-#define __pyx_n_u_ValueError __pyx_string_tab[91]
-#define __pyx_kp_u__2 __pyx_string_tab[92]
-#define __pyx_n_u__3 __pyx_string_tab[93]
-#define __pyx_kp_u__4 __pyx_string_tab[94]
-#define __pyx_n_u_a __pyx_string_tab[95]
-#define __pyx_n_u_activated __pyx_string_tab[96]
-#define __pyx_kp_u_add_note __pyx_string_tab[97]
-#define __pyx_n_u_alignment __pyx_string_tab[98]
-#define __pyx_n_u_all_points __pyx_string_tab[99]
-#define __pyx_n_u_anti_squad __pyx_string_tab[100]
-#define __pyx_n_u_anti_squad_range __pyx_string_tab[101]
-#define __pyx_n_u_arr __pyx_string_tab[102]
-#define __pyx_n_u_array __pyx_string_tab[103]
-#define __pyx_n_u_asign_command __pyx_string_tab[104]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[105]
-#define __pyx_n_u_attack_count __pyx_string_tab[106]
-#define __pyx_n_u_attack_history __pyx_string_tab[107]
-#define __pyx_n_u_attack_hull __pyx_string_tab[108]
-#define __pyx_n_u_attack_range __pyx_string_tab[109]
-#define __pyx_n_u_attack_range_s2q __pyx_string_tab[110]
-#define __pyx_n_u_attack_range_s2s __pyx_string_tab[111]
-#define __pyx_n_u_axis __pyx_string_tab[112]
-#define __pyx_n_u_b __pyx_string_tab[113]
-#define __pyx_n_u_base __pyx_string_tab[114]
-#define __pyx_n_u_base_corners __pyx_string_tab[115]
-#define __pyx_n_u_base_front_y __pyx_string_tab[116]
-#define __pyx_n_u_base_half_w __pyx_string_tab[117]
-#define __pyx_n_u_base_rear_y __pyx_string_tab[118]
-#define __pyx_n_u_base_size __pyx_string_tab[119]
-#define __pyx_n_u_battery __pyx_string_tab[120]
-#define __pyx_n_u_battery_range __pyx_string_tab[121]
-#define __pyx_n_u_black_crit __pyx_string_tab[122]
-#define __pyx_n_u_blue_crit __pyx_string_tab[123]
-#define __pyx_n_u_c __pyx_string_tab[124]
-#define __pyx_n_u_cache __pyx_string_tab[125]
-#define __pyx_n_u_cache_function __pyx_string_tab[126]
-#define __pyx_n_u_check_overlap __pyx_string_tab[127]
-#define __pyx_n_u_class_getitem __pyx_string_tab[128]
-#define __pyx_n_u_click __pyx_string_tab[129]
-#define __pyx_n_u_clicks __pyx_string_tab[130]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[131]
-#define __pyx_n_u_close __pyx_string_tab[132]
-#define __pyx_n_u_collections __pyx_string_tab[133]
-#define __pyx_n_u_command __pyx_string_tab[134]
-#define __pyx_n_u_command_dial __pyx_string_tab[135]
-#define __pyx_n_u_command_stack __pyx_string_tab[136]
-#define __pyx_n_u_command_token __pyx_string_tab[137]
-#define __pyx_n_u_command_value __pyx_string_tab[138]
-#define __pyx_n_u_copy __pyx_string_tab[139]
-#define __pyx_n_u_cos __pyx_string_tab[140]
-#define __pyx_n_u_course __pyx_string_tab[141]
-#define __pyx_n_u_course_cache __pyx_string_tab[142]
-#define __pyx_n_u_create_template_geometries __pyx_string_tab[143]
-#define __pyx_n_u_critical __pyx_string_tab[144]
-#define __pyx_n_u_cumsum __pyx_string_tab[145]
-#define __pyx_kp_u_cython_compile_ship_pxd __pyx_string_tab[146]
-#define __pyx_kp_u_cython_compile_ship_pyx __pyx_string_tab[147]
-#define __pyx_n_u_d __pyx_string_tab[148]
-#define __pyx_n_u_data __pyx_string_tab[149]
-#define __pyx_n_u_defend __pyx_string_tab[150]
-#define __pyx_n_u_defend_hull __pyx_string_tab[151]
-#define __pyx_n_u_defense_token __pyx_string_tab[152]
-#define __pyx_n_u_defense_tokens __pyx_string_tab[153]
-#define __pyx_n_u_del __pyx_string_tab[154]
-#define __pyx_n_u_deploy __pyx_string_tab[155]
-#define __pyx_n_u_deploy_locals_genexpr __pyx_string_tab[156]
-#define __pyx_n_u_descr __pyx_string_tab[157]
-#define __pyx_n_u_destroy __pyx_string_tab[158]
-#define __pyx_n_u_destroyed __pyx_string_tab[159]
-#define __pyx_n_u_dice __pyx_string_tab[160]
-#define __pyx_n_u_dice_type __pyx_string_tab[161]
-#define __pyx_n_u_dict __pyx_string_tab[162]
-#define __pyx_n_u_dict_2 __pyx_string_tab[163]
-#define __pyx_n_u_dict_3 __pyx_string_tab[164]
-#define __pyx_n_u_dimensions __pyx_string_tab[165]
-#define __pyx_n_u_direction_vectors __pyx_string_tab[166]
-#define __pyx_kp_u_disable __pyx_string_tab[167]
-#define __pyx_n_u_distance_s2s __pyx_string_tab[168]
-#define __pyx_n_u_dtype __pyx_string_tab[169]
-#define __pyx_n_u_e __pyx_string_tab[170]
-#define __pyx_n_u_empty __pyx_string_tab[171]
-#define __pyx_kp_u_enable __pyx_string_tab[172]
-#define __pyx_n_u_end_activation __pyx_string_tab[173]
-#define __pyx_n_u_engineer_point __pyx_string_tab[174]
-#define __pyx_n_u_engineer_value __pyx_string_tab[175]
-#define __pyx_n_u_engineering __pyx_string_tab[176]
-#define __pyx_n_u_enum_class __pyx_string_tab[177]
-#define __pyx_n_u_enumerate __pyx_string_tab[178]
-#define __pyx_n_u_execute_maneuver __pyx_string_tab[179]
-#define __pyx_kp_u_executes_speed __pyx_string_tab[180]
-#define __pyx_kp_u_executes_speed_0_maneuver __pyx_string_tab[181]
-#define __pyx_n_u_fields __pyx_string_tab[182]
-#define __pyx_n_u_flags __pyx_string_tab[183]
-#define __pyx_n_u_float32 __pyx_string_tab[184]
-#define __pyx_n_u_from_hull __pyx_string_tab[185]
-#define __pyx_n_u_front_arc __pyx_string_tab[186]
-#define __pyx_n_u_front_arc_center __pyx_string_tab[187]
-#define __pyx_n_u_front_arc_center_pt __pyx_string_tab[188]
-#define __pyx_n_u_front_arc_end __pyx_string_tab[189]
-#define __pyx_n_u_front_left_arc_pt __pyx_string_tab[190]
-#define __pyx_n_u_front_left_token_pt __pyx_string_tab[191]
-#define __pyx_n_u_front_right_arc_pt __pyx_string_tab[192]
-#define __pyx_n_u_front_right_token_pt __pyx_string_tab[193]
-#define __pyx_n_u_front_targeting_point __pyx_string_tab[194]
-#define __pyx_n_u_func __pyx_string_tab[195]
-#define __pyx_n_u_game __pyx_string_tab[196]
-#define __pyx_n_u_gather_dice __pyx_string_tab[197]
-#define __pyx_kp_u_gc __pyx_string_tab[198]
-#define __pyx_n_u_genexpr __pyx_string_tab[199]
-#define __pyx_n_u_get __pyx_string_tab[200]
-#define __pyx_n_u_get_2 __pyx_string_tab[201]
-#define __pyx_n_u_get_all_possible_courses __pyx_string_tab[202]
-#define __pyx_n_u_get_array_base __pyx_string_tab[203]
-#define __pyx_n_u_get_critical_effect __pyx_string_tab[204]
-#define __pyx_n_u_get_datetime64_unit __pyx_string_tab[205]
-#define __pyx_n_u_get_datetime64_value __pyx_string_tab[206]
-#define __pyx_n_u_get_hash_state __pyx_string_tab[207]
-#define __pyx_n_u_get_ship_hash_state __pyx_string_tab[208]
-#define __pyx_n_u_get_snapshot __pyx_string_tab[209]
-#define __pyx_n_u_get_squad_activation __pyx_string_tab[210]
-#define __pyx_n_u_get_timedelta64_value __pyx_string_tab[211]
-#define __pyx_n_u_get_valid_attack_hull __pyx_string_tab[212]
-#define __pyx_n_u_get_valid_placement __pyx_string_tab[213]
-#define __pyx_n_u_get_valid_ship_target __pyx_string_tab[214]
-#define __pyx_n_u_get_valid_speed __pyx_string_tab[215]
-#define __pyx_n_u_get_valid_squad_placement __pyx_string_tab[216]
-#define __pyx_n_u_get_valid_squad_target __pyx_string_tab[217]
-#define __pyx_n_u_get_valid_yaw __pyx_string_tab[218]
-#define __pyx_n_u_getstate __pyx_string_tab[219]
-#define __pyx_kp_u_home_codespace_local_lib_python __pyx_string_tab[220]
-#define __pyx_n_u_hull __pyx_string_tab[221]
-#define __pyx_n_u_i __pyx_string_tab[222]
-#define __pyx_n_u_id __pyx_string_tab[223]
-#define __pyx_n_u_import_array __pyx_string_tab[224]
-#define __pyx_n_u_import_ufunc __pyx_string_tab[225]
-#define __pyx_n_u_import_umath __pyx_string_tab[226]
-#define __pyx_n_u_index __pyx_string_tab[227]
-#define __pyx_n_u_inf __pyx_string_tab[228]
-#define __pyx_n_u_init __pyx_string_tab[229]
-#define __pyx_n_u_init___locals_genexpr __pyx_string_tab[230]
-#define __pyx_n_u_initial_orientation __pyx_string_tab[231]
-#define __pyx_n_u_initial_position __pyx_string_tab[232]
-#define __pyx_n_u_initializing __pyx_string_tab[233]
-#define __pyx_n_u_int __pyx_string_tab[234]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[235]
-#define __pyx_n_u_is_datetime64_object __pyx_string_tab[236]
-#define __pyx_kp_u_is_destroyed __pyx_string_tab[237]
-#define __pyx_n_u_is_obstruct_obstacle __pyx_string_tab[238]
-#define __pyx_n_u_is_obstruct_s2q __pyx_string_tab[239]
-#define __pyx_n_u_is_obstruct_s2s __pyx_string_tab[240]
-#define __pyx_n_u_is_obstruct_ship __pyx_string_tab[241]
-#define __pyx_kp_u_is_out_of_board __pyx_string_tab[242]
-#define __pyx_n_u_is_overlap __pyx_string_tab[243]
-#define __pyx_n_u_is_overlap_s2o __pyx_string_tab[244]
-#define __pyx_n_u_is_overlap_s2q __pyx_string_tab[245]
-#define __pyx_n_u_is_overlap_s2s __pyx_string_tab[246]
-#define __pyx_n_u_is_overlap_squad __pyx_string_tab[247]
-#define __pyx_n_u_is_ship __pyx_string_tab[248]
-#define __pyx_n_u_is_standard_course __pyx_string_tab[249]
-#define __pyx_n_u_is_timedelta64_object __pyx_string_tab[250]
-#define __pyx_kp_u_isenabled __pyx_string_tab[251]
-#define __pyx_n_u_items __pyx_string_tab[252]
-#define __pyx_n_u_itemsize __pyx_string_tab[253]
-#define __pyx_n_u_iters __pyx_string_tab[254]
-#define __pyx_n_u_itertools __pyx_string_tab[255]
-#define __pyx_n_u_joint __pyx_string_tab[256]
-#define __pyx_n_u_joint_orientations __pyx_string_tab[257]
-#define __pyx_n_u_k __pyx_string_tab[258]
-#define __pyx_n_u_key __pyx_string_tab[259]
-#define __pyx_n_u_long_segment_orientations __pyx_string_tab[260]
-#define __pyx_n_u_los_point_ship __pyx_string_tab[261]
-#define __pyx_n_u_main __pyx_string_tab[262]
-#define __pyx_kp_u_maneuver __pyx_string_tab[263]
-#define __pyx_n_u_maneuver_tool __pyx_string_tab[264]
-#define __pyx_n_u_max __pyx_string_tab[265]
-#define __pyx_n_u_max_hull __pyx_string_tab[266]
-#define __pyx_n_u_max_shield __pyx_string_tab[267]
-#define __pyx_n_u_measurement __pyx_string_tab[268]
-#define __pyx_n_u_min __pyx_string_tab[269]
-#define __pyx_n_u_module __pyx_string_tab[270]
-#define __pyx_n_u_move_ship __pyx_string_tab[271]
-#define __pyx_n_u_name __pyx_string_tab[272]
-#define __pyx_n_u_name_2 __pyx_string_tab[273]
-#define __pyx_n_u_names __pyx_string_tab[274]
-#define __pyx_n_u_nav_chart __pyx_string_tab[275]
-#define __pyx_n_u_nav_chart_vector __pyx_string_tab[276]
-#define __pyx_n_u_nav_command_used __pyx_string_tab[277]
-#define __pyx_n_u_navchart __pyx_string_tab[278]
-#define __pyx_n_u_nd __pyx_string_tab[279]
-#define __pyx_n_u_ndim __pyx_string_tab[280]
-#define __pyx_n_u_new __pyx_string_tab[281]
-#define __pyx_n_u_newaxis __pyx_string_tab[282]
-#define __pyx_n_u_next __pyx_string_tab[283]
-#define __pyx_n_u_np __pyx_string_tab[284]
-#define __pyx_n_u_numiter __pyx_string_tab[285]
-#define __pyx_n_u_numpy __pyx_string_tab[286]
-#define __pyx_kp_u_numpy__core_multiarray_failed_to __pyx_string_tab[287]
-#define __pyx_kp_u_numpy__core_umath_failed_to_impo __pyx_string_tab[288]
-#define __pyx_n_u_obj __pyx_string_tab[289]
-#define __pyx_n_u_obstacle __pyx_string_tab[290]
-#define __pyx_n_u_orientation __pyx_string_tab[291]
-#define __pyx_n_u_out_of_board __pyx_string_tab[292]
-#define __pyx_n_u_overlap_damage __pyx_string_tab[293]
-#define __pyx_n_u_overlap_list __pyx_string_tab[294]
-#define __pyx_n_u_overlap_obstacle __pyx_string_tab[295]
-#define __pyx_n_u_overlap_ships __pyx_string_tab[296]
-#define __pyx_kp_u_overlaps_ships_at_speed __pyx_string_tab[297]
-#define __pyx_kp_u_overlaps_to __pyx_string_tab[298]
-#define __pyx_n_u_pi __pyx_string_tab[299]
-#define __pyx_n_u_pickle __pyx_string_tab[300]
-#define __pyx_n_u_placement __pyx_string_tab[301]
-#define __pyx_n_u_player __pyx_string_tab[302]
-#define __pyx_n_u_point __pyx_string_tab[303]
-#define __pyx_n_u_pop __pyx_string_tab[304]
-#define __pyx_n_u_position_vectors __pyx_string_tab[305]
-#define __pyx_n_u_product __pyx_string_tab[306]
-#define __pyx_n_u_pyx_PickleError __pyx_string_tab[307]
-#define __pyx_n_u_pyx_checksum __pyx_string_tab[308]
-#define __pyx_n_u_pyx_result __pyx_string_tab[309]
-#define __pyx_n_u_pyx_state __pyx_string_tab[310]
-#define __pyx_n_u_pyx_type __pyx_string_tab[311]
-#define __pyx_n_u_pyx_unpickle_Ship __pyx_string_tab[312]
-#define __pyx_n_u_pyx_unpickle_Ship__set_state __pyx_string_tab[313]
-#define __pyx_n_u_pyx_vtable __pyx_string_tab[314]
-#define __pyx_n_u_qualname __pyx_string_tab[315]
-#define __pyx_n_u_range __pyx_string_tab[316]
-#define __pyx_n_u_range_s2q __pyx_string_tab[317]
-#define __pyx_n_u_rear_arc __pyx_string_tab[318]
-#define __pyx_n_u_rear_arc_center __pyx_string_tab[319]
-#define __pyx_n_u_rear_arc_center_pt __pyx_string_tab[320]
-#define __pyx_n_u_rear_arc_end __pyx_string_tab[321]
-#define __pyx_n_u_rear_left_arc_pt __pyx_string_tab[322]
-#define __pyx_n_u_rear_left_token_pt __pyx_string_tab[323]
-#define __pyx_n_u_rear_right_arc_pt __pyx_string_tab[324]
-#define __pyx_n_u_rear_right_token_pt __pyx_string_tab[325]
-#define __pyx_n_u_rear_targeting_point __pyx_string_tab[326]
-#define __pyx_n_u_red_crit __pyx_string_tab[327]
-#define __pyx_n_u_reduce __pyx_string_tab[328]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[329]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[330]
-#define __pyx_n_u_remove __pyx_string_tab[331]
-#define __pyx_n_u_repaired_hull __pyx_string_tab[332]
-#define __pyx_n_u_repr __pyx_string_tab[333]
-#define __pyx_n_u_resolved_command __pyx_string_tab[334]
-#define __pyx_n_u_return __pyx_string_tab[335]
-#define __pyx_n_u_revert_snapshot __pyx_string_tab[336]
-#define __pyx_n_u_rotation_matrix __pyx_string_tab[337]
-#define __pyx_n_u_segment_lengths __pyx_string_tab[338]
-#define __pyx_n_u_segment_orientations __pyx_string_tab[339]
-#define __pyx_n_u_self __pyx_string_tab[340]
-#define __pyx_n_u_send __pyx_string_tab[341]
-#define __pyx_n_u_set __pyx_string_tab[342]
-#define __pyx_n_u_set_array_base __pyx_string_tab[343]
-#define __pyx_n_u_set_name __pyx_string_tab[344]
-#define __pyx_n_u_setstate __pyx_string_tab[345]
-#define __pyx_n_u_setstate_cython __pyx_string_tab[346]
-#define __pyx_n_u_shape __pyx_string_tab[347]
-#define __pyx_n_u_shield __pyx_string_tab[348]
-#define __pyx_n_u_ship __pyx_string_tab[349]
-#define __pyx_n_u_ship_coordinate __pyx_string_tab[350]
-#define __pyx_n_u_ship_dict __pyx_string_tab[351]
-#define __pyx_n_u_ship_id __pyx_string_tab[352]
-#define __pyx_n_u_short_segment_orientations __pyx_string_tab[353]
-#define __pyx_n_u_side_targeting_point __pyx_string_tab[354]
-#define __pyx_n_u_sin __pyx_string_tab[355]
-#define __pyx_n_u_size __pyx_string_tab[356]
-#define __pyx_n_u_size_class __pyx_string_tab[357]
-#define __pyx_n_u_snapshot __pyx_string_tab[358]
-#define __pyx_n_u_spec __pyx_string_tab[359]
-#define __pyx_n_u_speed __pyx_string_tab[360]
-#define __pyx_n_u_spend_command_dial __pyx_string_tab[361]
-#define __pyx_n_u_spend_command_token __pyx_string_tab[362]
-#define __pyx_n_u_squad __pyx_string_tab[363]
-#define __pyx_n_u_squad_placement_points __pyx_string_tab[364]
-#define __pyx_n_u_squad_value __pyx_string_tab[365]
-#define __pyx_n_u_squadron __pyx_string_tab[366]
-#define __pyx_n_u_state __pyx_string_tab[367]
-#define __pyx_n_u_status_phase __pyx_string_tab[368]
-#define __pyx_n_u_str __pyx_string_tab[369]
-#define __pyx_n_u_strides __pyx_string_tab[370]
-#define __pyx_kp_u_stringsource __pyx_string_tab[371]
-#define __pyx_n_u_subarray __pyx_string_tab[372]
-#define __pyx_n_u_sum __pyx_string_tab[373]
-#define __pyx_n_u_targeting_points __pyx_string_tab[374]
-#define __pyx_n_u_template_base_vertices __pyx_string_tab[375]
-#define __pyx_n_u_template_hull_vertices __pyx_string_tab[376]
-#define __pyx_n_u_template_targeting_points_and_ma __pyx_string_tab[377]
-#define __pyx_n_u_template_token_vertices __pyx_string_tab[378]
-#define __pyx_n_u_test __pyx_string_tab[379]
-#define __pyx_n_u_throw __pyx_string_tab[380]
-#define __pyx_n_u_tile __pyx_string_tab[381]
-#define __pyx_n_u_to_hull __pyx_string_tab[382]
-#define __pyx_n_u_to_ship __pyx_string_tab[383]
-#define __pyx_n_u_to_squad __pyx_string_tab[384]
-#define __pyx_n_u_token_counts __pyx_string_tab[385]
-#define __pyx_n_u_token_enum __pyx_string_tab[386]
-#define __pyx_n_u_token_half_w __pyx_string_tab[387]
-#define __pyx_n_u_token_size __pyx_string_tab[388]
-#define __pyx_n_u_token_type_str __pyx_string_tab[389]
-#define __pyx_n_u_tolist __pyx_string_tab[390]
-#define __pyx_n_u_tool_coord __pyx_string_tab[391]
-#define __pyx_n_u_tool_coordination __pyx_string_tab[392]
-#define __pyx_n_u_tool_coords __pyx_string_tab[393]
-#define __pyx_n_u_tool_insert_points __pyx_string_tab[394]
-#define __pyx_n_u_total_damage __pyx_string_tab[395]
-#define __pyx_kp_u_tuple_int __pyx_string_tab[396]
-#define __pyx_kp_u_tuple_list_tuple_float_float_lis __pyx_string_tab[397]
-#define __pyx_n_u_typing __pyx_string_tab[398]
-#define __pyx_n_u_union __pyx_string_tab[399]
-#define __pyx_n_u_update __pyx_string_tab[400]
-#define __pyx_n_u_upper __pyx_string_tab[401]
-#define __pyx_n_u_use_setstate __pyx_string_tab[402]
-#define __pyx_n_u_v __pyx_string_tab[403]
-#define __pyx_n_u_value __pyx_string_tab[404]
-#define __pyx_n_u_values __pyx_string_tab[405]
-#define __pyx_n_u_visualize __pyx_string_tab[406]
-#define __pyx_n_u_vstack __pyx_string_tab[407]
-#define __pyx_n_u_x __pyx_string_tab[408]
-#define __pyx_n_u_y __pyx_string_tab[409]
-#define __pyx_n_u_yaw_changes __pyx_string_tab[410]
-#define __pyx_n_u_zeros __pyx_string_tab[411]
+#define __pyx_kp_u_ID __pyx_string_tab[17]
+#define __pyx_n_u_INVALID __pyx_string_tab[18]
+#define __pyx_n_u_ImportError __pyx_string_tab[19]
+#define __pyx_kp_u_Incompatible_checksums_0x_x_vs_0 __pyx_string_tab[20]
+#define __pyx_kp_u_Invalid_speed_change_of __pyx_string_tab[21]
+#define __pyx_n_u_LEFT __pyx_string_tab[22]
+#define __pyx_n_u_MEDIUM __pyx_string_tab[23]
+#define __pyx_kp_u_Maximum_is_2 __pyx_string_tab[24]
+#define __pyx_n_u_NAV __pyx_string_tab[25]
+#define __pyx_n_u_None __pyx_string_tab[26]
+#define __pyx_kp_u_None __pyx_string_tab[27]
+#define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[28]
+#define __pyx_n_u_ObstacleType __pyx_string_tab[29]
+#define __pyx_n_u_PickleError __pyx_string_tab[30]
+#define __pyx_n_u_PyArray_MultiIterNew1 __pyx_string_tab[31]
+#define __pyx_n_u_PyArray_MultiIterNew2 __pyx_string_tab[32]
+#define __pyx_n_u_PyArray_MultiIterNew3 __pyx_string_tab[33]
+#define __pyx_n_u_PyArray_MultiIterNew4 __pyx_string_tab[34]
+#define __pyx_n_u_PyArray_MultiIterNew5 __pyx_string_tab[35]
+#define __pyx_n_u_PyDataType_SHAPE __pyx_string_tab[36]
+#define __pyx_n_u_PyDatetimeArrType_Type __pyx_string_tab[37]
+#define __pyx_n_u_PyTimedeltaArrType_Type __pyx_string_tab[38]
+#define __pyx_n_u_REAR __pyx_string_tab[39]
+#define __pyx_n_u_RIGHT __pyx_string_tab[40]
+#define __pyx_n_u_SHIP_BASE_SIZE __pyx_string_tab[41]
+#define __pyx_n_u_SHIP_TOKEN_SIZE __pyx_string_tab[42]
+#define __pyx_n_u_SMALL __pyx_string_tab[43]
+#define __pyx_n_u_STANDARD __pyx_string_tab[44]
+#define __pyx_n_u_STATION __pyx_string_tab[45]
+#define __pyx_n_u_Ship __pyx_string_tab[46]
+#define __pyx_n_u_Ship___reduce_cython __pyx_string_tab[47]
+#define __pyx_n_u_Ship___setstate_cython __pyx_string_tab[48]
+#define __pyx_n_u_Ship__create_template_geometries __pyx_string_tab[49]
+#define __pyx_n_u_Ship__tool_coordination __pyx_string_tab[50]
+#define __pyx_n_u_Ship_asign_command __pyx_string_tab[51]
+#define __pyx_n_u_Ship_check_overlap __pyx_string_tab[52]
+#define __pyx_n_u_Ship_defend __pyx_string_tab[53]
+#define __pyx_n_u_Ship_deploy __pyx_string_tab[54]
+#define __pyx_n_u_Ship_destroy __pyx_string_tab[55]
+#define __pyx_n_u_Ship_end_activation __pyx_string_tab[56]
+#define __pyx_n_u_Ship_execute_maneuver __pyx_string_tab[57]
+#define __pyx_n_u_Ship_gather_dice __pyx_string_tab[58]
+#define __pyx_n_u_Ship_get_all_possible_courses __pyx_string_tab[59]
+#define __pyx_n_u_Ship_get_critical_effect __pyx_string_tab[60]
+#define __pyx_n_u_Ship_get_ship_hash_state __pyx_string_tab[61]
+#define __pyx_n_u_Ship_get_squad_activation __pyx_string_tab[62]
+#define __pyx_n_u_Ship_get_valid_attack_hull __pyx_string_tab[63]
+#define __pyx_n_u_Ship_get_valid_placement __pyx_string_tab[64]
+#define __pyx_n_u_Ship_get_valid_ship_target __pyx_string_tab[65]
+#define __pyx_n_u_Ship_get_valid_speed __pyx_string_tab[66]
+#define __pyx_n_u_Ship_get_valid_squad_placement __pyx_string_tab[67]
+#define __pyx_n_u_Ship_get_valid_squad_target __pyx_string_tab[68]
+#define __pyx_n_u_Ship_get_valid_yaw __pyx_string_tab[69]
+#define __pyx_n_u_Ship_is_obstruct_s2q __pyx_string_tab[70]
+#define __pyx_n_u_Ship_is_obstruct_s2s __pyx_string_tab[71]
+#define __pyx_n_u_Ship_is_overlap __pyx_string_tab[72]
+#define __pyx_n_u_Ship_is_overlap_squad __pyx_string_tab[73]
+#define __pyx_n_u_Ship_is_standard_course __pyx_string_tab[74]
+#define __pyx_n_u_Ship_move_ship __pyx_string_tab[75]
+#define __pyx_n_u_Ship_nav_command_used __pyx_string_tab[76]
+#define __pyx_n_u_Ship_out_of_board __pyx_string_tab[77]
+#define __pyx_n_u_Ship_overlap_damage __pyx_string_tab[78]
+#define __pyx_n_u_Ship_overlap_obstacle __pyx_string_tab[79]
+#define __pyx_n_u_Ship_spend_command_dial __pyx_string_tab[80]
+#define __pyx_n_u_Ship_spend_command_token __pyx_string_tab[81]
+#define __pyx_n_u_Ship_status_phase __pyx_string_tab[82]
+#define __pyx_n_u_SizeClass __pyx_string_tab[83]
+#define __pyx_kp_u_Speed_change_of_1_requires_a_NAV __pyx_string_tab[84]
+#define __pyx_kp_u_Speed_change_of_2_requires_NAVIG __pyx_string_tab[85]
+#define __pyx_n_u_T __pyx_string_tab[86]
+#define __pyx_n_u_TOOL_LENGTH __pyx_string_tab[87]
+#define __pyx_n_u_TOOL_PART_LENGTH __pyx_string_tab[88]
+#define __pyx_n_u_TOOL_WIDTH_HALF __pyx_string_tab[89]
+#define __pyx_n_u_TYPE_CHECKING __pyx_string_tab[90]
+#define __pyx_kp_u_This_course_requires_an_extra_cl __pyx_string_tab[91]
+#define __pyx_n_u_TokenType __pyx_string_tab[92]
+#define __pyx_n_u_ValueError __pyx_string_tab[93]
+#define __pyx_kp_u__2 __pyx_string_tab[94]
+#define __pyx_kp_u__3 __pyx_string_tab[95]
+#define __pyx_n_u__4 __pyx_string_tab[96]
+#define __pyx_kp_u__5 __pyx_string_tab[97]
+#define __pyx_n_u_a __pyx_string_tab[98]
+#define __pyx_n_u_activated __pyx_string_tab[99]
+#define __pyx_kp_u_add_note __pyx_string_tab[100]
+#define __pyx_n_u_alignment __pyx_string_tab[101]
+#define __pyx_n_u_all_points __pyx_string_tab[102]
+#define __pyx_n_u_anti_squad __pyx_string_tab[103]
+#define __pyx_n_u_anti_squad_range __pyx_string_tab[104]
+#define __pyx_n_u_arr __pyx_string_tab[105]
+#define __pyx_n_u_array __pyx_string_tab[106]
+#define __pyx_n_u_asign_command __pyx_string_tab[107]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[108]
+#define __pyx_n_u_attack_count __pyx_string_tab[109]
+#define __pyx_n_u_attack_history __pyx_string_tab[110]
+#define __pyx_n_u_attack_hull __pyx_string_tab[111]
+#define __pyx_n_u_attack_range __pyx_string_tab[112]
+#define __pyx_n_u_attack_range_s2q __pyx_string_tab[113]
+#define __pyx_n_u_attack_range_s2s __pyx_string_tab[114]
+#define __pyx_n_u_axis __pyx_string_tab[115]
+#define __pyx_n_u_b __pyx_string_tab[116]
+#define __pyx_n_u_base __pyx_string_tab[117]
+#define __pyx_n_u_base_corners __pyx_string_tab[118]
+#define __pyx_n_u_base_front_y __pyx_string_tab[119]
+#define __pyx_n_u_base_half_w __pyx_string_tab[120]
+#define __pyx_n_u_base_rear_y __pyx_string_tab[121]
+#define __pyx_n_u_base_size __pyx_string_tab[122]
+#define __pyx_n_u_battery __pyx_string_tab[123]
+#define __pyx_n_u_battery_range __pyx_string_tab[124]
+#define __pyx_n_u_black_crit __pyx_string_tab[125]
+#define __pyx_n_u_blue_crit __pyx_string_tab[126]
+#define __pyx_n_u_c __pyx_string_tab[127]
+#define __pyx_n_u_cache __pyx_string_tab[128]
+#define __pyx_n_u_cache_function __pyx_string_tab[129]
+#define __pyx_n_u_check_overlap __pyx_string_tab[130]
+#define __pyx_n_u_class_getitem __pyx_string_tab[131]
+#define __pyx_n_u_click __pyx_string_tab[132]
+#define __pyx_n_u_clicks __pyx_string_tab[133]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[134]
+#define __pyx_n_u_close __pyx_string_tab[135]
+#define __pyx_n_u_collections __pyx_string_tab[136]
+#define __pyx_n_u_command __pyx_string_tab[137]
+#define __pyx_n_u_command_dial __pyx_string_tab[138]
+#define __pyx_n_u_command_stack __pyx_string_tab[139]
+#define __pyx_n_u_command_token __pyx_string_tab[140]
+#define __pyx_n_u_command_value __pyx_string_tab[141]
+#define __pyx_n_u_copy __pyx_string_tab[142]
+#define __pyx_n_u_cos __pyx_string_tab[143]
+#define __pyx_n_u_course __pyx_string_tab[144]
+#define __pyx_n_u_course_cache __pyx_string_tab[145]
+#define __pyx_n_u_create_template_geometries __pyx_string_tab[146]
+#define __pyx_n_u_critical __pyx_string_tab[147]
+#define __pyx_n_u_cumsum __pyx_string_tab[148]
+#define __pyx_kp_u_cython_compile_ship_pxd __pyx_string_tab[149]
+#define __pyx_kp_u_cython_compile_ship_pyx __pyx_string_tab[150]
+#define __pyx_n_u_d __pyx_string_tab[151]
+#define __pyx_n_u_data __pyx_string_tab[152]
+#define __pyx_n_u_defend __pyx_string_tab[153]
+#define __pyx_n_u_defend_hull __pyx_string_tab[154]
+#define __pyx_n_u_defense_token __pyx_string_tab[155]
+#define __pyx_n_u_defense_tokens __pyx_string_tab[156]
+#define __pyx_n_u_del __pyx_string_tab[157]
+#define __pyx_n_u_deploy __pyx_string_tab[158]
+#define __pyx_n_u_deploy_locals_genexpr __pyx_string_tab[159]
+#define __pyx_n_u_descr __pyx_string_tab[160]
+#define __pyx_n_u_destroy __pyx_string_tab[161]
+#define __pyx_n_u_destroyed __pyx_string_tab[162]
+#define __pyx_n_u_dice __pyx_string_tab[163]
+#define __pyx_n_u_dice_type __pyx_string_tab[164]
+#define __pyx_n_u_dict __pyx_string_tab[165]
+#define __pyx_n_u_dict_2 __pyx_string_tab[166]
+#define __pyx_n_u_dict_3 __pyx_string_tab[167]
+#define __pyx_n_u_dimensions __pyx_string_tab[168]
+#define __pyx_n_u_direction_vectors __pyx_string_tab[169]
+#define __pyx_kp_u_disable __pyx_string_tab[170]
+#define __pyx_n_u_distance_s2s __pyx_string_tab[171]
+#define __pyx_n_u_dtype __pyx_string_tab[172]
+#define __pyx_n_u_e __pyx_string_tab[173]
+#define __pyx_n_u_empty __pyx_string_tab[174]
+#define __pyx_kp_u_enable __pyx_string_tab[175]
+#define __pyx_n_u_end_activation __pyx_string_tab[176]
+#define __pyx_n_u_engineer_point __pyx_string_tab[177]
+#define __pyx_n_u_engineer_value __pyx_string_tab[178]
+#define __pyx_n_u_engineering __pyx_string_tab[179]
+#define __pyx_n_u_enum_class __pyx_string_tab[180]
+#define __pyx_n_u_enumerate __pyx_string_tab[181]
+#define __pyx_n_u_execute_maneuver __pyx_string_tab[182]
+#define __pyx_kp_u_executes_speed __pyx_string_tab[183]
+#define __pyx_kp_u_executes_speed_0_maneuver __pyx_string_tab[184]
+#define __pyx_n_u_fields __pyx_string_tab[185]
+#define __pyx_n_u_flags __pyx_string_tab[186]
+#define __pyx_n_u_float32 __pyx_string_tab[187]
+#define __pyx_n_u_from_hull __pyx_string_tab[188]
+#define __pyx_n_u_front_arc __pyx_string_tab[189]
+#define __pyx_n_u_front_arc_center __pyx_string_tab[190]
+#define __pyx_n_u_front_arc_center_pt __pyx_string_tab[191]
+#define __pyx_n_u_front_arc_end __pyx_string_tab[192]
+#define __pyx_n_u_front_left_arc_pt __pyx_string_tab[193]
+#define __pyx_n_u_front_left_token_pt __pyx_string_tab[194]
+#define __pyx_n_u_front_right_arc_pt __pyx_string_tab[195]
+#define __pyx_n_u_front_right_token_pt __pyx_string_tab[196]
+#define __pyx_n_u_front_targeting_point __pyx_string_tab[197]
+#define __pyx_n_u_func __pyx_string_tab[198]
+#define __pyx_n_u_game __pyx_string_tab[199]
+#define __pyx_n_u_gather_dice __pyx_string_tab[200]
+#define __pyx_kp_u_gc __pyx_string_tab[201]
+#define __pyx_n_u_genexpr __pyx_string_tab[202]
+#define __pyx_n_u_get __pyx_string_tab[203]
+#define __pyx_n_u_get_2 __pyx_string_tab[204]
+#define __pyx_n_u_get_all_possible_courses __pyx_string_tab[205]
+#define __pyx_n_u_get_array_base __pyx_string_tab[206]
+#define __pyx_n_u_get_critical_effect __pyx_string_tab[207]
+#define __pyx_n_u_get_datetime64_unit __pyx_string_tab[208]
+#define __pyx_n_u_get_datetime64_value __pyx_string_tab[209]
+#define __pyx_n_u_get_hash_state __pyx_string_tab[210]
+#define __pyx_n_u_get_ship_hash_state __pyx_string_tab[211]
+#define __pyx_n_u_get_snapshot __pyx_string_tab[212]
+#define __pyx_n_u_get_squad_activation __pyx_string_tab[213]
+#define __pyx_n_u_get_timedelta64_value __pyx_string_tab[214]
+#define __pyx_n_u_get_valid_attack_hull __pyx_string_tab[215]
+#define __pyx_n_u_get_valid_placement __pyx_string_tab[216]
+#define __pyx_n_u_get_valid_ship_target __pyx_string_tab[217]
+#define __pyx_n_u_get_valid_speed __pyx_string_tab[218]
+#define __pyx_n_u_get_valid_squad_placement __pyx_string_tab[219]
+#define __pyx_n_u_get_valid_squad_target __pyx_string_tab[220]
+#define __pyx_n_u_get_valid_yaw __pyx_string_tab[221]
+#define __pyx_n_u_getstate __pyx_string_tab[222]
+#define __pyx_kp_u_home_codespace_local_lib_python __pyx_string_tab[223]
+#define __pyx_n_u_hull __pyx_string_tab[224]
+#define __pyx_n_u_i __pyx_string_tab[225]
+#define __pyx_n_u_id __pyx_string_tab[226]
+#define __pyx_n_u_import_array __pyx_string_tab[227]
+#define __pyx_n_u_import_ufunc __pyx_string_tab[228]
+#define __pyx_n_u_import_umath __pyx_string_tab[229]
+#define __pyx_n_u_index __pyx_string_tab[230]
+#define __pyx_n_u_inf __pyx_string_tab[231]
+#define __pyx_n_u_init __pyx_string_tab[232]
+#define __pyx_n_u_init___locals_genexpr __pyx_string_tab[233]
+#define __pyx_n_u_initial_orientation __pyx_string_tab[234]
+#define __pyx_n_u_initial_position __pyx_string_tab[235]
+#define __pyx_n_u_initializing __pyx_string_tab[236]
+#define __pyx_n_u_int __pyx_string_tab[237]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[238]
+#define __pyx_n_u_is_datetime64_object __pyx_string_tab[239]
+#define __pyx_kp_u_is_destroyed __pyx_string_tab[240]
+#define __pyx_n_u_is_obstruct_obstacle __pyx_string_tab[241]
+#define __pyx_n_u_is_obstruct_s2q __pyx_string_tab[242]
+#define __pyx_n_u_is_obstruct_s2s __pyx_string_tab[243]
+#define __pyx_n_u_is_obstruct_ship __pyx_string_tab[244]
+#define __pyx_kp_u_is_out_of_board __pyx_string_tab[245]
+#define __pyx_n_u_is_overlap __pyx_string_tab[246]
+#define __pyx_n_u_is_overlap_s2o __pyx_string_tab[247]
+#define __pyx_n_u_is_overlap_s2q __pyx_string_tab[248]
+#define __pyx_n_u_is_overlap_s2s __pyx_string_tab[249]
+#define __pyx_n_u_is_overlap_squad __pyx_string_tab[250]
+#define __pyx_n_u_is_ship __pyx_string_tab[251]
+#define __pyx_n_u_is_standard_course __pyx_string_tab[252]
+#define __pyx_n_u_is_timedelta64_object __pyx_string_tab[253]
+#define __pyx_kp_u_isenabled __pyx_string_tab[254]
+#define __pyx_n_u_items __pyx_string_tab[255]
+#define __pyx_n_u_itemsize __pyx_string_tab[256]
+#define __pyx_n_u_iters __pyx_string_tab[257]
+#define __pyx_n_u_itertools __pyx_string_tab[258]
+#define __pyx_n_u_joint __pyx_string_tab[259]
+#define __pyx_n_u_joint_orientations __pyx_string_tab[260]
+#define __pyx_n_u_k __pyx_string_tab[261]
+#define __pyx_n_u_key __pyx_string_tab[262]
+#define __pyx_n_u_long_segment_orientations __pyx_string_tab[263]
+#define __pyx_n_u_los_point_ship __pyx_string_tab[264]
+#define __pyx_n_u_main __pyx_string_tab[265]
+#define __pyx_kp_u_maneuver __pyx_string_tab[266]
+#define __pyx_n_u_maneuver_tool __pyx_string_tab[267]
+#define __pyx_n_u_max __pyx_string_tab[268]
+#define __pyx_n_u_max_hull __pyx_string_tab[269]
+#define __pyx_n_u_max_shield __pyx_string_tab[270]
+#define __pyx_n_u_measurement __pyx_string_tab[271]
+#define __pyx_n_u_min __pyx_string_tab[272]
+#define __pyx_n_u_module __pyx_string_tab[273]
+#define __pyx_n_u_move_ship __pyx_string_tab[274]
+#define __pyx_n_u_name __pyx_string_tab[275]
+#define __pyx_n_u_name_2 __pyx_string_tab[276]
+#define __pyx_n_u_names __pyx_string_tab[277]
+#define __pyx_n_u_nav_chart __pyx_string_tab[278]
+#define __pyx_n_u_nav_chart_vector __pyx_string_tab[279]
+#define __pyx_n_u_nav_command_used __pyx_string_tab[280]
+#define __pyx_n_u_navchart __pyx_string_tab[281]
+#define __pyx_n_u_nd __pyx_string_tab[282]
+#define __pyx_n_u_ndim __pyx_string_tab[283]
+#define __pyx_n_u_new __pyx_string_tab[284]
+#define __pyx_n_u_newaxis __pyx_string_tab[285]
+#define __pyx_n_u_next __pyx_string_tab[286]
+#define __pyx_n_u_np __pyx_string_tab[287]
+#define __pyx_n_u_numiter __pyx_string_tab[288]
+#define __pyx_n_u_numpy __pyx_string_tab[289]
+#define __pyx_kp_u_numpy__core_multiarray_failed_to __pyx_string_tab[290]
+#define __pyx_kp_u_numpy__core_umath_failed_to_impo __pyx_string_tab[291]
+#define __pyx_n_u_obj __pyx_string_tab[292]
+#define __pyx_n_u_obstacle __pyx_string_tab[293]
+#define __pyx_n_u_orientation __pyx_string_tab[294]
+#define __pyx_n_u_out_of_board __pyx_string_tab[295]
+#define __pyx_n_u_overlap_damage __pyx_string_tab[296]
+#define __pyx_n_u_overlap_list __pyx_string_tab[297]
+#define __pyx_n_u_overlap_obstacle __pyx_string_tab[298]
+#define __pyx_n_u_overlap_ships __pyx_string_tab[299]
+#define __pyx_kp_u_overlaps_ships_at_speed __pyx_string_tab[300]
+#define __pyx_kp_u_overlaps_to __pyx_string_tab[301]
+#define __pyx_n_u_pi __pyx_string_tab[302]
+#define __pyx_n_u_pickle __pyx_string_tab[303]
+#define __pyx_n_u_placement __pyx_string_tab[304]
+#define __pyx_n_u_player __pyx_string_tab[305]
+#define __pyx_n_u_point __pyx_string_tab[306]
+#define __pyx_n_u_pop __pyx_string_tab[307]
+#define __pyx_n_u_position_vectors __pyx_string_tab[308]
+#define __pyx_n_u_product __pyx_string_tab[309]
+#define __pyx_n_u_pyx_PickleError __pyx_string_tab[310]
+#define __pyx_n_u_pyx_checksum __pyx_string_tab[311]
+#define __pyx_n_u_pyx_result __pyx_string_tab[312]
+#define __pyx_n_u_pyx_state __pyx_string_tab[313]
+#define __pyx_n_u_pyx_type __pyx_string_tab[314]
+#define __pyx_n_u_pyx_unpickle_Ship __pyx_string_tab[315]
+#define __pyx_n_u_pyx_unpickle_Ship__set_state __pyx_string_tab[316]
+#define __pyx_n_u_pyx_vtable __pyx_string_tab[317]
+#define __pyx_n_u_qualname __pyx_string_tab[318]
+#define __pyx_n_u_range __pyx_string_tab[319]
+#define __pyx_n_u_range_s2q __pyx_string_tab[320]
+#define __pyx_n_u_rear_arc __pyx_string_tab[321]
+#define __pyx_n_u_rear_arc_center __pyx_string_tab[322]
+#define __pyx_n_u_rear_arc_center_pt __pyx_string_tab[323]
+#define __pyx_n_u_rear_arc_end __pyx_string_tab[324]
+#define __pyx_n_u_rear_left_arc_pt __pyx_string_tab[325]
+#define __pyx_n_u_rear_left_token_pt __pyx_string_tab[326]
+#define __pyx_n_u_rear_right_arc_pt __pyx_string_tab[327]
+#define __pyx_n_u_rear_right_token_pt __pyx_string_tab[328]
+#define __pyx_n_u_rear_targeting_point __pyx_string_tab[329]
+#define __pyx_n_u_red_crit __pyx_string_tab[330]
+#define __pyx_n_u_reduce __pyx_string_tab[331]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[332]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[333]
+#define __pyx_n_u_remove __pyx_string_tab[334]
+#define __pyx_n_u_repaired_hull __pyx_string_tab[335]
+#define __pyx_n_u_repr __pyx_string_tab[336]
+#define __pyx_n_u_resolved_command __pyx_string_tab[337]
+#define __pyx_n_u_return __pyx_string_tab[338]
+#define __pyx_n_u_revert_snapshot __pyx_string_tab[339]
+#define __pyx_n_u_rotation_matrix __pyx_string_tab[340]
+#define __pyx_n_u_segment_lengths __pyx_string_tab[341]
+#define __pyx_n_u_segment_orientations __pyx_string_tab[342]
+#define __pyx_n_u_self __pyx_string_tab[343]
+#define __pyx_n_u_send __pyx_string_tab[344]
+#define __pyx_n_u_set __pyx_string_tab[345]
+#define __pyx_n_u_set_array_base __pyx_string_tab[346]
+#define __pyx_n_u_set_name __pyx_string_tab[347]
+#define __pyx_n_u_setstate __pyx_string_tab[348]
+#define __pyx_n_u_setstate_cython __pyx_string_tab[349]
+#define __pyx_n_u_shape __pyx_string_tab[350]
+#define __pyx_n_u_shield __pyx_string_tab[351]
+#define __pyx_n_u_ship __pyx_string_tab[352]
+#define __pyx_n_u_ship_coordinate __pyx_string_tab[353]
+#define __pyx_n_u_ship_dict __pyx_string_tab[354]
+#define __pyx_n_u_ship_id __pyx_string_tab[355]
+#define __pyx_n_u_short_segment_orientations __pyx_string_tab[356]
+#define __pyx_n_u_side_targeting_point __pyx_string_tab[357]
+#define __pyx_n_u_sin __pyx_string_tab[358]
+#define __pyx_n_u_size __pyx_string_tab[359]
+#define __pyx_n_u_size_class __pyx_string_tab[360]
+#define __pyx_n_u_snapshot __pyx_string_tab[361]
+#define __pyx_n_u_spec __pyx_string_tab[362]
+#define __pyx_n_u_speed __pyx_string_tab[363]
+#define __pyx_n_u_spend_command_dial __pyx_string_tab[364]
+#define __pyx_n_u_spend_command_token __pyx_string_tab[365]
+#define __pyx_n_u_squad __pyx_string_tab[366]
+#define __pyx_n_u_squad_placement_points __pyx_string_tab[367]
+#define __pyx_n_u_squad_value __pyx_string_tab[368]
+#define __pyx_n_u_squadron __pyx_string_tab[369]
+#define __pyx_n_u_state __pyx_string_tab[370]
+#define __pyx_n_u_status_phase __pyx_string_tab[371]
+#define __pyx_n_u_str __pyx_string_tab[372]
+#define __pyx_n_u_strides __pyx_string_tab[373]
+#define __pyx_kp_u_stringsource __pyx_string_tab[374]
+#define __pyx_n_u_subarray __pyx_string_tab[375]
+#define __pyx_n_u_sum __pyx_string_tab[376]
+#define __pyx_n_u_targeting_points __pyx_string_tab[377]
+#define __pyx_n_u_template_base_vertices __pyx_string_tab[378]
+#define __pyx_n_u_template_hull_vertices __pyx_string_tab[379]
+#define __pyx_n_u_template_targeting_points_and_ma __pyx_string_tab[380]
+#define __pyx_n_u_template_token_vertices __pyx_string_tab[381]
+#define __pyx_n_u_test __pyx_string_tab[382]
+#define __pyx_n_u_throw __pyx_string_tab[383]
+#define __pyx_n_u_tile __pyx_string_tab[384]
+#define __pyx_n_u_to_hull __pyx_string_tab[385]
+#define __pyx_n_u_to_ship __pyx_string_tab[386]
+#define __pyx_n_u_to_squad __pyx_string_tab[387]
+#define __pyx_n_u_token_counts __pyx_string_tab[388]
+#define __pyx_n_u_token_enum __pyx_string_tab[389]
+#define __pyx_n_u_token_half_w __pyx_string_tab[390]
+#define __pyx_n_u_token_size __pyx_string_tab[391]
+#define __pyx_n_u_token_type_str __pyx_string_tab[392]
+#define __pyx_n_u_tolist __pyx_string_tab[393]
+#define __pyx_n_u_tool_coord __pyx_string_tab[394]
+#define __pyx_n_u_tool_coordination __pyx_string_tab[395]
+#define __pyx_n_u_tool_coords __pyx_string_tab[396]
+#define __pyx_n_u_tool_insert_points __pyx_string_tab[397]
+#define __pyx_n_u_total_damage __pyx_string_tab[398]
+#define __pyx_kp_u_tuple_int __pyx_string_tab[399]
+#define __pyx_kp_u_tuple_list_tuple_float_float_lis __pyx_string_tab[400]
+#define __pyx_n_u_typing __pyx_string_tab[401]
+#define __pyx_n_u_union __pyx_string_tab[402]
+#define __pyx_n_u_update __pyx_string_tab[403]
+#define __pyx_n_u_upper __pyx_string_tab[404]
+#define __pyx_n_u_use_setstate __pyx_string_tab[405]
+#define __pyx_n_u_v __pyx_string_tab[406]
+#define __pyx_n_u_value __pyx_string_tab[407]
+#define __pyx_n_u_values __pyx_string_tab[408]
+#define __pyx_n_u_visualize __pyx_string_tab[409]
+#define __pyx_n_u_vstack __pyx_string_tab[410]
+#define __pyx_n_u_x __pyx_string_tab[411]
+#define __pyx_n_u_y __pyx_string_tab[412]
+#define __pyx_n_u_yaw_changes __pyx_string_tab[413]
+#define __pyx_n_u_zeros __pyx_string_tab[414]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -5620,7 +5628,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   for (int i=0; i<5; ++i) { Py_CLEAR(clear_module_state->__pyx_slice[i]); }
   for (int i=0; i<9; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<189; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<412; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<415; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   Py_CLEAR(clear_module_state->__pyx_float_2_0);
   Py_CLEAR(clear_module_state->__pyx_int_0);
   Py_CLEAR(clear_module_state->__pyx_int_1);
@@ -5686,7 +5694,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   for (int i=0; i<5; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_slice[i]); }
   for (int i=0; i<9; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<189; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<412; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<415; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_float_2_0);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_0);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_1);
@@ -9922,7 +9930,7 @@ static int __pyx_pf_4ship_4Ship___init__(struct __pyx_obj_4ship_Ship *__pyx_v_se
  *         self._course_cache : dict[tuple[int, bool], list[tuple[int, ...]]]= {}
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
- *         return self.name
+ *         return f"{self.name}(ID:{self.id})"
  *     __repr__ = __str__
 */
 
@@ -9945,6 +9953,10 @@ static PyObject *__pyx_pf_4ship_4Ship_2__str__(struct __pyx_obj_4ship_Ship *__py
   PyObject *__pyx_r = NULL;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3[4];
+  PyObject *__pyx_t_4 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -9955,13 +9967,26 @@ static PyObject *__pyx_pf_4ship_4Ship_2__str__(struct __pyx_obj_4ship_Ship *__py
   /* "ship.pyx":83
  * 
  *     def __str__(self):
- *         return self.name             # <<<<<<<<<<<<<<
+ *         return f"{self.name}(ID:{self.id})"             # <<<<<<<<<<<<<<
  *     __repr__ = __str__
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(__pyx_v_self->name);
-  __pyx_r = __pyx_v_self->name;
+  __pyx_t_1 = __Pyx_PyUnicode_Unicode(__pyx_v_self->name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyUnicode_From_int(__pyx_v_self->id, 0, ' ', 'd'); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3[0] = __pyx_t_1;
+  __pyx_t_3[1] = __pyx_mstate_global->__pyx_kp_u_ID;
+  __pyx_t_3[2] = __pyx_t_2;
+  __pyx_t_3[3] = __pyx_mstate_global->__pyx_kp_u_;
+  __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_3, 4, __Pyx_PyUnicode_GET_LENGTH(__pyx_t_1) + 4 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_2) + 1, 127 | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_1));
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_r = __pyx_t_4;
+  __pyx_t_4 = 0;
   __Pyx_TraceReturnValue(__pyx_r, 1, 0, __PYX_ERR(0, 83, __pyx_L1_error));
   goto __pyx_L0;
 
@@ -9969,12 +9994,15 @@ static PyObject *__pyx_pf_4ship_4Ship_2__str__(struct __pyx_obj_4ship_Ship *__py
  *         self._course_cache : dict[tuple[int, bool], list[tuple[int, ...]]]= {}
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
- *         return self.name
+ *         return f"{self.name}(ID:{self.id})"
  *     __repr__ = __str__
 */
 
   /* function exit code */
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
@@ -23003,11 +23031,11 @@ static void __pyx_f_4ship_4Ship_overlap_damage(struct __pyx_obj_4ship_Ship *__py
   if (unlikely(!__pyx_v_closest_ship)) { __Pyx_RaiseUnboundLocalError("closest_ship"); __PYX_ERR(0, 638, __pyx_L1_error) }
   __pyx_t_14 = __Pyx_PyObject_FormatSimple(((PyObject *)__pyx_v_closest_ship), __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 638, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
-  __pyx_t_16[0] = __pyx_mstate_global->__pyx_kp_u_;
+  __pyx_t_16[0] = __pyx_mstate_global->__pyx_kp_u__2;
   __pyx_t_16[1] = __pyx_t_13;
   __pyx_t_16[2] = __pyx_mstate_global->__pyx_kp_u_overlaps_to;
   __pyx_t_16[3] = __pyx_t_14;
-  __pyx_t_16[4] = __pyx_mstate_global->__pyx_kp_u__2;
+  __pyx_t_16[4] = __pyx_mstate_global->__pyx_kp_u__3;
   __pyx_t_3 = __Pyx_PyUnicode_Join(__pyx_t_16, 5, 1 * 2 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_13) + 13 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_14), 127 | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_13) | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_14));
   if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 638, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -37664,7 +37692,7 @@ __Pyx_RefNannySetupContext("PyInit_ship", 0);
  * from defense_token cimport DefenseToken
  * from measurement import *
 */
-  __pyx_t_2 = __Pyx_PyList_Pack(1, __pyx_mstate_global->__pyx_n_u__3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyList_Pack(1, __pyx_mstate_global->__pyx_n_u__4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_dice, __pyx_t_2, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -37679,7 +37707,7 @@ __Pyx_RefNannySetupContext("PyInit_ship", 0);
  * from enum_class import *
  * import cache_function as cache
 */
-  __pyx_t_3 = __Pyx_PyList_Pack(1, __pyx_mstate_global->__pyx_n_u__3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyList_Pack(1, __pyx_mstate_global->__pyx_n_u__4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_measurement, __pyx_t_3, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -37694,7 +37722,7 @@ __Pyx_RefNannySetupContext("PyInit_ship", 0);
  * import cache_function as cache
  * 
 */
-  __pyx_t_2 = __Pyx_PyList_Pack(1, __pyx_mstate_global->__pyx_n_u__3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyList_Pack(1, __pyx_mstate_global->__pyx_n_u__4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_enum_class, __pyx_t_2, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -37716,7 +37744,7 @@ __Pyx_RefNannySetupContext("PyInit_ship", 0);
 
   /* "ship.pyx":84
  *     def __str__(self):
- *         return self.name
+ *         return f"{self.name}(ID:{self.id})"
  *     __repr__ = __str__             # <<<<<<<<<<<<<<
  * 
  *     def deploy(self, Armada game, float x, float y, float orientation, int speed, int ship_id):
@@ -38268,6 +38296,7 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_HASH_PRECISION, sizeof(__pyx_k_HASH_PRECISION), 0, 1, 1}, /* PyObject cname: __pyx_n_u_HASH_PRECISION */
   {__pyx_k_HULL_SECTIONS, sizeof(__pyx_k_HULL_SECTIONS), 0, 1, 1}, /* PyObject cname: __pyx_n_u_HULL_SECTIONS */
   {__pyx_k_HullSection, sizeof(__pyx_k_HullSection), 0, 1, 1}, /* PyObject cname: __pyx_n_u_HullSection */
+  {__pyx_k_ID, sizeof(__pyx_k_ID), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_ID */
   {__pyx_k_INVALID, sizeof(__pyx_k_INVALID), 0, 1, 1}, /* PyObject cname: __pyx_n_u_INVALID */
   {__pyx_k_ImportError, sizeof(__pyx_k_ImportError), 0, 1, 1}, /* PyObject cname: __pyx_n_u_ImportError */
   {__pyx_k_Incompatible_checksums_0x_x_vs_0, sizeof(__pyx_k_Incompatible_checksums_0x_x_vs_0), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_Incompatible_checksums_0x_x_vs_0 */
@@ -38277,6 +38306,7 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_Maximum_is_2, sizeof(__pyx_k_Maximum_is_2), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_Maximum_is_2 */
   {__pyx_k_NAV, sizeof(__pyx_k_NAV), 0, 1, 1}, /* PyObject cname: __pyx_n_u_NAV */
   {__pyx_k_None, sizeof(__pyx_k_None), 0, 1, 1}, /* PyObject cname: __pyx_n_u_None */
+  {__pyx_k_None, sizeof(__pyx_k_None), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_None */
   {__pyx_k_Note_that_Cython_is_deliberately, sizeof(__pyx_k_Note_that_Cython_is_deliberately), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_Note_that_Cython_is_deliberately */
   {__pyx_k_ObstacleType, sizeof(__pyx_k_ObstacleType), 0, 1, 1}, /* PyObject cname: __pyx_n_u_ObstacleType */
   {__pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 1, 1}, /* PyObject cname: __pyx_n_u_PickleError */
@@ -38344,8 +38374,9 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_TokenType, sizeof(__pyx_k_TokenType), 0, 1, 1}, /* PyObject cname: __pyx_n_u_TokenType */
   {__pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 1, 1}, /* PyObject cname: __pyx_n_u_ValueError */
   {__pyx_k__2, sizeof(__pyx_k__2), 0, 1, 0}, /* PyObject cname: __pyx_kp_u__2 */
-  {__pyx_k__3, sizeof(__pyx_k__3), 0, 1, 1}, /* PyObject cname: __pyx_n_u__3 */
-  {__pyx_k__4, sizeof(__pyx_k__4), 0, 1, 0}, /* PyObject cname: __pyx_kp_u__4 */
+  {__pyx_k__3, sizeof(__pyx_k__3), 0, 1, 0}, /* PyObject cname: __pyx_kp_u__3 */
+  {__pyx_k__4, sizeof(__pyx_k__4), 0, 1, 1}, /* PyObject cname: __pyx_n_u__4 */
+  {__pyx_k__5, sizeof(__pyx_k__5), 0, 1, 0}, /* PyObject cname: __pyx_kp_u__5 */
   {__pyx_k_a, sizeof(__pyx_k_a), 0, 1, 1}, /* PyObject cname: __pyx_n_u_a */
   {__pyx_k_activated, sizeof(__pyx_k_activated), 0, 1, 1}, /* PyObject cname: __pyx_n_u_activated */
   {__pyx_k_add_note, sizeof(__pyx_k_add_note), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_add_note */
@@ -38940,7 +38971,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 328, 14};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_size, __pyx_k__5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_size, __pyx_k__6, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 333, 14};
@@ -38950,12 +38981,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 338, 14};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_nd, __pyx_k__5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_nd, __pyx_k__6, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 343, 14};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_dimensions, __pyx_k__5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_dimensions, __pyx_k__6, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 348, 14};
@@ -38995,7 +39026,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 405, 13};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[18] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_data, __pyx_k__6, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[18])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[18] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_home_codespace_local_lib_python, __pyx_mstate->__pyx_n_u_data, __pyx_k__7, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[18])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 824, 16};
@@ -39085,7 +39116,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 46, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_dice_type};
-    __pyx_mstate_global->__pyx_codeobj_tab[36] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pyx, __pyx_mstate->__pyx_n_u_genexpr, __pyx_k__7, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[36])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[36] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pyx, __pyx_mstate->__pyx_n_u_genexpr, __pyx_k__8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[36])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 19, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 24, 653};
@@ -39093,9 +39124,9 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pyx, __pyx_mstate->__pyx_n_u_init, __pyx_k_Q_F_N_1A_iq_iq_1_Q_0_at1_8_9IUV, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 82, 9};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 82, 17};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pyx, __pyx_mstate->__pyx_n_u_str, __pyx_k_A_t1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pyx, __pyx_mstate->__pyx_n_u_str, __pyx_k_A_r_T_D, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 104, 2};
@@ -39370,12 +39401,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 9, 3};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[93] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[93])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[93] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[93])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 9, 3};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_value};
-    __pyx_mstate_global->__pyx_codeobj_tab[94] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[94])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[94] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[94])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 9, 3};
@@ -39420,12 +39451,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 10, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[103] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[103])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[103] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[103])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 10, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_value};
-    __pyx_mstate_global->__pyx_codeobj_tab[104] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[104])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[104] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[104])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 10, 2};
@@ -39620,17 +39651,17 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[143] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[143])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[143] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__11, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[143])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_value};
-    __pyx_mstate_global->__pyx_codeobj_tab[144] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[144])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[144] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__11, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[144])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[145] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_del, __pyx_k__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[145])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[145] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_del, __pyx_k__11, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[145])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16, 2};
@@ -39800,17 +39831,17 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 17, 3};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[179] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__11, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[179])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[179] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_get_2, __pyx_k__12, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[179])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 17, 3};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_value};
-    __pyx_mstate_global->__pyx_codeobj_tab[180] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__11, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[180])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[180] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_set, __pyx_k__12, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[180])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 17, 3};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[181] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_del, __pyx_k__11, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[181])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[181] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_ship_pxd, __pyx_mstate->__pyx_n_u_del, __pyx_k__12, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[181])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 18, 2};
@@ -42835,6 +42866,325 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_SubtractObjC(PyObject *op1, PyObject
 }
 #endif
 
+/* PyUnicode_Unicode */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj) {
+    if (unlikely(obj == Py_None))
+        obj = __pyx_mstate_global->__pyx_kp_u_None;
+    return __Pyx_NewRef(obj);
+}
+
+/* CIntToDigits */
+static const char DIGIT_PAIRS_10[2*10*10+1] = {
+    "00010203040506070809"
+    "10111213141516171819"
+    "20212223242526272829"
+    "30313233343536373839"
+    "40414243444546474849"
+    "50515253545556575859"
+    "60616263646566676869"
+    "70717273747576777879"
+    "80818283848586878889"
+    "90919293949596979899"
+};
+static const char DIGIT_PAIRS_8[2*8*8+1] = {
+    "0001020304050607"
+    "1011121314151617"
+    "2021222324252627"
+    "3031323334353637"
+    "4041424344454647"
+    "5051525354555657"
+    "6061626364656667"
+    "7071727374757677"
+};
+static const char DIGITS_HEX[2*16+1] = {
+    "0123456789abcdef"
+    "0123456789ABCDEF"
+};
+
+/* BuildPyUnicode */
+static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, const char* chars, int clength,
+                                                int prepend_sign, char padding_char) {
+    PyObject *uval;
+    Py_ssize_t uoffset = ulength - clength;
+#if CYTHON_USE_UNICODE_INTERNALS
+    Py_ssize_t i;
+    void *udata;
+    uval = PyUnicode_New(ulength, 127);
+    if (unlikely(!uval)) return NULL;
+    udata = PyUnicode_DATA(uval);
+    if (uoffset > 0) {
+        i = 0;
+        if (prepend_sign) {
+            __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, 0, '-');
+            i++;
+        }
+        for (; i < uoffset; i++) {
+            __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, i, padding_char);
+        }
+    }
+    for (i=0; i < clength; i++) {
+        __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, uoffset+i, chars[i]);
+    }
+#else
+    {
+        PyObject *sign = NULL, *padding = NULL;
+        uval = NULL;
+        if (uoffset > 0) {
+            prepend_sign = !!prepend_sign;
+            if (uoffset > prepend_sign) {
+                padding = PyUnicode_FromOrdinal(padding_char);
+                if (likely(padding) && uoffset > prepend_sign + 1) {
+                    PyObject *tmp = PySequence_Repeat(padding, uoffset - prepend_sign);
+                    Py_DECREF(padding);
+                    padding = tmp;
+                }
+                if (unlikely(!padding)) goto done_or_error;
+            }
+            if (prepend_sign) {
+                sign = PyUnicode_FromOrdinal('-');
+                if (unlikely(!sign)) goto done_or_error;
+            }
+        }
+        uval = PyUnicode_DecodeASCII(chars, clength, NULL);
+        if (likely(uval) && padding) {
+            PyObject *tmp = PyUnicode_Concat(padding, uval);
+            Py_DECREF(uval);
+            uval = tmp;
+        }
+        if (likely(uval) && sign) {
+            PyObject *tmp = PyUnicode_Concat(sign, uval);
+            Py_DECREF(uval);
+            uval = tmp;
+        }
+done_or_error:
+        Py_XDECREF(padding);
+        Py_XDECREF(sign);
+    }
+#endif
+    return uval;
+}
+
+/* COrdinalToPyUnicode */
+static CYTHON_INLINE int __Pyx_CheckUnicodeValue(int value) {
+    return value <= 1114111;
+}
+static PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_ssize_t ulength, char padding_char) {
+    if (likely(ulength <= 250)) {
+        char chars[256];
+        if (value <= 255) {
+            memset(chars, padding_char, (size_t) (ulength - 1));
+            chars[ulength-1] = (char) value;
+            return PyUnicode_DecodeLatin1(chars, ulength, NULL);
+        }
+        char *cpos = chars + sizeof(chars);
+        if (value < 0x800) {
+            *--cpos = (char) (0x80 | (value & 0x3f));
+            value >>= 6;
+            *--cpos = (char) (0xc0 | (value & 0x1f));
+        } else if (value < 0x10000) {
+            *--cpos = (char) (0x80 | (value & 0x3f));
+            value >>= 6;
+            *--cpos = (char) (0x80 | (value & 0x3f));
+            value >>= 6;
+            *--cpos = (char) (0xe0 | (value & 0x0f));
+        } else {
+            *--cpos = (char) (0x80 | (value & 0x3f));
+            value >>= 6;
+            *--cpos = (char) (0x80 | (value & 0x3f));
+            value >>= 6;
+            *--cpos = (char) (0x80 | (value & 0x3f));
+            value >>= 6;
+            *--cpos = (char) (0xf0 | (value & 0x07));
+        }
+        cpos -= ulength;
+        memset(cpos, padding_char, (size_t) (ulength - 1));
+        return PyUnicode_DecodeUTF8(cpos, chars + sizeof(chars) - cpos, NULL);
+    }
+    if (value <= 127 && CYTHON_USE_UNICODE_INTERNALS) {
+        const char chars[1] = {(char) value};
+        return __Pyx_PyUnicode_BuildFromAscii(ulength, chars, 1, 0, padding_char);
+    }
+    {
+        PyObject *uchar, *padding_uchar, *padding, *result;
+        padding_uchar = PyUnicode_FromOrdinal(padding_char);
+        if (unlikely(!padding_uchar)) return NULL;
+        padding = PySequence_Repeat(padding_uchar, ulength - 1);
+        Py_DECREF(padding_uchar);
+        if (unlikely(!padding)) return NULL;
+        uchar = PyUnicode_FromOrdinal(value);
+        if (unlikely(!uchar)) {
+            Py_DECREF(padding);
+            return NULL;
+        }
+        result = PyUnicode_Concat(padding, uchar);
+        Py_DECREF(padding);
+        Py_DECREF(uchar);
+        return result;
+    }
+}
+
+/* CIntToPyUnicode */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char) {
+    char digits[sizeof(int)*3+2];
+    char *dpos, *end = digits + sizeof(int)*3+2;
+    const char *hex_digits = DIGITS_HEX;
+    Py_ssize_t length, ulength;
+    int prepend_sign, last_one_off;
+    int remaining;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const int neg_one = (int) -1, const_zero = (int) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+    if (format_char == 'c') {
+        if (unlikely(!(is_unsigned || value == 0 || value > 0) ||
+                     !(sizeof(value) <= 2 || value & ~ (int) 0x01fffff || __Pyx_CheckUnicodeValue((int) value)))) {
+            PyErr_SetString(PyExc_OverflowError, "%c arg not in range(0x110000)");
+            return NULL;
+        }
+        if (width <= 1) {
+            return PyUnicode_FromOrdinal((int) value);
+        }
+        return __Pyx_PyUnicode_FromOrdinal_Padded((int) value, width, padding_char);
+    }
+    if (format_char == 'X') {
+        hex_digits += 16;
+        format_char = 'x';
+    }
+    remaining = value;
+    last_one_off = 0;
+    dpos = end;
+    do {
+        int digit_pos;
+        switch (format_char) {
+        case 'o':
+            digit_pos = abs((int)(remaining % (8*8)));
+            remaining = (int) (remaining / (8*8));
+            dpos -= 2;
+            memcpy(dpos, DIGIT_PAIRS_8 + digit_pos * 2, 2);
+            last_one_off = (digit_pos < 8);
+            break;
+        case 'd':
+            digit_pos = abs((int)(remaining % (10*10)));
+            remaining = (int) (remaining / (10*10));
+            dpos -= 2;
+            memcpy(dpos, DIGIT_PAIRS_10 + digit_pos * 2, 2);
+            last_one_off = (digit_pos < 10);
+            break;
+        case 'x':
+            *(--dpos) = hex_digits[abs((int)(remaining % 16))];
+            remaining = (int) (remaining / 16);
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    } while (unlikely(remaining != 0));
+    assert(!last_one_off || *dpos == '0');
+    dpos += last_one_off;
+    length = end - dpos;
+    ulength = length;
+    prepend_sign = 0;
+    if (!is_unsigned && value <= neg_one) {
+        if (padding_char == ' ' || width <= length + 1) {
+            *(--dpos) = '-';
+            ++length;
+        } else {
+            prepend_sign = 1;
+        }
+        ++ulength;
+    }
+    if (width > ulength) {
+        ulength = width;
+    }
+    if (ulength == 1) {
+        return PyUnicode_FromOrdinal(*dpos);
+    }
+    return __Pyx_PyUnicode_BuildFromAscii(ulength, dpos, (int) length, prepend_sign, padding_char);
+}
+
+/* JoinPyUnicode */
+static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength,
+                                      Py_UCS4 max_char) {
+#if CYTHON_USE_UNICODE_INTERNALS && CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    PyObject *result_uval;
+    int result_ukind, kind_shift;
+    Py_ssize_t i, char_pos;
+    void *result_udata;
+    if (max_char > 1114111) max_char = 1114111;
+    result_uval = PyUnicode_New(result_ulength, max_char);
+    if (unlikely(!result_uval)) return NULL;
+    result_ukind = (max_char <= 255) ? PyUnicode_1BYTE_KIND : (max_char <= 65535) ? PyUnicode_2BYTE_KIND : PyUnicode_4BYTE_KIND;
+    kind_shift = (result_ukind == PyUnicode_4BYTE_KIND) ? 2 : result_ukind - 1;
+    result_udata = PyUnicode_DATA(result_uval);
+    assert(kind_shift == 2 || kind_shift == 1 || kind_shift == 0);
+    if (unlikely((PY_SSIZE_T_MAX >> kind_shift) - result_ulength < 0))
+        goto overflow;
+    char_pos = 0;
+    for (i=0; i < value_count; i++) {
+        int ukind;
+        Py_ssize_t ulength;
+        void *udata;
+        PyObject *uval = values[i];
+        #if !CYTHON_COMPILING_IN_LIMITED_API
+        if (__Pyx_PyUnicode_READY(uval) == (-1))
+            goto bad;
+        #endif
+        ulength = __Pyx_PyUnicode_GET_LENGTH(uval);
+        #if !CYTHON_ASSUME_SAFE_SIZE
+        if (unlikely(ulength < 0)) goto bad;
+        #endif
+        if (unlikely(!ulength))
+            continue;
+        if (unlikely((PY_SSIZE_T_MAX >> kind_shift) - ulength < char_pos))
+            goto overflow;
+        ukind = __Pyx_PyUnicode_KIND(uval);
+        udata = __Pyx_PyUnicode_DATA(uval);
+        if (ukind == result_ukind) {
+            memcpy((char *)result_udata + (char_pos << kind_shift), udata, (size_t) (ulength << kind_shift));
+        } else {
+            #if PY_VERSION_HEX >= 0x030d0000
+            if (unlikely(PyUnicode_CopyCharacters(result_uval, char_pos, uval, 0, ulength) < 0)) goto bad;
+            #elif CYTHON_COMPILING_IN_CPYTHON || defined(_PyUnicode_FastCopyCharacters)
+            _PyUnicode_FastCopyCharacters(result_uval, char_pos, uval, 0, ulength);
+            #else
+            Py_ssize_t j;
+            for (j=0; j < ulength; j++) {
+                Py_UCS4 uchar = __Pyx_PyUnicode_READ(ukind, udata, j);
+                __Pyx_PyUnicode_WRITE(result_ukind, result_udata, char_pos+j, uchar);
+            }
+            #endif
+        }
+        char_pos += ulength;
+    }
+    return result_uval;
+overflow:
+    PyErr_SetString(PyExc_OverflowError, "join() result is too long for a Python string");
+bad:
+    Py_DECREF(result_uval);
+    return NULL;
+#else
+    Py_ssize_t i;
+    PyObject *result = NULL;
+    PyObject *value_tuple = PyTuple_New(value_count);
+    if (unlikely(!value_tuple)) return NULL;
+    CYTHON_UNUSED_VAR(max_char);
+    CYTHON_UNUSED_VAR(result_ulength);
+    for (i=0; i<value_count; i++) {
+        if (__Pyx_PyTuple_SET_ITEM(value_tuple, i, values[i]) != (0)) goto bad;
+        Py_INCREF(values[i]);
+    }
+    result = PyUnicode_Join(__pyx_mstate_global->__pyx_empty_unicode, value_tuple);
+bad:
+    Py_DECREF(value_tuple);
+    return result;
+#endif
+}
+
 /* UnicodeConcatInPlace */
 # if CYTHON_COMPILING_IN_CPYTHON
 static int
@@ -43500,156 +43850,6 @@ fail:;
      "Out of bounds on buffer access (axis %d)", axis);
 }
 
-/* CIntToDigits */
-  static const char DIGIT_PAIRS_10[2*10*10+1] = {
-    "00010203040506070809"
-    "10111213141516171819"
-    "20212223242526272829"
-    "30313233343536373839"
-    "40414243444546474849"
-    "50515253545556575859"
-    "60616263646566676869"
-    "70717273747576777879"
-    "80818283848586878889"
-    "90919293949596979899"
-};
-static const char DIGIT_PAIRS_8[2*8*8+1] = {
-    "0001020304050607"
-    "1011121314151617"
-    "2021222324252627"
-    "3031323334353637"
-    "4041424344454647"
-    "5051525354555657"
-    "6061626364656667"
-    "7071727374757677"
-};
-static const char DIGITS_HEX[2*16+1] = {
-    "0123456789abcdef"
-    "0123456789ABCDEF"
-};
-
-/* BuildPyUnicode */
-  static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, const char* chars, int clength,
-                                                int prepend_sign, char padding_char) {
-    PyObject *uval;
-    Py_ssize_t uoffset = ulength - clength;
-#if CYTHON_USE_UNICODE_INTERNALS
-    Py_ssize_t i;
-    void *udata;
-    uval = PyUnicode_New(ulength, 127);
-    if (unlikely(!uval)) return NULL;
-    udata = PyUnicode_DATA(uval);
-    if (uoffset > 0) {
-        i = 0;
-        if (prepend_sign) {
-            __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, 0, '-');
-            i++;
-        }
-        for (; i < uoffset; i++) {
-            __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, i, padding_char);
-        }
-    }
-    for (i=0; i < clength; i++) {
-        __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, uoffset+i, chars[i]);
-    }
-#else
-    {
-        PyObject *sign = NULL, *padding = NULL;
-        uval = NULL;
-        if (uoffset > 0) {
-            prepend_sign = !!prepend_sign;
-            if (uoffset > prepend_sign) {
-                padding = PyUnicode_FromOrdinal(padding_char);
-                if (likely(padding) && uoffset > prepend_sign + 1) {
-                    PyObject *tmp = PySequence_Repeat(padding, uoffset - prepend_sign);
-                    Py_DECREF(padding);
-                    padding = tmp;
-                }
-                if (unlikely(!padding)) goto done_or_error;
-            }
-            if (prepend_sign) {
-                sign = PyUnicode_FromOrdinal('-');
-                if (unlikely(!sign)) goto done_or_error;
-            }
-        }
-        uval = PyUnicode_DecodeASCII(chars, clength, NULL);
-        if (likely(uval) && padding) {
-            PyObject *tmp = PyUnicode_Concat(padding, uval);
-            Py_DECREF(uval);
-            uval = tmp;
-        }
-        if (likely(uval) && sign) {
-            PyObject *tmp = PyUnicode_Concat(sign, uval);
-            Py_DECREF(uval);
-            uval = tmp;
-        }
-done_or_error:
-        Py_XDECREF(padding);
-        Py_XDECREF(sign);
-    }
-#endif
-    return uval;
-}
-
-/* COrdinalToPyUnicode */
-  static CYTHON_INLINE int __Pyx_CheckUnicodeValue(int value) {
-    return value <= 1114111;
-}
-static PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_ssize_t ulength, char padding_char) {
-    if (likely(ulength <= 250)) {
-        char chars[256];
-        if (value <= 255) {
-            memset(chars, padding_char, (size_t) (ulength - 1));
-            chars[ulength-1] = (char) value;
-            return PyUnicode_DecodeLatin1(chars, ulength, NULL);
-        }
-        char *cpos = chars + sizeof(chars);
-        if (value < 0x800) {
-            *--cpos = (char) (0x80 | (value & 0x3f));
-            value >>= 6;
-            *--cpos = (char) (0xc0 | (value & 0x1f));
-        } else if (value < 0x10000) {
-            *--cpos = (char) (0x80 | (value & 0x3f));
-            value >>= 6;
-            *--cpos = (char) (0x80 | (value & 0x3f));
-            value >>= 6;
-            *--cpos = (char) (0xe0 | (value & 0x0f));
-        } else {
-            *--cpos = (char) (0x80 | (value & 0x3f));
-            value >>= 6;
-            *--cpos = (char) (0x80 | (value & 0x3f));
-            value >>= 6;
-            *--cpos = (char) (0x80 | (value & 0x3f));
-            value >>= 6;
-            *--cpos = (char) (0xf0 | (value & 0x07));
-        }
-        cpos -= ulength;
-        memset(cpos, padding_char, (size_t) (ulength - 1));
-        return PyUnicode_DecodeUTF8(cpos, chars + sizeof(chars) - cpos, NULL);
-    }
-    if (value <= 127 && CYTHON_USE_UNICODE_INTERNALS) {
-        const char chars[1] = {(char) value};
-        return __Pyx_PyUnicode_BuildFromAscii(ulength, chars, 1, 0, padding_char);
-    }
-    {
-        PyObject *uchar, *padding_uchar, *padding, *result;
-        padding_uchar = PyUnicode_FromOrdinal(padding_char);
-        if (unlikely(!padding_uchar)) return NULL;
-        padding = PySequence_Repeat(padding_uchar, ulength - 1);
-        Py_DECREF(padding_uchar);
-        if (unlikely(!padding)) return NULL;
-        uchar = PyUnicode_FromOrdinal(value);
-        if (unlikely(!uchar)) {
-            Py_DECREF(padding);
-            return NULL;
-        }
-        result = PyUnicode_Concat(padding, uchar);
-        Py_DECREF(padding);
-        Py_DECREF(uchar);
-        return result;
-    }
-}
-
 /* CIntToPyUnicode */
   static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_Py_ssize_t(Py_ssize_t value, Py_ssize_t width, char padding_char, char format_char) {
     char digits[sizeof(Py_ssize_t)*3+2];
@@ -43732,84 +43932,6 @@ static PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_ssize_t ulengt
         return PyUnicode_FromOrdinal(*dpos);
     }
     return __Pyx_PyUnicode_BuildFromAscii(ulength, dpos, (int) length, prepend_sign, padding_char);
-}
-
-/* JoinPyUnicode */
-  static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength,
-                                      Py_UCS4 max_char) {
-#if CYTHON_USE_UNICODE_INTERNALS && CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    PyObject *result_uval;
-    int result_ukind, kind_shift;
-    Py_ssize_t i, char_pos;
-    void *result_udata;
-    if (max_char > 1114111) max_char = 1114111;
-    result_uval = PyUnicode_New(result_ulength, max_char);
-    if (unlikely(!result_uval)) return NULL;
-    result_ukind = (max_char <= 255) ? PyUnicode_1BYTE_KIND : (max_char <= 65535) ? PyUnicode_2BYTE_KIND : PyUnicode_4BYTE_KIND;
-    kind_shift = (result_ukind == PyUnicode_4BYTE_KIND) ? 2 : result_ukind - 1;
-    result_udata = PyUnicode_DATA(result_uval);
-    assert(kind_shift == 2 || kind_shift == 1 || kind_shift == 0);
-    if (unlikely((PY_SSIZE_T_MAX >> kind_shift) - result_ulength < 0))
-        goto overflow;
-    char_pos = 0;
-    for (i=0; i < value_count; i++) {
-        int ukind;
-        Py_ssize_t ulength;
-        void *udata;
-        PyObject *uval = values[i];
-        #if !CYTHON_COMPILING_IN_LIMITED_API
-        if (__Pyx_PyUnicode_READY(uval) == (-1))
-            goto bad;
-        #endif
-        ulength = __Pyx_PyUnicode_GET_LENGTH(uval);
-        #if !CYTHON_ASSUME_SAFE_SIZE
-        if (unlikely(ulength < 0)) goto bad;
-        #endif
-        if (unlikely(!ulength))
-            continue;
-        if (unlikely((PY_SSIZE_T_MAX >> kind_shift) - ulength < char_pos))
-            goto overflow;
-        ukind = __Pyx_PyUnicode_KIND(uval);
-        udata = __Pyx_PyUnicode_DATA(uval);
-        if (ukind == result_ukind) {
-            memcpy((char *)result_udata + (char_pos << kind_shift), udata, (size_t) (ulength << kind_shift));
-        } else {
-            #if PY_VERSION_HEX >= 0x030d0000
-            if (unlikely(PyUnicode_CopyCharacters(result_uval, char_pos, uval, 0, ulength) < 0)) goto bad;
-            #elif CYTHON_COMPILING_IN_CPYTHON || defined(_PyUnicode_FastCopyCharacters)
-            _PyUnicode_FastCopyCharacters(result_uval, char_pos, uval, 0, ulength);
-            #else
-            Py_ssize_t j;
-            for (j=0; j < ulength; j++) {
-                Py_UCS4 uchar = __Pyx_PyUnicode_READ(ukind, udata, j);
-                __Pyx_PyUnicode_WRITE(result_ukind, result_udata, char_pos+j, uchar);
-            }
-            #endif
-        }
-        char_pos += ulength;
-    }
-    return result_uval;
-overflow:
-    PyErr_SetString(PyExc_OverflowError, "join() result is too long for a Python string");
-bad:
-    Py_DECREF(result_uval);
-    return NULL;
-#else
-    Py_ssize_t i;
-    PyObject *result = NULL;
-    PyObject *value_tuple = PyTuple_New(value_count);
-    if (unlikely(!value_tuple)) return NULL;
-    CYTHON_UNUSED_VAR(max_char);
-    CYTHON_UNUSED_VAR(result_ulength);
-    for (i=0; i<value_count; i++) {
-        if (__Pyx_PyTuple_SET_ITEM(value_tuple, i, values[i]) != (0)) goto bad;
-        Py_INCREF(values[i]);
-    }
-    result = PyUnicode_Join(__pyx_mstate_global->__pyx_empty_unicode, value_tuple);
-bad:
-    Py_DECREF(value_tuple);
-    return result;
-#endif
 }
 
 /* PyObjectCall2Args */
@@ -44525,90 +44647,6 @@ static PyObject *__Pyx_Object_VectorcallMethod_CallFromBuilder(PyObject *name, P
     return value;
 }
 
-/* CIntToPyUnicode */
-  static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char) {
-    char digits[sizeof(int)*3+2];
-    char *dpos, *end = digits + sizeof(int)*3+2;
-    const char *hex_digits = DIGITS_HEX;
-    Py_ssize_t length, ulength;
-    int prepend_sign, last_one_off;
-    int remaining;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
-    const int neg_one = (int) -1, const_zero = (int) 0;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-    const int is_unsigned = neg_one > const_zero;
-    if (format_char == 'c') {
-        if (unlikely(!(is_unsigned || value == 0 || value > 0) ||
-                     !(sizeof(value) <= 2 || value & ~ (int) 0x01fffff || __Pyx_CheckUnicodeValue((int) value)))) {
-            PyErr_SetString(PyExc_OverflowError, "%c arg not in range(0x110000)");
-            return NULL;
-        }
-        if (width <= 1) {
-            return PyUnicode_FromOrdinal((int) value);
-        }
-        return __Pyx_PyUnicode_FromOrdinal_Padded((int) value, width, padding_char);
-    }
-    if (format_char == 'X') {
-        hex_digits += 16;
-        format_char = 'x';
-    }
-    remaining = value;
-    last_one_off = 0;
-    dpos = end;
-    do {
-        int digit_pos;
-        switch (format_char) {
-        case 'o':
-            digit_pos = abs((int)(remaining % (8*8)));
-            remaining = (int) (remaining / (8*8));
-            dpos -= 2;
-            memcpy(dpos, DIGIT_PAIRS_8 + digit_pos * 2, 2);
-            last_one_off = (digit_pos < 8);
-            break;
-        case 'd':
-            digit_pos = abs((int)(remaining % (10*10)));
-            remaining = (int) (remaining / (10*10));
-            dpos -= 2;
-            memcpy(dpos, DIGIT_PAIRS_10 + digit_pos * 2, 2);
-            last_one_off = (digit_pos < 10);
-            break;
-        case 'x':
-            *(--dpos) = hex_digits[abs((int)(remaining % 16))];
-            remaining = (int) (remaining / 16);
-            break;
-        default:
-            assert(0);
-            break;
-        }
-    } while (unlikely(remaining != 0));
-    assert(!last_one_off || *dpos == '0');
-    dpos += last_one_off;
-    length = end - dpos;
-    ulength = length;
-    prepend_sign = 0;
-    if (!is_unsigned && value <= neg_one) {
-        if (padding_char == ' ' || width <= length + 1) {
-            *(--dpos) = '-';
-            ++length;
-        } else {
-            prepend_sign = 1;
-        }
-        ++ulength;
-    }
-    if (width > ulength) {
-        ulength = width;
-    }
-    if (ulength == 1) {
-        return PyUnicode_FromOrdinal(*dpos);
-    }
-    return __Pyx_PyUnicode_BuildFromAscii(ulength, dpos, (int) length, prepend_sign, padding_char);
-}
-
 /* CallUnboundCMethod0 */
   #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_CallUnboundCMethod0(__Pyx_CachedCFunction* cfunc, PyObject* self) {
@@ -44726,7 +44764,7 @@ bad:
         if (unlikely(!module_name_str)) { goto modbad; }
         module_name = PyUnicode_FromString(module_name_str);
         if (unlikely(!module_name)) { goto modbad; }
-        module_dot = PyUnicode_Concat(module_name, __pyx_mstate_global->__pyx_kp_u__2);
+        module_dot = PyUnicode_Concat(module_name, __pyx_mstate_global->__pyx_kp_u__3);
         if (unlikely(!module_dot)) { goto modbad; }
         full_name = PyUnicode_Concat(module_dot, name);
         if (unlikely(!full_name)) { goto modbad; }
@@ -48762,7 +48800,7 @@ __Pyx_PyType_GetFullyQualifiedName(PyTypeObject* tp)
         result = name;
         name = NULL;
     } else {
-        result = __Pyx_NewRef(__pyx_mstate_global->__pyx_kp_u__4);
+        result = __Pyx_NewRef(__pyx_mstate_global->__pyx_kp_u__5);
     }
     goto done;
 }

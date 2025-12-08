@@ -50,7 +50,7 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
         draw.ellipse(bounding_box, fill='yellow', outline='yellow')
 
     # --- Draw Text Labels (relative to the pivot) ---
-    draw.text(to_template_coord((0, 15)), ship.name, font=font, fill='white' if not ship.activated else 'gray', anchor="ms")
+    draw.text(to_template_coord((0, 15)), f"{ship.name}({ship.id})", font=font, fill='white' if not ship.activated else 'gray', anchor="ms")
     draw.text(to_template_coord((0, -24)), str(ship.hull), font=font, fill='yellow', anchor="mm")
     
     # Shields
@@ -97,7 +97,7 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
 
 
     font = ImageFont.truetype("ARIAL.TTF", 18)
-    font_small = ImageFont.truetype("ARIAL.TTF", 12)
+    font_small = ImageFont.truetype("ARIAL.TTF", 10)
 
 
     draw.text((10, 10), title, font=font, fill='white')
@@ -154,7 +154,7 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
         draw.ellipse(bbox, outline='white', fill=None)
 
         # Draw hull value at the center (yellow)
-        draw.text(squad_center, squad.name, font=font_small, fill='white' if not squad.activated else 'gray', anchor='mm')
+        draw.text(squad_center, f"{squad.name}({squad.id})", font=font_small, fill='white' if not squad.activated else 'gray', anchor='mm')
 
         # Draw squad name just below the hull text (white), centered
         name_pos = (squad_center[0], squad_center[1] + font_small.size)
