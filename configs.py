@@ -22,16 +22,17 @@ class Config:
 
     # Hardware
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    GPU_INPUT_BATCH_SIZE = 128  # for neural network inference batch size
 
     # Training Loop
-    ITERATIONS = 1 # self_play & train for ITERATIONS times
+    ITERATIONS = 64 # self_play & train for ITERATIONS times
 
     # Self Play
     SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
-    PARALLEL_DIVERSE_FACTOR = 4 # run games in batch
-    PARALLEL_SAME_GAME = 32 # same geometry game setup
+    PARALLEL_DIVERSE_FACTOR = 32 # run games in batch
+    PARALLEL_SAME_GAME = 16 # same geometry game setup
     PARALLEL_PLAY = PARALLEL_DIVERSE_FACTOR * PARALLEL_SAME_GAME
-    # 1 * 128 * 400 * 0.25 = 12800 states are created
+    # 1 * 512 * 400 * 0.25 = 51200 states are created
 
     # MCTS
     DEEP_SEARCH_RATIO = 0.25
@@ -48,9 +49,9 @@ class Config:
     REPLAY_BUFFER_DIR = "replay_buffers"
 
     # Neural Network Training
-    EPOCHS = 100
+    EPOCHS = 400
     BATCH_SIZE = 128
-    # train on 128 * 100 = 12800 states per iteration
+    # train on 128 * 400 = 51200 states per iteration
 
 
     # Optimization

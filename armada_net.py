@@ -146,6 +146,62 @@ class ArmadaNet(nn.Module):
             nn.Linear(64, 6) # Logits for a 7-class classification
         )
 
+    def compile_fast_policy(self):
+        """
+        Compiles the individual ModuleDict heads into stacked tensors for 
+        efficient batched inference (BMM) on MPS/CUDA.
+        """
+        # 1. Identify all active phases and sort them to ensure consistent indexing
+        self.active_phases = sorted(
+            [p for p in Phase if p.name in self.policy_heads], 
+            key=lambda x: x.value
+        )
+        
+        # 2. Create a lookup table for Phase.value -> Stack Index
+        max_phase_val = max(p.value for p in self.active_phases)
+        # Initialize with -1 (error value)
+        self.phase_lookup = torch.full((max_phase_val + 1,), -1, dtype=torch.long, device=Config.DEVICE)
+        for idx, phase in enumerate(self.active_phases):
+            self.phase_lookup[phase.value] = idx
+
+        # 3. Pre-allocate stacked weight tensors
+        num_phases = len(self.active_phases)
+        
+        # Layer 1: 256 -> 256
+        self.w1_stack = torch.zeros(num_phases, 256, 256, device=Config.DEVICE)
+        self.b1_stack = torch.zeros(num_phases, 256, device=Config.DEVICE)
+        
+        # Layer 2: 256 -> 128
+        self.w2_stack = torch.zeros(num_phases, 128, 256, device=Config.DEVICE)
+        self.b2_stack = torch.zeros(num_phases, 128, device=Config.DEVICE)
+        
+        # Layer 3: 128 -> Action Size (Variable)
+        # We pad the output dimension to max_action_space
+        self.w3_stack = torch.zeros(num_phases, self.max_action_space, 128, device=Config.DEVICE)
+        self.b3_stack = torch.zeros(num_phases, self.max_action_space, device=Config.DEVICE)
+
+        # 4. Copy weights from the slow ModuleDict to the fast Stack
+        with torch.no_grad():
+            for idx, phase in enumerate(self.active_phases):
+                head = self.policy_heads[phase.name]
+                
+                # Copy Layer 1 (Linear 0)
+                self.w1_stack[idx] = head[0].weight
+                self.b1_stack[idx] = head[0].bias
+                
+                # Copy Layer 2 (Linear 2)
+                self.w2_stack[idx] = head[2].weight
+                self.b2_stack[idx] = head[2].bias
+                
+                # Copy Layer 3 (Linear 4)
+                # Handle variable output size by copying into the padded tensor
+                out_size = head[4].out_features
+                self.w3_stack[idx, :out_size, :] = head[4].weight
+                self.b3_stack[idx, :out_size] = head[4].bias
+
+        self.fast_policy_ready = True
+        print(f"Fast Policy Compiled: Merged {num_phases} heads into batch tensors.")
+
     def forward(self, scalar_input, ship_entity_input, squad_entity_input, spatial_input, relation_input, phases: list[Phase]):
 
         # --- 1. Process through Encoders (now with batch support) ---
@@ -183,29 +239,58 @@ class ArmadaNet(nn.Module):
         # --- 3. Get Outputs from Heads ---
         value = self.value_head(torso_output) # [B, 1]
         
-        # --- Handle multiple policy heads for the batch ---
-        # This is the most complex part. We group inputs by phase and process each group.
-        policy_logits = torch.zeros(batch_size, self.max_action_space, device=torso_output.device) # Initialize with max possible action size
+        # --- Policy Head Logic ---
         
-        # Group indices by phase
-        phase_indices = {}
-        for i, phase in enumerate(phases):
-            if phase.name not in phase_indices:
-                phase_indices[phase.name] = []
-            phase_indices[phase.name].append(i)
+        # Check if we have compiled the fast path (Inference/MCTS mode)
+        if getattr(self, 'fast_policy_ready', False):
+            # 1. Convert phase list to tensor indices using the lookup table
+            phase_vals = torch.tensor([p.value for p in phases], device=torso_output.device)
+            stack_indices = self.phase_lookup[phase_vals]
+            
+            # 2. Gather weights for the specific phases in this batch
+            # Shape: [B, Out_Dim, In_Dim]
+            w1 = self.w1_stack[stack_indices] 
+            b1 = self.b1_stack[stack_indices]
+            
+            w2 = self.w2_stack[stack_indices]
+            b2 = self.b2_stack[stack_indices]
+            
+            w3 = self.w3_stack[stack_indices]
+            b3 = self.b3_stack[stack_indices]
+            
+            # 3. Execute Unified MLP using Batch Matrix Multiplication (BMM)
+            # Input x needs shape [B, 256, 1] for BMM with [B, Out, In]
+            x = torso_output.unsqueeze(2) 
+            
+            # Layer 1
+            # [B, 256, 256] @ [B, 256, 1] -> [B, 256, 1]
+            x = torch.bmm(w1, x).squeeze(2) + b1
+            x = F.relu(x)
+            
+            # Layer 2
+            x = x.unsqueeze(2)
+            # [B, 128, 256] @ [B, 256, 1] -> [B, 128, 1]
+            x = torch.bmm(w2, x).squeeze(2) + b2
+            x = F.relu(x)
+            
+            # Layer 3 (Final Projection)
+            x = x.unsqueeze(2)
+            # [B, Max_Action, 128] @ [B, 128, 1] -> [B, Max_Action, 1]
+            policy_logits = torch.bmm(w3, x).squeeze(2) + b3
 
-        # Process each phase group
-        for phase_name, indices in phase_indices.items():
-            
-            # Select the torso outputs for the current phase group
-            group_torso_output = torso_output[indices]
-            
-            # Get the logits from the correct policy head
-            group_logits = self.policy_heads[phase_name](group_torso_output)
-            
-            # Place the results back into the main tensor
-            # The slicing ensures we only fill up to the action space size for that phase
-            policy_logits[indices, :group_logits.shape[1]] = group_logits
+        else:
+            # --- Fallback to Original Slow Loop (for Training/Legacy) ---
+            policy_logits = torch.zeros(batch_size, self.max_action_space, device=torso_output.device)
+            phase_indices = {}
+            for i, phase in enumerate(phases):
+                if phase.name not in phase_indices:
+                    phase_indices[phase.name] = []
+                phase_indices[phase.name].append(i)
+
+            for phase_name, indices in phase_indices.items():
+                group_torso_output = torso_output[indices]
+                group_logits = self.policy_heads[phase_name](group_torso_output)
+                policy_logits[indices, :group_logits.shape[1]] = group_logits
 
 
         # --- 4. Auxiliary Heads ---

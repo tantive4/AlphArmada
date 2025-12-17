@@ -33,6 +33,9 @@ ROTATION_MATRICES = np.stack([
 SQUAD_TOKEN_POLY = np.array([
     [np.cos(theta), np.sin(theta)] for theta in np.linspace(0, 2 * np.pi, num=60, endpoint=False, dtype=np.float32)
 ], dtype=np.float32) * SQUAD_TOKEN_RADIUS
+SQUAD_BASE_POLY = np.array([
+    [np.cos(theta), np.sin(theta)] for theta in np.linspace(0, 2 * np.pi, num=60, endpoint=False, dtype=np.float32)
+], dtype=np.float32) * SQUAD_BASE_RADIUS
 
 STATION = np.array([
     [23,  9],

@@ -260,7 +260,7 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
                 x, y = random_coord_in_rect(second_squad_rect)
                 deployment_zone = second_squad_zone
 
-            poly = Polygon(measurement.SQUAD_TOKEN_POLY + np.array([[x, y]]))
+            poly = Polygon(measurement.SQUAD_BASE_POLY + np.array([[x, y]]))
 
             valid = True
 

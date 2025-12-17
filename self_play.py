@@ -266,9 +266,14 @@ class AlphArmada:
                 
                 # --- Step 1 & 2: Start fresh self-play and save batches ---
                 self.model.eval()
+                self.model.compile_fast_policy()
                 print("Starting self-play phase...")
                 for self_play_iteration in range(Config.SELF_PLAY_GAMES):
+
                     self.para_self_play(iter_num=i, batch_num=self_play_iteration)
+                    
+                    if torch.backends.mps.is_available():
+                        torch.mps.empty_cache()
                     print(f"Self-play batch {self_play_iteration + 1}/{Config.SELF_PLAY_GAMES} completed.")
 
                 
@@ -320,6 +325,17 @@ class AlphArmada:
                 # --- Step 4: Start training on the loaded data ---
                 print("Starting training phase...")
                 self.model.train()
+                self.model.fast_policy_ready = False
+                if hasattr(self.model, 'w1_stack'):
+                    del self.model.w1_stack
+                    del self.model.b1_stack
+                    del self.model.w2_stack
+                    del self.model.b2_stack
+                    del self.model.w3_stack
+                    del self.model.b3_stack
+                if torch.backends.mps.is_available():
+                    torch.mps.empty_cache()
+                    
                 self.optimizer.zero_grad()
                 for step in trange(Config.EPOCHS):
                     # 1. Sample BATCH_SIZE random indices
@@ -345,7 +361,7 @@ class AlphArmada:
                 print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 with open('loss.txt', 'a') as f:
-                    f.write(f"{timestamp}: {loss:.4f}\n")
+                    f.write(f"{timestamp}, {loss:.4f}\n")
 
                 # --- Save the model checkpoint ---
                 # The filename correctly continues from the current iteration number
@@ -389,7 +405,7 @@ def main():
         init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
         torch.save(model.state_dict(), init_checkpoint_path)
         print(f"Randomly initialized model saved to {init_checkpoint_path}")
-
+    
     optimizer = optim.AdamW(model.parameters(), lr=Config.LEARNING_RATE)
 
     # pre_compile JIT geometry functions

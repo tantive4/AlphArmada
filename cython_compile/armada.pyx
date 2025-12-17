@@ -102,23 +102,11 @@ cdef class Armada:
 
     def player_decision(self) -> ActionType:
         actions = self.get_valid_actions()
-        if len(actions) == 1: 
-            return actions[0]
-
-        # Write valid actions to a temporary text file to keep terminal clean
-        with open("actions.txt", "w") as f:
-            for i, action in enumerate(actions, 1):
-                f.write(f'{i} : {get_action_str(self, action)}\n')
-        
-        while True:
-            try:
-                player_index = int(input('Enter the action index (1, 2, 3 ...) : '))
-                if 1 <= player_index <= len(actions):
-                    return actions[player_index - 1]
-                else:
-                    print(f"Invalid index. Please enter a number between 1 and {len(actions)}.")
-            except ValueError:
-                print("Invalid input. Please enter an integer.")
+        if len(actions) == 1 : return actions[0]
+        for i, action in enumerate(actions,1) :
+            print(f'{i} : {get_action_str(self, action)}')
+        player_index = int(input('Enter the action index (1, 2, 3 ...) : '))
+        return actions[player_index - 1]
 
     
     cdef void update_decision_player(self):
@@ -918,6 +906,7 @@ cdef class Armada:
         
         elif action_type == 'pass_move_squad':
             _ = action_data
+            active_squad.can_move = False
             if active_squad.can_attack : self.phase = Phase.SQUAD_DECLARE_TARGET
             else :
                 active_squad.end_activation()
@@ -935,6 +924,7 @@ cdef class Armada:
         
         elif action_type == 'pass_attack_squad':
             _ = action_data
+            active_squad.can_attack = False
             if active_squad.can_move and not active_squad.is_engaged(): self.phase = Phase.SQUAD_MOVE
             else :
                 active_squad.end_activation()
