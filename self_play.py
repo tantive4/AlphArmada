@@ -333,8 +333,7 @@ class AlphArmada:
                     del self.model.b2_stack
                     del self.model.w3_stack
                     del self.model.b3_stack
-                if torch.backends.mps.is_available():
-                    torch.mps.empty_cache()
+
                     
                 self.optimizer.zero_grad()
                 for step in trange(Config.EPOCHS):
@@ -358,6 +357,9 @@ class AlphArmada:
                     
                     # 3. Pass this ready-to-use batch to train
                     loss = self.train(training_batch_tensors)
+                    
+                if torch.backends.mps.is_available():
+                    torch.mps.empty_cache()
                 print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 with open('loss.txt', 'a') as f:

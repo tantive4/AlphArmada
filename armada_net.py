@@ -202,7 +202,7 @@ class ArmadaNet(nn.Module):
         self.fast_policy_ready = True
         print(f"Fast Policy Compiled: Merged {num_phases} heads into batch tensors.")
 
-    def forward(self, scalar_input, ship_entity_input, squad_entity_input, spatial_input, relation_input, phases: list[Phase]):
+    def forward(self, scalar_input, ship_entity_input, squad_entity_input, spatial_input, relation_input, phases):
 
         # --- 1. Process through Encoders (now with batch support) ---
         batch_size = scalar_input.shape[0]
@@ -243,9 +243,9 @@ class ArmadaNet(nn.Module):
         
         # Check if we have compiled the fast path (Inference/MCTS mode)
         if getattr(self, 'fast_policy_ready', False):
-            # 1. Convert phase list to tensor indices using the lookup table
-            phase_vals = torch.tensor([p.value for p in phases], device=torso_output.device)
-            stack_indices = self.phase_lookup[phase_vals]
+
+
+            stack_indices = self.phase_lookup[phases]
             
             # 2. Gather weights for the specific phases in this batch
             # Shape: [B, Out_Dim, In_Dim]

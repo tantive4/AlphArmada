@@ -384,6 +384,9 @@ cdef class MCTS:
         squad_entity_tensor = torch.from_numpy(squad_entity_batch).float().to(Config.DEVICE)
         spatial_tensor = torch.from_numpy(spatial_batch).float().to(Config.DEVICE)
         relation_tensor = torch.from_numpy(relation_batch).float().to(Config.DEVICE)
+        
+        phase_ints = [p.value for p in phases]
+        phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
 
         with torch.no_grad():
             # Perform a single, batched forward pass
@@ -393,7 +396,7 @@ cdef class MCTS:
                 squad_entity_tensor,
                 spatial_tensor,
                 relation_tensor,
-                phases
+                phases_tensor
             )
 
             policy_logits = outputs['policy_logits']
