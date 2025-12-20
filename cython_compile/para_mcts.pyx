@@ -378,14 +378,49 @@ cdef class MCTS:
         spatial_batch = np.stack([state['spatial'] for state in encoded_states])
         relation_batch = np.stack([state['relations'] for state in encoded_states])
 
+        cdef int max_batch_size = Config.GPU_INPUT_BATCH_SIZE
+        cdef int current_batch_size = len(phases)
+        cdef int bucket_step = 16 
+        cdef int target_batch_size = ((current_batch_size + bucket_step - 1) // bucket_step) * bucket_step
+
+
+        
+        # add padding
+
+        # Clamp to max_batch_size (if your games count isn't a multiple of 16)
+        if target_batch_size > max_batch_size:
+            target_batch_size = max_batch_size
+        # If current > max (shouldn't happen logic-wise but for safety), clamp it
+        if target_batch_size < current_batch_size:
+            target_batch_size = current_batch_size
+
+        # Helper to create a zero-padded array of shape (max_batch_size, ...)
+        def pad_to_max(arr, count, total):
+            if count >= total: return arr
+            # Create a container of the full fixed size
+            shape = list(arr.shape)
+            shape[0] = total
+            padded_arr = np.zeros(shape, dtype=arr.dtype)
+            # Copy the actual data into the front
+            padded_arr[:count] = arr
+            return padded_arr
+
+        scalar_batch = pad_to_max(scalar_batch, current_batch_size, target_batch_size)
+        ship_entity_batch = pad_to_max(ship_entity_batch, current_batch_size, target_batch_size)
+        squad_entity_batch = pad_to_max(squad_entity_batch, current_batch_size, target_batch_size)
+        spatial_batch = pad_to_max(spatial_batch, current_batch_size, target_batch_size)
+        relation_batch = pad_to_max(relation_batch, current_batch_size, target_batch_size)
+
+        # Pad phases with a valid dummy value (0)
+        pad_len = target_batch_size - current_batch_size
+        phase_ints = [p.value for p in phases] + [0] * pad_len
+
         # Convert to PyTorch tensors
         scalar_tensor = torch.from_numpy(scalar_batch).float().to(Config.DEVICE)
         ship_entity_tensor = torch.from_numpy(ship_entity_batch).float().to(Config.DEVICE)
         squad_entity_tensor = torch.from_numpy(squad_entity_batch).float().to(Config.DEVICE)
         spatial_tensor = torch.from_numpy(spatial_batch).float().to(Config.DEVICE)
         relation_tensor = torch.from_numpy(relation_batch).float().to(Config.DEVICE)
-        
-        phase_ints = [p.value for p in phases]
         phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
 
         with torch.no_grad():

@@ -282,14 +282,48 @@ class ArmadaNet(nn.Module):
             # --- Fallback to Original Slow Loop (for Training/Legacy) ---
             policy_logits = torch.zeros(batch_size, self.max_action_space, device=torso_output.device)
             phase_indices = {}
-            for i, phase in enumerate(phases):
-                if phase.name not in phase_indices:
-                    phase_indices[phase.name] = []
-                phase_indices[phase.name].append(i)
+            is_tensor_input = isinstance(phases, torch.Tensor)
 
+            for i, p in enumerate(phases):
+                # If input is a Tensor, we have integers (e.g. 0, 1). 
+                # We must recover the Phase Name (e.g. 'COMMAND_PHASE') to key into ModuleDict.
+                if is_tensor_input:
+                    phase_name = Phase(p.item()).name
+                else:
+                    # Legacy list input
+                    phase_name = p.name
+
+                if phase_name not in phase_indices:
+                    phase_indices[phase_name] = []
+                phase_indices[phase_name].append(i)
+
+            BUCKET_STEP = 32 # Round all sub-batches to nearest 32
+            
             for phase_name, indices in phase_indices.items():
-                group_torso_output = torso_output[indices]
-                group_logits = self.policy_heads[phase_name](group_torso_output)
+                # Extract the sub-batch for this phase
+                group_torso_output = torso_output[indices] # Shape [N, 256]
+                
+                real_size = group_torso_output.shape[0]
+                
+                # Calculate target bucket size (e.g., 12 -> 32, 45 -> 64)
+                target_size = ((real_size + BUCKET_STEP - 1) // BUCKET_STEP) * BUCKET_STEP
+                
+                pad_amount = target_size - real_size
+                
+                if pad_amount > 0:
+                    # Pad the input at the end
+                    # F.pad format: (left, right, top, bottom)
+                    # We pad dimension 0 (bottom), so: (0, 0, 0, pad_amount)
+                    padded_input = F.pad(group_torso_output, (0, 0, 0, pad_amount))
+                    
+                    # Pass through the layer (MPS compiles ONE graph for size Target_Size)
+                    padded_logits = self.policy_heads[phase_name](padded_input)
+                    
+                    # Slice off the padding so gradients are correct
+                    group_logits = padded_logits[:real_size]
+                else:
+                    # Perfect fit, no padding needed
+                    group_logits = self.policy_heads[phase_name](group_torso_output)
                 policy_logits[indices, :group_logits.shape[1]] = group_logits
 
 

@@ -1,6 +1,8 @@
 from collections import deque
 import random
 import os
+import argparse
+import sys
 import time
 from datetime import datetime
 import copy
@@ -93,7 +95,7 @@ class AlphArmada:
                     # --- Check for terminal states ---
                     if game.winner != 0.0:
                         pbar.update(1)
-                        pbar.set_postfix(last_round=f"{game.round:.1f}", last_winner=int(game.winner))
+                        pbar.set_postfix(last_winner=game.winner)
                         winner, aux_target = get_terminal_value(game)
                         game_data_buffer = []
                         end_snapshop = game.get_snapshot()
@@ -171,7 +173,8 @@ class AlphArmada:
         spatial_batch : torch.Tensor = training_batch['spatial'] 
         relation_batch : torch.Tensor = training_batch['relations'] 
         phases : list[Phase] = training_batch['phases'] #type: ignore
-        
+        phases_tensor = torch.tensor(phases, dtype=torch.long, device=Config.DEVICE)
+
         # --- Single Batched Forward Pass ---
         model_output = self.model(
             scalar_batch,
@@ -179,7 +182,7 @@ class AlphArmada:
             squad_entity_batch,
             spatial_batch,
             relation_batch,
-            list(phases)
+            phases_tensor
         )
         policy_logits = model_output["policy_logits"]
         value_pred = model_output["value"]
@@ -248,7 +251,7 @@ class AlphArmada:
         return total_loss.item()
     
 
-    def learn(self, start_iteration=0):
+    def learn(self, current_iteration):
             """
             Main training loop:
             1. Generates self-play data in batches for the current iteration, saving each batch to a file.
@@ -261,128 +264,131 @@ class AlphArmada:
             os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
             os.makedirs(Config.REPLAY_BUFFER_DIR, exist_ok=True)
 
-            for i in range(start_iteration, Config.ITERATIONS):
-                print(f"\n----- Iteration {i+1}/{Config.ITERATIONS} -----\n")
+            i = current_iteration
+            print(f"\n----- Iteration {i+1}/{Config.ITERATIONS} -----\n")
+            
+            # --- Step 1 & 2: Start fresh self-play and save batches ---
+            self.model.eval()
+            self.model.compile_fast_policy()
+            print("Starting self-play phase...")
+            for self_play_iteration in range(Config.SELF_PLAY_GAMES):
+
+                self.para_self_play(iter_num=i, batch_num=self_play_iteration)
                 
-                # --- Step 1 & 2: Start fresh self-play and save batches ---
-                self.model.eval()
-                self.model.compile_fast_policy()
-                print("Starting self-play phase...")
-                for self_play_iteration in range(Config.SELF_PLAY_GAMES):
-
-                    self.para_self_play(iter_num=i, batch_num=self_play_iteration)
-                    
-                    if torch.backends.mps.is_available():
-                        torch.mps.empty_cache()
-                    print(f"Self-play batch {self_play_iteration + 1}/{Config.SELF_PLAY_GAMES} completed.")
-
-                
-                # --- Step 3: Before training, load all previous self-play data ---
-                print("\n--- Preparing for training phase: Loading replay buffers... ---")
-
-                # This dict will hold all data in concatenated form
-                batch_array_dict = {
-                    'phases': [], 'scalar': [], 'ship_entities': [], 'squad_entities': [],
-                    'spatial': [], 'relations': [], 'target_policies': [], 'target_values': [],
-                    'target_ship_hulls': [], 'target_squad_hulls': [], 'target_game_length': []
-                }
-                total_samples = 0
-
-                all_replay_files = [file for file in os.listdir(Config.REPLAY_BUFFER_DIR) if file.endswith('.pth')]
-                all_replay_files.sort(reverse=True) # Load newest first
-
-                for filename in all_replay_files:
-                    if total_samples >= Config.REPLAY_BUFFER_SIZE:
-                        break # Stop if buffer is full
-                    
-                    replay_buffer_path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
-                    try:
-                        # Load one collated batch dictionary
-                        batch_dict = torch.load(replay_buffer_path, weights_only=False)
-
-                        # Append the data slices
-                        batch_array_dict['phases'].extend(batch_dict['phases'])
-                        # Iterate all keys *except* 'phases'
-                        for key in list(batch_array_dict.keys())[1:]: 
-                            batch_array_dict[key].append(batch_dict[key])
-                        
-                        total_samples += len(batch_dict['phases'])
-
-                    except (EOFError, pickle.UnpicklingError):
-                        print(f"Warning: Could not load {replay_buffer_path}. File might be corrupted. Skipping.")
-
-                if total_samples < Config.REPLAY_BUFFER_SIZE:
-                    print("Not enough samples to form a batch. Skipping training for this iteration.")
-                    continue
-
-                # --- Concatenate all chunks into single giant arrays ---
-                print(f"Loaded {total_samples} total experiences.")
-                total_array_dict = {}
-                total_array_dict['phases'] = batch_array_dict['phases'] # Already a flat list
-                for key in list(batch_array_dict.keys())[1:]:
-                    total_array_dict[key] = np.concatenate(batch_array_dict[key], axis=0)
-
-                # --- Step 4: Start training on the loaded data ---
-                print("Starting training phase...")
-                self.model.train()
-                self.model.fast_policy_ready = False
-                if hasattr(self.model, 'w1_stack'):
-                    del self.model.w1_stack
-                    del self.model.b1_stack
-                    del self.model.w2_stack
-                    del self.model.b2_stack
-                    del self.model.w3_stack
-                    del self.model.b3_stack
-
-                    
-                self.optimizer.zero_grad()
-                for step in trange(Config.EPOCHS):
-                    # 1. Sample BATCH_SIZE random indices
-                    indices = torch.randint(0, total_samples, (Config.BATCH_SIZE,))
-                    
-                    # 2. Create the batch *instantly* via tensor indexing
-                    training_batch_tensors = {
-                        'phases': [total_array_dict['phases'][i] for i in indices],
-                        'scalar': torch.from_numpy(total_array_dict['scalar'][indices]).float().to(Config.DEVICE),
-                        'ship_entities': torch.from_numpy(total_array_dict['ship_entities'][indices]).float().to(Config.DEVICE),
-                        'squad_entities': torch.from_numpy(total_array_dict['squad_entities'][indices]).float().to(Config.DEVICE),
-                        'spatial': torch.from_numpy(total_array_dict['spatial'][indices]).float().to(Config.DEVICE),
-                        'relations': torch.from_numpy(total_array_dict['relations'][indices]).float().to(Config.DEVICE),
-                        'target_policies': torch.from_numpy(total_array_dict['target_policies'][indices]).float().to(Config.DEVICE),
-                        'target_values': torch.from_numpy(total_array_dict['target_values'][indices]).float().to(Config.DEVICE).view(-1, 1),
-                        'target_ship_hulls': torch.from_numpy(total_array_dict['target_ship_hulls'][indices]).float().to(Config.DEVICE),
-                        'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls'][indices]).float().to(Config.DEVICE),
-                        'target_game_length': torch.from_numpy(total_array_dict['target_game_length'][indices]).float().to(Config.DEVICE),
-                    }
-                    
-                    # 3. Pass this ready-to-use batch to train
-                    loss = self.train(training_batch_tensors)
-                    
                 if torch.backends.mps.is_available():
                     torch.mps.empty_cache()
-                print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                with open('loss.txt', 'a') as f:
-                    f.write(f"{timestamp}, {loss:.4f}\n")
+                print(f"Self-play batch {self_play_iteration + 1}/{Config.SELF_PLAY_GAMES} completed.")
 
-                # --- Save the model checkpoint ---
-                # The filename correctly continues from the current iteration number
-                checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{i + 1}.pth")
-                torch.save(self.model.state_dict(), checkpoint_path)
-                print(f"Model checkpoint saved to {checkpoint_path}")
+            
+            # --- Step 3: Before training, load all previous self-play data ---
+            print("\n--- Preparing for training phase: Loading replay buffers... ---")
+
+            # This dict will hold all data in concatenated form
+            batch_array_dict = {
+                'phases': [], 'scalar': [], 'ship_entities': [], 'squad_entities': [],
+                'spatial': [], 'relations': [], 'target_policies': [], 'target_values': [],
+                'target_ship_hulls': [], 'target_squad_hulls': [], 'target_game_length': []
+            }
+            total_samples = 0
+
+            all_replay_files = [file for file in os.listdir(Config.REPLAY_BUFFER_DIR) if file.endswith('.pth')]
+            all_replay_files.sort(reverse=True) # Load newest first
+
+            for filename in all_replay_files:
+                if total_samples >= Config.REPLAY_BUFFER_SIZE:
+                    break # Stop if buffer is full
+                
+                replay_buffer_path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
+                try:
+                    # Load one collated batch dictionary
+                    batch_dict = torch.load(replay_buffer_path, weights_only=False)
+
+                    # Append the data slices
+                    batch_array_dict['phases'].extend(batch_dict['phases'])
+                    # Iterate all keys *except* 'phases'
+                    for key in list(batch_array_dict.keys())[1:]: 
+                        batch_array_dict[key].append(batch_dict[key])
+                    
+                    total_samples += len(batch_dict['phases'])
+
+                except (EOFError, pickle.UnpicklingError):
+                    print(f"Warning: Could not load {replay_buffer_path}. File might be corrupted. Skipping.")
+
+            if total_samples < Config.REPLAY_BUFFER_SIZE:
+                print("Not enough samples to form a batch. Skipping training for this iteration.")
+                return
+
+            # --- Concatenate all chunks into single giant arrays ---
+            print(f"Loaded {total_samples} total experiences.")
+            total_array_dict = {}
+            total_array_dict['phases'] = batch_array_dict['phases'] # Already a flat list
+            for key in list(batch_array_dict.keys())[1:]:
+                total_array_dict[key] = np.concatenate(batch_array_dict[key], axis=0)
+
+            # --- Step 4: Start training on the loaded data ---
+            print("Starting training phase...")
+            self.model.train()
+            self.model.fast_policy_ready = False
+            if hasattr(self.model, 'w1_stack'):
+                del self.model.w1_stack
+                del self.model.b1_stack
+                del self.model.w2_stack
+                del self.model.b2_stack
+                del self.model.w3_stack
+                del self.model.b3_stack
+
+                
+            self.optimizer.zero_grad()
+            for step in trange(Config.EPOCHS):
+                # 1. Sample BATCH_SIZE random indices
+                indices = torch.randint(0, total_samples, (Config.BATCH_SIZE,))
+                
+                # 2. Create the batch *instantly* via tensor indexing
+                training_batch_tensors = {
+                    'phases': [total_array_dict['phases'][i] for i in indices],
+                    'scalar': torch.from_numpy(total_array_dict['scalar'][indices]).float().to(Config.DEVICE),
+                    'ship_entities': torch.from_numpy(total_array_dict['ship_entities'][indices]).float().to(Config.DEVICE),
+                    'squad_entities': torch.from_numpy(total_array_dict['squad_entities'][indices]).float().to(Config.DEVICE),
+                    'spatial': torch.from_numpy(total_array_dict['spatial'][indices]).float().to(Config.DEVICE),
+                    'relations': torch.from_numpy(total_array_dict['relations'][indices]).float().to(Config.DEVICE),
+                    'target_policies': torch.from_numpy(total_array_dict['target_policies'][indices]).float().to(Config.DEVICE),
+                    'target_values': torch.from_numpy(total_array_dict['target_values'][indices]).float().to(Config.DEVICE).view(-1, 1),
+                    'target_ship_hulls': torch.from_numpy(total_array_dict['target_ship_hulls'][indices]).float().to(Config.DEVICE),
+                    'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls'][indices]).float().to(Config.DEVICE),
+                    'target_game_length': torch.from_numpy(total_array_dict['target_game_length'][indices]).float().to(Config.DEVICE),
+                }
+                
+                # 3. Pass this ready-to-use batch to train
+                loss = self.train(training_batch_tensors)
+                
+            if torch.backends.mps.is_available():
+                torch.mps.empty_cache()
+            print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open('loss.txt', 'a') as f:
+                f.write(f"{timestamp}, {loss:.4f}\n")
+
+            # --- Save the model checkpoint ---
+            # The filename correctly continues from the current iteration number
+            checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{i + 1}.pth")
+            torch.save(self.model.state_dict(), checkpoint_path)
+            print(f"Model checkpoint saved to {checkpoint_path}")
 
             print("\nTraining complete!")
 
 def main():
-    # random.seed(66)
-    # np.random.seed(66)
-    # torch.manual_seed(66)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--iter", type=int, required=True, help="Current iteration number")
+    args = parser.parse_args()
+    
+    current_iter = args.iter
+
+    print(f"Starting process for Iteration {current_iter}")
 
     print(f"Starting training on device: {Config.DEVICE}")
 
     # Initialize the model and optimizer
     model = ArmadaNet(ActionManager()).to(Config.DEVICE)
-    start_iteration = 0
     os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
     
     # Find all checkpoint files
@@ -399,9 +405,7 @@ def main():
         print(f"Loading model from the most recent checkpoint: {checkpoint_path}")
         model.load_state_dict(torch.load(checkpoint_path, map_location=Config.DEVICE))
         
-        # Set the starting iteration for the training loop
-        start_iteration = latest_iter_num
-        print(f"Resuming training from iteration {start_iteration + 1}")
+        print(f"Resuming training from iteration {latest_iter_num + 1}")
     else:
         print("No checkpoint found. Starting from scratch.")
         init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
@@ -415,7 +419,7 @@ def main():
 
     # Create the training manager and start the learning process
     alpharmada_trainer = AlphArmada(model, optimizer)
-    alpharmada_trainer.learn(start_iteration=start_iteration)
+    alpharmada_trainer.learn(current_iteration=current_iter)
 
 if __name__ == "__main__":
     main()
