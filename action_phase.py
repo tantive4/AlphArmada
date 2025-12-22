@@ -10,39 +10,40 @@ if TYPE_CHECKING:
 
 class Phase(IntEnum):
     # === COMMAND PHASE ===
-    COMMAND_PHASE = 0
+    # COMMAND_PHASE = 0
 
     # === SHIP PHASE ===
-    SHIP_ACTIVATE = auto() 
+    SHIP_ACTIVATE = 0 
 
     # Ship Phase -> Reveal Dial
     SHIP_REVEAL_COMMAND_DIAL = auto()
-    SHIP_GAIN_COMMAND_TOKEN = auto()
-    SHIP_DISCARD_COMMAND_TOKEN = auto()
-    SHIP_RESOLVE_SQUAD = auto()
-    SHIP_RESOLVE_REPAIR = auto()
+    # SHIP_GAIN_COMMAND_TOKEN = auto()
+    # SHIP_DISCARD_COMMAND_TOKEN = auto()
+    # SHIP_RESOLVE_SQUAD = auto()
+    # SHIP_RESOLVE_REPAIR = auto()
     SHIP_USE_ENGINEER_POINT = auto()
 
     # Ship Phase -> Attack
+    SHIP_CHOOSE_TARGET_SHIP = auto()
     SHIP_DECLARE_TARGET = auto()
 
     # Ship Phase -> Execute Maneuver
     SHIP_DETERMINE_COURSE = auto()
-    SHIP_PLACE_SQUAD = auto()
+    # SHIP_PLACE_SQUAD = auto()
 
     # === SQUADRON_PHASE ===
-    SQUAD_ACTIVATE = auto() 
-    SQUAD_DECLARE_TARGET = auto()
-    SQUAD_MOVE = auto()
+    # SQUAD_ACTIVATE = auto() 
+    # SQUAD_DECLARE_TARGET = auto()
+    # SQUAD_MOVE = auto()
 
     # === Attack Step ===
-    ATTACK_GATHER_DICE = auto()
+    # ATTACK_GATHER_DICE = auto()
     ATTACK_ROLL_DICE = auto()
     ATTACK_RESOLVE_EFFECTS = auto()
     ATTACK_SPEND_DEFENSE_TOKENS = auto()
-    ATTACK_USE_CRITICAL_EFFECT = auto()
+    # ATTACK_USE_CRITICAL_EFFECT = auto()
     ATTACK_RESOLVE_DAMAGE = auto()
-    ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET = auto()
+    # ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET = auto()
     
     def __str__(self):
         return self.name
@@ -69,6 +70,7 @@ ActionType: TypeAlias = (
     tuple[Literal['move_shield_action'], tuple[HullSection, HullSection]] |
 
     # Attack Step
+    tuple[Literal['choose_target_ship_action'], int] |
     tuple[Literal['declare_target_action'], tuple[HullSection, tuple[int, HullSection]|int]] | 
     tuple[Literal['gather_dice_action'], tuple[int, ...]] |
     tuple[Literal['roll_dice_action'], tuple[tuple[int, ...],...]] | 

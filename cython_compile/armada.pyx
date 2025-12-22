@@ -36,10 +36,11 @@ cdef class Armada:
         self.first_player = initiative.value
         self.second_player = -initiative.value
 
-        self.phase : Phase = Phase.COMMAND_PHASE    
+        self.phase : Phase = Phase.SHIP_ACTIVATE    
         self.current_player : int = self.first_player
         self.decision_player : int = self.first_player
         self.active_ship : Ship | None = None
+        self.defend_ship : Ship | None = None
         self.active_squad : Squad | None = None
         self.attack_info : AttackInfo | None = None
         self.squad_activation_count = 0
@@ -51,10 +52,10 @@ cdef class Armada:
         self.para_index = para_index
 
         self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
-        self.relation_encode_array = np.zeros((Config.SCALAR_FEATURE_SIZE * hull_type, Config.SCALAR_FEATURE_SIZE * hull_type), dtype=np.float32)
+        self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)
         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
-        self.squad_encode_array = np.zeros((Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE), dtype=np.float32)
-        self.spatial_encode_array = np.zeros((obstacle_type + Config.MAX_SHIPS * 2 + 2, Config.BOARD_RESOLUTION[1], Config.BOARD_RESOLUTION[0]), dtype=np.float32)
+        self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
+        self.spatial_encode_array = np.zeros((Config.MAX_SHIPS, 10, *Config.BOARD_RESOLUTION), dtype=np.float32) # ships , presence+hull_type*range_type, height, width
 
     def rollout(self, max_simulation_step : int = 2000) -> float :
         """
@@ -114,7 +115,9 @@ cdef class Armada:
         Returns a list of possible actions based on the current game phase.
         """
 
-        if self.phase in (Phase.SHIP_REVEAL_COMMAND_DIAL, Phase.ATTACK_ROLL_DICE):
+        # if self.phase in (Phase.SHIP_REVEAL_COMMAND_DIAL, Phase.ATTACK_ROLL_DICE):
+        # Simplified
+        if self.phase in (Phase.ATTACK_ROLL_DICE,) :
             self.decision_player = 0
         elif self.phase in (Phase.ATTACK_SPEND_DEFENSE_TOKENS, Phase.ATTACK_RESOLVE_DAMAGE, Phase.SHIP_PLACE_SQUAD):
             self.decision_player = -self.current_player
@@ -137,10 +140,12 @@ cdef class Armada:
             DefenseToken defense_token
 
         if self.active_ship is not None : active_ship = self.active_ship
+        if self.defend_ship is not None : defend_ship = self.defend_ship
         if self.active_squad is not None : active_squad = self.active_squad
         if self.attack_info is not None : attack_info = self.attack_info
 
         if phase == Phase.COMMAND_PHASE :
+            raise NotImplementedError(f"simplified {phase}")
             for ship in self.ships:
                 if ship.player == self.current_player and len(ship.command_stack) < ship.command_value :
                     for command in COMMANDS :
@@ -152,25 +157,32 @@ cdef class Armada:
         
         # Reveal Command Sequence
         elif phase == Phase.SHIP_REVEAL_COMMAND_DIAL :
-            if active_ship.player == self.simulation_player or self.simulation_player == 0 :  # player's simulation
-                actions = [('reveal_command_action', active_ship.command_stack[0])]
-            else : 
-                for command in COMMANDS:                                                      # secret information
-                    actions.append(('reveal_command_action', command))
+            for command in COMMANDS:
+                actions.append(('reveal_command_action', command))
+
+            # simplified
+            # if active_ship.player == self.simulation_player or self.simulation_player == 0 :  # player's simulation
+            #     actions = [('reveal_command_action', active_ship.command_stack[0])]
+            # else : 
+            #     for command in COMMANDS:                                                      # secret information
+            #         actions.append(('reveal_command_action', command))
 
         elif phase == Phase.SHIP_GAIN_COMMAND_TOKEN :
+            raise NotImplementedError(f"simplified {phase}")
             for command in active_ship.command_dial:
                 if command not in active_ship.command_token:
                     actions.append(('gain_command_token_action', command))
             actions.append(('pass_command_token', None))
 
         elif phase == Phase.SHIP_DISCARD_COMMAND_TOKEN :
+            raise NotImplementedError(f"simplified {phase}")
             for command in active_ship.command_token:
                 actions.append(('discard_command_token_action', command))
 
 
         # Squad Command
         elif phase == Phase.SHIP_RESOLVE_SQUAD :
+            raise NotImplementedError(f"simplified {phase}")
             dial = Command.SQUAD in active_ship.command_dial
             token_choices = [True, False] if Command.SQUAD in active_ship.command_token else [False]
             for token in token_choices:
@@ -179,6 +191,7 @@ cdef class Armada:
 
         # Engineering Sequence
         elif phase == Phase.SHIP_RESOLVE_REPAIR :
+            raise NotImplementedError(f"simplified {phase}")
             dial = Command.REPAIR in active_ship.command_dial
             token_choices = [True, False] if Command.REPAIR in active_ship.command_token else [False]
             for token in token_choices:
@@ -202,15 +215,23 @@ cdef class Armada:
                             actions.append(('move_shield_action', (from_hull, to_hull)))
 
         # Attack Sequence
-        elif phase == Phase.SHIP_DECLARE_TARGET :
+        elif phase == Phase.SHIP_CHOOSE_TARGET_SHIP :
             for attack_hull in active_ship.get_valid_attack_hull():
                 for defend_ship, defend_hull in active_ship.get_valid_ship_target(attack_hull):
+                    actions.append(('choose_target_ship_action', (attack_hull, (defend_ship.id, defend_hull))))
+            if not actions : actions = [('pass_attack', None)]
+
+        elif phase == Phase.SHIP_DECLARE_TARGET :
+            for attack_hull in active_ship.get_valid_attack_hull():
+                for defend_hull in active_ship.get_valid_target_hull(attack_hull, defend_ship):
                     actions.append(('declare_target_action', (attack_hull, (defend_ship.id, defend_hull))))
-                for squad in active_ship.get_valid_squad_target(attack_hull):
-                    actions.append(('declare_target_action', (attack_hull, squad.id)))
+                # simplified
+                # for squad in active_ship.get_valid_squad_target(attack_hull):
+                #     actions.append(('declare_target_action', (attack_hull, squad.id)))
             if not actions : actions = [('pass_attack', None)]
 
         elif phase == Phase.ATTACK_GATHER_DICE :
+            raise NotImplementedError(f"simplified {phase}")
             dice_to_roll = attack_info.dice_to_roll
 
             if attack_info.obstructed:
@@ -252,30 +273,32 @@ cdef class Armada:
 
 
             # use con-fire command
-            if attack_info.con_fire_dial :
+            # if attack_info.con_fire_dial :
+            if Command.CONFIRE in attack_ship.command_dial and Command.CONFIRE not in attack_ship.resolved_command :
                 for dice in Dice:
                     if sum(attack_info.attack_pool_result[dice]) :
                         actions.append(('use_confire_dial_action', DICE_CHOICE_1[dice]))
 
-            if not actions : actions.append(('pass_attack_effect', None)) # Above actions are MUST USED actions
+            actions.append(('pass_attack_effect', None)) # Above actions are MUST USED actions
 
-            # use con-fire command
-            if attack_info.is_attacker_ship and Command.CONFIRE not in attack_ship.resolved_command :
-                dial = Command.CONFIRE in attack_ship.command_dial
-                token = Command.CONFIRE in attack_ship.command_token
-                if dial and token:
-                    actions.append(('resolve_con-fire_command_action', (True, True)))
-                if dial:
-                    actions.append(('resolve_con-fire_command_action', (True, False)))
-                if token:
-                    actions.append(('resolve_con-fire_command_action', (False, True)))
+            # simplified
+            # # use con-fire command
+            # if attack_info.is_attacker_ship and Command.CONFIRE not in attack_ship.resolved_command :
+            #     dial = Command.CONFIRE in attack_ship.command_dial
+            #     token = Command.CONFIRE in attack_ship.command_token
+            #     if dial and token:
+            #         actions.append(('resolve_con-fire_command_action', (True, True)))
+            #     if dial:
+            #         actions.append(('resolve_con-fire_command_action', (True, False)))
+            #     if token:
+            #         actions.append(('resolve_con-fire_command_action', (False, True)))
 
-            if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
-                actions.extend([('use_confire_token_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
+            # if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
+            #     actions.extend([('use_confire_token_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
 
-            # swarm reroll
-            if attack_info.swarm:
-                actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
+            # # swarm reroll
+            # if attack_info.swarm:
+            #     actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
 
         elif phase == Phase.ATTACK_SPEND_DEFENSE_TOKENS :
             if attack_info.is_defender_ship:
@@ -310,6 +333,7 @@ cdef class Armada:
             actions.append(('pass_defense_token', None))
 
         elif phase == Phase.ATTACK_USE_CRITICAL_EFFECT :
+            raise NotImplementedError(f"simplified {phase}")
             if (attack_info.is_attacker_ship or attack_info.bomber) and attack_info.is_defender_ship:
                 black_crit = bool(attack_info.attack_pool_result[Dice.BLACK][CRIT_INDEX[Dice.BLACK]])
                 blue_crit = bool(attack_info.attack_pool_result[Dice.BLUE][CRIT_INDEX[Dice.BLUE]])
@@ -337,6 +361,7 @@ cdef class Armada:
             actions.append(('resolve_damage_action', None))
 
         elif phase == Phase.ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET :
+            raise NotImplementedError(f"simplified {phase}")
             attack_ship = self.ships[attack_info.attack_ship_id]
             attack_hull = attack_info.attack_hull
             for squad in attack_ship.get_valid_squad_target(attack_hull) :
@@ -359,6 +384,7 @@ cdef class Armada:
                         actions.append(('determine_course_action', (course, placement)))
 
         elif phase == Phase.SHIP_PLACE_SQUAD :
+            raise NotImplementedError(f"simplified {phase}")
             for squad in self.squads:
                 if squad.overlap_ship_id is None: continue
                 for index in active_ship.get_valid_squad_placement(squad):
@@ -366,6 +392,7 @@ cdef class Armada:
 
         # === SQUADRON_PHASE ===
         elif phase == Phase.SQUAD_ACTIVATE :
+            raise NotImplementedError(f"simplified {phase}")
             if self.active_ship is not None :
                 for squad in active_ship.get_squad_activation():
                     if not squad.is_engaged(): actions.append(('activate_squad_move_action', squad.id))
@@ -378,11 +405,13 @@ cdef class Armada:
             if not actions : actions = [('pass_activate_squad', None)]
 
         elif phase == Phase.SQUAD_MOVE :
+            raise NotImplementedError(f"simplified {phase}")
             for speed, angle in active_squad.get_valid_moves():
                 actions.append(('move_squad_action', (speed, angle)))
             actions.append(('pass_move_squad', None))
 
         elif phase == Phase.SQUAD_DECLARE_TARGET :
+            raise NotImplementedError(f"simplified {phase}")
             for target in active_squad.get_valid_target():
                 actions.append(('declare_squad_target_action', target))
             if not actions : actions = [('pass_attack_squad', None)]
@@ -414,6 +443,7 @@ cdef class Armada:
             list dice_result_color = []
         
         if self.active_ship is not None : active_ship = self.active_ship
+        if self.defend_ship is not None : defend_ship = self.defend_ship
         if self.active_squad is not None : active_squad = self.active_squad
         if self.attack_info is not None : attack_info = self.attack_info
 
@@ -422,6 +452,7 @@ cdef class Armada:
         action_data = action[1]
 
         if action_type == 'set_command_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (ship_id, command) = action_data
             command_ship = self.ships[ship_id]
             command_ship.command_stack += (command,)
@@ -453,11 +484,16 @@ cdef class Armada:
 
         elif action_type == 'reveal_command_action':
             command = action_data
-            active_ship.command_stack = active_ship.command_stack[1:]
             active_ship.command_dial += (command,)
-            self.phase = Phase.SHIP_GAIN_COMMAND_TOKEN
+            # simplified
+            if command == Command.REPAIR :
+                active_ship.engineer_point = active_ship.engineer_value
+            # active_ship.command_stack = active_ship.command_stack[1:]
+            # self.phase = Phase.SHIP_GAIN_COMMAND_TOKEN
+            self.phase = Phase.SHIP_USE_ENGINEER_POINT
 
         elif action_type == 'gain_command_token_action':
+            raise NotImplementedError(f"simplified {action_type}")
             command = action_data
 
             active_ship.spend_command_dial(command)
@@ -468,15 +504,18 @@ cdef class Armada:
             else :self.phase = Phase.SHIP_RESOLVE_SQUAD
 
         elif action_type == 'pass_command_token':
+            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
             self.phase = Phase.SHIP_RESOLVE_SQUAD
 
         elif action_type == 'discard_command_token_action':
+            raise NotImplementedError(f"simplified {action_type}")
             command = action_data
             active_ship.spend_command_token(command)
             self.phase = Phase.SHIP_RESOLVE_SQUAD
 
         elif action_type == 'resolve_squad_command_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (dial, token) = action_data
             if dial : active_ship.spend_command_dial(Command.SQUAD)
             if token : active_ship.spend_command_token(Command.SQUAD)
@@ -489,6 +528,7 @@ cdef class Armada:
 
 
         elif action_type == 'resolve_repair_command_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (dial, token) = action_data
             if dial : active_ship.spend_command_dial(Command.REPAIR)
             if token : active_ship.spend_command_token(Command.REPAIR)
@@ -526,11 +566,16 @@ cdef class Armada:
 
             active_ship.repaired_hull += (to_hull,)
 
-
         elif action_type == 'pass_repair':
             _ = action_data
             active_ship.repaired_hull = ()
             active_ship.engineer_point = 0
+            self.phase = Phase.SHIP_DECLARE_TARGET
+
+
+        elif action_type == 'choose_target_ship_action':
+            defend_ship_id = action_data
+            self.defend_ship = self.ships[defend_ship_id]
             self.phase = Phase.SHIP_DECLARE_TARGET
 
         elif action_type == 'declare_target_action':
@@ -543,9 +588,13 @@ cdef class Armada:
 
             # gather initial dice pool here
             self.attack_info = AttackInfo((active_ship, attack_hull), defender)
-            self.phase = Phase.ATTACK_GATHER_DICE
+
+            # simplified
+            # self.phase = Phase.ATTACK_GATHER_DICE
+            self.phase = Phase.ATTACK_ROLL_DICE
         
         elif action_type == 'gather_dice_action':
+            raise NotImplementedError(f"simplified {action_type}")
             dice_to_remove= action_data
             # update dice pool considering obstruction.etc
             for dice_type in DICE:
@@ -569,7 +618,6 @@ cdef class Armada:
 
         elif action_type == 'spend_accuracy_action':
             (accuracy_dice, index)= action_data
-            defend_ship = self.ships[attack_info.defend_ship_id]
             defense_token = defend_ship.defense_tokens[index]
             defense_token.accuracy = True
 
@@ -581,6 +629,7 @@ cdef class Armada:
             attack_info.calculate_total_damage()
 
         elif action_type == 'resolve_con-fire_command_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (dial, token) = action_data
             if dial : active_ship.spend_command_dial(Command.CONFIRE)
             if token : active_ship.spend_command_token(Command.CONFIRE)
@@ -589,6 +638,10 @@ cdef class Armada:
             attack_info.calculate_total_damage()
         
         elif action_type == 'use_confire_dial_action':
+            # simplified
+            active_ship.spend_command_dial(Command.CONFIRE)
+            active_ship.resolved_command += (Command.CONFIRE,)
+
             dice_to_add = action_data
             attack_info.dice_to_roll = dice_to_add
             attack_info.con_fire_dial = False
@@ -596,6 +649,7 @@ cdef class Armada:
             self.phase = Phase.ATTACK_ROLL_DICE
             
         elif action_type == 'use_confire_token_action':
+            raise NotImplementedError(f"simplified {action_type}")
             reroll_dice = action_data
             attack_info.con_fire_token = False
 
@@ -606,6 +660,7 @@ cdef class Armada:
             self.phase = Phase.ATTACK_ROLL_DICE
 
         elif action_type == 'swarm_reroll_action':
+            raise NotImplementedError(f"simplified {action_type}")
             reroll_dice = action_data
             attack_info.swarm = False
             attack_info.remove_dice(reroll_dice)
@@ -622,7 +677,6 @@ cdef class Armada:
 
         elif action_type == 'spend_defense_token_action':
             index = action_data
-            defend_ship = self.ships[attack_info.defend_ship_id]
             defense_token = defend_ship.defense_tokens[index]
 
             attack_info.spent_token_indices += (index,)
@@ -632,7 +686,6 @@ cdef class Armada:
 
         elif action_type == 'spend_redirect_token_action':
             (index, hull) = action_data
-            defend_ship = self.ships[attack_info.defend_ship_id]
             defense_token = defend_ship.defense_tokens[index]
 
             attack_info.spent_token_indices += (index,)
@@ -643,7 +696,6 @@ cdef class Armada:
 
         elif action_type == 'spend_evade_token_action':
             (index, evade_dice) = action_data
-            defend_ship = self.ships[attack_info.defend_ship_id]
             defense_token = defend_ship.defense_tokens[index]
 
             attack_info.spent_token_indices += (index,)
@@ -663,12 +715,15 @@ cdef class Armada:
             # Ship Defender
             if attack_info.is_defender_ship :
                 if attack_info.is_attacker_ship or attack_info.bomber:
-                    self.phase = Phase.ATTACK_USE_CRITICAL_EFFECT
+                    # simplified
+                    # self.phase = Phase.ATTACK_USE_CRITICAL_EFFECT
+                    self.phase = Phase.ATTACK_RESOLVE_DAMAGE
                 else :
                     self.phase = Phase.ATTACK_RESOLVE_DAMAGE
 
             # Squadron Defender
             else :
+                raise NotImplementedError(f"simplified {action_type}")
                 defend_squad = <Squad>self.squads[attack_info.defend_squad_id]
                 attack_info.calculate_total_damage()
                 defend_squad.defend(attack_info.total_damage)
@@ -702,12 +757,14 @@ cdef class Armada:
                             self.status_phase()
 
         elif action_type == 'use_critical_action':
+            raise NotImplementedError(f"simplified {action_type}")
             critical = action_data
             attack_info.critical = critical
             attack_info.calculate_total_damage()
             self.phase = Phase.ATTACK_RESOLVE_DAMAGE
 
         elif action_type == 'pass_critical':
+            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
             attack_info.calculate_total_damage()
             self.phase = Phase.ATTACK_RESOLVE_DAMAGE
@@ -715,7 +772,6 @@ cdef class Armada:
         elif action_type == 'resolve_damage_action':
             redirect_damage= action_data
             total_damage = attack_info.total_damage
-            defend_ship = self.ships[attack_info.defend_ship_id]
 
             # Redirect
             if redirect_damage :
@@ -730,12 +786,13 @@ cdef class Armada:
                 defense_token.accuracy = False
 
             self.attack_info = None
+            self.defend_ship = None
 
             if attack_info.is_attacker_ship :
                 if active_ship.attack_count < 2 : self.phase = Phase.SHIP_DECLARE_TARGET
                 else : self.phase = Phase.SHIP_DETERMINE_COURSE
             else :
-
+                raise NotImplementedError(f"simplified {action_type}")
                 if active_squad.can_move and not active_squad.is_engaged() :
                     self.phase = Phase.SQUAD_MOVE
                 else :
@@ -753,6 +810,7 @@ cdef class Armada:
                         self.status_phase()
 
         elif action_type == 'declare_additional_squad_target_action':
+            raise NotImplementedError(f"simplified {action_type}")
             squad_id = action_data
             attack_ship = self.ships[attack_info.attack_ship_id]
             attack_hull = attack_info.attack_hull
@@ -765,6 +823,7 @@ cdef class Armada:
             self.phase = Phase.SHIP_DETERMINE_COURSE
 
         elif action_type == 'pass_additional_squad_target':
+            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
             if active_ship.attack_count < 2 : self.phase = Phase.SHIP_DECLARE_TARGET
             else : self.phase = Phase.SHIP_DETERMINE_COURSE
@@ -780,12 +839,13 @@ cdef class Armada:
             active_ship.speed = len(course)
             active_ship.execute_maneuver(course, placement)
 
-            for obstacle in self.obstacles:
-                if active_ship.check_overlap(obstacle) :
-                    active_ship.overlap_obstacle(obstacle)
+            # for obstacle in self.obstacles:
+            #     if active_ship.check_overlap(obstacle) :
+            #         active_ship.overlap_obstacle(obstacle)
 
 
             if active_ship.is_overlap_squad() :
+                raise NotImplementedError(f"simplified {action_type}")
                 self.phase = Phase.SHIP_PLACE_SQUAD
             else :
                 active_ship.end_activation()
@@ -801,10 +861,12 @@ cdef class Armada:
                 
                 else :
                     if self.get_valid_squad_activation(self.first_player) :
+                        raise NotImplementedError(f"simplified {action_type}")
                         self.current_player = self.first_player
                         self.squad_activation_count = 2
                         self.phase = Phase.SQUAD_ACTIVATE
                     elif self.get_valid_squad_activation(- self.first_player) :
+                        raise NotImplementedError(f"simplified {action_type}")
                         self.current_player = - self.first_player
                         self.squad_activation_count = 2
                         self.phase = Phase.SQUAD_ACTIVATE
@@ -812,6 +874,7 @@ cdef class Armada:
                         self.status_phase()
 
         elif action_type == 'place_squad_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (squad_id, coords_index) = action_data
             squad = self.squads[squad_id]
             if coords_index is None :
@@ -854,6 +917,7 @@ cdef class Armada:
                         self.status_phase()
 
         elif action_type == 'activate_squad_move_action':
+            raise NotImplementedError(f"simplified {action_type}")  
             squad_id = action_data
             active_squad = self.squads[squad_id]
             active_squad.start_activation()
@@ -861,6 +925,7 @@ cdef class Armada:
             self.phase = Phase.SQUAD_MOVE
 
         elif action_type == 'activate_squad_attack_action':
+            raise NotImplementedError(f"simplified {action_type}")  
             squad_id = action_data
             active_squad = self.squads[squad_id]
             active_squad.start_activation()
@@ -868,6 +933,7 @@ cdef class Armada:
             self.phase = Phase.SQUAD_DECLARE_TARGET
 
         elif action_type == 'declare_squad_target_action':
+            raise NotImplementedError(f"simplified {action_type}")  
             defender_id = action_data
             if isinstance(defender_id, tuple) : # ship target
                 defend_ship_id, defend_hull = defender_id
@@ -880,6 +946,7 @@ cdef class Armada:
             self.phase = Phase.ATTACK_GATHER_DICE
 
         elif action_type == 'move_squad_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (speed, angle) = action_data
             active_squad.move(speed, angle)
 
@@ -899,12 +966,14 @@ cdef class Armada:
                     self.status_phase()
 
         elif action_type == 'pass_activate_squad':
+            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
             self.squad_activation_count = 0
             if self.active_ship is None : raise ValueError('You cannot pass squad activation during Squadron Phase')
             self.phase = Phase.SHIP_RESOLVE_REPAIR
         
         elif action_type == 'pass_move_squad':
+            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
             active_squad.can_move = False
             if active_squad.can_attack : self.phase = Phase.SQUAD_DECLARE_TARGET
@@ -923,6 +992,7 @@ cdef class Armada:
                     self.status_phase()
         
         elif action_type == 'pass_attack_squad':
+            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
             active_squad.can_attack = False
             if active_squad.can_move and not active_squad.is_engaged(): self.phase = Phase.SQUAD_MOVE
@@ -996,6 +1066,7 @@ cdef class Armada:
         offset += 10 # Advance offset by block size
 
     cpdef void deploy_squad(self, Squad squad, float x, float y) :
+        raise NotImplementedError("simplified deploy_squad")
         self.squads.append(squad)
         squad.deploy(self, x, y, len(self.squads) - 1)
         self.visualize(f'\n{str(squad)} is deployed.')
@@ -1023,13 +1094,14 @@ cdef class Armada:
         squad_view[offset] = squad.anti_squad[2] / Config.GLOBAL_MAX_DICE; offset += 1
 
     def place_obstacle(self, obstacle: Obstacle, x: float, y: float, orientation: float, flip: bool) -> None:
+        raise NotImplementedError("simplified place_obstacle")
         self.obstacles.append(obstacle)
         self.obstacles.sort(key=lambda obstacle: obstacle.index)
         obstacle.place_obstacle(x, y, orientation, flip)
         self.visualize(f'\n{str(obstacle)} is placed.')
 
         obstacle_view = self.spatial_encode_array[obstacle.type]
-        width_res, height_res = Config.BOARD_RESOLUTION
+        height_res, width_res = Config.BOARD_RESOLUTION
         width_step = self.player_edge / width_res
         height_step = self.short_edge / height_res
         scale_factor = 2
@@ -1097,10 +1169,6 @@ cdef class Armada:
             bint player_1_eliminated, player_2_eliminated, is_game_over
             int p1_points, p2_points
 
-        # if self.simulation_player == 0:
-        #     print(f'Game {self.para_index+1 if self.para_index is not None else ''} Round {self.round} Ended')
-            # with open('simulation_log.txt', 'a') as f: f.write(f'\n{'-' * 10} Round {self.round} Ended {'-' * 10}\n\n')
-
         # 1. Refresh all active ships for the next round
         for ship in self.ships:
             if not ship.destroyed:
@@ -1139,7 +1207,7 @@ cdef class Armada:
         else:
             self.round += 1
             self.current_player = self.first_player
-            self.phase = Phase.COMMAND_PHASE
+            self.phase = Phase.SHIP_ACTIVATE
 
     cpdef int get_point(self, int player) :
         cdef Ship ship
@@ -1181,6 +1249,7 @@ cdef class Armada:
             self.current_player,
             self.decision_player,
             (<Ship>self.active_ship).id if self.active_ship is not None else None,
+            (<Ship>self.defend_ship).id if self.defend_ship is not None else None,
             (<Squad>self.active_squad).id if self.active_squad is not None else None,
             self.squad_activation_count,
             (<AttackInfo>self.attack_info).get_snapshot() if self.attack_info is not None else None,
@@ -1191,11 +1260,12 @@ cdef class Armada:
     cpdef void revert_snapshot(self, object snapshot):
         """Restores the entire game state from a snapshot."""
         (self.winner, self.round, self.phase, self.current_player, self.decision_player,
-         active_ship_id, active_squad_id, self.squad_activation_count, attack_info_snapshot,
+         active_ship_id, defend_ship_id, active_squad_id, self.squad_activation_count, attack_info_snapshot,
          ship_states, squad_states) = snapshot
         self.attack_info = AttackInfo.from_snapshot(attack_info_snapshot) if attack_info_snapshot is not None else None
 
         self.active_ship = self.ships[<int>active_ship_id] if active_ship_id is not None else None
+        self.defend_ship = self.ships[<int>defend_ship_id] if defend_ship_id is not None else None  
         self.active_squad = self.squads[<int>active_squad_id] if active_squad_id is not None else None
 
         for i, ship_snapshot in enumerate(ship_states):

@@ -35,9 +35,9 @@ def generate_all_maps():
         # Use simple loops to generate every possible action combination
         match phase:
             
-            # === Command Phase ===
-            case Phase.COMMAND_PHASE :
-                actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in range(MAX_SHIPS)]
+            # # === Command Phase ===
+            # case Phase.COMMAND_PHASE :
+            #     actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in range(MAX_SHIPS)]
             
 
             # === Ship Phase ===
@@ -46,20 +46,21 @@ def generate_all_maps():
             
             # Reveal Command 
             case Phase.SHIP_REVEAL_COMMAND_DIAL : # information node
-                pass
+                # simplified
+                actions = [('reveal_command_action', command) for command in Command]
 
-            case Phase.SHIP_GAIN_COMMAND_TOKEN :
-                actions = [('gain_command_token_action', command) for command in Command]
-                actions.append(('pass_command_token', None))
+            # case Phase.SHIP_GAIN_COMMAND_TOKEN :
+            #     actions = [('gain_command_token_action', command) for command in Command]
+            #     actions.append(('pass_command_token', None))
                 
-            case Phase.SHIP_DISCARD_COMMAND_TOKEN :
-                actions = [('discard_command_token_action', command) for command in Command]
+            # case Phase.SHIP_DISCARD_COMMAND_TOKEN :
+            #     actions = [('discard_command_token_action', command) for command in Command]
 
-            case Phase.SHIP_RESOLVE_SQUAD:
-                actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
+            # case Phase.SHIP_RESOLVE_SQUAD:
+            #     actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
 
-            case Phase.SHIP_RESOLVE_REPAIR :
-                actions = [('resolve_repair_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
+            # case Phase.SHIP_RESOLVE_REPAIR :
+            #     actions = [('resolve_repair_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
 
             case Phase.SHIP_USE_ENGINEER_POINT :
                 actions = [('repair_hull_action', None)]
@@ -71,7 +72,7 @@ def generate_all_maps():
             case Phase.SHIP_DECLARE_TARGET :
                 actions = [('declare_target_action', (attack_hull, (defend_ship_id, defend_hull)))
                            for attack_hull, defend_ship_id, defend_hull in itertools.product(HullSection, range(MAX_SHIPS), HullSection)]
-                actions.extend([('declare_target_action', (attack_hull, defend_squad_id)) for attack_hull, defend_squad_id in itertools.product(HullSection, range(MAX_SQUADS))])
+                # actions.extend([('declare_target_action', (attack_hull, defend_squad_id)) for attack_hull, defend_squad_id in itertools.product(HullSection, range(MAX_SQUADS))])
                 actions.append(('pass_attack', None))
 
             # Execute Maneuver
@@ -88,55 +89,55 @@ def generate_all_maps():
                             if course[-1] * placement < 0: continue 
                             actions.append(('determine_course_action', (course, placement)))
 
-            case Phase.SHIP_PLACE_SQUAD :
-                for squad_id in range(MAX_SQUADS) :
-                    actions.extend([('place_squad_action', (squad_id, coord_index)) for coord_index in range(SQUAD_PLACEMENT_RESOLUTION)])
-                    actions.append(('place_squad_action', (squad_id, None)))
+            # case Phase.SHIP_PLACE_SQUAD :
+            #     for squad_id in range(MAX_SQUADS) :
+            #         actions.extend([('place_squad_action', (squad_id, coord_index)) for coord_index in range(SQUAD_PLACEMENT_RESOLUTION)])
+            #         actions.append(('place_squad_action', (squad_id, None)))
 
 
-            # === SQUADRON_PHASE ===
-            case Phase.SQUAD_ACTIVATE:
-                actions = [('activate_squad_move_action', squad_id) for squad_id in range(MAX_SQUADS)] 
-                actions.extend([('activate_squad_attack_action', squad_id) for squad_id in range(MAX_SQUADS)])
-                actions.append(('pass_activate_squad', None))
+            # # === SQUADRON_PHASE ===
+            # case Phase.SQUAD_ACTIVATE:
+            #     actions = [('activate_squad_move_action', squad_id) for squad_id in range(MAX_SQUADS)] 
+            #     actions.extend([('activate_squad_attack_action', squad_id) for squad_id in range(MAX_SQUADS)])
+            #     actions.append(('pass_activate_squad', None))
                 
-            case Phase.SQUAD_DECLARE_TARGET :
-                actions = [('declare_squad_target_action', (defend_ship_id, defend_hull))
-                           for defend_ship_id, defend_hull in itertools.product(range(MAX_SHIPS), HullSection)]
-                actions.extend([('declare_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)])
-                actions.append(('pass_attack_squad', None))
+            # case Phase.SQUAD_DECLARE_TARGET :
+            #     actions = [('declare_squad_target_action', (defend_ship_id, defend_hull))
+            #                for defend_ship_id, defend_hull in itertools.product(range(MAX_SHIPS), HullSection)]
+            #     actions.extend([('declare_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)])
+            #     actions.append(('pass_attack_squad', None))
 
-            case Phase.SQUAD_MOVE :
-                moves : list[tuple[int, float]] = []
-                for speed in range(6) :
-                    if speed == 0 :
-                        moves.append((0, 0))
-                        continue
-                    for angle in range(0, 360, 90 // speed) :
-                        moves.append((speed, angle))
+            # case Phase.SQUAD_MOVE :
+            #     moves : list[tuple[int, float]] = []
+            #     for speed in range(6) :
+            #         if speed == 0 :
+            #             moves.append((0, 0))
+            #             continue
+            #         for angle in range(0, 360, 90 // speed) :
+            #             moves.append((speed, angle))
 
-                actions = [('move_squad_action', move) for move in moves]
-                actions.append(('pass_move_squad', None))
+            #     actions = [('move_squad_action', move) for move in moves]
+            #     actions.append(('pass_move_squad', None))
 
 
             # === Attack Step ===
-            case Phase.ATTACK_GATHER_DICE :
-                for dice_type in DICE :
-                    dice_to_remove = [0,0,0]
-                    dice_to_remove[dice_type] = 1
-                    dice_to_remove = tuple(dice_to_remove)
-                    actions.append(('gather_dice_action', dice_to_remove))
-                actions.append(('gather_dice_action', (0, 0, 0)))
+            # case Phase.ATTACK_GATHER_DICE :
+            #     for dice_type in DICE :
+            #         dice_to_remove = [0,0,0]
+            #         dice_to_remove[dice_type] = 1
+            #         dice_to_remove = tuple(dice_to_remove)
+            #         actions.append(('gather_dice_action', dice_to_remove))
+            #     actions.append(('gather_dice_action', (0, 0, 0)))
 
             case Phase.ATTACK_ROLL_DICE : # chance node
                 pass
 
             case Phase.ATTACK_RESOLVE_EFFECTS :
                 actions = [('spend_accuracy_action', (dice_type, index)) for dice_type in (Dice.BLUE, Dice.RED) for index in range(len(TokenType) * MAX_DEFENSE_TOKENS_PER_TYPE)]
-                actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
+                # actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
                 actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE])
-                actions.extend([('use_confire_token_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
-                actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
+                # actions.extend([('use_confire_token_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
+                # actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
                 actions.append(('pass_attack_effect', None))
 
             case Phase.ATTACK_SPEND_DEFENSE_TOKENS :
@@ -153,18 +154,18 @@ def generate_all_maps():
 
                 actions.append(('pass_defense_token', None))
 
-            case Phase.ATTACK_USE_CRITICAL_EFFECT :
-                actions = [('use_critical_action', critical) for critical in Critical]
-                actions.append(('pass_critical', None))
+            # case Phase.ATTACK_USE_CRITICAL_EFFECT :
+            #     actions = [('use_critical_action', critical) for critical in Critical]
+            #     actions.append(('pass_critical', None))
 
             case Phase.ATTACK_RESOLVE_DAMAGE:
                 # consider standard redirect with max damage 4
                 actions = [('resolve_damage_action', (hull, damage)) for hull in HullSection for damage in range(5)]
                 actions.append(('resolve_damage_action', None))
 
-            case Phase.ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET :
-                actions = [('declare_additional_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)]
-                actions.append(('pass_additional_squad_target', None))
+            # case Phase.ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET :
+            #     actions = [('declare_additional_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)]
+            #     actions.append(('pass_additional_squad_target', None))
 
             case _:
                 print(f"Warning: No action generation logic defined for phase {phase.name}")

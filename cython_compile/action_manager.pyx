@@ -30,6 +30,7 @@ cdef class ActionManager:
             }
 
             self.action_maps.append(action_to_index_dict)
+        self.max_action_space = max(len(amap) for amap in self.action_maps)
 
     cpdef dict get_action_map(self, int phase):
         """Returns the action map for a given game phase."""

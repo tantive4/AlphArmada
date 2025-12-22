@@ -33,7 +33,59 @@ class ResBlock(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
         return out
+    
+class PointerHead(nn.Module):
+    """
+    Selects a target from a list of entities using Dot-Product Attention.
+    
+    Structure:
+    1. Query: Generated from the Global State (Torso). 
+       "I need a target that is [Weak, Close, Enemy]."
+    2. Keys: Generated from each Ship's individual features.
+       "I am [Weak, Close, Enemy]."
+    3. Attention: Dot Product(Query, Keys) -> Softmax -> Target Index
+    """
+    def __init__(self, torso_dim, ship_feat_dim, internal_dim=64):
+        super(PointerHead, self).__init__()
+        # Projects global state to a Query vector
+        self.query_proj = nn.Linear(torso_dim, internal_dim)
+        
+        # Projects ship features to Key vectors
+        self.key_proj = nn.Linear(ship_feat_dim, internal_dim)
+        
+        # Optional: Learnable temperature for scaling attention
+        self.scale = nn.Parameter(torch.tensor(internal_dim ** -0.5))
 
+    def forward(self, torso_output, ship_features, valid_mask=None):
+        """
+        Args:
+            torso_output: [Batch, Torso_Dim] - The "Intent"
+            ship_features: [Batch, N, Ship_Dim] - The "Candidates"
+            valid_mask: [Batch, N] - Optional boolean mask (1=Valid, 0=Invalid) 
+                        to prevent selecting dead ships.
+        Returns:
+            logits: [Batch, N] - Unnormalized scores for each ship.
+        """
+        # 1. Generate Query [B, 1, Dim]
+        query = self.query_proj(torso_output).unsqueeze(1)
+        
+        # 2. Generate Keys [B, N, Dim]
+        keys = self.key_proj(ship_features)
+        
+        # 3. Calculate Scores (Dot Product)
+        # [B, 1, Dim] @ [B, Dim, N] -> [B, 1, N] -> [B, N]
+        scores = torch.matmul(query, keys.transpose(1, 2)).squeeze(1)
+        scores = scores * self.scale
+        
+        # 4. Masking (Optional but recommended)
+        if valid_mask is not None:
+            # Set invalid targets to negative infinity so Softmax becomes 0
+            scores = scores.masked_fill(valid_mask == 0, -1e9)
+            
+        return scores
+    
+
+    
 # --- Main Network Architecture ---
 
 class ArmadaNet(nn.Module):
@@ -42,69 +94,94 @@ class ArmadaNet(nn.Module):
     """
     def __init__(self, action_manager: ActionManager):
         super(ArmadaNet, self).__init__()
-        
-        # Store the action manager to get phase-specific action space sizes
         self.action_manager = action_manager
-        self.max_action_space = max(len(amap) for amap in self.action_manager.action_maps)
+        self.max_action_space = action_manager.max_action_space
 
-        # --- 1. Specialized Encoders ---
-
-        # Scalar Encoder (MLP)
+        # --- Constants & Configuration ---
+        self.ship_feat_size = Config.SHIP_ENTITY_FEATURE_SIZE
+        self.scalar_feat_size = Config.SCALAR_FEATURE_SIZE
+        
+        # --- 1. Scalar Encoder ---
+        self.scalar_embed_dim = 64
         self.scalar_encoder = nn.Sequential(
-            nn.Linear(Config.SCALAR_FEATURE_SIZE, 128),
+            nn.Linear(self.scalar_feat_size, 64),
             nn.ReLU(),
-            nn.Linear(128, 64)
+            nn.Linear(64, self.scalar_embed_dim),
+            nn.ReLU()
         )
 
-        # Ship Entity Encoder (Transformer)
-        # The TransformerEncoderLayer handles self-attention for the entities.
-        ship_encoder_layer = nn.TransformerEncoderLayer(d_model=Config.SHIP_ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
+        # --- 1. Entity Input Projection ---
+        # Projects raw ship features (size ~108) to Embedding Space (size 256)
+        self.embed_dim = 256
+        self.ship_embedding = nn.Linear(self.ship_feat_size, self.embed_dim)
+
+        # --- 2. Relation Bias Network ---
+        # Relation Matrix is 4x4 (16 values) per ship pair. 
+        # We project this to 8 values (one bias per Attention Head).
+        self.nhead = 8
+        self.relation_bias_net = nn.Sequential(
+            nn.Linear(16, 32),
+            nn.ReLU(),
+            nn.Linear(32, self.nhead)
+        )
+
+        # --- 3. Transformer Encoder ---
+        # d_model=256, nhead=8 (32 feat/head), dim_feedforward=512
+        ship_encoder_layer = nn.TransformerEncoderLayer(
+            d_model=self.embed_dim, 
+            nhead=self.nhead, 
+            dim_feedforward=512, 
+            batch_first=True,
+            norm_first=True # Usually stabilizes deep transformers
+        )
         self.ship_entity_encoder = nn.TransformerEncoder(ship_encoder_layer, num_layers=3)
-        # A simple linear layer to get a fixed-size output after attention
-        self.ship_entity_aggregator = nn.Linear(Config.SHIP_ENTITY_FEATURE_SIZE, 128)
 
-        # Squad Entity Encoder (Transformer)
-        # The TransformerEncoderLayer handles self-attention for the entities.
-        squad_encoder_layer = nn.TransformerEncoderLayer(d_model=Config.SQUAD_ENTITY_FEATURE_SIZE, nhead=6, dim_feedforward=256, batch_first=True)
-        self.squad_entity_encoder = nn.TransformerEncoder(squad_encoder_layer, num_layers=3)
-        # A simple linear layer to get a fixed-size output after attention
-        self.squad_entity_aggregator = nn.Linear(Config.SQUAD_ENTITY_FEATURE_SIZE, 128)
-
+        # --- 4. Scatter Projectors ---
+        # Output 2: Project to Presence Plane (36 channels)
+        self.presence_channels = 32
+        self.presence_projector = nn.Linear(self.embed_dim, self.presence_channels)
         
-        # Spatial Encoder (ResNet)
-        self.spatial_encoder = nn.Sequential(
-            nn.Conv2d(obstacle_type + Config.MAX_SHIPS * 2 + 2, 64, kernel_size=3, stride=1, padding=1, bias=False),
+        # Output 3: Project to Threat Plane (12 channels)
+        self.threat_channels = 4
+        self.threat_projector = nn.Linear(self.embed_dim, self.threat_channels * 9)
+
+        # --- 5. Spatial ResNet ---
+        # Input Channels: 
+        #   Scattered Presence (32) + Scattered Threat (4) = 36
+        self.spatial_in_channels = self.presence_channels + self.threat_channels
+        self.spatial_out_channels = 64
+        
+        self.spatial_resnet = nn.Sequential(
+            # Downsampling Convolution: Stride 2 reduces map size by half
+            # (32, 16) -> (16, 8)
+            nn.Conv2d(self.spatial_in_channels, 64, kernel_size=4, stride=2, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
+            # 4 ResBlocks
             ResBlock(64, 64),
-            ResBlock(64, 128, stride=2), # downsample
-            ResBlock(128, 128),
-            nn.AdaptiveAvgPool2d((1, 1)) # Pool to a fixed 1x1 size
+            ResBlock(64, 64),
+            ResBlock(64, 64),
+            ResBlock(64, 64)
         )
 
-        # Relational Encoder (CNN for the 24x24 matrix)
-        self.relation_encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d((1, 1))
-        )
-
-        # --- 2. Unification Torso ---
-        # This combines the outputs of all encoders.
-        # 64 (scalar) + 128 (ship entity) + 128 (squad entity) + 128 (spatial) + 64 (relation) = 512
+        # --- 6. Torso ---
+        # Input = Scalar(64) + Global_Ship_State(320)
+        self.single_ship_size = self.embed_dim + self.spatial_out_channels # 256 + 64 = 320
+        self.torso_input_size = self.scalar_embed_dim + self.single_ship_size
+        self.torso_output_size = 256
+        
         self.torso = nn.Sequential(
-            nn.Linear(512, 512),
+            nn.Linear(self.torso_input_size, 512),
             nn.ReLU(),
-            nn.Linear(512, 256)
+            nn.Linear(512, self.torso_output_size),
+            nn.ReLU()
         )
 
         # --- 3. Output Heads ---
 
         # Value Head: Predicts the game outcome (-1 to 1)
         self.value_head = nn.Sequential(
-            nn.Linear(256, 64),
+            nn.Linear(self.torso_output_size, 64),
             nn.ReLU(),
             nn.Linear(64, 1),
             nn.Tanh() # Tanh squashes the output to be between -1 and 1
@@ -114,36 +191,30 @@ class ArmadaNet(nn.Module):
         # We create a separate linear layer for each game phase.
         self.policy_heads = nn.ModuleDict({
             phase.name: nn.Sequential(
-                nn.Linear(256, 256),
+                nn.Linear(self.torso_output_size, 256),
                 nn.ReLU(),
                 nn.Linear(256, 128),
                 nn.ReLU(),
                 nn.Linear(128, len(self.action_manager.get_action_map(phase)))
             )
-            for phase in Phase if self.action_manager.get_action_map(phase)
+            for phase in Phase if self.action_manager.get_action_map(phase) and phase not in (Phase.SHIP_ACTIVATE, Phase.SHIP_CHOOSE_TARGET_SHIP)
         })
+        self.pointer_head = PointerHead(torso_dim=self.torso_output_size, ship_feat_dim=self.single_ship_size)
+
 
         # Auxiliary Target Heads
         self.hull_head = nn.Sequential(
-            nn.Linear(256, 128),
+            nn.Linear(self.torso_output_size, 128),
             nn.ReLU(),
             nn.Linear(128, Config.MAX_SHIPS),
-            nn.Sigmoid() # Output between 0 and 1
-        )
-
-        # Squad Head: Predicts remaining hull value for each of the 24 possible squads
-        self.squad_head = nn.Sequential(
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, Config.MAX_SQUADS),
             nn.Sigmoid() # Output between 0 and 1
         )
         
         # Game Length Head: Predicts which round the game will end on (1-6, plus 7 for games that go the distance)
         self.game_length_head = nn.Sequential(
-            nn.Linear(256, 64),
+            nn.Linear(self.torso_output_size, 64),
             nn.ReLU(),
-            nn.Linear(64, 6) # Logits for a 7-class classification
+            nn.Linear(64, 6) # Logits for a 6-class classification
         )
 
     def compile_fast_policy(self):
@@ -202,45 +273,96 @@ class ArmadaNet(nn.Module):
         self.fast_policy_ready = True
         print(f"Fast Policy Compiled: Merged {num_phases} heads into batch tensors.")
 
-    def forward(self, scalar_input, ship_entity_input, squad_entity_input, spatial_input, relation_input, phases):
-
-        # --- 1. Process through Encoders (now with batch support) ---
+    def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, phases):
+        """
+        Args:
+            scalar_input: [B, 45]
+            ship_entity_input: [B, N, 108]
+            ship_coord_input: [B, N, 2] - Normalized (0-1) coordinates for safer indexing
+            spatial_input: [B, N, 10, H, W] - Plane 0 is presence, 1-9 are threat geometry
+            relation_input: [B, N, N, 16] - Raw 4x4 hull relation matrix (flattened)
+            phases: [B] - tensor of phases
+        """
         batch_size = scalar_input.shape[0]
+        N = Config.MAX_SHIPS
 
-        scalar_features = self.scalar_encoder(scalar_input) # [B, 64]
-
-        # Transformer is already batch-first. No unsqueeze/squeeze needed.
-        ship_entity_features_attended = self.ship_entity_encoder(ship_entity_input) # [B, MAX_SHIPS, F]
-        # Aggregate over the sequence dimension (dim=1)
-        ship_entity_features_mean = ship_entity_features_attended.mean(dim=1) # [B, F]
-        ship_entity_features = self.ship_entity_aggregator(ship_entity_features_mean) # [B, 128]
-
-        squad_entity_features_attended = self.squad_entity_encoder(squad_entity_input) # [B, MAX_SQUADS, F]
-        # Aggregate over the sequence dimension (dim=1)
-        squad_entity_features_mean = squad_entity_features_attended.mean(dim=1) # [B, F]
-        squad_entity_features = self.squad_entity_aggregator(squad_entity_features_mean) # [B, 128]
-
-        # CNNs are already batch-first. No unsqueeze needed.
-        spatial_features_raw = self.spatial_encoder(spatial_input) # [B, 128, 1, 1]
-        spatial_features = spatial_features_raw.view(batch_size, -1) # [B, 128]
-
-        # Add channel dimension for CNN (dim=1)
-        relation_features_raw = self.relation_encoder(relation_input.unsqueeze(1)) # [B, 64, 1, 1]
-        relation_features = relation_features_raw.view(batch_size, -1) # [B, 64]
-
-
-        # --- 2. Unify in Torso ---
-        # Concatenate along the feature dimension (dim=1)
-        combined_features = torch.cat([scalar_features, ship_entity_features, squad_entity_features, spatial_features, relation_features], dim=1)
         
-        torso_output = self.torso(combined_features) # [B, 256]
+        # === 1. Inputs ===
+
+        # --- Scalar Encoder ---
+        scalar_features = self.scalar_encoder(scalar_input)
+
+        # --- Transformer Bias Encoder ---
+        attn_bias_raw = self.relation_bias_net(relation_input)
+        attn_bias = attn_bias_raw.permute(0, 3, 1, 2).reshape(batch_size * self.nhead, N, N)
+
+        # --- Entity Transformer Encoder ---
+        # here we use relation bias for each head, that applies to each ship pair.
+        ship_embed = self.ship_embedding(ship_entity_input)
+        ship_entity_features_attended = self.ship_entity_encoder(ship_embed, mask=attn_bias)
+
+        # --- Spatial ResNet (Scattered Connection) ---
+        presence_vals = self.presence_projector(ship_entity_features_attended)
+        threat_vals_flat = self.threat_projector(ship_entity_features_attended)
+        threat_vals = threat_vals_flat.view(batch_size, N, self.threat_out_channels, self.num_threat_planes)
+
+        presence_masks = spatial_input[:, :, 0]
+        presence_map = torch.einsum('bnc, bnhw -> bchw', presence_vals, presence_masks)
+
+        threat_masks = spatial_input[:, :, 1:]
+        threat_map = torch.einsum('bncg, bnghw -> bchw', threat_vals, threat_masks)
+        spatial_combined = torch.cat([presence_map, threat_map], dim=1)
+        
+        spatial_features_map = self.spatial_resnet(spatial_combined)
+
+        # --- Gather Connection ---
+        norm_x = ship_coord_input[:, :, 0]
+        norm_y = ship_coord_input[:, :, 1]
+
+        # Get dimensions
+        B, C, H_feat, W_feat = spatial_features_map.shape
+        
+        # Convert normalized coords to grid indices [B, N]
+        grid_x = (norm_x * W_feat).long().clamp(0, W_feat - 1)
+        grid_y = (norm_y * H_feat).long().clamp(0, H_feat - 1)
+        
+        # Flatten the spatial map: [B, C, H, W] -> [B, C, H*W]
+        # This creates a view, no data copying cost
+        flat_map = spatial_features_map.flatten(2)
+        
+        # Calculate 1D indices: [B, N]
+        flat_indices = (grid_y * W_feat + grid_x)
+        
+        # Expand indices to match channels: [B, N] -> [B, C, N]
+        flat_indices_expanded = flat_indices.unsqueeze(1).expand(-1, C, -1)
+        
+        # Gather features: [B, C, N]
+        gathered_spatial = torch.gather(flat_map, 2, flat_indices_expanded)
+        
+        # Transpose to expected shape: [B, N, C] (i.e. [B, N, 64])
+        gathered_spatial = gathered_spatial.transpose(1, 2)
+
+        # --- Ship Global State ---
+        ship_combined_state = torch.cat([ship_entity_features_attended, gathered_spatial], dim=2) # [B, N, 320]
+        
+        global_ship_state = ship_combined_state.mean(dim=1) # [B, 320]
 
 
-        # --- 3. Get Outputs from Heads ---
+        # === 2. Torso ===
+
+        torso_input = torch.cat([scalar_features, global_ship_state], dim=1) # [B, 64 + 320 = 384]
+        torso_output = self.torso(torso_input) # [B, 256]
+
+
+        # === 3. Output Heads ===
+
+        # --- Value Head ---
         value = self.value_head(torso_output) # [B, 1]
         
-        # --- Policy Head Logic ---
-        
+        # --- Policy Head ---
+        # we now ignore pointer network logic
+        # just use BMM sturcture and don't modify anything else.
+
         # Check if we have compiled the fast path (Inference/MCTS mode)
         if getattr(self, 'fast_policy_ready', False):
 
@@ -327,9 +449,8 @@ class ArmadaNet(nn.Module):
                 policy_logits[indices, :group_logits.shape[1]] = group_logits
 
 
-        # --- 4. Auxiliary Heads ---
+        # --- Auxiliary Heads ---
         predicted_hull = self.hull_head(torso_output)
-        predicted_squads = self.squad_head(torso_output)
         predicted_game_length = self.game_length_head(torso_output)
 
 
@@ -338,40 +459,6 @@ class ArmadaNet(nn.Module):
             "policy_logits": policy_logits,
             "value": value,
             "predicted_hull": predicted_hull,
-            "predicted_squads": predicted_squads,
             "predicted_game_length": predicted_game_length
         }
         return outputs
-
-
-# --- Example Usage (for testing the model's structure) ---
-if __name__ == '__main__':
-    action_manager = ActionManager()
-    print(max(len(amap) for amap in action_manager.action_maps))
-    # model = ArmadaNet(action_manager)
-    # print(f"Model created successfully.\nTotal parameters: {sum(p.numel() for p in model.parameters())}")
-
-    # # --- Create Dummy BATCH Input Data (Batch size = 4) ---
-    # B = 4
-    # scalar_data = torch.randn(B, Config.SCALAR_FEATURE_SIZE)
-    # ship_entity_data = torch.randn(B, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE)
-    # squad_entity_data = torch.randn(B, Config.MAX_SQUADS, Config.SQUAD_ENTITY_FEATURE_SIZE)
-
-    # W, H = Config.BOARD_RESOLUTION
-
-    # spatial_data = torch.randn(B, Config.MAX_SHIPS * 2, H, W)
-    # relation_data = torch.randn(B, Config.MAX_SHIPS * 4, Config.MAX_SHIPS * 4)
-
-    # # Test with a mixed batch of phases
-    # current_phases = [Phase.SHIP_ACTIVATE, Phase.COMMAND_PHASE, Phase.SHIP_ACTIVATE, Phase.SHIP_DECLARE_TARGET]
-
-    # # --- Perform a Forward Pass ---
-    # model.eval()
-    # with torch.no_grad():
-    #     policy_output, value_output = model(scalar_data, ship_entity_data, squad_entity_data, spatial_data, relation_data, current_phases)
-
-    # # --- Check the Output Shapes ---
-    # print(f"\n--- Testing with Batch Size {B} ---")
-    # print(f"Policy head output shape: {policy_output.shape} (Expected: [{B}, {model.max_action_space}])")
-    # print(f"Value head output shape: {value_output.shape} (Expected: [{B}, 1])")
-    # print(f"Predicted values: {value_output.squeeze().tolist()}")

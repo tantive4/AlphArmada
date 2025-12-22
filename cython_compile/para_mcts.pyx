@@ -51,7 +51,9 @@ cdef class Node:
         self.snapshot = game.get_snapshot()
         self.decision_player  = game.decision_player # decision player used when get_possible_action is called on this node
         self.chance_node = <bint>(game.phase == Phase.ATTACK_ROLL_DICE)
-        self.information_set = <bint>(game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL)
+        # simplified
+        # self.information_set = <bint>(game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL)
+        self.information_set = False
 
         self.action = action
         self.children = []

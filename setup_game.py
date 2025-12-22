@@ -134,8 +134,8 @@ def get_obstacle_polygon(obs_obj, x, y, orientation):
 def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada: 
 
     # 1. Generate Fleets
-    rebel_ship_names, rebel_squad_names, reb_points = get_random_fleet(Player.REBEL)
-    empire_ship_names, empire_squad_names, emp_points = get_random_fleet(Player.EMPIRE)
+    rebel_ship_names, rebel_squad_names, reb_points = get_random_fleet(Player.REBEL, max_squad_points=0) # simplified
+    empire_ship_names, empire_squad_names, emp_points = get_random_fleet(Player.EMPIRE, max_squad_points=0) # simplified
 
     initiative = random.choice([Player.REBEL, Player.EMPIRE])
 
@@ -243,51 +243,52 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
         if not placed:
             print(f"Warning: Could not place ship {ship.name} validly.")
     
-    first_squad_rect = (DIST_5, DIST_3, BOARD_WIDTH - DIST_5, DIST_5)
-    first_squad_zone = box(*first_squad_rect)
-    second_squad_rect = (DIST_5, BOARD_HEIGHT - DIST_5, BOARD_WIDTH - DIST_5, BOARD_HEIGHT - DIST_3)
-    second_squad_zone = box(*second_squad_rect)
-    # 4. Place Squads
-    squads = first_squad + second_squad
-    for squad in squads:
-        is_first = squad in first_squad
-        placed = False
-        for _ in range(200): # Retry limit
-            if is_first:
-                x, y = random_coord_in_rect(first_squad_rect)
-                deployment_zone = first_squad_zone
-            else:
-                x, y = random_coord_in_rect(second_squad_rect)
-                deployment_zone = second_squad_zone
+    # simplified
+    # first_squad_rect = (DIST_5, DIST_3, BOARD_WIDTH - DIST_5, DIST_5)
+    # first_squad_zone = box(*first_squad_rect)
+    # second_squad_rect = (DIST_5, BOARD_HEIGHT - DIST_5, BOARD_WIDTH - DIST_5, BOARD_HEIGHT - DIST_3)
+    # second_squad_zone = box(*second_squad_rect)
+    # # 4. Place Squads
+    # squads = first_squad + second_squad
+    # for squad in squads:
+    #     is_first = squad in first_squad
+    #     placed = False
+    #     for _ in range(200): # Retry limit
+    #         if is_first:
+    #             x, y = random_coord_in_rect(first_squad_rect)
+    #             deployment_zone = first_squad_zone
+    #         else:
+    #             x, y = random_coord_in_rect(second_squad_rect)
+    #             deployment_zone = second_squad_zone
 
-            poly = Polygon(measurement.SQUAD_BASE_POLY + np.array([[x, y]]))
+    #         poly = Polygon(measurement.SQUAD_BASE_POLY + np.array([[x, y]]))
 
-            valid = True
+    #         valid = True
 
-            # Check bounds
-            if not deployment_zone.contains(poly):
-                valid = False
+    #         # Check bounds
+    #         if not deployment_zone.contains(poly):
+    #             valid = False
 
-            friendly_ships = first_ship if is_first else second_ship
-            # Check distance from friendly ships
-            min_dist = min([poly.distance(get_ship_polygon(ship, ship.x, ship.y, ship.orientation)) for ship in friendly_ships])
-            if min_dist > DIST_2:
-                valid = False
+    #         friendly_ships = first_ship if is_first else second_ship
+    #         # Check distance from friendly ships
+    #         min_dist = min([poly.distance(get_ship_polygon(ship, ship.x, ship.y, ship.orientation)) for ship in friendly_ships])
+    #         if min_dist > DIST_2:
+    #             valid = False
 
-            # Check overlap/distance with existing polygons
-            for existing_poly in placed_polygons:
-                if poly.intersects(existing_poly):
-                    valid = False
-                    break
+    #         # Check overlap/distance with existing polygons
+    #         for existing_poly in placed_polygons:
+    #             if poly.intersects(existing_poly):
+    #                 valid = False
+    #                 break
             
-            if valid:
-                game.deploy_squad(squad, x, y)
-                placed_polygons.append(poly)
-                placed = True
-                break
+    #         if valid:
+    #             game.deploy_squad(squad, x, y)
+    #             placed_polygons.append(poly)
+    #             placed = True
+    #             break
         
-        if not placed:
-            print(f"Warning: Could not place squad {squad.name} validly.")
+    #     if not placed:
+    #         print(f"Warning: Could not place squad {squad.name} validly.")
 
 
     return game

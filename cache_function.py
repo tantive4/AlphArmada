@@ -8,6 +8,12 @@ from skimage.measure import block_reduce
 from enum_class import *
 from measurement import *
 import jit_geometry as jit
+
+from configs import Config
+height_res, width_res = Config.BOARD_RESOLUTION
+width_step = LONG_RANGE * 6 / width_res
+height_step = LONG_RANGE * 3 / height_res
+
 CACHE_SIZE = 6400
 def delete_cache():
     """
@@ -29,6 +35,7 @@ def delete_cache():
     range_s2q.cache_clear()
     maneuver_tool.cache_clear()
     _ship_presence_indices.cache_clear()
+    _ship_threat_indices.cache_clear()
     _squad_presence_indices.cache_clear()
     _threat_sparse.cache_clear()
 
@@ -232,24 +239,57 @@ def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : i
     return jit.maneuver_tool_numba(base_size, token_size, course, placement)
 
 @lru_cache(maxsize=CACHE_SIZE)
-def _ship_presence_indices(
-    ship_state: tuple[str, int, int, int],
-    width_step: float,
-    height_step: float,
-    width_res: int,
-    height_res: int,
-) -> tuple[np.ndarray, np.ndarray]:
+def _ship_presence_indices(ship_state: tuple[str, int, int, int],) -> tuple[np.ndarray, np.ndarray]:
     """
     Returns the indices (rr, cc) for the ship's position on the grid.
     Used to update the spatial encoding array in-place.
     """
     # Calculate vertices scaled to the grid resolution
-    scaled_vertices = np.array(_ship_coordinate(ship_state)['base_corners'], dtype=np.float32) / [width_step, height_step]
+    scaled_vertices = _ship_coordinate(ship_state)['base_corners'] / [width_step, height_step]
     
     # Get the indices of the polygon
     rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=(height_res, width_res))
     
     return rr, cc
+
+@lru_cache(maxsize=CACHE_SIZE)
+def _ship_threat_indices(ship_state: tuple[str, int, int, int],) -> dict[int,dict[int,tuple[np.ndarray, np.ndarray]]]:
+    """
+    Returns the indices (rr, cc) for each (hull section - range)'s threat zones on the grid.
+    Used to update the spatial encoding array in-place.
+    dict[hull_section][attack_range] = (rr, cc) (LEFT is skipped)
+    """
+    threat_zone_coords = _ship_coordinate(ship_state)
+    threat_indices: dict[int, dict[int, tuple[np.ndarray, np.ndarray]]] = {}
+
+    for hull in HULL_SECTIONS:
+
+        if hull == HullSection.LEFT:
+            continue
+
+        threat_indices[hull] = {}
+
+        for attack_range in ATTACK_RANGES:
+            # 2. Get coords for the current hull (e.g., RIGHT)
+            threat_zone = threat_zone_coords[(hull, attack_range)]
+            scaled_verts = threat_zone / [width_step, height_step]
+            rr, cc = draw_polygon(scaled_verts[:, 1], scaled_verts[:, 0], shape=(height_res, width_res))
+
+            # 3. If we are processing RIGHT, explicitly fetch and merge LEFT
+            if hull == HullSection.RIGHT:
+                threat_zone_left = threat_zone_coords[(HullSection.LEFT, attack_range)]
+                scaled_verts_left = threat_zone_left / [width_step, height_step]
+                rr_left, cc_left = draw_polygon(scaled_verts_left[:, 1], scaled_verts_left[:, 0], shape=(height_res, width_res))
+
+                # COMBINE the arrays
+                rr = np.concatenate((rr, rr_left))
+                cc = np.concatenate((cc, cc_left))
+
+            # 4. Store the final result
+            threat_indices[hull][attack_range] = (rr, cc)
+
+    return threat_indices
+
 
 @lru_cache(maxsize=CACHE_SIZE)
 def _squad_presence_indices(

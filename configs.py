@@ -3,8 +3,10 @@ import torch
 class Config:
     # Game
     MAX_SHIPS = 10
-    MAX_SQUADS = 16
-    MAX_COMMAND_STACK = 3
+    # MAX_SQUADS = 16
+    MAX_SQUADS = 0
+    # MAX_COMMAND_STACK = 3
+    MAX_COMMAND_STACK = 0
     MAX_DEFENSE_TOKENS = 6
     MAX_SQUAD_DEFENSE_TOKENS = 2
     GLOBAL_MAX_HULL = 8.0
@@ -14,10 +16,9 @@ class Config:
     GLOBAL_MAX_ENGINEER_VALUE = 4
 
     # Encoding
-    BOARD_RESOLUTION = (32, 16)  # (player_edge width resolution, short_edge height resolution)
-    SHIP_ENTITY_FEATURE_SIZE = 108
+    BOARD_RESOLUTION = (64, 128)  # (short_edge height resolution, player_edge width resolution)
+    SHIP_ENTITY_FEATURE_SIZE = 110
     SQUAD_ENTITY_FEATURE_SIZE = 30
-    RELATION_FEATURE_SIZE = 12
     SCALAR_FEATURE_SIZE = 45
 
     # Hardware
@@ -29,10 +30,10 @@ class Config:
 
     # Self Play
     SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
-    PARALLEL_DIVERSE_FACTOR = 32 # run games in batch
+    PARALLEL_DIVERSE_FACTOR = 8 # run games in batch
     PARALLEL_SAME_GAME = 16 # same geometry game setup
     PARALLEL_PLAY = PARALLEL_DIVERSE_FACTOR * PARALLEL_SAME_GAME
-    # 1 * 512 * 400 * 0.25 = 51200 states are created
+    # 1 * 128 * 400 * 0.25 = 12800 states are created
 
     # MCTS
     DEEP_SEARCH_RATIO = 0.25
@@ -49,9 +50,9 @@ class Config:
     REPLAY_BUFFER_DIR = "replay_buffers"
 
     # Neural Network Training
-    EPOCHS = 400
+    EPOCHS = 100
     BATCH_SIZE = 128
-    # train on 128 * 400 = 51200 states per iteration
+    # train on 128 * 100 = 12800 states per iteration
 
 
     # Optimization

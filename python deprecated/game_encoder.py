@@ -275,7 +275,7 @@ def encode_spatial_features(game: Armada, resolution: tuple[int, int]) -> np.nda
     Creates 2D grid representations of the game board.
     This is now a wrapper function for clarity and profiling.
     """
-    width_res, height_res = resolution  # width along player_edge, height along short_edge
+    height_res, width_res = resolution  # width along player_edge, height along short_edge
     planes = np.zeros((Config.MAX_SHIPS * 2 + 2, height_res, width_res), dtype=np.float32)
 
     width_step = game.player_edge / width_res

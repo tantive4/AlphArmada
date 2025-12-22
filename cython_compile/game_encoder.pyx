@@ -13,6 +13,7 @@ from configs import Config
 from action_phase import phase_type
 from dice import *
 from enum_class import *
+from measurement import *
 import cache_function as cache
 
 
@@ -41,9 +42,11 @@ cdef:
     int global_max_engineer_value = <int>Config.GLOBAL_MAX_ENGINEER_VALUE
     int global_max_dice = <int>Config.GLOBAL_MAX_DICE
     tuple board_resolution = Config.BOARD_RESOLUTION
+    int height_res, width_res = board_resolution
+    float width_step = LONG_RANGE * 6 / width_res
+    float height_step = LONG_RANGE * 3 / height_res
 
     int SHIP_STATS_FEATURES = 36
-    int SQUAD_STATS_FEATURES = 15
 
 
 
@@ -60,30 +63,30 @@ cpdef tuple get_terminal_value(Armada game):
         if ship.id >= max_ships or ship.destroyed: continue
         ship_hulls[ship.id] = ship.hull / ship.max_hull
 
-    squad_hulls = np.zeros(max_squads, dtype=np.float32)
-    for squad in game.squads:
-        if squad.id >= max_squads or squad.destroyed: continue
-        squad_hulls[squad.id] = squad.hull / squad.max_hull
-
     game_length = np.zeros(6, dtype=np.float32)
     game_length[game.round - 1] = 1.0
 
-    return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls, 'squad_hulls': squad_hulls}
+    return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls}
 
 
 cpdef dict encode_game_state(Armada game):
     """Main function to encode the entire game state into numpy arrays for the NN."""
+    encode_scalar_features(game)
+    encode_ship_entity_features(game)
+    encode_spatial_mask(game)
+    encode_relation_matrix(game)
+
     return {
-        'scalar': encode_scalar_features(game),
-        'ship_entities': encode_ship_entity_features(game),
-        'squad_entities': encode_squad_entity_features(game),
-        'spatial': encode_spatial_features(game, board_resolution),
-        'relations': encode_relation_matrix(game)
+        'scalar': game.scalar_encode_array,
+        'ship_entities': game.ship_encode_array,
+        'ship_coords': game.ship_coords_array,
+        'spatial': game.spatial_encode_array,
+        'relations': game.relation_encode_array
     }
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef cnp.ndarray[cnp.float32_t, ndim=1] encode_scalar_features(Armada game):
+cdef void encode_scalar_features(Armada game):
     """
     Encodes high-level, non-spatial game state information, including crucial
     context about an ongoing attack from game.attack_info.
@@ -128,7 +131,7 @@ cdef cnp.ndarray[cnp.float32_t, ndim=1] encode_scalar_features(Armada game):
     # --- Attack Context Features (17 features) ---
     
     if game.attack_info is None:
-        return scalar_array  # No attack in progress, return early
+        return  # No attack in progress, return early
         
     attack_info = game.attack_info
     
@@ -172,12 +175,12 @@ cdef cnp.ndarray[cnp.float32_t, ndim=1] encode_scalar_features(Armada game):
     scalar_view[offset + 1] = 1.0 if attack_info.obstructed else 0.0
     offset += 2 # End of array
     
-    return scalar_array
+
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game):
+cdef void encode_ship_entity_features(Armada game):
     """
     Encodes a detailed vector for each ship, now including its role in an active attack.
     
@@ -190,7 +193,8 @@ cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game)
     cdef AttackInfo attack_info
     
     # Memory view for the target row
-    cdef cnp.float32_t[:] ship_view 
+    cdef cnp.float32_t[:] ship_view
+    cdef cnp.float32_t[:] ship_coords_view
     
     # Indices and iterators
     cdef int offset, stack_idx, defense_start_idx, defense_idx, hull, command
@@ -203,6 +207,7 @@ cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game)
     # Zero out the entire array at the beginning.
     # This is crucial so we only have to write non-zero values.
     game.ship_encode_array[:, SHIP_STATS_FEATURES:].fill(0.0)
+    game.ship_coords_array.fill(0.0)
 
     # Get attack_info once outside the loop
     if game.attack_info is not None:
@@ -212,10 +217,17 @@ cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game)
     for ship in game.ships:
         if ship.id >= max_ships or ship.destroyed: continue
 
+        ship_coords_view = game.ship_coords_array[ship.id]
+        ship_coords_view[0] = ship.x / game.player_edge
+        ship_coords_view[1] = ship.y / game.short_edge
+
         ship_view = game.ship_encode_array[ship.id]
+
         offset = SHIP_STATS_FEATURES
 
-        # --- Status (6 features) ---
+        # --- Status (8 features) ---
+        ship_view[offset] = float(ship == game.active_ship); offset += 1
+        ship_view[offset] = float(ship == game.defend_ship); offset += 1
         ship_view[offset] = float(ship.activated); offset += 1
         ship_view[offset] = ship.speed / 4.0; offset += 1
         for hull in range(c_hull_type):
@@ -273,12 +285,10 @@ cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_ship_entity_features(Armada game)
                 ship_view[defense_start_idx + defense_idx * 4 + 3] = 1.0
         offset += max_defense_tokens * 4
 
-    # Return the populated array
-    return game.ship_encode_array
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_squad_entity_features(Armada game):
+cdef void encode_squad_entity_features(Armada game):
     """
     Encodes a detailed vector for each squad in-place in game.squad_encode_array
     to avoid all memory allocations, then returns a reference to the array.
@@ -342,137 +352,121 @@ cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_squad_entity_features(Armada game
         #         squad_view[defense_start_idx + defense_idx * 4 + 3] = 1.0
         # offset += max_squad_defense_tokens * 4
 
-    # Return the reference to the modified array
-    return game.squad_encode_array
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef cnp.ndarray[cnp.float32_t, ndim=3] encode_spatial_features(Armada game, tuple resolution):
+cdef void encode_spatial_mask(Armada game):
     """
     Fills the game.spatial_planes 2D grid representations of the game board
     in-place and returns a reference to it.
     """
-    cdef int width_res, height_res
-    width_res, height_res = resolution
-    cdef int width_res2x = width_res * 2
-    cdef int height_res2x = height_res * 2
 
-    cdef cnp.ndarray[cnp.float32_t, ndim=3] planes = game.spatial_encode_array[c_obstacle_type:]
+    cdef float[:, :, :, ::1] planes_view = game.spatial_encode_array
     
-    # CRITICAL: Zero out the existing array
-    planes.fill(0.0)
+    # Standard cleanup
+    game.spatial_encode_array.fill(0.0)
 
-    cdef float width_step = game.player_edge / width_res
-    cdef float width_step2x = game.player_edge / width_res2x
-    cdef float height_step = game.short_edge / height_res
-    cdef float height_step2x = game.short_edge / height_res2x
-    
-    cdef float value
+    cdef int i, r, c
+    cdef long[:] rr_view, cc_view 
+    cdef int hull, attack_range, channel_idx
+    cdef dict threat_plane_dict, ranges_dict
     cdef Ship ship
-    cdef Squad squad
-    cdef cnp.ndarray rr, cc
-    cdef cnp.ndarray tr, tc, tvals
-    cdef int row, col
-
+    cdef tuple ship_hash
+    
     for ship in game.ships:
-        if ship.id >= max_ships: 
+        if ship.id >= Config.MAX_SHIPS or ship.destroyed:
             continue
-        if ship.destroyed: 
-            continue
+            
+        ship_hash = ship.get_ship_hash_state()
 
-        # --- 1. Ship Presence (Binary) ---
-        value = (ship.hull / ship.max_hull) * ship.player
+        # --- 1. Ship Presence ---
+        # Get arrays as usual
+        rr, cc = cache._ship_presence_indices(ship_hash)
         
-        # Fetch indices only
-        rr, cc = cache._ship_presence_indices(
-            ship.get_ship_hash_state(), width_step2x, height_step2x, width_res2x, height_res2x
-        )
+        # Cast to memoryviews for C-level access
+        rr_view = rr
+        cc_view = cc
+        
+        # C-Level Loop (No GIL, No Python Overhead)
+        for i in range(rr_view.shape[0]):
+            r = rr_view[i]
+            c = cc_view[i]
 
-        # In-place update using numpy fancy indexing
-        # planes[channel, rows, cols] = value
-        np.add.at(planes[2 * ship.id], (rr // 2, cc // 2), value / 4.0)
+            planes_view[ship.id, 0, r, c] = 1.0
 
-        # --- 2. Ship Threat (Gradients) ---
-        # Retrieve sparse data: rows (tr), cols (tc), and intensity values (tvals)
-        tr, tc, tvals = cache._threat_sparse(
-            ship.get_ship_hash_state(), width_step, height_step, width_res, height_res
-        )
+        # --- 2. Ship Threat ---
+        threat_plane_dict = cache._ship_threat_indices(ship_hash)
         
-        # Apply values directly to the specific pixels
-        planes[2 * ship.id + 1, tr, tc] = tvals
+        # Iterate Dictionary Items to avoid KeyError risks
+        for hull, ranges_dict in threat_plane_dict.items():
+            for attack_range, coords in ranges_dict.items():
+                
+                # Calculate channel carefully
+                channel_idx = 1 + (hull * 3) + attack_range
+                
+                rr_view = coords[0]
+                cc_view = coords[1]
+                
+                for i in range(rr_view.shape[0]):
+                    r = rr_view[i]
+                    c = cc_view[i]
 
-    for squad in game.squads:
-        if squad.id >= max_squads: 
-            continue
-        if squad.destroyed: continue
-        
-        # Fetch indices only
-        row, col = cache._squad_presence_indices(
-            squad.get_squad_hash_state(), 
-            width_step, height_step, width_res, height_res
-        )
-        
-        value = squad.hull / squad.max_hull
-        
-        # Direct array access instead of full-plane addition
-        if squad.player == 1:
-            planes[2*max_ships, row, col] += value
-        else:
-            planes[2*max_ships + 1, row, col] += value
-
-    # Return the reference to the array modified in-place
-    return game.spatial_encode_array
+                    planes_view[ship.id, channel_idx, r, c] = 1.0
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef cnp.ndarray[cnp.float32_t, ndim=2] encode_relation_matrix(Armada game):
+cdef void encode_relation_matrix(Armada game):
     """
-    Encodes the pairwise range relationships between every hull section of every ship.
+    Optimized pairwise range encoding.
     """
     
-    cdef Ship attacker, defender
-    cdef int attacker_id, defender_id, from_hull, to_hull, from_idx, to_idx
+    cdef int i, j, attacker_id, defender_id
+    cdef int from_hull, to_hull
+    cdef int flat_idx
+    cdef float attack_range
+    cdef list ships = game.ships 
+    cdef int n_ships = len(ships)
+    cdef Ship attacker, defender 
     
-    # --- IMPROVEMENT 3: Type variables in the hot loop ---
-    cdef int attack_range
+    cdef float[:, :, ::1] rel_matrix = game.relation_encode_array
+    rel_matrix[:] = 0.0
+
     cdef list range_list, attack_range_list
-    
-    # Get the numpy array from the game object
-    cdef cnp.ndarray[cnp.float32_t, ndim=2] rel_matrix = game.relation_encode_array
-    
-    # --- IMPROVEMENT 2: Use a Typed Memoryview ---
-    # This view provides direct, C-level buffer access to the array's data.
-    cdef cnp.float32_t[:, :] rel_matrix_view = rel_matrix
-    
-    # .fill() is efficient for initialization
-    rel_matrix.fill(0.0)
-    
-    for attacker in game.ships:
+
+    # --- MAIN LOOP ---
+    for i in range(n_ships):
+        attacker = ships[i]
+        
+        # Check destroyed status (assuming boolean property)
+        if attacker.destroyed:
+            continue
+            
         attacker_id = attacker.id
         
-        if attacker.destroyed: 
-            continue
-        
-        for defender in game.ships:
-            defender_id = defender.id
-
-            if attacker_id == defender_id:
-                continue  # Don't check against self
-
-            if defender.destroyed:
+        for j in range(n_ships):
+            # Self-check optimization
+            if i == j: 
                 continue
 
-            _, range_list = cache.attack_range_s2s(attacker.get_ship_hash_state(), defender.get_ship_hash_state())
+            defender = ships[j]
+            
+            if defender.destroyed:
+                continue
+                
+            defender_id = defender.id
+
+            _, range_list = cache.attack_range_s2s(
+                attacker.get_ship_hash_state(), 
+                defender.get_ship_hash_state()
+            )
 
             for from_hull in range(c_hull_type):
-                attack_range_list = range_list[from_hull]
+                attack_range_list = range_list[from_hull] 
+                
                 for to_hull in range(c_hull_type):
-                    # Calculate the flattened index for the matrix
-                    from_idx = attacker_id * c_hull_type + from_hull
-                    to_idx = defender_id * c_hull_type + to_hull
-
-                    attack_range = <int>attack_range_list[to_hull]
+                    attack_range = <float>attack_range_list[to_hull]
                     
-                    rel_matrix_view[from_idx, to_idx] = (attack_range + 1.0) / 4.0
+                    flat_idx = from_hull * c_hull_type + to_hull
                     
-    return game.relation_encode_array
+                    rel_matrix[attacker_id, defender_id, flat_idx] = attack_range

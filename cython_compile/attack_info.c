@@ -1912,13 +1912,15 @@ struct __pyx_obj_6armada_Armada {
   PyObject *obstacles;
   PyObject *phase;
   PyObject *active_ship;
+  PyObject *defend_ship;
   PyObject *active_squad;
   PyObject *attack_info;
   int debuging_visual;
+  PyObject *object;
   PyObject *scalar_encode_array;
   PyObject *relation_encode_array;
   PyObject *ship_encode_array;
-  PyObject *squad_encode_array;
+  PyObject *ship_coords_array;
   PyObject *spatial_encode_array;
 };
 
@@ -2036,6 +2038,7 @@ struct __pyx_vtabstruct_4ship_Ship {
   PyObject *(*gather_dice)(struct __pyx_obj_4ship_Ship *, int, int, int, int __pyx_skip_dispatch);
   void (*defend)(struct __pyx_obj_4ship_Ship *, int, int, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_valid_ship_target)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  PyObject *(*get_valid_target_hull)(struct __pyx_obj_4ship_Ship *, int, struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   PyObject *(*get_valid_squad_target)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   PyObject *(*get_valid_attack_hull)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   PyObject *(*get_critical_effect)(struct __pyx_obj_4ship_Ship *, int, int, int, int __pyx_skip_dispatch);
@@ -16343,7 +16346,7 @@ __Pyx_RefNannySetupContext("PyInit_attack_info", 0);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
   /*--- Execution code ---*/
-  __Pyx_TraceStartFunc("PyInit_attack_info", __pyx_f[0], 1, 0, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceStartFunc("PyInit_attack_info", __pyx_f[0], 1, 2, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
   /* "attack_info.pyx":7
  * from ship cimport Ship
@@ -16559,7 +16562,7 @@ __Pyx_RefNannySetupContext("PyInit_attack_info", 0);
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 2, 0, __PYX_ERR(0, 1, __pyx_L1_error));
   __Pyx_PyMonitoring_ExitScope(0);
 
   /*--- Wrapped vars code ---*/
@@ -16569,7 +16572,7 @@ __Pyx_RefNannySetupContext("PyInit_attack_info", 0);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
-  __Pyx_TraceExceptionUnwind(0, 0);
+  __Pyx_TraceExceptionUnwind(2, 0);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init attack_info", __pyx_clineno, __pyx_lineno, __pyx_filename);

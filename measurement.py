@@ -192,7 +192,7 @@ def create_template_polygons(ship_dict):
     # 52 ~ 54 : LEFT CLOSE, MEDIUM, LONG RANGE THREAT ZONES
 
     ], dtype=np.float32)
-
+    template_vertices += np.array([0, token_size[1]/2], dtype=np.float32)
     return template_vertices
 SHIP_TEMPLATE_POLY :dict[str, np.ndarray]= {name : create_template_polygons(ship_dict) for name, ship_dict in SHIP_DATA.items()}
 

@@ -305,10 +305,12 @@ cdef class Ship:
         base_half_w = self.base_size[0] / 2
         base_front_y = (self.base_size[1] - self.token_size[1]) / 2
         base_rear_y = base_front_y - self.base_size[1]
+
+
         self.template_base_vertices = np.array([
             [base_half_w, base_front_y], [-base_half_w, base_front_y],
             [-base_half_w, base_rear_y], [base_half_w, base_rear_y]
-        ])
+        ]) + np.array([0, self.token_size[1]/2])
 
         front_arc_center_pt = (0, -front_arc[0])
         front_left_arc_pt = (-token_half_w, -front_arc[1])
@@ -324,25 +326,25 @@ cdef class Ship:
         self.template_token_vertices = np.array([
             front_right_token_pt, front_left_token_pt,
             rear_left_token_pt, rear_right_token_pt
-        ])
+        ]) + np.array([0, self.token_size[1]/2])
 
         self.template_hull_vertices = {
             HullSection.FRONT: np.array([
                 front_arc_center_pt, front_right_arc_pt, front_right_token_pt, 
                 front_left_token_pt, front_left_arc_pt
-            ]),
+            ]) + np.array([0, self.token_size[1]/2]),
             HullSection.RIGHT: np.array([
                 front_arc_center_pt, front_right_arc_pt, 
                 rear_right_arc_pt, rear_arc_center_pt
-            ]),
+            ]) + np.array([0, self.token_size[1]/2]),
             HullSection.REAR: np.array([
                 rear_arc_center_pt, rear_right_arc_pt, rear_right_token_pt,
                 rear_left_token_pt, rear_left_arc_pt
-            ]),
+            ]) + np.array([0, self.token_size[1]/2]),
             HullSection.LEFT: np.array([
                 front_arc_center_pt, front_left_arc_pt,
                 rear_left_arc_pt, rear_arc_center_pt
-            ])
+            ]) + np.array([0, self.token_size[1]/2])
         }
         
         # 0~3 : targeting points
@@ -356,7 +358,7 @@ cdef class Ship:
             [ (self.base_size[0] + TOOL_WIDTH_HALF)/2, (self.base_size[1]-self.token_size[1])/2],
             [-(self.base_size[0] + TOOL_WIDTH_HALF)/2, (self.base_size[1]-self.token_size[1])/2],
             [0, -self.token_size[1]/2]
-        ])
+        ]) + np.array([0, self.token_size[1]/2])
 
 
 
@@ -373,6 +375,8 @@ cdef class Ship:
         Returns:
             obstructed (bool)
         """
+        return False
+        # simplified
         cdef:
             tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(cache._ship_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
             Ship ship
@@ -482,6 +486,29 @@ cdef class Ship:
                 valid_ship_targets.append((ship, target_hull))
 
         return valid_ship_targets
+
+    cpdef list get_valid_target_hull(self, int attack_hull, Ship target_ship) :
+        cdef:
+            list valid_target_hulls = []
+            int target_hull
+            int attack_range
+            int dice_count
+            list range_dict, hull_range_dict
+
+        _, range_dict =  cache.attack_range_s2s(self.get_ship_hash_state(), target_ship.get_ship_hash_state())
+        hull_range_dict = range_dict[attack_hull]
+
+        for target_hull in HULL_SECTIONS :
+            attack_range = hull_range_dict[target_hull] 
+            if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
+
+            dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=True))
+            if dice_count == 0 : continue
+            elif dice_count == 1:
+                if self.is_obstruct_s2s(attack_hull, target_ship, target_hull) : continue
+            valid_target_hulls.append(target_hull)
+
+        return valid_target_hulls
 
     cpdef list get_valid_squad_target(self, int attack_hull) :
         cdef:

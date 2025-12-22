@@ -32,6 +32,7 @@ cdef class Ship:
     cpdef tuple gather_dice(self, int attack_hull, int attack_range, bint is_ship)
     cpdef void defend(self, int defend_hull, int total_damage, object critical)
     cpdef list get_valid_ship_target(self, int attack_hull)
+    cpdef list get_valid_target_hull(self, int attack_hull, Ship target_ship)
     cpdef list get_valid_squad_target(self, int attack_hull)
     cpdef list get_valid_attack_hull(self)
     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit)
