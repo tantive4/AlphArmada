@@ -466,6 +466,7 @@ cdef class MCTS:
             int action_index
             float policy_sum = 0.0
             int num_valid
+            int policy_len = policy.shape[0]
             cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view
 
         if policy_len == Config.MAX_SHIPS:
