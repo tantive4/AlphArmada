@@ -15,7 +15,7 @@ from action_manager cimport ActionManager
 from armada_net import ArmadaNet
 from game_encoder cimport encode_game_state
 import dice
-from action_phase import Phase, ActionType
+from action_phase import Phase, POINTER_PHASE, ActionType
 from armada cimport Armada
 from attack_info cimport AttackInfo
 from configs import Config
@@ -139,7 +139,7 @@ cdef class MCTS:
         public list para_games, root_snapshots, player_roots
         public ActionManager action_manager
         public object model
-        public object action_mask
+        public object action_mask, pointer_mask
 
     def __init__(self, list games, ActionManager action_manager, object model) -> None:
         self.para_games = games
@@ -151,18 +151,20 @@ cdef class MCTS:
         self.model : ArmadaNet = model
 
         self.action_manager = action_manager
-        self.action_mask = np.zeros(model.max_action_space, dtype=np.bool_)
+        self.action_mask = np.zeros(action_manager.max_action_space, dtype=np.bool_)
+        self.pointer_mask = np.zeros(Config.MAX_SHIPS, dtype=np.bool_)
         
         
 
     cpdef dict para_search(self, dict sim_players, bint deep_search, int manual_iteration = 0):
         cdef:
             Armada game
-            list para_indices, expandable_node_indices, valid_actions
-            int para_index, sim_player, mcts_iteration, output_index, max_size
+            list para_indices, action_expandable_indices, pointer_expandable_indices, valid_actions
+            int para_index, sim_player, mcts_iteration, output_index, max_size, action_exp_len
             Node root_node, node
             dict para_path, para_action_probs
             object path
+            object action_values, pointer_values, action_policies, pointer_policies
             float value, winner
             cnp.ndarray[cnp.float32_t, ndim=1] policy_arr
 
@@ -183,7 +185,8 @@ cdef class MCTS:
         if manual_iteration : mcts_iteration = manual_iteration
         for _ in range(mcts_iteration):
             para_path = {}
-            expandable_node_indices = []
+            action_expandable_indices = []
+            pointer_expandable_indices = []
             for para_index in para_indices:
                 node = self.player_roots[para_index][sim_players[para_index]]
             
@@ -201,25 +204,36 @@ cdef class MCTS:
                     self._backpropagate(path, value)
                     game.revert_snapshot(self.root_snapshots[para_index])
                 else :
-                    expandable_node_indices.append(para_index)
+                    if game.phase in POINTER_PHASE :
+                        pointer_expandable_indices.append(para_index)
+                    else :
+                        action_expandable_indices.append(para_index)
 
             # 2. Expansion (for player decision nodes)
             # note that leaf node is not chance node or information set node
-            if expandable_node_indices :
-
-                values, policies = self._get_value_policy(
-                    [encode_game_state(self.para_games[para_index]) for para_index in expandable_node_indices],
-                    [self.para_games[para_index].phase for para_index in expandable_node_indices],
+            if action_expandable_indices or pointer_expandable_indices :
+                action_exp_len = len(action_expandable_indices)
+                action_values, action_policies = self._get_value_policy(
+                    [encode_game_state(self.para_games[para_index]) for para_index in action_expandable_indices],
+                    [self.para_games[para_index].phase for para_index in action_expandable_indices],
+                )
+                pointer_values, pointer_policies = self._get_value_policy(
+                    [encode_game_state(self.para_games[para_index]) for para_index in pointer_expandable_indices],
+                    [self.para_games[para_index].phase for para_index in pointer_expandable_indices],
                 )
 
-
-
-                for output_index, para_index in enumerate(expandable_node_indices):
+                for output_index, para_index in enumerate(action_expandable_indices + pointer_expandable_indices):
                     path = para_path[para_index]
                     node = path[-1]
-                    value = <float>(values[output_index])
-                    policy_arr = policies[output_index]
                     game = self.para_games[para_index]
+
+                    if output_index < action_exp_len:
+                        value = <float>(action_values[output_index])
+                        policy_arr = action_policies[output_index]
+                    else:
+                        value = <float>(pointer_values[output_index - action_exp_len])
+                        policy_arr = pointer_policies[output_index - action_exp_len]
+                    
 
                     # Add Dirichlet noise for exploration at the root node only
                     if len(path) == 1:
@@ -452,7 +466,13 @@ cdef class MCTS:
             int action_index
             float policy_sum = 0.0
             int num_valid
-            cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view = self.action_mask
+            cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view
+
+        if policy_len == Config.MAX_SHIPS:
+            action_mask_view = self.pointer_mask
+        else:
+            action_mask_view = self.action_mask
+        
         action_mask_view.fill(0)
         
         for action in valid_actions:

@@ -49,6 +49,7 @@ class Phase(IntEnum):
         return self.name
     __repr__ = __str__
 phase_type = len(Phase)
+POINTER_PHASE = (Phase.SHIP_ACTIVATE, Phase.SHIP_CHOOSE_TARGET_SHIP)
 
 ActionType: TypeAlias = (
     tuple[Literal['set_command_action'], tuple[int, Command]] |

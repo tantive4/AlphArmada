@@ -6,7 +6,7 @@ import torch.nn.functional as F
 # input shapes match the encoder's output shapes perfectly.
 from configs import Config
 from action_manager import ActionManager
-from action_phase import Phase
+from action_phase import Phase, POINTER_PHASE
 from enum_class import *
 
 # --- Helper Modules ---
@@ -188,7 +188,7 @@ class ArmadaNet(nn.Module):
         )
         
         # Policy Head: Predicts the probability for each possible action in a given phase.
-        # We create a separate linear layer for each game phase.
+        # Type 1: Standard Categorical Policy Heads
         self.policy_heads = nn.ModuleDict({
             phase.name: nn.Sequential(
                 nn.Linear(self.torso_output_size, 256),
@@ -197,8 +197,9 @@ class ArmadaNet(nn.Module):
                 nn.ReLU(),
                 nn.Linear(128, len(self.action_manager.get_action_map(phase)))
             )
-            for phase in Phase if self.action_manager.get_action_map(phase) and phase not in (Phase.SHIP_ACTIVATE, Phase.SHIP_CHOOSE_TARGET_SHIP)
+            for phase in Phase if self.action_manager.get_action_map(phase) and phase not in POINTER_PHASE
         })
+        # Type 2: Pointer Policy Head for selecting target ships
         self.pointer_head = PointerHead(torso_dim=self.torso_output_size, ship_feat_dim=self.single_ship_size)
 
 
@@ -360,93 +361,106 @@ class ArmadaNet(nn.Module):
         value = self.value_head(torso_output) # [B, 1]
         
         # --- Policy Head ---
-        # we now ignore pointer network logic
-        # just use BMM sturcture and don't modify anything else.
+        current_phase_val = phases[0].item()
+        is_pointer_phase = (current_phase_val == Phase.SHIP_ACTIVATE) or \
+                            (current_phase_val == Phase.SHIP_CHOOSE_TARGET_SHIP)
+        
 
-        # Check if we have compiled the fast path (Inference/MCTS mode)
-        if getattr(self, 'fast_policy_ready', False):
+        if is_pointer_phase:
+            # === Type 2: Pointer Policy ===
+            # Selects a ship index directly using the PointerHead
+            # Input: Torso "Intent" and Per-Ship "Candidates"
+            policy_logits = self.pointer_head(torso_output, ship_combined_state)
 
-
-            stack_indices = self.phase_lookup[phases]
-            
-            # 2. Gather weights for the specific phases in this batch
-            # Shape: [B, Out_Dim, In_Dim]
-            w1 = self.w1_stack[stack_indices] 
-            b1 = self.b1_stack[stack_indices]
-            
-            w2 = self.w2_stack[stack_indices]
-            b2 = self.b2_stack[stack_indices]
-            
-            w3 = self.w3_stack[stack_indices]
-            b3 = self.b3_stack[stack_indices]
-            
-            # 3. Execute Unified MLP using Batch Matrix Multiplication (BMM)
-            # Input x needs shape [B, 256, 1] for BMM with [B, Out, In]
-            x = torso_output.unsqueeze(2) 
-            
-            # Layer 1
-            # [B, 256, 256] @ [B, 256, 1] -> [B, 256, 1]
-            x = torch.bmm(w1, x).squeeze(2) + b1
-            x = F.relu(x)
-            
-            # Layer 2
-            x = x.unsqueeze(2)
-            # [B, 128, 256] @ [B, 256, 1] -> [B, 128, 1]
-            x = torch.bmm(w2, x).squeeze(2) + b2
-            x = F.relu(x)
-            
-            # Layer 3 (Final Projection)
-            x = x.unsqueeze(2)
-            # [B, Max_Action, 128] @ [B, 128, 1] -> [B, Max_Action, 1]
-            policy_logits = torch.bmm(w3, x).squeeze(2) + b3
 
         else:
-            # --- Fallback to Original Slow Loop (for Training/Legacy) ---
-            policy_logits = torch.zeros(batch_size, self.max_action_space, device=torso_output.device)
-            phase_indices = {}
-            is_tensor_input = isinstance(phases, torch.Tensor)
+            # === Type 1: Standard Categorical Policy ===
+            # Use the fast batched MLP if compiled
 
-            for i, p in enumerate(phases):
-                # If input is a Tensor, we have integers (e.g. 0, 1). 
-                # We must recover the Phase Name (e.g. 'COMMAND_PHASE') to key into ModuleDict.
-                if is_tensor_input:
-                    phase_name = Phase(p.item()).name
-                else:
-                    # Legacy list input
-                    phase_name = p.name
+            # Check if we have compiled the fast path (Inference/MCTS mode)
+            if getattr(self, 'fast_policy_ready', False):
 
-                if phase_name not in phase_indices:
-                    phase_indices[phase_name] = []
-                phase_indices[phase_name].append(i)
 
-            BUCKET_STEP = 32 # Round all sub-batches to nearest 32
-            
-            for phase_name, indices in phase_indices.items():
-                # Extract the sub-batch for this phase
-                group_torso_output = torso_output[indices] # Shape [N, 256]
+                stack_indices = self.phase_lookup[phases]
                 
-                real_size = group_torso_output.shape[0]
+                # 2. Gather weights for the specific phases in this batch
+                # Shape: [B, Out_Dim, In_Dim]
+                w1 = self.w1_stack[stack_indices] 
+                b1 = self.b1_stack[stack_indices]
                 
-                # Calculate target bucket size (e.g., 12 -> 32, 45 -> 64)
-                target_size = ((real_size + BUCKET_STEP - 1) // BUCKET_STEP) * BUCKET_STEP
+                w2 = self.w2_stack[stack_indices]
+                b2 = self.b2_stack[stack_indices]
                 
-                pad_amount = target_size - real_size
+                w3 = self.w3_stack[stack_indices]
+                b3 = self.b3_stack[stack_indices]
                 
-                if pad_amount > 0:
-                    # Pad the input at the end
-                    # F.pad format: (left, right, top, bottom)
-                    # We pad dimension 0 (bottom), so: (0, 0, 0, pad_amount)
-                    padded_input = F.pad(group_torso_output, (0, 0, 0, pad_amount))
+                # 3. Execute Unified MLP using Batch Matrix Multiplication (BMM)
+                # Input x needs shape [B, 256, 1] for BMM with [B, Out, In]
+                x = torso_output.unsqueeze(2) 
+                
+                # Layer 1
+                # [B, 256, 256] @ [B, 256, 1] -> [B, 256, 1]
+                x = torch.bmm(w1, x).squeeze(2) + b1
+                x = F.relu(x)
+                
+                # Layer 2
+                x = x.unsqueeze(2)
+                # [B, 128, 256] @ [B, 256, 1] -> [B, 128, 1]
+                x = torch.bmm(w2, x).squeeze(2) + b2
+                x = F.relu(x)
+                
+                # Layer 3 (Final Projection)
+                x = x.unsqueeze(2)
+                # [B, Max_Action, 128] @ [B, 128, 1] -> [B, Max_Action, 1]
+                policy_logits = torch.bmm(w3, x).squeeze(2) + b3
+
+            else:
+                # --- Fallback to Original Slow Loop (for Training/Legacy) ---
+                policy_logits = torch.zeros(batch_size, self.max_action_space, device=torso_output.device)
+                phase_indices = {}
+                is_tensor_input = isinstance(phases, torch.Tensor)
+
+                for i, p in enumerate(phases):
+                    # If input is a Tensor, we have integers (e.g. 0, 1). 
+                    # We must recover the Phase Name (e.g. 'COMMAND_PHASE') to key into ModuleDict.
+                    if is_tensor_input:
+                        phase_name = Phase(p.item()).name
+                    else:
+                        # Legacy list input
+                        phase_name = p.name
+
+                    if phase_name not in phase_indices:
+                        phase_indices[phase_name] = []
+                    phase_indices[phase_name].append(i)
+
+                BUCKET_STEP = 32 # Round all sub-batches to nearest 32
+                
+                for phase_name, indices in phase_indices.items():
+                    # Extract the sub-batch for this phase
+                    group_torso_output = torso_output[indices] # Shape [N, 256]
                     
-                    # Pass through the layer (MPS compiles ONE graph for size Target_Size)
-                    padded_logits = self.policy_heads[phase_name](padded_input)
+                    real_size = group_torso_output.shape[0]
                     
-                    # Slice off the padding so gradients are correct
-                    group_logits = padded_logits[:real_size]
-                else:
-                    # Perfect fit, no padding needed
-                    group_logits = self.policy_heads[phase_name](group_torso_output)
-                policy_logits[indices, :group_logits.shape[1]] = group_logits
+                    # Calculate target bucket size (e.g., 12 -> 32, 45 -> 64)
+                    target_size = ((real_size + BUCKET_STEP - 1) // BUCKET_STEP) * BUCKET_STEP
+                    
+                    pad_amount = target_size - real_size
+                    
+                    if pad_amount > 0:
+                        # Pad the input at the end
+                        # F.pad format: (left, right, top, bottom)
+                        # We pad dimension 0 (bottom), so: (0, 0, 0, pad_amount)
+                        padded_input = F.pad(group_torso_output, (0, 0, 0, pad_amount))
+                        
+                        # Pass through the layer (MPS compiles ONE graph for size Target_Size)
+                        padded_logits = self.policy_heads[phase_name](padded_input)
+                        
+                        # Slice off the padding so gradients are correct
+                        group_logits = padded_logits[:real_size]
+                    else:
+                        # Perfect fit, no padding needed
+                        group_logits = self.policy_heads[phase_name](group_torso_output)
+                    policy_logits[indices, :group_logits.shape[1]] = group_logits
 
 
         # --- Auxiliary Heads ---
