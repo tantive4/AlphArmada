@@ -10,15 +10,53 @@ from action_phase import Phase, POINTER_PHASE
 from enum_class import *
 
 # --- Helper Modules ---
+class GlobalPoolingBias(nn.Module):
+    """
+    KataGo-style Global Pooling Bias layer.
+    Computes global statistics (Mean and Max) of the feature map and 
+    projects them to a channel-wise bias.
+    """
+    def __init__(self, channels):
+        super(GlobalPoolingBias, self).__init__()
+        # Input: Mean(C) + Max(C) = 2*C
+        # Output: Bias(C)
+        self.linear = nn.Linear(channels * 2, channels)
+        
+        # Initialize weights to zero so it starts as an identity operation
+        nn.init.zeros_(self.linear.weight)
+        nn.init.zeros_(self.linear.bias)
 
+    def forward(self, x):
+        # x: [B, C, H, W]
+        
+        # 1. Compute Global Stats
+        # Mean Pooling
+        avg_pool = x.mean(dim=(2, 3)) # [B, C]
+        # Max Pooling (KataGo emphasizes this for capturing "sharp" features like single stones/units)
+        max_pool = x.amax(dim=(2, 3)) # [B, C]
+        
+        # 2. Combine and Project
+        stats = torch.cat([avg_pool, max_pool], dim=1) # [B, 2C]
+        bias = self.linear(stats) # [B, C]
+        
+        # 3. Add Bias (Broadcast over spatial dims)
+        return x + bias.unsqueeze(2).unsqueeze(3)
+    
 class ResBlock(nn.Module):
-    """A standard residual block for the spatial encoder's CNN."""
-    def __init__(self, in_channels, out_channels, stride=1):
+    """
+    A residual block with optional Global Pooling Bias (KataGo structure).
+    """
+    def __init__(self, in_channels, out_channels, stride=1, use_global_pooling=True):
         super(ResBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
+
+        # Global Pooling Bias (GPB)
+        self.use_global_pooling = use_global_pooling
+        if self.use_global_pooling:
+            self.gpb = GlobalPoolingBias(out_channels)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_channels != out_channels:
@@ -30,6 +68,11 @@ class ResBlock(nn.Module):
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
+        
+        # Apply Global Pooling Bias to the residual branch
+        if self.use_global_pooling:
+            out = self.gpb(out)
+            
         out += self.shortcut(x)
         out = F.relu(out)
         return out
@@ -158,16 +201,17 @@ class ArmadaNet(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             # 4 ResBlocks
-            ResBlock(64, 64),
-            ResBlock(64, 64),
-            ResBlock(64, 64),
-            ResBlock(64, 64)
+            ResBlock(64, 64, use_global_pooling=False),
+            ResBlock(64, 64, use_global_pooling=False),
+            ResBlock(64, 64, use_global_pooling=True),
+            ResBlock(64, 64, use_global_pooling=True)
         )
 
         # --- 6. Torso ---
-        # Input = Scalar(64) + Global_Ship_State(320)
-        self.single_ship_size = self.embed_dim + self.spatial_out_channels # 256 + 64 = 320
-        self.torso_input_size = self.scalar_embed_dim + self.single_ship_size
+        # Input = Scalar(64) + Global_Ship_State(320) + Spatial_Global(128) = 512
+        self.single_ship_size = self.embed_dim + self.spatial_out_channels                              # 256 + 64 = 320
+        self.spatial_global_dim = self.spatial_out_channels * 2                                         # 64 * 2 (Avg + Max) = 128
+        self.torso_input_size = self.scalar_embed_dim + self.single_ship_size + self.spatial_global_dim # 64 + 320 + 128 = 512
         self.torso_output_size = 256
         
         self.torso = nn.Sequential(
@@ -348,10 +392,16 @@ class ArmadaNet(nn.Module):
         
         global_ship_state = ship_combined_state.mean(dim=1) # [B, 320]
 
+        # --- Spatial Global Features ---
+        global_pool_avg = F.adaptive_avg_pool2d(spatial_features_map, 1).flatten(1) # [B, 64]
+        global_pool_max = F.adaptive_max_pool2d(spatial_features_map, 1).flatten(1) # [B, 64]
+
+        global_spatial_state = torch.cat([global_pool_avg, global_pool_max], dim=1) # [B, 128]
+
 
         # === 2. Torso ===
 
-        torso_input = torch.cat([scalar_features, global_ship_state], dim=1) # [B, 64 + 320 = 384]
+        torso_input = torch.cat([scalar_features, global_ship_state, global_spatial_state], dim=1) # [B, 64 + 320 + 128 = 512]
         torso_output = self.torso(torso_input) # [B, 256]
 
 
