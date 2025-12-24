@@ -51,7 +51,7 @@ class Command(IntEnum) :
     NAV = 0
     REPAIR = 1
     CONFIRE = 2
-    SQUAD = 3
+    # SQUAD = 3
     def __str__(self):
         return self.name
     __repr__ = __str__

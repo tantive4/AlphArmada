@@ -69,11 +69,13 @@ def generate_all_maps():
                 actions.append(('pass_repair', None))
 
             # Attack 
-            case Phase.SHIP_DECLARE_TARGET :
-                actions = [('declare_target_action', (attack_hull, (defend_ship_id, defend_hull)))
-                           for attack_hull, defend_ship_id, defend_hull in itertools.product(HullSection, range(MAX_SHIPS), HullSection)]
-                # actions.extend([('declare_target_action', (attack_hull, defend_squad_id)) for attack_hull, defend_squad_id in itertools.product(HullSection, range(MAX_SQUADS))])
+            case Phase.SHIP_CHOOSE_TARGET_SHIP:
+                actions = [('choose_target_ship_action', ship_id) for ship_id in range(MAX_SHIPS)]
                 actions.append(('pass_attack', None))
+
+            case Phase.SHIP_DECLARE_TARGET :
+                actions = [('declare_target_action', (attack_hull, defend_hull)) 
+                           for attack_hull, defend_hull in itertools.product(HullSection, HullSection)]
 
             # Execute Maneuver
             case Phase.SHIP_DETERMINE_COURSE :

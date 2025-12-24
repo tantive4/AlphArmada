@@ -521,7 +521,7 @@ def maneuver_tool_numba(base_size : np.ndarray, token_size:np.ndarray, course:tu
 
 
     tool_offset = placement * (base_size[0]/2 + TOOL_WIDTH_HALF)
-    ship_to_tool = np.array([tool_offset, (base_size[1] - token_size[1])/2], dtype=np.float32)
+    ship_to_tool = np.array([tool_offset, base_size[1]/2], dtype=np.float32)
     c, s = np.cos(-final_orientation), np.sin(-final_orientation)
     rotation = np.array([[c, -s], [s, c]], dtype=np.float32)
     tool_to_ship = rotation @ -ship_to_tool

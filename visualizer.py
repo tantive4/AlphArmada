@@ -30,7 +30,9 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
         +y side is front side of ship
         """
         return (p[0] + origin_x, -p[1] + origin_y)
-
+    def to_template_text_coord(p):
+        return to_template_coord((p[0], p[1] + ship.token_size[1] / 2))
+    
     # Draw the ship's base and hull zones using the template vertices
     base_coords = [to_template_coord(p) for p in ship.template_base_vertices]
     draw.polygon(base_coords, outline='white')
@@ -50,19 +52,19 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
         draw.ellipse(bounding_box, fill='yellow', outline='yellow')
 
     # --- Draw Text Labels (relative to the pivot) ---
-    draw.text(to_template_coord((0, 15)), f"{ship.name}({ship.id})", font=font, fill='white' if not ship.activated else 'gray', anchor="ms")
-    draw.text(to_template_coord((0, -24)), str(ship.hull), font=font, fill='yellow', anchor="mm")
+    draw.text(to_template_text_coord((0, 15)), str(ship), font=font, fill='white' if not ship.activated else 'gray', anchor="ms")
+    draw.text(to_template_text_coord((0, -24)), str(ship.hull), font=font, fill='yellow', anchor="mm")
     
     # Shields
-    draw.text(to_template_coord((0, 2)), str(ship.shield[ship_module.HullSection.FRONT]), font=font, fill='cyan', anchor="mb")
-    draw.text(to_template_coord((0, -ship.token_size[1] - 12)), str(ship.shield[ship_module.HullSection.REAR]), font=font, fill='cyan', anchor="ms")
-    draw.text(to_template_coord((ship.token_size[0]/2 + 5, -ship.token_size[1]/2)), str(ship.shield[ship_module.HullSection.RIGHT]), font=font, fill='cyan', anchor="lm")
-    draw.text(to_template_coord((-ship.token_size[0]/2 - 5, -ship.token_size[1]/2)), str(ship.shield[ship_module.HullSection.LEFT]), font=font, fill='cyan', anchor="rm")
+    draw.text(to_template_text_coord((0, 2)), str(ship.shield[ship_module.HullSection.FRONT]), font=font, fill='cyan', anchor="mb")
+    draw.text(to_template_text_coord((0, -ship.token_size[1] - 12)), str(ship.shield[ship_module.HullSection.REAR]), font=font, fill='cyan', anchor="ms")
+    draw.text(to_template_text_coord((ship.token_size[0]/2 + 5, -ship.token_size[1]/2)), str(ship.shield[ship_module.HullSection.RIGHT]), font=font, fill='cyan', anchor="lm")
+    draw.text(to_template_text_coord((-ship.token_size[0]/2 - 5, -ship.token_size[1]/2)), str(ship.shield[ship_module.HullSection.LEFT]), font=font, fill='cyan', anchor="rm")
     
-    draw.text(to_template_coord((ship.token_size[0]/2 - 10, -ship.token_size[1] + 5)), str(ship.speed), font=font,fill='white', anchor='ls')
+    draw.text(to_template_text_coord((ship.token_size[0]/2 - 10, -ship.token_size[1] + 5)), str(ship.speed), font=font,fill='white', anchor='ls')
 
     # --- Draw Defense Tokens ---
-    start_x, start_y = to_template_coord((ship.base_size[0] / 2 + 5, -ship.base_size[1] - 5))
+    start_x, start_y = to_template_text_coord((ship.base_size[0] / 2 + 5, -ship.base_size[1] - 5))
     valid_tokens_with_keys = [
         (key, token) for key, token in ship.defense_tokens.items() if not token.discarded
     ]
@@ -80,7 +82,7 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
 
     # --- Draw Command Tokens ---
     if ship.command_token:
-        start_x, start_y = to_template_coord((-ship.base_size[0] / 2, -ship.base_size[1] - 24))
+        start_x, start_y = to_template_text_coord((-ship.base_size[0] / 2, -ship.base_size[1] - 24))
         for i, command in enumerate(ship.command_token):
             token_text = str(Command(command))
             pos_y = start_y + i * 12

@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from shapely.geometry import Polygon
 
@@ -231,9 +233,13 @@ def create_threat_zones(name) -> tuple[np.ndarray, list[int]]:
         ])
         
         # Get threat zones for this hull section
-        close_threat_zone : Polygon = close_zone.intersection(arc_polygon) #type: ignore
-        medium_threat_zone : Polygon = medium_zone.intersection(arc_polygon) #type: ignore
-        long_threat_zone : Polygon = long_zone.intersection(arc_polygon) #type: ignore
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=RuntimeWarning, message="invalid value encountered in intersection")
+            # shapely bug error message is ignored
+            
+            close_threat_zone : Polygon = close_zone.intersection(arc_polygon) #type: ignore
+            medium_threat_zone : Polygon = medium_zone.intersection(arc_polygon) #type: ignore
+            long_threat_zone : Polygon = long_zone.intersection(arc_polygon) #type: ignore
 
         close_coords = np.array(close_threat_zone.exterior.coords, dtype=np.float32)
         medium_coords = np.array(medium_threat_zone.exterior.coords, dtype=np.float32)

@@ -90,24 +90,17 @@ class PointerHead(nn.Module):
     """
     def __init__(self, torso_dim, ship_feat_dim, internal_dim=64):
         super(PointerHead, self).__init__()
-        # Projects global state to a Query vector
+
         self.query_proj = nn.Linear(torso_dim, internal_dim)
-        
-        # Projects ship features to Key vectors
         self.key_proj = nn.Linear(ship_feat_dim, internal_dim)
-        
-        # Optional: Learnable temperature for scaling attention
         self.scale = nn.Parameter(torch.tensor(internal_dim ** -0.5))
+
+        self.pass_head = nn.Linear(torso_dim, 1)
 
     def forward(self, torso_output, ship_features, valid_mask=None):
         """
-        Args:
-            torso_output: [Batch, Torso_Dim] - The "Intent"
-            ship_features: [Batch, N, Ship_Dim] - The "Candidates"
-            valid_mask: [Batch, N] - Optional boolean mask (1=Valid, 0=Invalid) 
-                        to prevent selecting dead ships.
         Returns:
-            logits: [Batch, N] - Unnormalized scores for each ship.
+            logits: [Batch, N + 1]
         """
         # 1. Generate Query [B, 1, Dim]
         query = self.query_proj(torso_output).unsqueeze(1)
@@ -115,17 +108,22 @@ class PointerHead(nn.Module):
         # 2. Generate Keys [B, N, Dim]
         keys = self.key_proj(ship_features)
         
-        # 3. Calculate Scores (Dot Product)
-        # [B, 1, Dim] @ [B, Dim, N] -> [B, 1, N] -> [B, N]
-        scores = torch.matmul(query, keys.transpose(1, 2)).squeeze(1)
-        scores = scores * self.scale
+        # 3. Calculate Ship Scores [B, N]
+        ship_scores = torch.matmul(query, keys.transpose(1, 2)).squeeze(1)
+        ship_scores = ship_scores * self.scale
         
-        # 4. Masking (Optional but recommended)
+        # 4. Apply Masking to Ships (Optional)
         if valid_mask is not None:
-            # Set invalid targets to negative infinity so Softmax becomes 0
-            scores = scores.masked_fill(valid_mask == 0, -1e9)
+            ship_scores = ship_scores.masked_fill(valid_mask == 0, -1e9)
+
+        # 5. Calculate Pass Score [B, 1]
+        pass_score = self.pass_head(torso_output)
+        
+        # 6. Concatenate [B, N] + [B, 1] -> [B, N + 1]
+        # The 'Pass' action is now the last index.
+        all_scores = torch.cat([ship_scores, pass_score], dim=1)
             
-        return scores
+        return all_scores
     
 
     
@@ -177,7 +175,10 @@ class ArmadaNet(nn.Module):
             batch_first=True,
             norm_first=True # Usually stabilizes deep transformers
         )
-        self.ship_entity_encoder = nn.TransformerEncoder(ship_encoder_layer, num_layers=3)
+        self.ship_entity_encoder = nn.TransformerEncoder(
+            ship_encoder_layer, 
+            num_layers=3,
+            enable_nested_tensor=False)
 
         # --- 4. Scatter Projectors ---
         # Output 2: Project to Presence Plane (36 channels)
@@ -186,7 +187,8 @@ class ArmadaNet(nn.Module):
         
         # Output 3: Project to Threat Plane (12 channels)
         self.threat_channels = 4
-        self.threat_projector = nn.Linear(self.embed_dim, self.threat_channels * 9)
+        self.num_threat_planes = 9
+        self.threat_projector = nn.Linear(self.embed_dim, self.threat_channels * self.num_threat_planes)
 
         # --- 5. Spatial ResNet ---
         # Input Channels: 
@@ -316,7 +318,6 @@ class ArmadaNet(nn.Module):
                 self.b3_stack[idx, :out_size] = head[4].bias
 
         self.fast_policy_ready = True
-        print(f"Fast Policy Compiled: Merged {num_phases} heads into batch tensors.")
 
     def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, phases):
         """
@@ -349,7 +350,7 @@ class ArmadaNet(nn.Module):
         # --- Spatial ResNet (Scattered Connection) ---
         presence_vals = self.presence_projector(ship_entity_features_attended)
         threat_vals_flat = self.threat_projector(ship_entity_features_attended)
-        threat_vals = threat_vals_flat.view(batch_size, N, self.threat_out_channels, self.num_threat_planes)
+        threat_vals = threat_vals_flat.view(batch_size, N, self.threat_channels, self.num_threat_planes)
 
         presence_masks = spatial_input[:, :, 0]
         presence_map = torch.einsum('bnc, bnhw -> bchw', presence_vals, presence_masks)

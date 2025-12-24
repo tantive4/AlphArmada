@@ -72,7 +72,7 @@ ActionType: TypeAlias = (
 
     # Attack Step
     tuple[Literal['choose_target_ship_action'], int] |
-    tuple[Literal['declare_target_action'], tuple[HullSection, tuple[int, HullSection]|int]] | 
+    tuple[Literal['declare_target_action'], tuple[HullSection, HullSection]] | 
     tuple[Literal['gather_dice_action'], tuple[int, ...]] |
     tuple[Literal['roll_dice_action'], tuple[tuple[int, ...],...]] | 
 
@@ -143,16 +143,13 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
         case 'move_shield_action', (from_hull, to_hull) :
             action_str = f'Move Shield from {HullSection(from_hull)} to {HullSection(to_hull)}'
 
+        case 'choose_target_ship_action', defend_ship_id :
+            defend_ship = game.ships[defend_ship_id]
+            action_str = f'Choose Target Ship: {defend_ship}'
 
-        case 'declare_target_action', (attack_hull, defender):
-            if isinstance(defender, tuple) :
-                defend_ship_id, defend_hull = defender
-                defend_ship = game.ships[defend_ship_id]
-                action_str = f'Declare Attack: from {game.active_ship} {HullSection(attack_hull)} to {defend_ship} {HullSection(defend_hull)}'
-            else :
-                defend_squad_id = defender
-                defend_squad = game.squads[defend_squad_id]
-                action_str = f'Declare Attack: from {game.active_ship} {HullSection(attack_hull)} to {defend_squad}'
+        case 'declare_target_action', (attack_hull, defend_hull):
+            action_str = f'Declare Attack: from {game.active_ship} {HullSection(attack_hull)} to {game.defend_ship} {HullSection(defend_hull)}'
+
 
         case 'declare_additional_squad_target_action', squad_id :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')

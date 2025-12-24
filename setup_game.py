@@ -3,6 +3,8 @@ import random
 import json
 import os
 import shutil
+import warnings
+
 import numpy as np
 from shapely.geometry import Polygon, Point, box
 from shapely import affinity
@@ -161,6 +163,8 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
         Obstacle(ObstacleType.DEBRIS, 2),
         Obstacle(ObstacleType.STATION, 1),
     ]
+    obstacles = [] # simplified
+
 
     placed_polygons = [] # To store (polygon, type) for collision checks
 
@@ -229,10 +233,12 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
                 valid = False
 
             # Check overlap/distance with existing polygons
-            for existing_poly in placed_polygons:
-                if poly.intersects(existing_poly):
-                    valid = False
-                    break
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                for existing_poly in placed_polygons:
+                    if poly.intersects(existing_poly):
+                        valid = False
+                        break
             
             if valid:
                 game.deploy_ship(ship, x, y, orientation, speed)

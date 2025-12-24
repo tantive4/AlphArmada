@@ -80,7 +80,7 @@ cdef class Ship:
         self._course_cache : dict[tuple[int, bool], list[tuple[int, ...]]]= {}
         
     def __str__(self):
-        return f"{self.name}(ID:{self.id})"
+        return f"{self.name}({self.id})"
     __repr__ = __str__
 
     def deploy(self, Armada game, float x, float y, float orientation, int speed, int ship_id):

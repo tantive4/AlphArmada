@@ -3,9 +3,10 @@ import sys
 from configs import Config
 
 def run_driver():
+    print(f"[SETUP DEVICE] {Config.DEVICE}")
     # Loop through all iterations defined in your config
     for i in range(Config.ITERATIONS):
-        print(f"\n[DRIVER] Launching subprocess for Iteration {i}...")
+        print(f"\n[DRIVER] Launching Iteration {i+1}/{Config.ITERATIONS }")
         
         # This is equivalent to typing: python self_play.py --iter 0
         # check=True will raise an error if self_play.py crashes
@@ -18,7 +19,6 @@ def run_driver():
             print(f"[DRIVER] Error: Iteration {i} crashed!")
             break
             
-        print(f"[DRIVER] Iteration {i} finished. Metal Cache Wiped (Process Terminated).")
 
 if __name__ == "__main__":
     run_driver()

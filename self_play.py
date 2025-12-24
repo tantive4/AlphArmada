@@ -32,7 +32,7 @@ class AlphArmada:
         self.model : ArmadaNet = model
         self.optimizer : optim.AdamW = optimizer
         
-    def para_self_play(self, iter_num: int = 0, batch_num: int = 0) -> None:
+    def para_self_play(self, iter_num: int = 0) -> None:
         memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
 
         action_manager = ActionManager()
@@ -51,7 +51,7 @@ class AlphArmada:
 
 
         action_counter : int = 0
-        with tqdm(total=Config.PARALLEL_PLAY, desc=f"Self-Play Batch {batch_num + 1}", unit="game") as pbar:
+        with tqdm(total=Config.PARALLEL_PLAY, desc=f"[Self-Play]", unit="game") as pbar:
             while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
                 simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0}
 
@@ -116,7 +116,7 @@ class AlphArmada:
 
                         # Save this specific game's data immediately to disk
                         if game_data_buffer:
-                            self.save_game_data(game_data_buffer, iter_num, batch_num, para_index)
+                            self.save_game_data(game_data_buffer)
                 action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
@@ -131,7 +131,7 @@ class AlphArmada:
         gc.collect()
         return
 
-    def save_game_data(self, game_data, iter_num, batch_num, para_index):
+    def save_game_data(self, game_data):
         """Helper to collate and save a single game's data to disk."""
         phases, states, action_probs, winners, aux_targets = zip(*game_data)
         
@@ -139,18 +139,17 @@ class AlphArmada:
             'phases': list(phases),
             'scalar': np.stack([s['scalar'] for s in states]),
             'ship_entities': np.stack([s['ship_entities'] for s in states]),
-            'squad_entities': np.stack([s['squad_entities'] for s in states]),
+            'ship_coords': np.stack([s['ship_coords'] for s in states]),
             'spatial': np.stack([s['spatial'] for s in states]),
             'relations': np.stack([s['relations'] for s in states]),
             'target_policies': np.stack(action_probs),
             'target_values': np.array(winners, dtype=np.float32),
             'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_targets]),
-            'target_squad_hulls': np.stack([t['squad_hulls'] for t in aux_targets]),
             'target_game_length': np.stack([t['game_length'] for t in aux_targets])
         }
 
         timestamp = int(time.time() * 1000)
-        filename = f"replay_{timestamp}_iter_{iter_num}_batch_{batch_num}_game_{para_index}.pth"
+        filename = f"replay_{timestamp}.pth"
         path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
         torch.save(collated_data, path)
 
@@ -158,97 +157,145 @@ class AlphArmada:
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
         """
         Trains the neural network on a batch of experiences from self-play.
+        Handles split batching for MLP (Standard) and Pointer (Attention) phases.
         """
         if not training_batch:
             return 0.0
-
         
-        
-        # Prepare batched tensors
+        # 1. Prepare Inputs
         target_values_tensor : torch.Tensor = training_batch['target_values']
         scalar_batch : torch.Tensor = training_batch['scalar'] 
         ship_entity_batch : torch.Tensor = training_batch['ship_entities'] 
-        squad_entity_batch : torch.Tensor = training_batch['squad_entities'] 
+        # Extract normalized coordinates (first 2 columns) for ArmadaNet
+        ship_coord_batch : torch.Tensor = ship_entity_batch[:, :, :2] 
+        
         spatial_batch : torch.Tensor = training_batch['spatial'] 
         relation_batch : torch.Tensor = training_batch['relations'] 
         phases : list[Phase] = training_batch['phases'] #type: ignore
-        phases_tensor = torch.tensor(phases, dtype=torch.long, device=Config.DEVICE)
+        phases_tensor = torch.tensor([p.value for p in phases], dtype=torch.long, device=Config.DEVICE)
 
-        # --- Single Batched Forward Pass ---
-        model_output = self.model(
-            scalar_batch,
-            ship_entity_batch,
-            squad_entity_batch,
-            spatial_batch,
-            relation_batch,
-            phases_tensor
+        batch_size = len(phases)
+
+        # 2. Identify Indices for MLP vs Pointer Phases
+        pointer_phases = {Phase.SHIP_ACTIVATE.value, Phase.SHIP_CHOOSE_TARGET_SHIP.value}
+        
+        # Create boolean mask on CPU/GPU
+        is_pointer_tensor = torch.zeros(batch_size, dtype=torch.bool, device=Config.DEVICE)
+        for val in pointer_phases:
+            is_pointer_tensor |= (phases_tensor == val)
+            
+        ptr_indices = torch.nonzero(is_pointer_tensor, as_tuple=True)[0]
+        mlp_indices = torch.nonzero(~is_pointer_tensor, as_tuple=True)[0]
+
+        # Containers for outputs to aggregate loss later
+        results = {
+            'value_loss': torch.tensor(0.0, device=Config.DEVICE),
+            'hull_loss': torch.tensor(0.0, device=Config.DEVICE),
+            'squad_loss': torch.tensor(0.0, device=Config.DEVICE),
+            'game_length_loss': torch.tensor(0.0, device=Config.DEVICE),
+            'policy_loss': torch.tensor(0.0, device=Config.DEVICE),
+        }
+
+        # Helper to accumulate MSE/CrossEntropy losses from partial batches
+        def accumulate_standard_losses(model_out, indices):
+            # Value
+            pred_val = model_out["value"]
+            target_val = target_values_tensor[indices]
+            results['value_loss'] += F.mse_loss(pred_val, target_val, reduction='sum')
+
+            # Aux Heads
+            results['hull_loss'] += F.mse_loss(model_out["predicted_hull"], training_batch['target_ship_hulls'][indices], reduction='sum')
+            results['squad_loss'] += F.mse_loss(model_out["predicted_hull"], training_batch['target_ship_hulls'][indices], reduction='sum') # NOTE: Model doesn't output squads yet, reused hull for placeholder or check names
+            
+            # Game Length
+            results['game_length_loss'] += F.cross_entropy(model_out["predicted_game_length"], training_batch['target_game_length'][indices], reduction='sum')
+
+        # --- 3. Forward Pass: Standard (MLP) Phases ---
+        if len(mlp_indices) > 0:
+            # Slice inputs
+            mlp_out = self.model(
+                scalar_batch[mlp_indices],
+                ship_entity_batch[mlp_indices],
+                ship_coord_batch[mlp_indices], # Corrected arg
+                spatial_batch[mlp_indices],
+                relation_batch[mlp_indices],
+                phases_tensor[mlp_indices]
+            )
+            
+            accumulate_standard_losses(mlp_out, mlp_indices)
+            
+            # Policy Loss (Per Phase Grouping)
+            logits = mlp_out["policy_logits"]
+            subset_phases = [phases[i] for i in mlp_indices.cpu().numpy()]
+            subset_targets = training_batch['target_policies'][mlp_indices]
+            
+            # Group by Phase Name to handle masking
+            phase_map = {}
+            for idx, p in enumerate(subset_phases):
+                if p.name not in phase_map: phase_map[p.name] = []
+                phase_map[p.name].append(idx)
+            
+            for p_name, p_idxs in phase_map.items():
+                # Get logits for this specific phase group
+                group_logits = logits[p_idxs]
+                group_targets = subset_targets[p_idxs]
+                
+                # Slice to valid action size
+                action_size = len(self.model.action_manager.get_action_map(Phase[p_name]))
+                group_logits = group_logits[:, :action_size]
+                group_targets = group_targets[:, :action_size]
+                
+                log_probs = F.log_softmax(group_logits, dim=1)
+                results['policy_loss'] += -(group_targets * log_probs).sum(dim=1).sum()
+
+        # --- 4. Forward Pass: Pointer Phases ---
+        if len(ptr_indices) > 0:
+            ptr_out = self.model(
+                scalar_batch[ptr_indices],
+                ship_entity_batch[ptr_indices],
+                ship_coord_batch[ptr_indices], # Corrected arg
+                spatial_batch[ptr_indices],
+                relation_batch[ptr_indices],
+                phases_tensor[ptr_indices]
+            )
+            
+            accumulate_standard_losses(ptr_out, ptr_indices)
+            
+            # Policy Loss (Pointer)
+            logits = ptr_out["policy_logits"] # Shape [B, N+1]
+            targets = training_batch['target_policies'][ptr_indices] # Shape [B, Max_Action]
+            
+            # Slice targets to match Pointer Head size (N+1)
+            # Assuming MCTS targets for these phases are stored in indices 0..N
+            valid_size = logits.shape[1] 
+            targets = targets[:, :valid_size]
+            
+            log_probs = F.log_softmax(logits, dim=1)
+            results['policy_loss'] += -(targets * log_probs).sum(dim=1).sum()
+
+
+        # --- 5. Finalize Loss ---
+        # Average over total batch size
+        total_loss = (
+            results['policy_loss'] / batch_size + 
+            results['value_loss'] / batch_size + 
+            Config.HULL_LOSS_WEIGHT * (results['hull_loss'] / batch_size) +
+            Config.SQUAD_LOSS_WEIGHT * (results['squad_loss'] / batch_size) +
+            Config.GAME_LENGTH_LOSS_WEIGHT * (results['game_length_loss'] / batch_size)
         )
-        policy_logits = model_output["policy_logits"]
-        value_pred = model_output["value"]
-
-
-        # --- Calculate Losses ---
-        
-        # Value loss can be calculated on the whole batch at once
-        value_loss = F.mse_loss(value_pred, target_values_tensor)
-
-        # Policy loss needs to be calculated per phase group due to different shapes
-        policy_loss = torch.tensor(0.0, device=Config.DEVICE)
-        
-        # Group indices by phase
-        phase_indices :dict[str, list[int]] = {}
-        for para_index, phase in enumerate(phases):
-            if phase.name not in phase_indices:
-                phase_indices[phase.name] = []
-            phase_indices[phase.name].append(para_index)
-
-        # Get the pre-batched tensor
-        target_policies_tensor = training_batch['target_policies']
-
-        for phase_name, indices in phase_indices.items():
-            if not indices:
-                continue
-            
-            group_logits = policy_logits[indices]
-            # Select from the main tensor instead of stacking
-            group_target_policies = target_policies_tensor[indices]
-            
-            action_space_size = group_target_policies.shape[1]
-            group_logits_sliced = group_logits[:, :action_space_size]
-            
-            log_probs = F.log_softmax(group_logits_sliced, dim=1)
-            policy_loss += -(group_target_policies * log_probs).sum(dim=1).mean()
-
-        # --- Auxiliary Losses ---
-        target_hull : torch.Tensor = training_batch['target_ship_hulls']
-        hull_loss = F.mse_loss(model_output["predicted_hull"], target_hull)
-
-        target_squads : torch.Tensor = training_batch['target_squad_hulls']
-        squad_loss = F.mse_loss(model_output["predicted_squads"], target_squads)
-
-        target_game_length : torch.Tensor = training_batch['target_game_length']
-        game_length_loss = F.cross_entropy(model_output["predicted_game_length"], target_game_length)
 
         # L2 Regularization
         l2_reg = torch.tensor(0., device=Config.DEVICE)
         for param in self.model.parameters():
             l2_reg += torch.sum(param.pow(2))
+        
+        total_loss += Config.L2_LAMBDA * l2_reg
 
-        # Combine losses
-        total_loss = (
-            policy_loss + 
-            value_loss + 
-            Config.HULL_LOSS_WEIGHT * hull_loss +
-            Config.SQUAD_LOSS_WEIGHT * squad_loss +
-            Config.GAME_LENGTH_LOSS_WEIGHT * game_length_loss +
-            Config.L2_LAMBDA * l2_reg
-        )
-
+        self.optimizer.zero_grad()
         total_loss.backward()
         self.optimizer.step()
 
         return total_loss.item()
-    
 
     def learn(self, current_iteration):
             """
@@ -264,19 +311,12 @@ class AlphArmada:
             os.makedirs(Config.REPLAY_BUFFER_DIR, exist_ok=True)
 
             i = current_iteration
-            print(f"\n----- Iteration {i+1}/{Config.ITERATIONS} -----\n")
             
             # --- Step 1 & 2: Start fresh self-play and save batches ---
             self.model.eval()
             self.model.compile_fast_policy()
-            print("Starting self-play phase...")
-            for self_play_iteration in range(Config.SELF_PLAY_GAMES):
 
-                self.para_self_play(iter_num=i, batch_num=self_play_iteration)
-                
-                if torch.backends.mps.is_available():
-                    torch.mps.empty_cache()
-                print(f"Self-play batch {self_play_iteration + 1}/{Config.SELF_PLAY_GAMES} completed.")
+            self.para_self_play(iter_num=i)
 
             
             # --- Step 3: Before training, load all previous self-play data ---
@@ -284,9 +324,9 @@ class AlphArmada:
 
             # This dict will hold all data in concatenated form
             batch_array_dict = {
-                'phases': [], 'scalar': [], 'ship_entities': [], 'squad_entities': [],
+                'phases': [], 'scalar': [], 'ship_entities': [], 'ship_coords': [],
                 'spatial': [], 'relations': [], 'target_policies': [], 'target_values': [],
-                'target_ship_hulls': [], 'target_squad_hulls': [], 'target_game_length': []
+                'target_ship_hulls': [], 'target_game_length': []
             }
             total_samples = 0
 
@@ -347,13 +387,14 @@ class AlphArmada:
                     'phases': [total_array_dict['phases'][i] for i in indices],
                     'scalar': torch.from_numpy(total_array_dict['scalar'][indices]).float().to(Config.DEVICE),
                     'ship_entities': torch.from_numpy(total_array_dict['ship_entities'][indices]).float().to(Config.DEVICE),
-                    'squad_entities': torch.from_numpy(total_array_dict['squad_entities'][indices]).float().to(Config.DEVICE),
+                    'ship_coords': torch.from_numpy(total_array_dict['ship_coords'][indices]).float().to(Config.DEVICE),
+                    # 'squad_entities': torch.from_numpy(total_array_dict['squad_entities'][indices]).float().to(Config.DEVICE),
                     'spatial': torch.from_numpy(total_array_dict['spatial'][indices]).float().to(Config.DEVICE),
                     'relations': torch.from_numpy(total_array_dict['relations'][indices]).float().to(Config.DEVICE),
                     'target_policies': torch.from_numpy(total_array_dict['target_policies'][indices]).float().to(Config.DEVICE),
                     'target_values': torch.from_numpy(total_array_dict['target_values'][indices]).float().to(Config.DEVICE).view(-1, 1),
                     'target_ship_hulls': torch.from_numpy(total_array_dict['target_ship_hulls'][indices]).float().to(Config.DEVICE),
-                    'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls'][indices]).float().to(Config.DEVICE),
+                    # 'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls'][indices]).float().to(Config.DEVICE),
                     'target_game_length': torch.from_numpy(total_array_dict['target_game_length'][indices]).float().to(Config.DEVICE),
                 }
                 
@@ -371,9 +412,8 @@ class AlphArmada:
             # The filename correctly continues from the current iteration number
             checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{i + 1}.pth")
             torch.save(self.model.state_dict(), checkpoint_path)
-            print(f"Model checkpoint saved to {checkpoint_path}")
+            print(f"[SAVE MODEL] {checkpoint_path}")
 
-            print("\nTraining complete!")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -381,10 +421,6 @@ def main():
     args = parser.parse_args()
     
     current_iter = args.iter
-
-    print(f"Starting process for Iteration {current_iter}")
-
-    print(f"Starting training on device: {Config.DEVICE}")
 
     # Initialize the model and optimizer
     model = ArmadaNet(ActionManager()).to(Config.DEVICE)
@@ -397,24 +433,16 @@ def main():
         # Find the checkpoint with the highest iteration number
         latest_checkpoint_file = max(checkpoints, key=lambda f: int(f.split('_')[-1].split('.')[0]))
         
-        # Extract the iteration number from the filename
-        latest_iter_num = int(latest_checkpoint_file.split('_')[-1].split('.')[0])
-        
         checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, latest_checkpoint_file)
-        print(f"Loading model from the most recent checkpoint: {checkpoint_path}")
+        print(f"[LOAD MODEL] {checkpoint_path}")
         model.load_state_dict(torch.load(checkpoint_path, map_location=Config.DEVICE))
-        
-        print(f"Resuming training from iteration {latest_iter_num + 1}")
+
     else:
-        print("No checkpoint found. Starting from scratch.")
         init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
         torch.save(model.state_dict(), init_checkpoint_path)
-        print(f"Randomly initialized model saved to {init_checkpoint_path}")
+        print(f"[INITAIIZE MODEL] {init_checkpoint_path}")
     
     optimizer = optim.AdamW(model.parameters(), lr=Config.LEARNING_RATE)
-
-    # pre_compile JIT geometry functions
-    pre_compile_jit_geometry(setup_game())
 
     # Create the training manager and start the learning process
     alpharmada_trainer = AlphArmada(model, optimizer)

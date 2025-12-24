@@ -152,7 +152,7 @@ cdef class MCTS:
 
         self.action_manager = action_manager
         self.action_mask = np.zeros(action_manager.max_action_space, dtype=np.bool_)
-        self.pointer_mask = np.zeros(Config.MAX_SHIPS, dtype=np.bool_)
+        self.pointer_mask = np.zeros(Config.MAX_SHIPS+1, dtype=np.bool_)
         
         
 
@@ -390,7 +390,8 @@ cdef class MCTS:
         # Build batched numpy arrays
         scalar_batch = np.stack([state['scalar'] for state in encoded_states])
         ship_entity_batch = np.stack([state['ship_entities'] for state in encoded_states])
-        squad_entity_batch = np.stack([state['squad_entities'] for state in encoded_states])
+        ship_coords_batch = np.stack([state['ship_coords'] for state in encoded_states])
+        # squad_entity_batch = np.stack([state['squad_entities'] for state in encoded_states])
         spatial_batch = np.stack([state['spatial'] for state in encoded_states])
         relation_batch = np.stack([state['relations'] for state in encoded_states])
 
@@ -423,7 +424,8 @@ cdef class MCTS:
 
         scalar_batch = pad_to_max(scalar_batch, current_batch_size, target_batch_size)
         ship_entity_batch = pad_to_max(ship_entity_batch, current_batch_size, target_batch_size)
-        squad_entity_batch = pad_to_max(squad_entity_batch, current_batch_size, target_batch_size)
+        ship_coords_batch = pad_to_max(ship_coords_batch, current_batch_size, target_batch_size)
+        # squad_entity_batch = pad_to_max(squad_entity_batch, current_batch_size, target_batch_size)
         spatial_batch = pad_to_max(spatial_batch, current_batch_size, target_batch_size)
         relation_batch = pad_to_max(relation_batch, current_batch_size, target_batch_size)
 
@@ -434,7 +436,8 @@ cdef class MCTS:
         # Convert to PyTorch tensors
         scalar_tensor = torch.from_numpy(scalar_batch).float().to(Config.DEVICE)
         ship_entity_tensor = torch.from_numpy(ship_entity_batch).float().to(Config.DEVICE)
-        squad_entity_tensor = torch.from_numpy(squad_entity_batch).float().to(Config.DEVICE)
+        ship_coords_tensor = torch.from_numpy(ship_coords_batch).float().to(Config.DEVICE)
+        # squad_entity_tensor = torch.from_numpy(squad_entity_batch).float().to(Config.DEVICE)
         spatial_tensor = torch.from_numpy(spatial_batch).float().to(Config.DEVICE)
         relation_tensor = torch.from_numpy(relation_batch).float().to(Config.DEVICE)
         phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
@@ -444,7 +447,8 @@ cdef class MCTS:
             outputs = self.model(
                 scalar_tensor,
                 ship_entity_tensor,
-                squad_entity_tensor,
+                ship_coords_tensor,
+                # squad_entity_tensor,
                 spatial_tensor,
                 relation_tensor,
                 phases_tensor
@@ -469,7 +473,7 @@ cdef class MCTS:
             int policy_len = policy.shape[0]
             cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view
 
-        if policy_len == Config.MAX_SHIPS:
+        if phase in POINTER_PHASE:
             action_mask_view = self.pointer_mask
         else:
             action_mask_view = self.action_mask
