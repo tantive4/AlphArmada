@@ -42,7 +42,8 @@ cdef:
     int global_max_engineer_value = <int>Config.GLOBAL_MAX_ENGINEER_VALUE
     int global_max_dice = <int>Config.GLOBAL_MAX_DICE
     tuple board_resolution = Config.BOARD_RESOLUTION
-    int height_res, width_res = board_resolution
+    int height_res = board_resolution[0]
+    int width_res = board_resolution[1]
     float width_step = LONG_RANGE * 6 / width_res
     float height_step = LONG_RANGE * 3 / height_res
 
@@ -362,7 +363,7 @@ cdef void encode_spatial_mask(Armada game):
     in-place and returns a reference to it.
     """
 
-    cdef float[:, :, :, ::1] planes_view = game.spatial_encode_array
+    cdef cnp.uint8_t[:, :, :, ::1] planes_view = game.spatial_encode_array
     
     # Standard cleanup
     game.spatial_encode_array.fill(0.0)
@@ -393,7 +394,8 @@ cdef void encode_spatial_mask(Armada game):
             r = rr_view[i]
             c = cc_view[i]
 
-            planes_view[ship.id, 0, r, c] = 1.0
+            # Bitwise Packing: Set bit (c % 8) in byte (c // 8)
+            planes_view[ship.id, 0, r, c >> 3] |= (1 << (c & 7))
 
         # --- 2. Ship Threat ---
         threat_plane_dict = cache._ship_threat_indices(ship_hash)
@@ -412,7 +414,8 @@ cdef void encode_spatial_mask(Armada game):
                     r = rr_view[i]
                     c = cc_view[i]
 
-                    planes_view[ship.id, channel_idx, r, c] = 1.0
+                    # Bitwise Packing
+                    planes_view[ship.id, channel_idx, r, c >> 3] |= (1 << (c & 7))
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

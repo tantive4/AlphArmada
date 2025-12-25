@@ -55,7 +55,9 @@ cdef class Armada:
         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)
         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
         self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
-        self.spatial_encode_array = np.zeros((Config.MAX_SHIPS, 10, *Config.BOARD_RESOLUTION), dtype=np.float32) # ships , presence+hull_type*range_type, height, width
+        
+        h, w = Config.BOARD_RESOLUTION
+        self.spatial_encode_array = np.zeros((Config.MAX_SHIPS, 10, h, w//8), dtype=np.uint8) # ships , presence+hull_type*range_type, height, width
 
     def rollout(self, max_simulation_step : int = 2000) -> float :
         """

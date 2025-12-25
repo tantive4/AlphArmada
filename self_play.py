@@ -32,7 +32,7 @@ class AlphArmada:
         self.model : ArmadaNet = model
         self.optimizer : optim.AdamW = optimizer
         
-    def para_self_play(self, iter_num: int = 0) -> None:
+    def para_self_play(self) -> None:
         memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
 
         action_manager = ActionManager()
@@ -51,7 +51,7 @@ class AlphArmada:
 
 
         action_counter : int = 0
-        with tqdm(total=Config.PARALLEL_PLAY, desc=f"[Self-Play]", unit="game") as pbar:
+        with tqdm(total=Config.PARALLEL_PLAY, desc=f"[SELF-PLAY]", unit="game") as pbar:
             while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
                 simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0}
 
@@ -116,7 +116,7 @@ class AlphArmada:
 
                         # Save this specific game's data immediately to disk
                         if game_data_buffer:
-                            self.save_game_data(game_data_buffer)
+                            self.save_game_data(game_data_buffer, action_counter, game.winner)
                 action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
@@ -131,10 +131,11 @@ class AlphArmada:
         gc.collect()
         return
 
-    def save_game_data(self, game_data):
+    def save_game_data(self, game_data, action_count, winner):
         """Helper to collate and save a single game's data to disk."""
         phases, states, action_probs, winners, aux_targets = zip(*game_data)
-        
+        deep_search_count = len(phases)
+
         collated_data = {
             'phases': list(phases),
             'scalar': np.stack([s['scalar'] for s in states]),
@@ -152,6 +153,8 @@ class AlphArmada:
         filename = f"replay_{timestamp}.pth"
         path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
         torch.save(collated_data, path)
+        with open('replay_stats.txt', 'a') as f:
+            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {winner}\n")
 
 
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
@@ -310,17 +313,15 @@ class AlphArmada:
             os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
             os.makedirs(Config.REPLAY_BUFFER_DIR, exist_ok=True)
 
-            i = current_iteration
             
             # --- Step 1 & 2: Start fresh self-play and save batches ---
             self.model.eval()
             self.model.compile_fast_policy()
 
-            self.para_self_play(iter_num=i)
+            self.para_self_play()
 
             
             # --- Step 3: Before training, load all previous self-play data ---
-            print("\n--- Preparing for training phase: Loading replay buffers... ---")
 
             # This dict will hold all data in concatenated form
             batch_array_dict = {
@@ -351,21 +352,20 @@ class AlphArmada:
                     total_samples += len(batch_dict['phases'])
 
                 except (EOFError, pickle.UnpicklingError):
-                    print(f"Warning: Could not load {replay_buffer_path}. File might be corrupted. Skipping.")
+                    print(f"[LOAD REPLAY] Could not load {replay_buffer_path}")
 
             if total_samples < Config.REPLAY_BUFFER_SIZE:
-                print("Not enough samples to form a batch. Skipping training for this iteration.")
+                print(f"[LOAD REPLAY] Not Enough Samples {total_samples}")
                 return
 
             # --- Concatenate all chunks into single giant arrays ---
-            print(f"Loaded {total_samples} total experiences.")
+            print(f"[LOAD REPLAY] Loaded {total_samples} Samples")
             total_array_dict = {}
             total_array_dict['phases'] = batch_array_dict['phases'] # Already a flat list
             for key in list(batch_array_dict.keys())[1:]:
                 total_array_dict[key] = np.concatenate(batch_array_dict[key], axis=0)
 
             # --- Step 4: Start training on the loaded data ---
-            print("Starting training phase...")
             self.model.train()
             self.model.fast_policy_ready = False
             if hasattr(self.model, 'w1_stack'):
@@ -378,7 +378,7 @@ class AlphArmada:
 
                 
             self.optimizer.zero_grad()
-            for step in trange(Config.EPOCHS):
+            for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
                 # 1. Sample BATCH_SIZE random indices
                 indices = torch.randint(0, total_samples, (Config.BATCH_SIZE,))
                 
@@ -400,17 +400,15 @@ class AlphArmada:
                 
                 # 3. Pass this ready-to-use batch to train
                 loss = self.train(training_batch_tensors)
-                
-            if torch.backends.mps.is_available():
-                torch.mps.empty_cache()
-            print(f"Iteration {i+1} completed. Final training loss: {loss:.4f}")
+            
+            print(f"[TRAINING] {current_iteration+1} completed. Final loss: {loss:.4f}")
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open('loss.txt', 'a') as f:
                 f.write(f"{timestamp}, {loss:.4f}\n")
 
             # --- Save the model checkpoint ---
             # The filename correctly continues from the current iteration number
-            checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{i + 1}.pth")
+            checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{current_iteration + 1}.pth")
             torch.save(self.model.state_dict(), checkpoint_path)
             print(f"[SAVE MODEL] {checkpoint_path}")
 

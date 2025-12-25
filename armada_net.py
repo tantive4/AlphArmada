@@ -193,6 +193,7 @@ class ArmadaNet(nn.Module):
         # --- 5. Spatial ResNet ---
         # Input Channels: 
         #   Scattered Presence (32) + Scattered Threat (4) = 36
+        self.register_buffer('bit_mask', torch.tensor([1, 2, 4, 8, 16, 32, 64, 128], dtype=torch.uint8))
         self.spatial_in_channels = self.presence_channels + self.threat_channels
         self.spatial_out_channels = 64
         
@@ -348,14 +349,18 @@ class ArmadaNet(nn.Module):
         ship_entity_features_attended = self.ship_entity_encoder(ship_embed, mask=attn_bias)
 
         # --- Spatial ResNet (Scattered Connection) ---
+        # Unpack Bits on GPU: [B, N, 10, H, W_packed] -> [B, N, 10, H, W]
+        unpacked_spatial = (spatial_input.unsqueeze(-1) & self.bit_mask) > 0
+        unpacked_spatial = unpacked_spatial.flatten(start_dim=-2).float()
+
         presence_vals = self.presence_projector(ship_entity_features_attended)
         threat_vals_flat = self.threat_projector(ship_entity_features_attended)
         threat_vals = threat_vals_flat.view(batch_size, N, self.threat_channels, self.num_threat_planes)
 
-        presence_masks = spatial_input[:, :, 0]
+        presence_masks = unpacked_spatial[:, :, 0]
         presence_map = torch.einsum('bnc, bnhw -> bchw', presence_vals, presence_masks)
 
-        threat_masks = spatial_input[:, :, 1:]
+        threat_masks = unpacked_spatial[:, :, 1:]
         threat_map = torch.einsum('bncg, bnghw -> bchw', threat_vals, threat_masks)
         spatial_combined = torch.cat([presence_map, threat_map], dim=1)
         
