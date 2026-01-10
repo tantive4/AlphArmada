@@ -11,9 +11,11 @@ import gc
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
 import pickle
 import numpy as np
 
+from disk_manager import DiskReplayBuffer, ArmadaDiskDataset
 from configs import Config
 from armada import Armada
 from setup_game import setup_game
@@ -31,6 +33,9 @@ class AlphArmada:
     def __init__(self, model : ArmadaNet, optimizer : optim.AdamW) :
         self.model : ArmadaNet = model
         self.optimizer : optim.AdamW = optimizer
+
+        self.max_action_space = model.max_action_space
+        self.replay_buffer = DiskReplayBuffer(Config.REPLAY_BUFFER_DIR, Config.REPLAY_BUFFER_SIZE, self.max_action_space)
         
     def para_self_play(self) -> None:
         memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
@@ -95,28 +100,9 @@ class AlphArmada:
                     if game.winner != 0.0:
                         pbar.update(1)
                         pbar.set_postfix(last_winner=game.winner)
-                        winner, aux_target = get_terminal_value(game)
-                        game_data_buffer = []
-                        end_snapshop = game.get_snapshot()
-                        # 'Rewind' the game using snapshots to generate encoded states
-                        for phase, snapshot, action_probs in memory[para_index]:
-                            game.revert_snapshot(snapshot)
-                            
-                            # Now we encode, only when needed
-                            encoded_state_views = encode_game_state(game)
-                            encoded_state_copy = {
-                                key: array.copy() for key, array in encoded_state_views.items()
-                            }
-                            
-                            game_data_buffer.append((phase, encoded_state_copy, action_probs, winner, aux_target))
-                        
-                        game.revert_snapshot(end_snapshop)
-                        # Clear memory for this game immediately
+                        self.save_game_data(game, memory[para_index],action_counter)
                         memory[para_index].clear()
 
-                        # Save this specific game's data immediately to disk
-                        if game_data_buffer:
-                            self.save_game_data(game_data_buffer, action_counter, game.winner)
                 action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
@@ -131,9 +117,28 @@ class AlphArmada:
         gc.collect()
         return
 
-    def save_game_data(self, game_data, action_count, winner):
+    def save_game_data(self, game : Armada, game_memory, action_count) -> None:
         """Helper to collate and save a single game's data to disk."""
-        phases, states, action_probs, winners, aux_targets = zip(*game_data)
+
+        winner, aux_target = get_terminal_value(game)
+        phases, states, action_probs, winners, aux_targets = [], [], [], [], []
+        end_snapshop = game.get_snapshot()
+
+        # 'Rewind' the game using snapshots to generate encoded states
+        for phase, snapshot, action_probs in game_memory:
+            game.revert_snapshot(snapshot)
+            encoded_state_views = encode_game_state(game)
+            encoded_state_copy = {
+                key: array.copy() for key, array in encoded_state_views.items()
+            }
+            
+            phases.append(phase)
+            states.append(encoded_state_copy)
+            action_probs.append(action_probs)
+            winners.append(winner)
+            aux_targets.append(aux_target)
+        
+        game.revert_snapshot(end_snapshop)
         deep_search_count = len(phases)
 
         collated_data = {
@@ -149,13 +154,15 @@ class AlphArmada:
             'target_game_length': np.stack([t['game_length'] for t in aux_targets])
         }
 
-        timestamp = int(time.time() * 1000)
-        filename = f"replay_{timestamp}.pth"
-        path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
-        torch.save(collated_data, path)
+        # timestamp = int(time.time() * 1000)
+        # filename = f"replay_{timestamp}.pth"
+        # path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
+        # torch.save(collated_data, path)
+
+        self.replay_buffer.add_batch(collated_data)
+
         with open('replay_stats.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {winner}\n")
-
 
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
         """
@@ -303,111 +310,59 @@ class AlphArmada:
     def learn(self, current_iteration):
             """
             Main training loop:
-            1. Generates self-play data in batches for the current iteration, saving each batch to a file.
-            2. Before training, it loads data from all past iterations, starting with the most recent,
-            until the replay buffer is full.
-            3. Trains the model on this buffer of recent experiences.
+            1. Perform self-play to generate training data & save to disk.
+            2. Load data from disk into DataLoader.
+            3. Train the model on the data.
+            4. Save the updated model checkpoint.
             """
-            
-            # Create directories if they don't exist
-            os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
-            os.makedirs(Config.REPLAY_BUFFER_DIR, exist_ok=True)
 
-            
-            # --- Step 1 & 2: Start fresh self-play and save batches ---
+            # --- SELF PLAY & SAVE DATA ---
             self.model.eval()
             self.model.compile_fast_policy()
-
             self.para_self_play()
 
             
-            # --- Step 3: Before training, load all previous self-play data ---
 
-            # This dict will hold all data in concatenated form
-            batch_array_dict = {
-                'phases': [], 'scalar': [], 'ship_entities': [], 'ship_coords': [],
-                'spatial': [], 'relations': [], 'target_policies': [], 'target_values': [],
-                'target_ship_hulls': [], 'target_game_length': []
-            }
-            total_samples = 0
-
-            all_replay_files = [file for file in os.listdir(Config.REPLAY_BUFFER_DIR) if file.endswith('.pth')]
-            all_replay_files.sort(reverse=True) # Load newest first
-
-            for filename in all_replay_files:
-                if total_samples >= Config.REPLAY_BUFFER_SIZE:
-                    break # Stop if buffer is full
-                
-                replay_buffer_path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
-                try:
-                    # Load one collated batch dictionary
-                    batch_dict = torch.load(replay_buffer_path, weights_only=False)
-
-                    # Append the data slices
-                    batch_array_dict['phases'].extend(batch_dict['phases'])
-                    # Iterate all keys *except* 'phases'
-                    for key in list(batch_array_dict.keys())[1:]: 
-                        batch_array_dict[key].append(batch_dict[key])
-                    
-                    total_samples += len(batch_dict['phases'])
-
-                except (EOFError, pickle.UnpicklingError):
-                    print(f"[LOAD REPLAY] Could not load {replay_buffer_path}")
-
-            if total_samples < Config.REPLAY_BUFFER_SIZE:
-                print(f"[LOAD REPLAY] Not Enough Samples {total_samples}")
-                return
-
-            # --- Concatenate all chunks into single giant arrays ---
-            print(f"[LOAD REPLAY] Loaded {total_samples} Samples")
-            total_array_dict = {}
-            total_array_dict['phases'] = batch_array_dict['phases'] # Already a flat list
-            for key in list(batch_array_dict.keys())[1:]:
-                total_array_dict[key] = np.concatenate(batch_array_dict[key], axis=0)
-
-            # --- Step 4: Start training on the loaded data ---
+            # --- PREPARE TRAINING ---
             self.model.train()
             self.model.fast_policy_ready = False
             if hasattr(self.model, 'w1_stack'):
-                del self.model.w1_stack
-                del self.model.b1_stack
-                del self.model.w2_stack
-                del self.model.b2_stack
-                del self.model.w3_stack
-                del self.model.b3_stack
+                del self.model.w1_stack, self.model.b1_stack, self.model.w2_stack, self.model.b2_stack, self.model.w3_stack, self.model.b3_stack
 
-                
+            dataset = ArmadaDiskDataset(
+                data_dir=Config.REPLAY_BUFFER_DIR, 
+                max_size=Config.REPLAY_BUFFER_SIZE, 
+                current_size=self.replay_buffer.current_size, 
+                action_space_size=self.max_action_space
+            )
+
+            dataloader = DataLoader(
+                dataset, 
+                batch_size=Config.BATCH_SIZE, 
+                shuffle=True, 
+                num_workers=4, 
+                pin_memory=True
+            )
+
+
+            # --- TRAINING LOOP ---
+            iterator = iter(dataloader)
             self.optimizer.zero_grad()
             for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
-                # 1. Sample BATCH_SIZE random indices
-                indices = torch.randint(0, total_samples, (Config.BATCH_SIZE,))
-                
-                # 2. Create the batch *instantly* via tensor indexing
-                training_batch_tensors = {
-                    'phases': [total_array_dict['phases'][i] for i in indices],
-                    'scalar': torch.from_numpy(total_array_dict['scalar'][indices]).float().to(Config.DEVICE),
-                    'ship_entities': torch.from_numpy(total_array_dict['ship_entities'][indices]).float().to(Config.DEVICE),
-                    'ship_coords': torch.from_numpy(total_array_dict['ship_coords'][indices]).float().to(Config.DEVICE),
-                    # 'squad_entities': torch.from_numpy(total_array_dict['squad_entities'][indices]).float().to(Config.DEVICE),
-                    'spatial': torch.from_numpy(total_array_dict['spatial'][indices]).float().to(Config.DEVICE),
-                    'relations': torch.from_numpy(total_array_dict['relations'][indices]).float().to(Config.DEVICE),
-                    'target_policies': torch.from_numpy(total_array_dict['target_policies'][indices]).float().to(Config.DEVICE),
-                    'target_values': torch.from_numpy(total_array_dict['target_values'][indices]).float().to(Config.DEVICE).view(-1, 1),
-                    'target_ship_hulls': torch.from_numpy(total_array_dict['target_ship_hulls'][indices]).float().to(Config.DEVICE),
-                    # 'target_squad_hulls': torch.from_numpy(total_array_dict['target_squad_hulls'][indices]).float().to(Config.DEVICE),
-                    'target_game_length': torch.from_numpy(total_array_dict['target_game_length'][indices]).float().to(Config.DEVICE),
-                }
-                
-                # 3. Pass this ready-to-use batch to train
-                loss = self.train(training_batch_tensors)
-            
+                try:
+                    batch = next(iterator)
+                except StopIteration:
+                    iterator = iter(dataloader)
+                    batch = next(iterator)
+                loss = self.train(batch)
+
             print(f"[TRAINING] {current_iteration+1} completed. Final loss: {loss:.4f}")
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open('loss.txt', 'a') as f:
                 f.write(f"{timestamp}, {loss:.4f}\n")
 
-            # --- Save the model checkpoint ---
-            # The filename correctly continues from the current iteration number
+
+            # --- SAVE MODEL ---
             checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{current_iteration + 1}.pth")
             torch.save(self.model.state_dict(), checkpoint_path)
             print(f"[SAVE MODEL] {checkpoint_path}")

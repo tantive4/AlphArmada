@@ -432,7 +432,7 @@ cdef void encode_relation_matrix(Armada game):
     cdef int n_ships = len(ships)
     cdef Ship attacker, defender 
     
-    cdef float[:, :, ::1] rel_matrix = game.relation_encode_array
+    cdef cnp.uint8_t[:, :, ::1] rel_matrix = game.relation_encode_array
     rel_matrix[:] = 0.0
 
     cdef list range_list, attack_range_list

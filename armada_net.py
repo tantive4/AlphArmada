@@ -136,7 +136,7 @@ class ArmadaNet(nn.Module):
     def __init__(self, action_manager: ActionManager):
         super(ArmadaNet, self).__init__()
         self.action_manager = action_manager
-        self.max_action_space = action_manager.max_action_space
+        self.max_action_space : int = action_manager.max_action_space
 
         # --- Constants & Configuration ---
         self.ship_feat_size = Config.SHIP_ENTITY_FEATURE_SIZE
@@ -251,10 +251,11 @@ class ArmadaNet(nn.Module):
 
 
         # Auxiliary Target Heads
+        self.hull_input_dim = self.single_ship_size + self.torso_output_size
         self.hull_head = nn.Sequential(
-            nn.Linear(self.torso_output_size, 128),
+            nn.Linear(self.hull_input_dim, 128),
             nn.ReLU(),
-            nn.Linear(128, Config.MAX_SHIPS),
+            nn.Linear(128, 1), # Output 1 scalar per ship
             nn.Sigmoid() # Output between 0 and 1
         )
         
@@ -519,8 +520,17 @@ class ArmadaNet(nn.Module):
                     policy_logits[indices, :group_logits.shape[1]] = group_logits
 
 
-        # --- Auxiliary Heads ---
-        predicted_hull = self.hull_head(torso_output)
+        # --- Auxiliary Ship Hull Head ---
+        # 1. Expand Torso: [B, 256] -> [B, 1, 256] -> [B, N, 256]
+        torso_expanded = torso_output.unsqueeze(1).expand(-1, N, -1)
+        
+        # 2. Concatenate: [B, N, 320] + [B, N, 256] -> [B, N, 576]
+        hull_head_input = torch.cat([ship_combined_state, torso_expanded], dim=2)
+        
+        # 3. Predict: [B, N, 576] -> [B, N, 1] -> [B, N]
+        predicted_hull = self.hull_head(hull_head_input).squeeze(-1)
+
+        # --- Auxiliary Game Length Head ---
         predicted_game_length = self.game_length_head(torso_output)
 
 

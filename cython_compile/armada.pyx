@@ -52,7 +52,7 @@ cdef class Armada:
         self.para_index = para_index
 
         self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
-        self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)
+        self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)
         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
         self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
         
