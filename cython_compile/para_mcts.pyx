@@ -140,6 +140,7 @@ cdef class MCTS:
         public ActionManager action_manager
         public object model
         public object action_mask, pointer_mask
+        cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, spatial_buffer, relation_buffer
 
     def __init__(self, list games, ActionManager action_manager, object model) -> None:
         self.para_games = games
@@ -154,7 +155,27 @@ cdef class MCTS:
         self.action_mask = np.zeros(action_manager.max_action_space, dtype=np.bool_)
         self.pointer_mask = np.zeros(Config.MAX_SHIPS+1, dtype=np.bool_)
         
-        
+        self.scalar_buffer = np.zeros(
+            (Config.GPU_INPUT_BATCH_SIZE, Config.SCALAR_FEATURE_SIZE), 
+            dtype=np.float32
+        )
+        self.ship_entity_buffer = np.zeros(
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 
+            dtype=np.float32
+        )
+        self.ship_coords_buffer = np.zeros(
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 2), 
+            dtype=np.float32
+        )
+        # Spatial buffer is the largest (ensure dims match armada_net: [B, N, 10, H, W/8])
+        self.spatial_buffer = np.zeros(
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), 
+            dtype=np.uint8
+        )
+        self.relation_buffer = np.zeros(
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 
+            dtype=np.float32
+        )
 
     cpdef dict para_search(self, dict sim_players, bint deep_search, int manual_iteration = 0):
         cdef:
@@ -387,59 +408,45 @@ cdef class MCTS:
         if not encoded_states:
             return np.array([]), np.array([])
 
-        # Build batched numpy arrays
-        scalar_batch = np.stack([state['scalar'] for state in encoded_states])
-        ship_entity_batch = np.stack([state['ship_entities'] for state in encoded_states])
-        ship_coords_batch = np.stack([state['ship_coords'] for state in encoded_states])
-        # squad_entity_batch = np.stack([state['squad_entities'] for state in encoded_states])
-        spatial_batch = np.stack([state['spatial'] for state in encoded_states])
-        relation_batch = np.stack([state['relations'] for state in encoded_states])
-
-        cdef int max_batch_size = Config.GPU_INPUT_BATCH_SIZE
         cdef int current_batch_size = len(phases)
         cdef int bucket_step = 16 
         cdef int target_batch_size = ((current_batch_size + bucket_step - 1) // bucket_step) * bucket_step
+        cdef int max_batch_size = Config.GPU_INPUT_BATCH_SIZE
+        cdef int i
 
-
-        
-        # add padding
-
-        # Clamp to max_batch_size (if your games count isn't a multiple of 16)
         if target_batch_size > max_batch_size:
             target_batch_size = max_batch_size
-        # If current > max (shouldn't happen logic-wise but for safety), clamp it
-        if target_batch_size < current_batch_size:
-            target_batch_size = current_batch_size
+        
+        # 1. Fill buffers with current data (No allocation)
+        # This replaces np.stack which was the CPU bottleneck
+        for i in range(current_batch_size):
+            state = encoded_states[i]
+            # Copy data from small dict arrays into the big pinned buffer
+            self.scalar_buffer[i] = state['scalar']
+            self.ship_entity_buffer[i] = state['ship_entities']
+            self.ship_coords_buffer[i] = state['ship_coords']
+            self.spatial_buffer[i] = state['spatial']
+            self.relation_buffer[i] = state['relations']
 
-        # Helper to create a zero-padded array of shape (max_batch_size, ...)
-        def pad_to_max(arr, count, total):
-            if count >= total: return arr
-            # Create a container of the full fixed size
-            shape = list(arr.shape)
-            shape[0] = total
-            padded_arr = np.zeros(shape, dtype=arr.dtype)
-            # Copy the actual data into the front
-            padded_arr[:count] = arr
-            return padded_arr
+        # 2. Zero-out padding area if needed (to clean up dirty data from previous steps)
+        # Only strictly necessary if Batch Normalization statistics are sensitive to garbage
+        if target_batch_size > current_batch_size:
+            self.scalar_buffer[current_batch_size:target_batch_size].fill(0)
+            self.ship_entity_buffer[current_batch_size:target_batch_size].fill(0)
+            self.ship_coords_buffer[current_batch_size:target_batch_size].fill(0)
+            self.spatial_buffer[current_batch_size:target_batch_size].fill(0)
+            self.relation_buffer[current_batch_size:target_batch_size].fill(0)
 
-        scalar_batch = pad_to_max(scalar_batch, current_batch_size, target_batch_size)
-        ship_entity_batch = pad_to_max(ship_entity_batch, current_batch_size, target_batch_size)
-        ship_coords_batch = pad_to_max(ship_coords_batch, current_batch_size, target_batch_size)
-        # squad_entity_batch = pad_to_max(squad_entity_batch, current_batch_size, target_batch_size)
-        spatial_batch = pad_to_max(spatial_batch, current_batch_size, target_batch_size)
-        relation_batch = pad_to_max(relation_batch, current_batch_size, target_batch_size)
-
-        # Pad phases with a valid dummy value (0)
+        # 3. Handle Phases (simple list padding is fast enough)
         pad_len = target_batch_size - current_batch_size
         phase_ints = [p.value for p in phases] + [0] * pad_len
 
-        # Convert to PyTorch tensors
-        scalar_tensor = torch.from_numpy(scalar_batch).float().to(Config.DEVICE)
-        ship_entity_tensor = torch.from_numpy(ship_entity_batch).float().to(Config.DEVICE)
-        ship_coords_tensor = torch.from_numpy(ship_coords_batch).float().to(Config.DEVICE)
-        # squad_entity_tensor = torch.from_numpy(squad_entity_batch).float().to(Config.DEVICE)
-        spatial_tensor = torch.from_numpy(spatial_batch).float().to(Config.DEVICE)
-        relation_tensor = torch.from_numpy(relation_batch).float().to(Config.DEVICE)
+        # 4. Convert to PyTorch tensors
+        scalar_tensor = torch.from_numpy(self.scalar_buffer[:target_batch_size]).to(Config.DEVICE)
+        ship_entity_tensor = torch.from_numpy(self.ship_entity_buffer[:target_batch_size]).to(Config.DEVICE)
+        ship_coords_tensor = torch.from_numpy(self.ship_coords_buffer[:target_batch_size]).to(Config.DEVICE)
+        spatial_tensor = torch.from_numpy(self.spatial_buffer[:target_batch_size]).to(Config.DEVICE)
+        relation_tensor = torch.from_numpy(self.relation_buffer[:target_batch_size]).to(Config.DEVICE)
         phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
 
         with torch.no_grad():
@@ -448,7 +455,6 @@ cdef class MCTS:
                 scalar_tensor,
                 ship_entity_tensor,
                 ship_coords_tensor,
-                # squad_entity_tensor,
                 spatial_tensor,
                 relation_tensor,
                 phases_tensor
@@ -456,11 +462,12 @@ cdef class MCTS:
 
             policy_logits = outputs['policy_logits']
             value_tensor = outputs['value']
+            
             # Apply softmax to get probabilities
-            policies = F.softmax(policy_logits, dim=1).cpu().numpy()
+            policies = F.softmax(policy_logits[:current_batch_size], dim=1).cpu().numpy()
 
             # Squeeze to remove the last dimension (shape [B, 1] -> [B])
-            values = value_tensor.squeeze(1).cpu().numpy()
+            values = value_tensor[:current_batch_size].squeeze(1).cpu().numpy()
 
         return values, policies
 

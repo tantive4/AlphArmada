@@ -3923,7 +3923,7 @@ static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_d_
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_long(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_uint8_t(PyObject *, int writable_flag);
 
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
@@ -4344,7 +4344,6 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, 
 static const __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t = { "float32_t", NULL, sizeof(__pyx_t_5numpy_float32_t), { 0 }, 0, 'R', 0, 0 };
 static const __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t = { "uint8_t", NULL, sizeof(__pyx_t_5numpy_uint8_t), { 0 }, 0, __PYX_IS_UNSIGNED(__pyx_t_5numpy_uint8_t) ? 'U' : 'I', __PYX_IS_UNSIGNED(__pyx_t_5numpy_uint8_t), 0 };
 static const __Pyx_TypeInfo __Pyx_TypeInfo_long = { "long", NULL, sizeof(long), { 0 }, 0, __PYX_IS_UNSIGNED(long) ? 'U' : 'I', __PYX_IS_UNSIGNED(long), 0 };
-static const __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
 /* #### Code section: before_global_var ### */
 #define __Pyx_MODULE_NAME "game_encoder"
 extern int __pyx_module_is_main_game_encoder;
@@ -4615,13 +4614,13 @@ static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cyt
 static const char __pyx_k_encode_squad_entity_features[] = "encode_squad_entity_features";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_a_4q_Qa_q_T_q_T_1Cr_q_T_2S_Q_t[] = "\200\001\360\016\000\005\027\220a\360\n\000\005<\2704\270q\330\004(\250\001\360\006\000\005\021\220\005\220Q\220a\360\n\000\005\020\210q\220\005\220T\230\027\240\002\240!\330\004\017\210q\220\005\220T\230\032\2401\240C\240r\250\021\330\004\017\210q\220\005\220T\230\032\2402\240S\250\002\250!\330\004\r\210Q\360\006\000\005\010\200t\210>\230\023\230A\330\010\023\2201\220J\230a\340\010\023\2201\220G\2302\230U\240!\330\004\016\210a\360\006\000\005\020\210q\220\007\220r\230\025\230d\240'\250\022\2505\260\001\330\004\016\210a\360\006\000\005\010\200t\320\013\033\2303\230a\330\010\023\2201\220J\230a\340\010\023\2201\220G\2302\230U\240!\330\004\016\210a\360\010\000\005\010\200t\210=\230\003\2301\330\010\t\340\004\022\220$\220a\360\006\000\005\020\210q\220\n\230%\230q\240\013\2501\330\004\017\210q\220\007\220r\230\025\230e\2401\240K\250q\330\004\017\210q\220\007\220r\230\025\230e\2401\240K\250q\330\004\016\210a\360\010\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\010\200{\220*\230G\2401\330\010\023\2201\220G\2302\230U\240+\250]\270!\330\004\016\210a\360\006\000\005\020\210q\220\013\2305\240\013\250?\270\"\270A\330\004\017\210q\220\007\220r\230\025\230g\240[\3200""A\300\021\330\004\016\210a";
-static const char __pyx_k_d_s_1_t1_fA_U_1_5_81_ha_E_aq_r[] = "\200\001\360\026\000\005\027\220d\230!\330\004\027\220s\230!\2301\360\006\000\005(\240t\2501\330\004\016\210f\220A\360\n\000\005\t\210\005\210U\220!\2201\330\010\023\2205\230\001\230\021\360\006\000\t\014\2108\2201\330\014\r\340\010\026\220h\230a\340\010\014\210E\220\025\220a\220q\340\014\017\210r\220\023\220A\330\020\021\340\014\027\220u\230A\230Q\340\014\017\210x\220q\330\020\021\340\014\032\230(\240!\340\014\017\210}\230E\320!2\260!\330\020\030\320\030,\250A\330\020\030\320\030,\250A\360\006\000\r\021\220\r\230U\240!\2401\330\020$\240J\250a\250q\340\020\024\220K\230u\240A\240Q\330\024#\2407\320*;\2701\270A\340\024\037\230z\250\022\250<\260r\270\021\340\024\036\230a\230}\250M\270\034\300Q";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static const char __pyx_k_2_Q_U_1_A_4t3fKs_a_D_A_E_Qa_E_a[] = "\200\001\360\020\000\0052\260\024\260Q\360\006\000\005\t\320\010\035\230U\240!\2401\360\022\000\005\t\210\010\220\004\220A\330\010\013\2104\210t\2203\220f\230K\240s\250$\250a\330\014\r\340\010\024\220D\320\030,\250A\360\010\000\t\r\210E\220\025\320\026-\250Q\250a\360\006\000\t\023\220!\330\010\022\220!\360\006\000\t\r\210E\220\025\220a\220w\230f\240A\240Q\330\014\020\220\007\220q\230\001\330\014\020\220\007\220q\230\001\360\006\000\r\030\220q\230\004\230E\240\023\240C\240r\250\023\250G\2602\260T\270\022\2702\270Q\360\006\000\t\035\230E\320!6\260a\260q\360\006\000\t\r\210F\220/\320!2\260&\270\001\330\014\020\220\016\230j\250\013\2606\270\021\360\006\000\021\037\230b\240\003\2405\250\002\250#\250R\250q\340\020\032\230&\240\001\240\021\330\020\032\230&\240\001\240\021\340\020\024\220E\230\025\230a\230w\240f\250A\250Q\330\024\030\230\007\230q\240\001\330\024\030\230\007\230q\240\001\360\006\000\025 \230q\240\004\240E\250\035\260c\270\022\2703\270g\300R\300t\3102\310R\310q";
 static const char __pyx_k_35_q_t_q_d_A_A_4t3j_4_1_4_1_a_d[] = "\200\001\360,\000\005\033\230!\360\014\000\005\t\320\010\032\230$\320\0363\2605\270\001\270\021\330\004\010\320\010\032\230%\230q\240\001\360\006\000\005\010\200t\210=\230\007\230q\330\010\026\220d\230!\330\010\024\220A\340\004\010\210\010\220\004\220A\330\010\013\2104\210t\2203\220j\240\003\2404\240|\2601\340\010\033\2304\320\0371\260\021\260$\260a\330\010\030\230\001\230\025\230d\240#\240R\240t\2501\330\010\030\230\001\230\025\230d\240#\240R\240t\2501\340\010\024\220D\320\030*\250!\2504\250q\340\010\021\220\021\360\006\000\t\022\220\021\220*\230E\240\021\240%\240s\250$\250o\270Z\300q\330\010\021\220\021\220*\230E\240\021\240%\240s\250$\250o\270Z\300q\330\010\021\220\021\220*\230E\240\021\240$\240m\260:\270Q\330\010\021\220\021\220*\230D\240\007\240r\250\025\250j\270\001\330\010\014\210H\220E\230\021\230!\330\014\017\210t\220?\240!\2406\250\027\260\001\330\020\031\230\021\230'\240\022\2408\2501\330\010\022\220!\360\006\000\t\022\220\021\220*\230D\240\006\240b\320(9\270\032\3001\330\010\014\210H\220E\230\021\230!\330\014\025\220Q\220g\230R\230x\240t\2507\260!\2606\270\022\2701\330\010\022\220!\360\006\000\t\022\220\021\220*\230D\240\003\2402\240T\250\036\260z\300\021\330\010\021\220\021\220*\230D\240\003\2402\240T\250\035\260j\300\001\330\010\021\220\021\220*\230C\230q\240\004\240O\260:\270Q\330\010\021\220\021\220*\230C\230q\240\004\240O\260:\270Q\360\006\000\t\014\2104\210x\220s\230$\230a\330\014\020\220\013\230;\240i\250q\260\004\260A\330\020\031\230\021\230'\240\022\240:\250R\250\177\270b\300\013\3101\330\010\022\320\022$\240B\240a\360\006\000\t\r\210K\220t\2301\330\014\025\220Q\220g\230R\230{\250!\330\010\022\220!\360\006\000\t\r\210K\220t\2301\330\014\025\220Q\220g\230R\230{\250!\330\010\022\220!\360\006\000\t\014\2101\330\014\017\210{\320\032,\250D\260\013\320;K\3103\310d\320RS\330\020\031\230\021\230'\240\022\2405\250\013\3203C\3001\330\014\017\210{\320\032,\250D\260\004\260D\270\003\270;\300a\330\020\031\230\021\230'\240\022\240<\250r\260\025\260k\320AQ""\320QR\330\010\022\220!\360\006\000\t\035\230A\330\010\014\210M\230\031\240$\240o\260V\2701\330\014\017\210u\220L\240\001\340\014\017\210u\220J\230i\240q\320(:\270\"\270L\310\002\310%\310q\330\022\033\2301\320\034.\250b\260\014\270B\270b\300\002\300%\300q\340\014\017\210t\2205\230\013\2409\250A\320-?\270r\300\034\310R\310r\320QS\320SX\320XY\340\014\017\210t\220:\230U\240,\250c\260\033\320<Q\320QT\320TY\320Y_\320_b\320bm\320mn\330\020\031\230\021\320\032,\250B\250l\270\"\270B\270b\300\005\300Q\330\010\022\320\022%\240R\240q";
 static const char __pyx_k_4_5U_1_t_q_d_A_Q_5_C_U_T_AU_U_Q[] = "\200\001\360\032\000\005\033\230!\360\006\000\005\t\320\010\033\2304\320\0375\260U\270!\2701\340\004\007\200t\210=\230\007\230q\330\010\026\220d\230!\330\010\024\220A\340\004\010\210\t\220\024\220Q\330\010\013\2105\220\004\220C\220{\240#\240U\250!\330\014\r\360\006\000\t\026\220T\320\031,\250A\250U\260!\330\010\021\220\021\360\006\000\t\023\220!\220:\230U\240&\250\002\320*;\270:\300Q\330\010\022\220!\220:\230U\240,\250j\270\001\330\010\022\220!\220:\230U\240-\250z\270\021\330\010\022\220!\220:\230U\240+\250Z\260q\330\010\022\220!\220:\230U\240'\250\021\250#\250R\250t\260>\300\032\3101\330\010\022\220!\220:\230U\240'\250\021\250#\250R\250t\260=\300\n\310!\360\006\000\t\035\230A\330\010\013\2105\320\020!\240\027\250\001\330\014\026\220a\320\027)\250\022\2505\260\005\3205I\310\021\330\010\022\220!\360\006\000\t\014\2101\330\014\017\210t\220;\320\0360\260\004\260E\270\024\270S\300\013\3101\330\020\032\230!\230:\240Q\330\014\017\210t\220;\320\0360\260\004\260E\270\024\270S\300\013\3101\330\020\032\230!\2307\240\"\240E\250\021\330\010\022\220!";
 static const char __pyx_k_Game_is_not_in_a_terminal_state[] = "Game is not in a terminal state.";
 static const char __pyx_k_cython_compile_game_encoder_pyx[] = "cython_compile/game_encoder.pyx";
+static const char __pyx_k_d_s_1_T_fA_U_1_5_81_ha_E_aq_r_A[] = "\200\001\360\026\000\005\027\220d\230!\330\004\027\220s\230!\2301\360\006\000\005.\250T\260\021\330\004\016\210f\220A\360\n\000\005\t\210\005\210U\220!\2201\330\010\023\2205\230\001\230\021\360\006\000\t\014\2108\2201\330\014\r\340\010\026\220h\230a\340\010\014\210E\220\025\220a\220q\340\014\017\210r\220\023\220A\330\020\021\340\014\027\220u\230A\230Q\340\014\017\210x\220q\330\020\021\340\014\032\230(\240!\340\014\017\210}\230E\320!2\260!\330\020\030\320\030,\250A\330\020\030\320\030,\250A\360\006\000\r\021\220\r\230U\240!\2401\330\020$\240J\250a\250q\340\020\024\220K\230u\240A\240Q\330\024#\2405\320(9\270\021\270!\340\024\037\230z\250\022\250<\260r\270\021\340\024\036\230a\230}\250M\270\034\300Q";
 static const char __pyx_k_home_codespace_local_lib_python[] = "../../home/codespace/.local/lib/python3.12/site-packages/numpy/__init__.cython-30.pxd";
 static const char __pyx_k_t83a_j_6_V2Q_A_4t3j_4_1_4wd_a_F[] = "\200\001\360\n\000\005\010\200t\2108\2203\220a\330\010\016\210j\230\001\230\021\340\004\021\220\022\2206\230\021\230+\240V\2502\250Q\330\004\010\210\010\220\004\220A\330\010\013\2104\210t\2203\220j\240\003\2404\240|\2601\330\010\022\220!\2204\220w\230d\240&\250\002\250$\250a\340\004\022\220\"\220F\230!\2303\230f\240B\240a\330\004\017\210q\220\004\220G\2302\230U\240!\340\004\013\2104\210z\230\037\250\r\260^\3001";
 static const char __pyx_k_All_dimensions_preceding_dimensi[] = "All dimensions preceding dimension %d must be indexed and not sliced";
@@ -24528,7 +24527,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   int __pyx_v_from_hull;
   int __pyx_v_to_hull;
   int __pyx_v_flat_idx;
-  float __pyx_v_attack_range;
+  int __pyx_v_attack_range;
   PyObject *__pyx_v_ships = 0;
   int __pyx_v_n_ships;
   struct __pyx_obj_4ship_Ship *__pyx_v_attacker = 0;
@@ -24561,7 +24560,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   int __pyx_t_20;
   int __pyx_t_21;
   int __pyx_t_22;
-  float __pyx_t_23;
+  int __pyx_t_23;
   Py_ssize_t __pyx_t_24;
   Py_ssize_t __pyx_t_25;
   Py_ssize_t __pyx_t_26;
@@ -24574,7 +24573,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 
   /* "game_encoder.pyx":431
  *     cdef int flat_idx
- *     cdef float attack_range
+ *     cdef int attack_range
  *     cdef list ships = game.ships             # <<<<<<<<<<<<<<
  *     cdef int n_ships = len(ships)
  *     cdef Ship attacker, defender
@@ -24585,7 +24584,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   __pyx_t_1 = 0;
 
   /* "game_encoder.pyx":432
- *     cdef float attack_range
+ *     cdef int attack_range
  *     cdef list ships = game.ships
  *     cdef int n_ships = len(ships)             # <<<<<<<<<<<<<<
  *     cdef Ship attacker, defender
@@ -24601,30 +24600,30 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   /* "game_encoder.pyx":435
  *     cdef Ship attacker, defender
  * 
- *     cdef float[:, :, ::1] rel_matrix = game.relation_encode_array             # <<<<<<<<<<<<<<
- *     rel_matrix[:] = 0.0
+ *     cdef cnp.uint8_t[:, :, ::1] rel_matrix = game.relation_encode_array             # <<<<<<<<<<<<<<
+ *     rel_matrix[:] = 0
  * 
 */
-  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(__pyx_v_game->relation_encode_array, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 435, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_uint8_t(__pyx_v_game->relation_encode_array, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 435, __pyx_L1_error)
   __pyx_v_rel_matrix = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
   /* "game_encoder.pyx":436
  * 
- *     cdef float[:, :, ::1] rel_matrix = game.relation_encode_array
- *     rel_matrix[:] = 0.0             # <<<<<<<<<<<<<<
+ *     cdef cnp.uint8_t[:, :, ::1] rel_matrix = game.relation_encode_array
+ *     rel_matrix[:] = 0             # <<<<<<<<<<<<<<
  * 
  *     cdef list range_list, attack_range_list
 */
   {
-      float __pyx_temp_scalar = 0.0;
+      __pyx_t_5numpy_uint8_t __pyx_temp_scalar = 0;
       {
           Py_ssize_t __pyx_temp_extent = __pyx_v_rel_matrix.shape[0] * __pyx_v_rel_matrix.shape[1] * __pyx_v_rel_matrix.shape[2];
           Py_ssize_t __pyx_temp_idx;
-          float *__pyx_temp_pointer = (float *) __pyx_v_rel_matrix.data;
+          __pyx_t_5numpy_uint8_t *__pyx_temp_pointer = (__pyx_t_5numpy_uint8_t *) __pyx_v_rel_matrix.data;
           for (__pyx_temp_idx = 0; __pyx_temp_idx < __pyx_temp_extent; __pyx_temp_idx++) {
-            *((float *) __pyx_temp_pointer) = __pyx_temp_scalar;
+            *((__pyx_t_5numpy_uint8_t *) __pyx_temp_pointer) = __pyx_temp_scalar;
             __pyx_temp_pointer += 1;
           }
       }
@@ -24942,7 +24941,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
  *                 attack_range_list = range_list[from_hull]
  * 
  *                 for to_hull in range(c_hull_type):             # <<<<<<<<<<<<<<
- *                     attack_range = <float>attack_range_list[to_hull]
+ *                     attack_range = <int>attack_range_list[to_hull]
  * 
 */
         __pyx_t_20 = __pyx_v_12game_encoder_c_hull_type;
@@ -24953,7 +24952,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
           /* "game_encoder.pyx":471
  * 
  *                 for to_hull in range(c_hull_type):
- *                     attack_range = <float>attack_range_list[to_hull]             # <<<<<<<<<<<<<<
+ *                     attack_range = <int>attack_range_list[to_hull]             # <<<<<<<<<<<<<<
  * 
  *                     flat_idx = from_hull * c_hull_type + to_hull
 */
@@ -24961,11 +24960,11 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
             PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
             __PYX_ERR(0, 471, __pyx_L1_error)
           }
-          __pyx_t_23 = __Pyx_PyFloat_AsFloat(__Pyx_PyList_GET_ITEM(__pyx_v_attack_range_list, __pyx_v_to_hull)); if (unlikely((__pyx_t_23 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 471, __pyx_L1_error)
-          __pyx_v_attack_range = ((float)__pyx_t_23);
+          __pyx_t_23 = __Pyx_PyLong_As_int(__Pyx_PyList_GET_ITEM(__pyx_v_attack_range_list, __pyx_v_to_hull)); if (unlikely((__pyx_t_23 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 471, __pyx_L1_error)
+          __pyx_v_attack_range = ((int)__pyx_t_23);
 
           /* "game_encoder.pyx":473
- *                     attack_range = <float>attack_range_list[to_hull]
+ *                     attack_range = <int>attack_range_list[to_hull]
  * 
  *                     flat_idx = from_hull * c_hull_type + to_hull             # <<<<<<<<<<<<<<
  * 
@@ -24981,7 +24980,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
           __pyx_t_24 = __pyx_v_attacker_id;
           __pyx_t_25 = __pyx_v_defender_id;
           __pyx_t_26 = __pyx_v_flat_idx;
-          *((float *) ( /* dim=2 */ ((char *) (((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_24 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_26)) )) = __pyx_v_attack_range;
+          *((__pyx_t_5numpy_uint8_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_uint8_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_24 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_26)) )) = __pyx_v_attack_range;
         }
       }
       __pyx_L6_continue:;
@@ -28635,7 +28634,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 420, 225};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_SHIP_STATS_FEATURES};
-    __pyx_mstate_global->__pyx_codeobj_tab[41] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_relation_matrix, __pyx_k_d_s_1_t1_fA_U_1_5_81_ha_E_aq_r, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[41])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[41] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_relation_matrix, __pyx_k_d_s_1_T_fA_U_1_5_81_ha_E_aq_r_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[41])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;
@@ -35588,7 +35587,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_uint8_t(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -35599,7 +35598,7 @@ __pyx_fail:
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
                                                  (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 3,
-                                                 &__Pyx_TypeInfo_float, stack,
+                                                 &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;

@@ -7689,7 +7689,7 @@ static int __pyx_pf_6armada_6Armada___init__(struct __pyx_obj_6armada_Armada *__
  *         self.para_index = para_index
  * 
  *         self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)             # <<<<<<<<<<<<<<
- *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)
+ *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)
  *         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
 */
   __pyx_t_2 = NULL;
@@ -7743,7 +7743,7 @@ static int __pyx_pf_6armada_6Armada___init__(struct __pyx_obj_6armada_Armada *__
   /* "armada.pyx":55
  * 
  *         self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
- *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)             # <<<<<<<<<<<<<<
+ *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)             # <<<<<<<<<<<<<<
  *         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
  *         self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
 */
@@ -7784,7 +7784,7 @@ static int __pyx_pf_6armada_6Armada___init__(struct __pyx_obj_6armada_Armada *__
   __pyx_t_11 = 0;
   __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_float32); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_uint8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   __pyx_t_9 = 1;
@@ -7821,7 +7821,7 @@ static int __pyx_pf_6armada_6Armada___init__(struct __pyx_obj_6armada_Armada *__
 
   /* "armada.pyx":56
  *         self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
- *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)
+ *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)
  *         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)             # <<<<<<<<<<<<<<
  *         self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
  * 
@@ -7888,7 +7888,7 @@ static int __pyx_pf_6armada_6Armada___init__(struct __pyx_obj_6armada_Armada *__
   __pyx_t_1 = 0;
 
   /* "armada.pyx":57
- *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.float32)
+ *         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)
  *         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
  *         self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)             # <<<<<<<<<<<<<<
  * 

@@ -427,13 +427,13 @@ cdef void encode_relation_matrix(Armada game):
     cdef int i, j, attacker_id, defender_id
     cdef int from_hull, to_hull
     cdef int flat_idx
-    cdef float attack_range
+    cdef int attack_range
     cdef list ships = game.ships 
     cdef int n_ships = len(ships)
     cdef Ship attacker, defender 
     
     cdef cnp.uint8_t[:, :, ::1] rel_matrix = game.relation_encode_array
-    rel_matrix[:] = 0.0
+    rel_matrix[:] = 0
 
     cdef list range_list, attack_range_list
 
@@ -468,7 +468,7 @@ cdef void encode_relation_matrix(Armada game):
                 attack_range_list = range_list[from_hull] 
                 
                 for to_hull in range(c_hull_type):
-                    attack_range = <float>attack_range_list[to_hull]
+                    attack_range = <int>attack_range_list[to_hull]
                     
                     flat_idx = from_hull * c_hull_type + to_hull
                     
