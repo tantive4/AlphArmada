@@ -424,14 +424,14 @@ class ArmadaNet(nn.Module):
         
 
         if is_pointer_phase:
-            # === Type 2: Pointer Policy ===
+            # === Type 1: Pointer Policy ===
             # Selects a ship index directly using the PointerHead
             # Input: Torso "Intent" and Per-Ship "Candidates"
             policy_logits = self.pointer_head(torso_output, ship_combined_state)
 
 
         else:
-            # === Type 1: Standard Categorical Policy ===
+            # === Type 2: Standard Categorical Policy ===
             # Use the fast batched MLP if compiled
 
             # Check if we have compiled the fast path (Inference/MCTS mode)

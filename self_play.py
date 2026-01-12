@@ -91,8 +91,6 @@ class AlphArmada:
                         if len(game.get_valid_actions()) != 1:
                             raise ValueError("Multiple valid actions in information set node.")
                         action = game.get_valid_actions()[0]
-                    # with open(f'simulation_log{para_index+1}.txt', 'a') as f: f.write(f"Game {para_index+1} Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}\n")
-                    # if para_index == 0: print(f"Game 1 Round {game.round} Phase: {game.phase.name}, Action: {get_action_str(game, action)}")
                     game.apply_action(action)
                     mcts.advance_tree(para_index, action, game.get_snapshot())
                     
@@ -121,7 +119,7 @@ class AlphArmada:
         """Helper to collate and save a single game's data to disk."""
 
         winner, aux_target = get_terminal_value(game)
-        phases, states, action_probs, winners, aux_targets = [], [], [], [], []
+        phase_list, state_list, policy_list, winner_list, aux_list = [], [], [], [], []
         end_snapshop = game.get_snapshot()
 
         # 'Rewind' the game using snapshots to generate encoded states
@@ -132,37 +130,32 @@ class AlphArmada:
                 key: array.copy() for key, array in encoded_state_views.items()
             }
             
-            phases.append(phase)
-            states.append(encoded_state_copy)
-            action_probs.append(action_probs)
-            winners.append(winner)
-            aux_targets.append(aux_target)
+            phase_list.append(phase)
+            state_list.append(encoded_state_copy)
+            policy_list.append(action_probs)
+            winner_list.append(winner)
+            aux_list.append(aux_target)
         
         game.revert_snapshot(end_snapshop)
-        deep_search_count = len(phases)
+        deep_search_count = len(phase_list)
 
         collated_data = {
-            'phases': list(phases),
-            'scalar': np.stack([s['scalar'] for s in states]),
-            'ship_entities': np.stack([s['ship_entities'] for s in states]),
-            'ship_coords': np.stack([s['ship_coords'] for s in states]),
-            'spatial': np.stack([s['spatial'] for s in states]),
-            'relations': np.stack([s['relations'] for s in states]),
-            'target_policies': np.stack(action_probs),
-            'target_values': np.array(winners, dtype=np.float32),
-            'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_targets]),
-            'target_game_length': np.stack([t['game_length'] for t in aux_targets])
+            'phases': list(phase_list),
+            'scalar': np.stack([s['scalar'] for s in state_list]),
+            'ship_entities': np.stack([s['ship_entities'] for s in state_list]),
+            'ship_coords': np.stack([s['ship_coords'] for s in state_list]),
+            'spatial': np.stack([s['spatial'] for s in state_list]),
+            'relations': np.stack([s['relations'] for s in state_list]),
+            'target_policies': np.stack(policy_list),
+            'target_values': np.array(winner_list, dtype=np.float32).reshape(-1, 1),
+            'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_list]),
+            'target_game_length': np.stack([t['game_length'] for t in aux_list])
         }
-
-        # timestamp = int(time.time() * 1000)
-        # filename = f"replay_{timestamp}.pth"
-        # path = os.path.join(Config.REPLAY_BUFFER_DIR, filename)
-        # torch.save(collated_data, path)
 
         self.replay_buffer.add_batch(collated_data)
 
         with open('replay_stats.txt', 'a') as f:
-            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {winner}\n")
+            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
 
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
         """
@@ -173,16 +166,21 @@ class AlphArmada:
             return 0.0
         
         # 1. Prepare Inputs
-        target_values_tensor : torch.Tensor = training_batch['target_values']
-        scalar_batch : torch.Tensor = training_batch['scalar'] 
-        ship_entity_batch : torch.Tensor = training_batch['ship_entities'] 
-        # Extract normalized coordinates (first 2 columns) for ArmadaNet
-        ship_coord_batch : torch.Tensor = ship_entity_batch[:, :, :2] 
-        
-        spatial_batch : torch.Tensor = training_batch['spatial'] 
-        relation_batch : torch.Tensor = training_batch['relations'] 
-        phases : list[Phase] = training_batch['phases'] #type: ignore
-        phases_tensor = torch.tensor([p.value for p in phases], dtype=torch.long, device=Config.DEVICE)
+        target_values_tensor : torch.Tensor = training_batch['target_values'].to(Config.DEVICE)
+        scalar_batch : torch.Tensor = training_batch['scalar'].to(Config.DEVICE)
+        ship_entity_batch : torch.Tensor = training_batch['ship_entities'].to(Config.DEVICE)
+        ship_coord_batch : torch.Tensor = training_batch['ship_coords'].to(Config.DEVICE)
+        spatial_batch : torch.Tensor = training_batch['spatial'].to(Config.DEVICE)
+        relation_batch : torch.Tensor = training_batch['relations'].to(device=Config.DEVICE, dtype=torch.float32)
+
+        phases_int_tensor = training_batch['phases']
+        phases_tensor = phases_int_tensor.to(device=Config.DEVICE, dtype=torch.long)
+        phases = [Phase(p.item()) for p in phases_int_tensor]
+
+        training_batch['target_ship_hulls'] = training_batch['target_ship_hulls'].to(Config.DEVICE)
+        training_batch['target_game_length'] = training_batch['target_game_length'].to(Config.DEVICE)
+        training_batch['target_policies'] = training_batch['target_policies'].to(Config.DEVICE)
+
 
         batch_size = len(phases)
 
@@ -201,7 +199,6 @@ class AlphArmada:
         results = {
             'value_loss': torch.tensor(0.0, device=Config.DEVICE),
             'hull_loss': torch.tensor(0.0, device=Config.DEVICE),
-            'squad_loss': torch.tensor(0.0, device=Config.DEVICE),
             'game_length_loss': torch.tensor(0.0, device=Config.DEVICE),
             'policy_loss': torch.tensor(0.0, device=Config.DEVICE),
         }
@@ -215,8 +212,7 @@ class AlphArmada:
 
             # Aux Heads
             results['hull_loss'] += F.mse_loss(model_out["predicted_hull"], training_batch['target_ship_hulls'][indices], reduction='sum')
-            results['squad_loss'] += F.mse_loss(model_out["predicted_hull"], training_batch['target_ship_hulls'][indices], reduction='sum') # NOTE: Model doesn't output squads yet, reused hull for placeholder or check names
-            
+
             # Game Length
             results['game_length_loss'] += F.cross_entropy(model_out["predicted_game_length"], training_batch['target_game_length'][indices], reduction='sum')
 
@@ -226,7 +222,7 @@ class AlphArmada:
             mlp_out = self.model(
                 scalar_batch[mlp_indices],
                 ship_entity_batch[mlp_indices],
-                ship_coord_batch[mlp_indices], # Corrected arg
+                ship_coord_batch[mlp_indices],
                 spatial_batch[mlp_indices],
                 relation_batch[mlp_indices],
                 phases_tensor[mlp_indices]
@@ -290,7 +286,6 @@ class AlphArmada:
             results['policy_loss'] / batch_size + 
             results['value_loss'] / batch_size + 
             Config.HULL_LOSS_WEIGHT * (results['hull_loss'] / batch_size) +
-            Config.SQUAD_LOSS_WEIGHT * (results['squad_loss'] / batch_size) +
             Config.GAME_LENGTH_LOSS_WEIGHT * (results['game_length_loss'] / batch_size)
         )
 
@@ -335,13 +330,16 @@ class AlphArmada:
                 current_size=self.replay_buffer.current_size, 
                 action_space_size=self.max_action_space
             )
+            if self.replay_buffer.current_size < Config.REPLAY_BUFFER_SIZE // 2:
+                print(f"[TRAINING] Not enough data to train. Current size: {self.replay_buffer.current_size} / {Config.REPLAY_BUFFER_SIZE}")
+                return
 
             dataloader = DataLoader(
                 dataset, 
                 batch_size=Config.BATCH_SIZE, 
                 shuffle=True, 
                 num_workers=4, 
-                pin_memory=True
+                # pin_memory=True
             )
 
 

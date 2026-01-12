@@ -185,7 +185,7 @@ def is_obstruct_obstacle(targeting_point : tuple[tuple[float, float], tuple[floa
 def is_obstruct_ship(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, int, int, int]) -> bool :
     line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
-    ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['token_corners'], dtype=np.float32)
+    ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['base_corners'], dtype=np.float32)
 
     return jit.SAT_overlapping_check(line_of_sight, ship_token)
 
