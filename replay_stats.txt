@@ -1,0 +1,1 @@
+datetime, action count, deep search, winner(+ for 1st, - for 2nd)

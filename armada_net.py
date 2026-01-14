@@ -355,8 +355,8 @@ class ArmadaNet(nn.Module):
 
         # Actual Ship Mask
         valid_ship_mask = (ship_entity_input.abs().sum(dim=2) > 0)
-        # True : padded array
-        padding_mask = ~valid_ship_mask
+        padding_mask = torch.zeros_like(valid_ship_mask, dtype=ship_entity_input.dtype)
+        padding_mask.masked_fill_(~valid_ship_mask, float('-inf'))
         
         # === 1. Inputs ===
 
@@ -411,18 +411,28 @@ class ArmadaNet(nn.Module):
         # 1. Prepare Grid for grid_sample
         # [B, N, 2] -> [B, 1, N, 2], scale from [0, 1] to [-1, 1]
         grid_coords = ship_coord_input.unsqueeze(1) * 2 - 1 
+        grid_coords = grid_coords.clamp(-1, 1)
         
         # 2. Sample Features
         # Input: [B, C, H, W]
         # Grid:  [B, 1, N, 2]
         # Output: [B, C, 1, N]
-        gathered_spatial = F.grid_sample(
-            spatial_features_map, 
-            grid_coords, 
-            mode='bilinear', 
-            padding_mode='border', # If a ship is slightly outside [0,1], use the edge value
-            align_corners=False
-        )
+        if self.training and spatial_features_map.device.type == 'mps':
+            gathered_spatial = F.grid_sample(
+                spatial_features_map.cpu(), 
+                grid_coords.cpu(), 
+                mode='bilinear', 
+                padding_mode='zeros', # 'zeros' is safe because we clamped coords
+                align_corners=False
+            ).to(spatial_features_map.device)
+        else:
+            gathered_spatial = F.grid_sample(
+                spatial_features_map, 
+                grid_coords, 
+                mode='bilinear', 
+                padding_mode='zeros', 
+                align_corners=False
+            )
         
         # 3. Reshape to [B, N, C]
         gathered_spatial = gathered_spatial.squeeze(2).transpose(1, 2)

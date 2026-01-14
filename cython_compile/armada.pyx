@@ -1170,13 +1170,13 @@ cdef class Armada:
             p2_points = self.get_point(self.second_player)
 
             if player_1_eliminated and not player_2_eliminated:
-                winner = self.second_player
+                winner = -1
                 margin_of_victory = max(p2_points - p1_points, 0)
             elif player_2_eliminated and not player_1_eliminated:
-                winner = self.first_player
+                winner = 1
                 margin_of_victory = max(p1_points - p2_points, 0)
             elif player_1_eliminated and player_2_eliminated:
-                winner = self.second_player
+                winner = -1
                 margin_of_victory = 0
             else :
                 winner = self.first_player if p1_points > p2_points else self.second_player

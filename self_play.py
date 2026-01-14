@@ -127,7 +127,8 @@ class AlphArmada:
             game.revert_snapshot(snapshot)
             encoded_state_views = encode_game_state(game)
             encoded_state_copy = {
-                key: array.copy() for key, array in encoded_state_views.items()
+                key: array.copy() if hasattr(array, 'copy') else array 
+                for key, array in encoded_state_views.items()
             }
             
             phase_list.append(phase)
