@@ -1022,7 +1022,7 @@ cdef class Armada:
 
         ship_view = self.ship_encode_array[ship.id]
         offset = 0
-        ship_view[offset] = ship.player; offset += 1
+        ship_view[offset] = int(ship.player == self.first_player); offset += 1
         ship_view[offset] = <int>ship.size_class / <int>SizeClass.LARGE; offset += 1
         ship_view[offset] = ship.command_value / 3; offset += 1
         ship_view[offset] = ship.squad_value / Config.GLOBAL_MAX_SQUAD_VALUE; offset += 1

@@ -146,6 +146,7 @@ class AlphArmada:
             'ship_coords': np.stack([s['ship_coords'] for s in state_list]),
             'spatial': np.stack([s['spatial'] for s in state_list]),
             'relations': np.stack([s['relations'] for s in state_list]),
+            'active_ship_id': np.stack([s['active_ship_id'] for s in state_list]),
             'target_policies': np.stack(policy_list),
             'target_values': np.array(winner_list, dtype=np.float32).reshape(-1, 1),
             'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_list]),
@@ -172,6 +173,7 @@ class AlphArmada:
         ship_coord_batch : torch.Tensor = training_batch['ship_coords'].to(Config.DEVICE)
         spatial_batch : torch.Tensor = training_batch['spatial'].to(Config.DEVICE)
         relation_batch : torch.Tensor = training_batch['relations'].to(device=Config.DEVICE, dtype=torch.float32)
+        active_ship_id_batch : torch.Tensor = training_batch['active_ship_id'].to(Config.DEVICE).long()
 
         phases_int_tensor = training_batch['phases']
         phases_tensor = phases_int_tensor.to(device=Config.DEVICE, dtype=torch.long)
@@ -225,6 +227,7 @@ class AlphArmada:
                 ship_coord_batch[mlp_indices],
                 spatial_batch[mlp_indices],
                 relation_batch[mlp_indices],
+                active_ship_id_batch[mlp_indices],
                 phases_tensor[mlp_indices]
             )
             
@@ -259,9 +262,10 @@ class AlphArmada:
             ptr_out = self.model(
                 scalar_batch[ptr_indices],
                 ship_entity_batch[ptr_indices],
-                ship_coord_batch[ptr_indices], # Corrected arg
+                ship_coord_batch[ptr_indices],
                 spatial_batch[ptr_indices],
                 relation_batch[ptr_indices],
+                active_ship_id_batch[ptr_indices],
                 phases_tensor[ptr_indices]
             )
             

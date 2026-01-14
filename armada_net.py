@@ -338,7 +338,7 @@ class ArmadaNet(nn.Module):
 
         self.fast_policy_ready = True
 
-    def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, phases, active_ship_indices):
+    def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, active_ship_indices, phases):
         """
         Args:
             scalar_input: [B, 45]

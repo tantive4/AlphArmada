@@ -20,6 +20,8 @@ from armada cimport Armada
 from attack_info cimport AttackInfo
 from configs import Config
 
+cdef int max_ships = Config.MAX_SHIPS
+
 cdef class Node:
     """
     Represents a node in the Monte Carlo Search Tree.
@@ -140,7 +142,7 @@ cdef class MCTS:
         public ActionManager action_manager
         public object model
         public object action_mask, pointer_mask
-        cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, spatial_buffer, relation_buffer
+        cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer
 
     def __init__(self, list games, ActionManager action_manager, object model) -> None:
         self.para_games = games
@@ -176,6 +178,7 @@ cdef class MCTS:
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 
             dtype=np.float32
         )
+        self.active_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
 
     cpdef dict para_search(self, dict sim_players, bint deep_search, int manual_iteration = 0):
         cdef:
@@ -427,6 +430,7 @@ cdef class MCTS:
             self.ship_coords_buffer[i] = state['ship_coords']
             self.spatial_buffer[i] = state['spatial']
             self.relation_buffer[i] = state['relations']
+            self.active_ship_indices_buffer[i] = state['active_ship_id']
 
         # 2. Zero-out padding area if needed (to clean up dirty data from previous steps)
         # Only strictly necessary if Batch Normalization statistics are sensitive to garbage
@@ -436,6 +440,7 @@ cdef class MCTS:
             self.ship_coords_buffer[current_batch_size:target_batch_size].fill(0)
             self.spatial_buffer[current_batch_size:target_batch_size].fill(0)
             self.relation_buffer[current_batch_size:target_batch_size].fill(0)
+            self.active_ship_indices_buffer[current_batch_size:target_batch_size].fill(max_ships)
 
         # 3. Handle Phases (simple list padding is fast enough)
         pad_len = target_batch_size - current_batch_size
@@ -447,6 +452,7 @@ cdef class MCTS:
         ship_coords_tensor = torch.from_numpy(self.ship_coords_buffer[:target_batch_size]).to(Config.DEVICE)
         spatial_tensor = torch.from_numpy(self.spatial_buffer[:target_batch_size]).to(Config.DEVICE)
         relation_tensor = torch.from_numpy(self.relation_buffer[:target_batch_size]).to(Config.DEVICE)
+        active_ship_indices_tensor = torch.from_numpy(self.active_ship_indices_buffer[:target_batch_size]).to(Config.DEVICE, dtype=torch.long)
         phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
 
         with torch.no_grad():
@@ -457,6 +463,7 @@ cdef class MCTS:
                 ship_coords_tensor,
                 spatial_tensor,
                 relation_tensor,
+                active_ship_indices_tensor,
                 phases_tensor
             )
 

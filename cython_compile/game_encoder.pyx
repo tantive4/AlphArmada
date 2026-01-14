@@ -82,7 +82,8 @@ cpdef dict encode_game_state(Armada game):
         'ship_entities': game.ship_encode_array,
         'ship_coords': game.ship_coords_array,
         'spatial': game.spatial_encode_array,
-        'relations': game.relation_encode_array
+        'relations': game.relation_encode_array,
+        'active_ship_id': (<Ship>game.active_ship).id if game.active_ship is not None else Config.MAX_SHIPS
     }
 
 @cython.boundscheck(False)
