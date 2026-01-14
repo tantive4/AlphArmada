@@ -44,38 +44,43 @@ class GlobalPoolingBias(nn.Module):
     
 class ResBlock(nn.Module):
     """
-    A residual block with optional Global Pooling Bias (KataGo structure).
+    Pre-Activation ResBlock (KataGo Style).
+    Order: BN -> ReLU -> Conv -> BN -> ReLU -> Conv
     """
-    def __init__(self, in_channels, out_channels, stride=1, use_global_pooling=True):
+    def __init__(self, channels, use_global_pooling=False):
         super(ResBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-
-        # Global Pooling Bias (GPB)
+        self.channels = channels
         self.use_global_pooling = use_global_pooling
-        if self.use_global_pooling:
-            self.gpb = GlobalPoolingBias(out_channels)
 
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_channels != out_channels:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(out_channels)
-            )
+        # 1. Pre-Act layers
+        self.bn1 = nn.BatchNorm2d(channels)
+        self.conv1 = nn.Conv2d(channels, channels, kernel_size=3, padding=1, bias=False)
+        
+        self.bn2 = nn.BatchNorm2d(channels)
+        self.conv2 = nn.Conv2d(channels, channels, kernel_size=3, padding=1, bias=False)
+
+        # KataGo Global Pooling Bias (simplified implementation)
+        # "Pools channels to bias other channels" -> We can stick to your SE-style approximation
+        # or use exact KataGo split. Sticking to your robust GPB is fine for now.
+        if self.use_global_pooling:
+            self.gpb = GlobalPoolingBias(channels)
 
     def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
+        # x is the input (residual path)
         
-        # Apply Global Pooling Bias to the residual branch
+        # Branch 
+        out = F.relu(self.bn1(x))
+        out = self.conv1(out)
+        
+        out = F.relu(self.bn2(out))
+        out = self.conv2(out)
+        
+        # Global Pooling Bias applied within the branch
         if self.use_global_pooling:
             out = self.gpb(out)
             
-        out += self.shortcut(x)
-        out = F.relu(out)
-        return out
+        # Addition (Residual Connection)
+        return x + out
     
 class PointerHead(nn.Module):
     """
@@ -197,17 +202,28 @@ class ArmadaNet(nn.Module):
         self.spatial_in_channels = self.presence_channels + self.threat_channels
         self.spatial_out_channels = 64
         
-        self.spatial_resnet = nn.Sequential(
-            # Downsampling Convolution: Stride 2 reduces map size by half
-            # (32, 16) -> (16, 8)
-            nn.Conv2d(self.spatial_in_channels, 64, kernel_size=4, stride=2, padding=1, bias=False),
+        # 1. The "Head" (Initial Conv + Global Scalar Bias)
+        # 5x5 Conv, Stride 2 downsampling
+        self.spatial_head_conv = nn.Conv2d(self.spatial_in_channels, 64, kernel_size=5, stride=2, padding=2, bias=False)
+        
+        # Projects scalar game state to bias the map
+        self.spatial_global_bias = nn.Linear(self.scalar_embed_dim, 64) 
+        
+        # 2. The Body (6 Blocks)
+        # KataGo Pattern: Regular, Regular, GP, Regular, Regular, GP
+        self.spatial_trunk = nn.Sequential(
+            ResBlock(64, use_global_pooling=False),
+            ResBlock(64, use_global_pooling=False),
+            ResBlock(64, use_global_pooling=True),  # GP Block
+            ResBlock(64, use_global_pooling=False),
+            ResBlock(64, use_global_pooling=False),
+            ResBlock(64, use_global_pooling=True),  # GP Block
+        )
+        
+        # 3. The Tail (Final Norm)
+        self.spatial_tail = nn.Sequential(
             nn.BatchNorm2d(64),
-            nn.ReLU(),
-            # 4 ResBlocks
-            ResBlock(64, 64, use_global_pooling=False),
-            ResBlock(64, 64, use_global_pooling=False),
-            ResBlock(64, 64, use_global_pooling=True),
-            ResBlock(64, 64, use_global_pooling=True)
+            nn.ReLU()
         )
 
         # --- 6. Torso ---
@@ -235,10 +251,11 @@ class ArmadaNet(nn.Module):
         )
         
         # Policy Head: Predicts the probability for each possible action in a given phase.
+        self.extended_torso_size = self.torso_output_size + self.single_ship_size
         # Type 1: Standard Categorical Policy Heads
         self.policy_heads = nn.ModuleDict({
             phase.name: nn.Sequential(
-                nn.Linear(self.torso_output_size, 256),
+                nn.Linear(self.extended_torso_size, 256),
                 nn.ReLU(),
                 nn.Linear(256, 128),
                 nn.ReLU(),
@@ -247,7 +264,7 @@ class ArmadaNet(nn.Module):
             for phase in Phase if self.action_manager.get_action_map(phase) and phase not in POINTER_PHASE
         })
         # Type 2: Pointer Policy Head for selecting target ships
-        self.pointer_head = PointerHead(torso_dim=self.torso_output_size, ship_feat_dim=self.single_ship_size)
+        self.pointer_head = PointerHead(torso_dim=self.extended_torso_size, ship_feat_dim=self.single_ship_size)
 
 
         # Auxiliary Target Heads
@@ -288,7 +305,7 @@ class ArmadaNet(nn.Module):
         num_phases = len(self.active_phases)
         
         # Layer 1: 256 -> 256
-        self.w1_stack = torch.zeros(num_phases, 256, 256, device=Config.DEVICE)
+        self.w1_stack = torch.zeros(num_phases, 256, self.extended_torso_size, device=Config.DEVICE)
         self.b1_stack = torch.zeros(num_phases, 256, device=Config.DEVICE)
         
         # Layer 2: 256 -> 128
@@ -306,22 +323,22 @@ class ArmadaNet(nn.Module):
                 head = self.policy_heads[phase.name]
                 
                 # Copy Layer 1 (Linear 0)
-                self.w1_stack[idx] = head[0].weight
-                self.b1_stack[idx] = head[0].bias
+                self.w1_stack[idx] = head[0].weight #type: ignore
+                self.b1_stack[idx] = head[0].bias #type: ignore
                 
                 # Copy Layer 2 (Linear 2)
-                self.w2_stack[idx] = head[2].weight
-                self.b2_stack[idx] = head[2].bias
+                self.w2_stack[idx] = head[2].weight #type: ignore
+                self.b2_stack[idx] = head[2].bias #type: ignore
                 
                 # Copy Layer 3 (Linear 4)
                 # Handle variable output size by copying into the padded tensor
-                out_size = head[4].out_features
-                self.w3_stack[idx, :out_size, :] = head[4].weight
-                self.b3_stack[idx, :out_size] = head[4].bias
+                out_size = head[4].out_features # type: ignore
+                self.w3_stack[idx, :out_size, :] = head[4].weight #type: ignore
+                self.b3_stack[idx, :out_size] = head[4].bias #type: ignore
 
         self.fast_policy_ready = True
 
-    def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, phases):
+    def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, phases, active_ship_indices):
         """
         Args:
             scalar_input: [B, 45]
@@ -330,10 +347,16 @@ class ArmadaNet(nn.Module):
             spatial_input: [B, N, 10, H, W] - Plane 0 is presence, 1-9 are threat geometry
             relation_input: [B, N, N, 16] - Raw 4x4 hull relation matrix (flattened)
             phases: [B] - tensor of phases
+            active_ship_indices: [B] Tensor. Int index of active ship (0 to N-1). 
+                                 Use N (Config.MAX_SHIPS) or -1 for "No Active Ship".
         """
         batch_size = scalar_input.shape[0]
         N = Config.MAX_SHIPS
 
+        # Actual Ship Mask
+        valid_ship_mask = (ship_entity_input.abs().sum(dim=2) > 0)
+        # True : padded array
+        padding_mask = ~valid_ship_mask
         
         # === 1. Inputs ===
 
@@ -347,7 +370,7 @@ class ArmadaNet(nn.Module):
         # --- Entity Transformer Encoder ---
         # here we use relation bias for each head, that applies to each ship pair.
         ship_embed = self.ship_embedding(ship_entity_input)
-        ship_entity_features_attended = self.ship_entity_encoder(ship_embed, mask=attn_bias)
+        ship_entity_features_attended = self.ship_entity_encoder(ship_embed, mask=attn_bias, src_key_padding_mask=padding_mask)
 
         # --- Spatial ResNet (Scattered Connection) ---
         # Unpack Bits on GPU: [B, N, 10, H, W_packed] -> [B, N, 10, H, W]
@@ -365,39 +388,58 @@ class ArmadaNet(nn.Module):
         threat_map = torch.einsum('bncg, bnghw -> bchw', threat_vals, threat_masks)
         spatial_combined = torch.cat([presence_map, threat_map], dim=1)
         
-        spatial_features_map = self.spatial_resnet(spatial_combined)
 
-        # --- Gather Connection ---
-        norm_x = ship_coord_input[:, :, 0]
-        norm_y = ship_coord_input[:, :, 1]
+        # --- Spatial ResNet Execution ---
+        
+        # 1. Head Conv
+        x = self.spatial_head_conv(spatial_combined) # [B, 64, H/2, W/2]
+        
+        # 2. Inject Scalar Context
+        # scalar_features is [B, 64]
+        # project it to bias and unsqueeze to [B, 64, 1, 1]
+        global_bias = self.spatial_global_bias(scalar_features).unsqueeze(-1).unsqueeze(-1)
+        x = x + global_bias
+        
+        # 3. Trunk & Tail
+        x = self.spatial_trunk(x)
+        spatial_features_map = self.spatial_tail(x)
 
-        # Get dimensions
-        B, C, H_feat, W_feat = spatial_features_map.shape
+
+        # --- Gather Connection (Bilinear Interpolation) ---
+        # spatial_features_map: [B, C, H, W]
+
+        # 1. Prepare Grid for grid_sample
+        # [B, N, 2] -> [B, 1, N, 2], scale from [0, 1] to [-1, 1]
+        grid_coords = ship_coord_input.unsqueeze(1) * 2 - 1 
         
-        # Convert normalized coords to grid indices [B, N]
-        grid_x = (norm_x * W_feat).long().clamp(0, W_feat - 1)
-        grid_y = (norm_y * H_feat).long().clamp(0, H_feat - 1)
+        # 2. Sample Features
+        # Input: [B, C, H, W]
+        # Grid:  [B, 1, N, 2]
+        # Output: [B, C, 1, N]
+        gathered_spatial = F.grid_sample(
+            spatial_features_map, 
+            grid_coords, 
+            mode='bilinear', 
+            padding_mode='border', # If a ship is slightly outside [0,1], use the edge value
+            align_corners=False
+        )
         
-        # Flatten the spatial map: [B, C, H, W] -> [B, C, H*W]
-        # This creates a view, no data copying cost
-        flat_map = spatial_features_map.flatten(2)
-        
-        # Calculate 1D indices: [B, N]
-        flat_indices = (grid_y * W_feat + grid_x)
-        
-        # Expand indices to match channels: [B, N] -> [B, C, N]
-        flat_indices_expanded = flat_indices.unsqueeze(1).expand(-1, C, -1)
-        
-        # Gather features: [B, C, N]
-        gathered_spatial = torch.gather(flat_map, 2, flat_indices_expanded)
-        
-        # Transpose to expected shape: [B, N, C] (i.e. [B, N, 64])
-        gathered_spatial = gathered_spatial.transpose(1, 2)
+        # 3. Reshape to [B, N, C]
+        gathered_spatial = gathered_spatial.squeeze(2).transpose(1, 2)
+
 
         # --- Ship Global State ---
         ship_combined_state = torch.cat([ship_entity_features_attended, gathered_spatial], dim=2) # [B, N, 320]
         
-        global_ship_state = ship_combined_state.mean(dim=1) # [B, 320]
+        # [B, N] -> [B, N, 1]
+        mask_expanded = valid_ship_mask.unsqueeze(-1).float()
+
+        # Zero out invalid ships (transformer output)
+        masked_features = ship_combined_state * mask_expanded
+
+        sum_features = masked_features.sum(dim=1) # [B, 320]
+        valid_counts = mask_expanded.sum(dim=1).clamp(min=1) # [B, 1]
+        global_ship_state = sum_features / valid_counts # [B, 320]
 
         # --- Spatial Global Features ---
         global_pool_avg = F.adaptive_avg_pool2d(spatial_features_map, 1).flatten(1) # [B, 64]
@@ -410,6 +452,16 @@ class ArmadaNet(nn.Module):
 
         torso_input = torch.cat([scalar_features, global_ship_state, global_spatial_state], dim=1) # [B, 64 + 320 + 128 = 512]
         torso_output = self.torso(torso_input) # [B, 256]
+
+        # -- - Extended Torso ---
+        # Shape: [B, 1, 320]
+        zero_ship = torch.zeros(batch_size, 1, self.single_ship_size, device=Config.DEVICE)
+        ship_lookup = torch.cat([ship_combined_state, zero_ship], dim=1) # [B, N+1, 320]
+        
+        indices_expanded = active_ship_indices.view(batch_size, 1, 1).expand(-1, -1, self.single_ship_size)
+        active_ship_features = torch.gather(ship_lookup, 1, indices_expanded).squeeze(1)
+
+        extended_torso = torch.cat([torso_output, active_ship_features], dim=1) 
 
 
         # === 3. Output Heads ===
@@ -427,7 +479,7 @@ class ArmadaNet(nn.Module):
             # === Type 1: Pointer Policy ===
             # Selects a ship index directly using the PointerHead
             # Input: Torso "Intent" and Per-Ship "Candidates"
-            policy_logits = self.pointer_head(torso_output, ship_combined_state)
+            policy_logits = self.pointer_head(extended_torso, ship_combined_state)
 
 
         else:
@@ -453,7 +505,7 @@ class ArmadaNet(nn.Module):
                 
                 # 3. Execute Unified MLP using Batch Matrix Multiplication (BMM)
                 # Input x needs shape [B, 256, 1] for BMM with [B, Out, In]
-                x = torso_output.unsqueeze(2) 
+                x = extended_torso.unsqueeze(2) 
                 
                 # Layer 1
                 # [B, 256, 256] @ [B, 256, 1] -> [B, 256, 1]
@@ -494,7 +546,7 @@ class ArmadaNet(nn.Module):
                 
                 for phase_name, indices in phase_indices.items():
                     # Extract the sub-batch for this phase
-                    group_torso_output = torso_output[indices] # Shape [N, 256]
+                    group_torso_output = extended_torso[indices] # Shape [N, 256]
                     
                     real_size = group_torso_output.shape[0]
                     

@@ -289,13 +289,6 @@ class AlphArmada:
             Config.GAME_LENGTH_LOSS_WEIGHT * (results['game_length_loss'] / batch_size)
         )
 
-        # L2 Regularization
-        l2_reg = torch.tensor(0., device=Config.DEVICE)
-        for param in self.model.parameters():
-            l2_reg += torch.sum(param.pow(2))
-        
-        total_loss += Config.L2_LAMBDA * l2_reg
-
         self.optimizer.zero_grad()
         total_loss.backward()
         self.optimizer.step()
@@ -393,7 +386,7 @@ def main():
         torch.save(model.state_dict(), init_checkpoint_path)
         print(f"[INITAIIZE MODEL] {init_checkpoint_path}")
     
-    optimizer = optim.AdamW(model.parameters(), lr=Config.LEARNING_RATE)
+    optimizer = optim.AdamW(model.parameters(), lr=Config.LEARNING_RATE, weight_decay=Config.L2_LAMBDA)
 
     # Create the training manager and start the learning process
     alpharmada_trainer = AlphArmada(model, optimizer)
