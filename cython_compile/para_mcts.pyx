@@ -29,7 +29,7 @@ cdef class Node:
     """
     cdef :
         public tuple snapshot
-        public int decision_player
+        public int first_player_perspective
         public bint chance_node
         public bint information_set
 
@@ -51,7 +51,14 @@ cdef class Node:
                  ) -> None :
         
         self.snapshot = game.get_snapshot()
-        self.decision_player  = game.decision_player # decision player used when get_possible_action is called on this node
+
+        if game.decision_player == 0:
+            self.first_player_perspective = 0
+        elif game.decision_player == game.first_player:
+            self.first_player_perspective = 1
+        else:
+            self.first_player_perspective = -1 # decision player used when get_possible_action is called on this node
+
         self.chance_node = <bint>(game.phase == Phase.ATTACK_ROLL_DICE)
         # simplified
         # self.information_set = <bint>(game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL)
@@ -545,14 +552,17 @@ cdef class MCTS:
 
         while path:
             node = path.pop()
-            # The result must be from the perspective of the player who made the move at the parent node.
-            if path :
-                perspective_player = (<Node>path[-1]).decision_player
-            else: perspective_player = 0  # do not update win value of root node (only update visits)
+            
+            # Use the parent's perspective to update the child node's stats
+            if path:
+                perspective = (<Node>path[-1]).first_player_perspective
+            else: 
+                perspective = 0 
 
-            # The simulation_result is always from Player 1's perspective.
-            # If the current node's move was made by Player -1, we flip the score.
-            result_for_node = value * perspective_player
+            # Calculate result: 
+            # If First Player Won (+1) and Parent is First Player (+1) -> +1 (Good)
+            # If First Player Won (+1) and Parent is Second Player (-1) -> -1 (Bad)
+            result_for_node = value * perspective
             
             node.update(result_for_node)
 

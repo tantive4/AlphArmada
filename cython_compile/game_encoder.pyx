@@ -112,7 +112,7 @@ cdef void encode_scalar_features(Armada game):
     scalar_view[2] = game.get_point(-1) / 200.0
     offset = 3
     
-    # One-hot encoded initiative (2 features)
+    # One-hot encoded initiative (2 features) (This information is NOT necessary but provides faction context)
     if game.first_player == 1:
         scalar_view[offset] = 1.0
     else:
@@ -124,7 +124,7 @@ cdef void encode_scalar_features(Armada game):
     offset += phase_type # phase_type = 21
     
     # One-hot encoded current player (2 features)
-    if game.current_player == 1:
+    if game.current_player == game.first_player:
         scalar_view[offset] = 1.0
     else:
         scalar_view[offset + 1] = 1.0
