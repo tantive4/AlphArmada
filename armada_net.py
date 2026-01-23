@@ -170,6 +170,7 @@ class ArmadaNet(nn.Module):
             nn.ReLU(),
             nn.Linear(32, self.nhead)
         )
+        self.bias_scale = 10.0
 
         # --- 3. Transformer Encoder ---
         # d_model=256, nhead=8 (32 feat/head), dim_feedforward=512
@@ -365,6 +366,7 @@ class ArmadaNet(nn.Module):
 
         # --- Transformer Bias Encoder ---
         attn_bias_raw = self.relation_bias_net(relation_input)
+        attn_bias_raw = torch.tanh(attn_bias_raw) * self.bias_scale
         attn_bias = attn_bias_raw.permute(0, 3, 1, 2).reshape(batch_size * self.nhead, N, N)
 
         # --- Entity Transformer Encoder ---

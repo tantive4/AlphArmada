@@ -196,18 +196,18 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             action_str = f'Resolve Total {game.attack_info.total_damage} Damage'
             if redirect_damage : 
                 redirect_hull, damage = redirect_damage
-                action_str += f', Redirect {[f'{damage} to {HullSection(redirect_hull)}']}'
+                action_str += f', Redirect {[f"{damage} to {HullSection(redirect_hull)}"]}'
 
 
         case 'determine_course_action', (course, placement) :
             if game.active_ship is None : raise ValueError('Need active ship to determine course')
             dial_used, token_used = game.active_ship.nav_command_used(course)
-            action_str = f'Determine Course: {course}, Placement: {'Right' if placement == 1 else 'Left'} {" (Dial Spent)" if dial_used else ""} {" (Token Spent)" if token_used else ""}'
+            action_str = f'Determine Course: {course}, Placement: {("Right" if placement == 1 else "Left")} {" (Dial Spent)" if dial_used else ""} {" (Token Spent)" if token_used else ""}'
 
 
         case 'activate_squad_move_action' | 'activate_squad_attack_action', squad_id :
             squad = game.squads[squad_id]
-            action_str = f'Activate Squad: {squad} to {"Move" if action[0]=='activate_squad_move_action' else "Attack"}'
+            action_str = f'Activate Squad: {squad} to {"Move" if action[0]=="activate_squad_move_action" else "Attack"}'
 
         case 'move_squad_action', (squad_id, distance) :
             action_str = f'Move Squad: {game.active_squad} Distance: {distance}'
@@ -234,7 +234,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
         
         case _:
             # if 'pass' in action[0] : return
-            action_str = f'{action[0].replace('_action', '').replace('_', ' ').title().strip()} {f': {action[1]}' if action[1] else ''}'
+            action_str = f'{action[0].replace("_action", "").replace("_", " ").title().strip()} {f": {action[1]}" if action[1] else ""}'
     return action_str
 
 if __name__ == '__main__':

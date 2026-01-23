@@ -1,5 +1,5 @@
 import json
-from enum import IntEnum, StrEnum, auto
+from enum import IntEnum, auto
 
 with open('ship_dict.json', 'r') as f:
     SHIP_DATA: dict = json.load(f)

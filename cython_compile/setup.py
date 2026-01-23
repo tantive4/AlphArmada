@@ -24,4 +24,4 @@ setup(
     )
 )
 
-# cython_compile/setup.py
+# python cython_compile/setup.py build_ext --inplace
