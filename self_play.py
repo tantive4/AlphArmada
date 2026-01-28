@@ -387,6 +387,7 @@ def main():
         model.load_state_dict(torch.load(checkpoint_path, map_location=Config.DEVICE))
 
     else:
+        model.initialize_parameters()
         init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
         torch.save(model.state_dict(), init_checkpoint_path)
         print(f"[INITAIIZE MODEL] {init_checkpoint_path}")
