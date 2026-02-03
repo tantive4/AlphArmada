@@ -21,7 +21,7 @@ from armada import Armada
 from setup_game import setup_game
 from cache_function import delete_cache
 from jit_geometry import pre_compile_jit_geometry
-from armada_net import ArmadaNet
+from big_deep import BigDeep
 from game_encoder import encode_game_state, get_terminal_value
 from para_mcts import MCTS
 from action_manager import ActionManager
@@ -30,8 +30,8 @@ from dice import roll_dice
 
 
 class AlphArmada:
-    def __init__(self, model : ArmadaNet, optimizer : optim.AdamW) :
-        self.model : ArmadaNet = model
+    def __init__(self, model : BigDeep, optimizer : optim.AdamW) :
+        self.model : BigDeep = model
         self.optimizer : optim.AdamW = optimizer
 
         self.max_action_space = model.max_action_space
@@ -145,13 +145,16 @@ class AlphArmada:
             'scalar': np.stack([s['scalar'] for s in state_list]),
             'ship_entities': np.stack([s['ship_entities'] for s in state_list]),
             'ship_coords': np.stack([s['ship_coords'] for s in state_list]),
+            'ship_def_tokens': np.stack([s['ship_def_tokens'] for s in state_list]),
             'spatial': np.stack([s['spatial'] for s in state_list]),
             'relations': np.stack([s['relations'] for s in state_list]),
             'active_ship_id': np.stack([s['active_ship_id'] for s in state_list]),
+            'target_ship_id': np.stack([s['target_ship_id'] for s in state_list]),
             'target_policies': np.stack(policy_list),
             'target_values': np.array(winner_list, dtype=np.float32).reshape(-1, 1),
             'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_list]),
-            'target_game_length': np.stack([t['game_length'] for t in aux_list])
+            'target_game_length': np.stack([t['game_length'] for t in aux_list]),
+            'target_win_probs': np.stack([t['win_probs'] for t in aux_list])
         }
 
         self.replay_buffer.add_batch(collated_data)
@@ -168,130 +171,61 @@ class AlphArmada:
             return 0.0
         
         # 1. Prepare Inputs
-        target_values_tensor : torch.Tensor = training_batch['target_values'].to(Config.DEVICE)
         scalar_batch : torch.Tensor = training_batch['scalar'].to(Config.DEVICE)
         ship_entity_batch : torch.Tensor = training_batch['ship_entities'].to(Config.DEVICE)
         ship_coord_batch : torch.Tensor = training_batch['ship_coords'].to(Config.DEVICE)
+        ship_def_token_batch : torch.Tensor = training_batch['ship_def_tokens'].to(Config.DEVICE)
         spatial_batch : torch.Tensor = training_batch['spatial'].to(Config.DEVICE)
         relation_batch : torch.Tensor = training_batch['relations'].to(device=Config.DEVICE, dtype=torch.float32)
         active_ship_id_batch : torch.Tensor = training_batch['active_ship_id'].to(Config.DEVICE).long()
+        target_ship_id_batch : torch.Tensor = training_batch['target_ship_id'].to(Config.DEVICE).long()
 
         phases_int_tensor = training_batch['phases']
         phases_tensor = phases_int_tensor.to(device=Config.DEVICE, dtype=torch.long)
-        phases = [Phase(p.item()) for p in phases_int_tensor]
 
+        training_batch['target_values'] = training_batch['target_values'].to(Config.DEVICE)
+        training_batch['target_policies'] = training_batch['target_policies'].to(Config.DEVICE)
         training_batch['target_ship_hulls'] = training_batch['target_ship_hulls'].to(Config.DEVICE)
         training_batch['target_game_length'] = training_batch['target_game_length'].to(Config.DEVICE)
-        training_batch['target_policies'] = training_batch['target_policies'].to(Config.DEVICE)
-
-
-        batch_size = len(phases)
-
-        # 2. Identify Indices for MLP vs Pointer Phases
-        pointer_phases = {Phase.SHIP_ACTIVATE.value, Phase.SHIP_CHOOSE_TARGET_SHIP.value}
+        training_batch['target_win_probs'] = training_batch['target_win_probs'].to(Config.DEVICE)
         
-        # Create boolean mask on CPU/GPU
-        is_pointer_tensor = torch.zeros(batch_size, dtype=torch.bool, device=Config.DEVICE)
-        for val in pointer_phases:
-            is_pointer_tensor |= (phases_tensor == val)
-            
-        ptr_indices = torch.nonzero(is_pointer_tensor, as_tuple=True)[0]
-        mlp_indices = torch.nonzero(~is_pointer_tensor, as_tuple=True)[0]
+        # 2. Forward Pass (Unified)
+        outputs = self.model(
+            scalar_input=scalar_batch,
+            ship_entity_input=ship_entity_batch,
+            ship_coord_input=ship_coord_batch,
+            ship_token_input=ship_def_token_batch,
+            spatial_input=spatial_batch,
+            relation_input=relation_batch,
+            active_ship_indices=active_ship_id_batch,
+            target_ship_indices=target_ship_id_batch,
+            phases=phases_tensor
+        )
+        
+        # 3. Calculate Losses
 
-        # Containers for outputs to aggregate loss later
-        results = {
-            'value_loss': torch.tensor(0.0, device=Config.DEVICE),
-            'hull_loss': torch.tensor(0.0, device=Config.DEVICE),
-            'game_length_loss': torch.tensor(0.0, device=Config.DEVICE),
-            'policy_loss': torch.tensor(0.0, device=Config.DEVICE),
-        }
+        # A. Value Loss
+        value_loss = F.mse_loss(outputs["value"], training_batch['target_values'], reduction='mean')
 
-        # Helper to accumulate MSE/CrossEntropy losses from partial batches
-        def accumulate_standard_losses(model_out, indices):
-            # Value
-            pred_val = model_out["value"]
-            target_val = target_values_tensor[indices]
-            results['value_loss'] += F.mse_loss(pred_val, target_val, reduction='sum')
+        # B. Aux Heads Loss
+        hull_loss = F.mse_loss(outputs["predicted_hull"], training_batch['target_ship_hulls'], reduction='mean')
+        game_len_loss = F.cross_entropy(outputs["predicted_game_length"], training_batch['target_game_length'], reduction='mean')
+        win_prob_loss = F.binary_cross_entropy_with_logits(outputs["predicted_win_prob"], training_batch['target_win_probs'], reduction='mean')
+        
+        # C. Policy Loss
+        logits = outputs["policy_logits"]
+        targets = training_batch['target_policies']
 
-            # Aux Heads
-            results['hull_loss'] += F.mse_loss(model_out["predicted_hull"], training_batch['target_ship_hulls'][indices], reduction='sum')
+        # Use F.cross_entropy which accepts soft probabilities (targets) and handles numerical stability
+        policy_loss = F.cross_entropy(logits, targets, reduction='mean')
 
-            # Game Length
-            results['game_length_loss'] += F.cross_entropy(model_out["predicted_game_length"], training_batch['target_game_length'][indices], reduction='sum')
-
-        # --- 3. Forward Pass: Standard (MLP) Phases ---
-        if len(mlp_indices) > 0:
-            # Slice inputs
-            mlp_out = self.model(
-                scalar_batch[mlp_indices],
-                ship_entity_batch[mlp_indices],
-                ship_coord_batch[mlp_indices],
-                spatial_batch[mlp_indices],
-                relation_batch[mlp_indices],
-                active_ship_id_batch[mlp_indices],
-                phases_tensor[mlp_indices]
-            )
-            
-            accumulate_standard_losses(mlp_out, mlp_indices)
-            
-            # Policy Loss (Per Phase Grouping)
-            logits = mlp_out["policy_logits"]
-            subset_phases = [phases[i] for i in mlp_indices.cpu().numpy()]
-            subset_targets = training_batch['target_policies'][mlp_indices]
-            
-            # Group by Phase Name to handle masking
-            phase_map = {}
-            for idx, p in enumerate(subset_phases):
-                if p.name not in phase_map: phase_map[p.name] = []
-                phase_map[p.name].append(idx)
-            
-            for p_name, p_idxs in phase_map.items():
-                # Get logits for this specific phase group
-                group_logits = logits[p_idxs]
-                group_targets = subset_targets[p_idxs]
-                
-                # Slice to valid action size
-                action_size = len(self.model.action_manager.get_action_map(Phase[p_name]))
-                group_logits = group_logits[:, :action_size]
-                group_targets = group_targets[:, :action_size]
-                
-                log_probs = F.log_softmax(group_logits, dim=1)
-                results['policy_loss'] += -(group_targets * log_probs).sum(dim=1).sum()
-
-        # --- 4. Forward Pass: Pointer Phases ---
-        if len(ptr_indices) > 0:
-            ptr_out = self.model(
-                scalar_batch[ptr_indices],
-                ship_entity_batch[ptr_indices],
-                ship_coord_batch[ptr_indices],
-                spatial_batch[ptr_indices],
-                relation_batch[ptr_indices],
-                active_ship_id_batch[ptr_indices],
-                phases_tensor[ptr_indices]
-            )
-            
-            accumulate_standard_losses(ptr_out, ptr_indices)
-            
-            # Policy Loss (Pointer)
-            logits = ptr_out["policy_logits"] # Shape [B, N+1]
-            targets = training_batch['target_policies'][ptr_indices] # Shape [B, Max_Action]
-            
-            # Slice targets to match Pointer Head size (N+1)
-            # Assuming MCTS targets for these phases are stored in indices 0..N
-            valid_size = logits.shape[1] 
-            targets = targets[:, :valid_size]
-            
-            log_probs = F.log_softmax(logits, dim=1)
-            results['policy_loss'] += -(targets * log_probs).sum(dim=1).sum()
-
-
-        # --- 5. Finalize Loss ---
-        # Average over total batch size
+        # 4. Backpropagation
         total_loss = (
-            results['policy_loss'] / batch_size + 
-            results['value_loss'] / batch_size + 
-            Config.HULL_LOSS_WEIGHT * (results['hull_loss'] / batch_size) +
-            Config.GAME_LENGTH_LOSS_WEIGHT * (results['game_length_loss'] / batch_size)
+            policy_loss + 
+            value_loss + 
+            win_prob_loss +
+            Config.HULL_LOSS_WEIGHT * hull_loss +
+            Config.GAME_LENGTH_LOSS_WEIGHT * game_len_loss
         )
 
         self.optimizer.zero_grad()
@@ -372,7 +306,7 @@ def main():
     current_iter = args.iter
 
     # Initialize the model and optimizer
-    model = ArmadaNet(ActionManager()).to(Config.DEVICE)
+    model = BigDeep(ActionManager()).to(Config.DEVICE)
     os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
     
     # Find all checkpoint files

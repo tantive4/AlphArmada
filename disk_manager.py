@@ -29,14 +29,19 @@ class DiskReplayBuffer:
         # Note: 'spatial' uses uint8 for bit-packed data
         self.specs = {
             'phases':            {'shape': (max_size,), 'dtype': np.int32},
+
             'scalar':            {'shape': (max_size, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
             'ship_entities':     {'shape': (max_size, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
             'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 2), 'dtype': np.float32},
+            'ship_def_tokens':   {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), 'dtype': np.float32},
             'spatial':           {'shape': (max_size, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], (Config.BOARD_RESOLUTION[1]+7)//8), 'dtype': np.uint8},
             'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 'dtype': np.uint8},
             'active_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
+            'target_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
+
             'target_policies':   {'shape': (max_size, action_space_size), 'dtype': np.float32},
             'target_values':     {'shape': (max_size, 1), 'dtype': np.float32},
+            'target_win_probs':  {'shape': (max_size, 2), 'dtype': np.float32},
             'target_ship_hulls': {'shape': (max_size, Config.MAX_SHIPS), 'dtype': np.float32},
             'target_game_length':{'shape': (max_size, 6), 'dtype': np.float32},
         }
@@ -102,14 +107,19 @@ class ArmadaDiskDataset(Dataset):
         # Duplicate specs to read
         self.specs = {
             'phases':            {'shape': (max_size,), 'dtype': np.int32},
+
             'scalar':            {'shape': (max_size, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
             'ship_entities':     {'shape': (max_size, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
             'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 2), 'dtype': np.float32},
+            'ship_def_tokens':   {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), 'dtype': np.float32},
             'spatial':           {'shape': (max_size, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], (Config.BOARD_RESOLUTION[1]+7)//8), 'dtype': np.uint8},
             'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 'dtype': np.uint8},
             'active_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
+            'target_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
+
             'target_policies':   {'shape': (max_size, action_space_size), 'dtype': np.float32},
             'target_values':     {'shape': (max_size, 1), 'dtype': np.float32},
+            'target_win_probs':  {'shape': (max_size, 2), 'dtype': np.float32},
             'target_ship_hulls': {'shape': (max_size, Config.MAX_SHIPS), 'dtype': np.float32},
             'target_game_length':{'shape': (max_size, 6), 'dtype': np.float32},
         }
@@ -128,13 +138,17 @@ class ArmadaDiskDataset(Dataset):
         # plus it moves data from disk-mapped-page to RAM.
         sample = {
             'phases': int(self.memmaps['phases'][idx]),
+
             'scalar': torch.from_numpy(self.memmaps['scalar'][idx]).clone(),
             'ship_entities': torch.from_numpy(self.memmaps['ship_entities'][idx]).clone(),
             'ship_coords': torch.from_numpy(self.memmaps['ship_coords'][idx]).clone(),
+            'ship_def_tokens': torch.from_numpy(self.memmaps['ship_def_tokens'][idx]).clone(),
             # Convert spatial to Long or Byte. Long is often safer for downstream gathering/masking.
             'spatial': torch.from_numpy(self.memmaps['spatial'][idx]).clone().long(),
             'relations': torch.from_numpy(self.memmaps['relations'][idx]).clone(),
             'active_ship_id': int(self.memmaps['active_ship_id'][idx]),
+            'target_ship_id': int(self.memmaps['target_ship_id'][idx]),
+
             'target_policies': torch.from_numpy(self.memmaps['target_policies'][idx]).clone(),
             'target_values': torch.from_numpy(self.memmaps['target_values'][idx]).clone(),
             'target_ship_hulls': torch.from_numpy(self.memmaps['target_ship_hulls'][idx]).clone(),

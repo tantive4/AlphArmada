@@ -3,7 +3,7 @@ from ship cimport Ship
 cdef class Squad:
     cdef :
         public Armada game
-        public int player, max_hull, speed, point, id, hull
+        public int team, max_hull, speed, point, id, hull
         public str name
         public tuple battery, anti_squad, coords
         public object overlap_ship_id

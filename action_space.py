@@ -4,7 +4,6 @@ import itertools
 from action_phase import Phase, ActionType
 from enum_class import *
 from dice import dice_choices, FULL_DICE_POOL
-from defense_token import TokenType, TOKEN_DICT
 from configs import Config
 
 def _make_hashable(action_value):
@@ -135,7 +134,8 @@ def generate_all_maps():
                 pass
 
             case Phase.ATTACK_RESOLVE_EFFECTS :
-                actions = [('spend_accuracy_action', (dice_type, index)) for dice_type in (Dice.BLUE, Dice.RED) for index in range(len(TokenType) * MAX_DEFENSE_TOKENS_PER_TYPE)]
+                # actions = [('spend_accuracy_action', (dice_type, index)) for dice_type in (Dice.BLUE, Dice.RED) for index in range(len(TokenType) * MAX_DEFENSE_TOKENS_PER_TYPE)]
+                actions = [('spend_accuracy_action', index) for index in range(Config.MAX_DEFENSE_TOKENS)]
                 # actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
                 actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE])
                 # actions.extend([('use_confire_token_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
@@ -143,16 +143,8 @@ def generate_all_maps():
                 actions.append(('pass_attack_effect', None))
 
             case Phase.ATTACK_SPEND_DEFENSE_TOKENS :
-                for index, token in TOKEN_DICT.items():
-                    if token.type == TokenType.REDIRECT :
-                        actions.extend([('spend_redirect_token_action',(index, hull)) for hull in HullSection])   
-
-                    elif token.type == TokenType.EVADE :
-                        evade_dice_choices = dice_choices(FULL_DICE_POOL, 1)
-                        for dice_choice in evade_dice_choices :
-                            actions.append(('spend_evade_token_action', (index, dice_choice)))
-
-                    else : actions.append(('spend_defense_token_action', index))
+                for index in range(Config.MAX_DEFENSE_TOKENS):
+                    actions.append(('spend_defense_token_action', index))
 
                 actions.append(('pass_defense_token', None))
 

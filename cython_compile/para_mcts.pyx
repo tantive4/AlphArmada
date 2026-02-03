@@ -12,10 +12,10 @@ cimport numpy as cnp
 from libc.math cimport log, sqrt
 
 from action_manager cimport ActionManager
-from armada_net import ArmadaNet
+from big_deep import BigDeep
 from game_encoder cimport encode_game_state
 import dice
-from action_phase import Phase, POINTER_PHASE, ActionType
+from action_phase import Phase, ActionType
 from armada cimport Armada
 from attack_info cimport AttackInfo
 from configs import Config
@@ -52,12 +52,7 @@ cdef class Node:
         
         self.snapshot = game.get_snapshot()
 
-        if game.decision_player == 0:
-            self.first_player_perspective = 0
-        elif game.decision_player == game.first_player:
-            self.first_player_perspective = 1
-        else:
-            self.first_player_perspective = -1 # decision player used when get_possible_action is called on this node
+        self.first_player_perspective = game.decision_player # decision player used when get_possible_action is called on this node
 
         self.chance_node = <bint>(game.phase == Phase.ATTACK_ROLL_DICE)
         # simplified
@@ -148,8 +143,8 @@ cdef class MCTS:
         public list para_games, root_snapshots, player_roots
         public ActionManager action_manager
         public object model
-        public object action_mask, pointer_mask
-        cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer
+        public object action_mask
+        cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer, target_ship_indices_buffer
 
     def __init__(self, list games, ActionManager action_manager, object model) -> None:
         self.para_games = games
@@ -158,11 +153,10 @@ cdef class MCTS:
                                -1 : Node(game = game, action = ('initialize_game', None))} 
                               for game in games]
         
-        self.model : ArmadaNet = model
+        self.model : BigDeep = model
 
         self.action_manager = action_manager
         self.action_mask = np.zeros(action_manager.max_action_space, dtype=np.bool_)
-        self.pointer_mask = np.zeros(Config.MAX_SHIPS+1, dtype=np.bool_)
         
         self.scalar_buffer = np.zeros(
             (Config.GPU_INPUT_BATCH_SIZE, Config.SCALAR_FEATURE_SIZE), 
@@ -176,7 +170,11 @@ cdef class MCTS:
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 2), 
             dtype=np.float32
         )
-        # Spatial buffer is the largest (ensure dims match armada_net: [B, N, 10, H, W/8])
+        self.ship_def_token_buffer = np.zeros(
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE),
+            dtype=np.float32
+        )
+        # Spatial buffer is the largest (ensure dims match BigDeep: [B, N, 10, H, W/8])
         self.spatial_buffer = np.zeros(
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), 
             dtype=np.uint8
@@ -186,16 +184,17 @@ cdef class MCTS:
             dtype=np.float32
         )
         self.active_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
+        self.target_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
 
     cpdef dict para_search(self, dict sim_players, bint deep_search, int manual_iteration = 0):
         cdef:
             Armada game
-            list para_indices, action_expandable_indices, pointer_expandable_indices, valid_actions
+            list para_indices, action_expandable_indices, valid_actions
             int para_index, sim_player, mcts_iteration, output_index, max_size, action_exp_len
             Node root_node, node
             dict para_path, para_action_probs
             object path
-            object action_values, pointer_values, action_policies, pointer_policies
+            object action_values, action_policies
             float value, winner
             cnp.ndarray[cnp.float32_t, ndim=1] policy_arr
 
@@ -217,7 +216,6 @@ cdef class MCTS:
         for _ in range(mcts_iteration):
             para_path = {}
             action_expandable_indices = []
-            pointer_expandable_indices = []
             for para_index in para_indices:
                 node = self.player_roots[para_index][sim_players[para_index]]
             
@@ -235,35 +233,23 @@ cdef class MCTS:
                     self._backpropagate(path, value)
                     game.revert_snapshot(self.root_snapshots[para_index])
                 else :
-                    if game.phase in POINTER_PHASE :
-                        pointer_expandable_indices.append(para_index)
-                    else :
-                        action_expandable_indices.append(para_index)
+                    action_expandable_indices.append(para_index)
 
             # 2. Expansion (for player decision nodes)
             # note that leaf node is not chance node or information set node
-            if action_expandable_indices or pointer_expandable_indices :
-                action_exp_len = len(action_expandable_indices)
+            if action_expandable_indices:
                 action_values, action_policies = self._get_value_policy(
                     [encode_game_state(self.para_games[para_index]) for para_index in action_expandable_indices],
                     [self.para_games[para_index].phase for para_index in action_expandable_indices],
                 )
-                pointer_values, pointer_policies = self._get_value_policy(
-                    [encode_game_state(self.para_games[para_index]) for para_index in pointer_expandable_indices],
-                    [self.para_games[para_index].phase for para_index in pointer_expandable_indices],
-                )
 
-                for output_index, para_index in enumerate(action_expandable_indices + pointer_expandable_indices):
+                for output_index, para_index in enumerate(action_expandable_indices):
                     path = para_path[para_index]
                     node = path[-1]
                     game = self.para_games[para_index]
 
-                    if output_index < action_exp_len:
-                        value = <float>(action_values[output_index])
-                        policy_arr = action_policies[output_index]
-                    else:
-                        value = <float>(pointer_values[output_index - action_exp_len])
-                        policy_arr = pointer_policies[output_index - action_exp_len]
+                    value = <float>(action_values[output_index])
+                    policy_arr = action_policies[output_index]
                     
 
                     # Add Dirichlet noise for exploration at the root node only
@@ -282,10 +268,9 @@ cdef class MCTS:
 
         # End of Search Iteration
         para_action_probs = {}
-        max_size = self.model.max_action_space
         for para_index in para_indices:
             sim_player = sim_players[para_index]
-            para_action_probs[para_index] = self._get_final_action_probs(para_index, sim_player, max_size)
+            para_action_probs[para_index] = self._get_final_action_probs(para_index, sim_player)
         return para_action_probs
 
     cpdef object get_best_action(self, int para_index, int decision_player):
@@ -435,9 +420,11 @@ cdef class MCTS:
             self.scalar_buffer[i] = state['scalar']
             self.ship_entity_buffer[i] = state['ship_entities']
             self.ship_coords_buffer[i] = state['ship_coords']
+            self.ship_def_token_buffer[i] = state['ship_def_tokens']
             self.spatial_buffer[i] = state['spatial']
             self.relation_buffer[i] = state['relations']
             self.active_ship_indices_buffer[i] = state['active_ship_id']
+            self.target_ship_indices_buffer[i] = state['target_ship_id']
 
         # 2. Zero-out padding area if needed (to clean up dirty data from previous steps)
         # Only strictly necessary if Batch Normalization statistics are sensitive to garbage
@@ -445,9 +432,11 @@ cdef class MCTS:
             self.scalar_buffer[current_batch_size:target_batch_size].fill(0)
             self.ship_entity_buffer[current_batch_size:target_batch_size].fill(0)
             self.ship_coords_buffer[current_batch_size:target_batch_size].fill(0)
+            self.ship_def_token_buffer[current_batch_size:target_batch_size].fill(0)
             self.spatial_buffer[current_batch_size:target_batch_size].fill(0)
             self.relation_buffer[current_batch_size:target_batch_size].fill(0)
             self.active_ship_indices_buffer[current_batch_size:target_batch_size].fill(max_ships)
+            self.target_ship_indices_buffer[current_batch_size:target_batch_size].fill(max_ships)
 
         # 3. Handle Phases (simple list padding is fast enough)
         pad_len = target_batch_size - current_batch_size
@@ -457,9 +446,11 @@ cdef class MCTS:
         scalar_tensor = torch.from_numpy(self.scalar_buffer[:target_batch_size]).to(Config.DEVICE)
         ship_entity_tensor = torch.from_numpy(self.ship_entity_buffer[:target_batch_size]).to(Config.DEVICE)
         ship_coords_tensor = torch.from_numpy(self.ship_coords_buffer[:target_batch_size]).to(Config.DEVICE)
+        ship_def_token_tensor = torch.from_numpy(self.ship_def_token_buffer[:target_batch_size]).to(Config.DEVICE)
         spatial_tensor = torch.from_numpy(self.spatial_buffer[:target_batch_size]).to(Config.DEVICE)
         relation_tensor = torch.from_numpy(self.relation_buffer[:target_batch_size]).to(Config.DEVICE)
         active_ship_indices_tensor = torch.from_numpy(self.active_ship_indices_buffer[:target_batch_size]).to(Config.DEVICE, dtype=torch.long)
+        target_ship_indices_tensor = torch.from_numpy(self.target_ship_indices_buffer[:target_batch_size]).to(Config.DEVICE, dtype=torch.long)
         phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
 
         with torch.no_grad():
@@ -468,9 +459,11 @@ cdef class MCTS:
                 scalar_tensor,
                 ship_entity_tensor,
                 ship_coords_tensor,
+                ship_def_token_tensor,
                 spatial_tensor,
                 relation_tensor,
                 active_ship_indices_tensor,
+                target_ship_indices_tensor,
                 phases_tensor
             )
 
@@ -494,11 +487,7 @@ cdef class MCTS:
             int policy_len = policy.shape[0]
             cnp.ndarray[cnp.npy_bool, ndim=1] action_mask_view
 
-        if phase in POINTER_PHASE:
-            action_mask_view = self.pointer_mask
-        else:
-            action_mask_view = self.action_mask
-        
+        action_mask_view = self.action_mask
         action_mask_view.fill(0)
         
         for action in valid_actions:
@@ -566,9 +555,9 @@ cdef class MCTS:
             
             node.update(result_for_node)
 
-    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self, int para_index, int sim_player, int max_size):
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self, int para_index, int sim_player):
         cdef:
-            cnp.ndarray[cnp.float32_t, ndim=1] action_probs = np.zeros(max_size, dtype=np.float32)
+            cnp.ndarray[cnp.float32_t, ndim=1] action_probs = np.zeros(self.action_manager.max_action_space, dtype=np.float32)
             Node root_node = self.player_roots[para_index][sim_player]
             Node child
             float total_visits

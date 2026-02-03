@@ -4,11 +4,12 @@ from enum_class import *
 from itertools import product
 
 cdef class DefenseToken:
-    def __init__(self, token_type: str) -> None :
+    def __init__(self, token_type: str, id: int) -> None :
         self.type: TokenType = TokenType[token_type.upper()]
         self.readied : bool = True
         self.discarded : bool = False
         self.accuracy : bool = False
+        self.id : int = id
 
     def __str__(self):
         return f'{"Readied" if self.readied else "Exhausted"} {self.type.name}'
@@ -54,11 +55,3 @@ cdef class DefenseToken:
         revert the defense token to a previous snapshot
         """
         self.readied, self.discarded, self.accuracy = snapshot
-
-TOKEN_DICT = {
-    2 * index + double : DefenseToken(TokenType(index).name) for index, double in product(TokenType, (0, 1))
-    # 0 : Brace,
-    # 1 : Brace, 
-    # 2 : Redirect
-    # 3 ... etc
-}

@@ -7,7 +7,7 @@ class Config:
     MAX_SQUADS = 0
     # MAX_COMMAND_STACK = 3
     MAX_COMMAND_STACK = 0
-    MAX_DEFENSE_TOKENS = 6
+    MAX_DEFENSE_TOKENS = 4
     MAX_SQUAD_DEFENSE_TOKENS = 2
     GLOBAL_MAX_HULL = 8.0
     GLOBAL_MAX_SHIELDS = 4.0
@@ -17,9 +17,10 @@ class Config:
 
     # Encoding
     BOARD_RESOLUTION = (64, 128)  # (short_edge height resolution, player_edge width resolution)
-    SHIP_ENTITY_FEATURE_SIZE = 110
+    SHIP_ENTITY_FEATURE_SIZE = 128
+    DEF_TOKEN_FEATURE_SIZE = 8
     SQUAD_ENTITY_FEATURE_SIZE = 30
-    SCALAR_FEATURE_SIZE = 45
+    SCALAR_FEATURE_SIZE = 48
 
     # Hardware
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"

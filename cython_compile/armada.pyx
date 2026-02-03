@@ -25,7 +25,7 @@ cdef class Armada:
     """
     The main class representing the Armada game.
     """
-    def __init__(self, initiative: Player, para_index:int = 0) -> None:
+    def __init__(self, faction: tuple[Player, Player], para_index:int = 0) -> None:
         self.player_edge = LONG_RANGE * 6
         self.short_edge = LONG_RANGE * 3
         self.ships : list[Ship] = []
@@ -33,8 +33,10 @@ cdef class Armada:
         self.obstacles : list[Obstacle] = []
 
         self.round = 1
-        self.first_player = initiative.value
-        self.second_player = -initiative.value
+        self.first_player = 1
+        self.second_player = -1
+        self.first_faction = faction[0].value
+        self.second_faction = faction[1].value
 
         self.phase : Phase = Phase.SHIP_ACTIVATE    
         self.current_player : int = self.first_player
@@ -55,6 +57,7 @@ cdef class Armada:
         self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)
         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
         self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
+        self.ship_def_token_array = np.zeros((Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), dtype=np.float32)
         
         h, w = Config.BOARD_RESOLUTION
         self.spatial_encode_array = np.zeros((Config.MAX_SHIPS, 10, h, w//8), dtype=np.uint8) # ships , presence+hull_type*range_type, height, width
@@ -148,7 +151,7 @@ cdef class Armada:
 
         # if phase == Phase.COMMAND_PHASE :
         #     for ship in self.ships:
-        #         if ship.player == self.current_player and len(ship.command_stack) < ship.command_value :
+        #         if ship.team == self.current_player and len(ship.command_stack) < ship.command_value :
         #             for command in COMMANDS :
         #                 actions.append(('set_command_action', (ship.id, command)))
         
@@ -162,7 +165,7 @@ cdef class Armada:
                 actions.append(('reveal_command_action', command))
 
             # simplified
-            # if active_ship.player == self.simulation_player or self.simulation_player == 0 :  # player's simulation
+            # if active_ship.team == self.simulation_player or self.simulation_player == 0 :  # player's simulation
             #     actions = [('reveal_command_action', active_ship.command_stack[0])]
             # else : 
             #     for command in COMMANDS:                                                      # secret information
@@ -256,15 +259,10 @@ cdef class Armada:
             blue_acc_count = attack_info.attack_pool_result[Dice.BLUE][ACCURACY_INDEX[Dice.BLUE]]
             red_acc_count = attack_info.attack_pool_result[Dice.RED][ACCURACY_INDEX[Dice.RED]]
 
-            checked_tokens : list[DefenseToken]= []
             for index, defense_token in defender.defense_tokens.items():
-                if defense_token in checked_tokens :
-                    continue
-                checked_tokens.append(defense_token)
                 if defense_token.discarded or defense_token.accuracy :
                     continue
-                if blue_acc_count : actions.append(('spend_accuracy_action', (Dice.BLUE, index)))
-                if red_acc_count : actions.append(('spend_accuracy_action', (Dice.RED, index)))
+                if blue_acc_count or red_acc_count : actions.append(('spend_accuracy_action', index))
 
 
             # use con-fire command
@@ -302,28 +300,13 @@ cdef class Armada:
                 defender = <Squad>self.squads[attack_info.defend_squad_id]
 
             if defender.speed > 0 :
-                checked_tokens : list[DefenseToken]= []
-                for index, defense_token in defender.defense_tokens.items():
-
-                    # do not double check the identical token
-                    if defense_token in checked_tokens :
-                        continue
-                    checked_tokens.append(defense_token)
+                for defense_token in defender.defense_tokens:
+                    index = defense_token.id
                     if (not defense_token.discarded and not defense_token.accuracy
-                            and index not in attack_info.spent_token_indices
+                            and defense_token.id not in attack_info.spent_token_indices
                             and defense_token.type not in attack_info.spent_token_types):
 
-                        if defense_token.type == TokenType.REDIRECT :
-                            actions.append(('spend_redirect_token_action',(index, (<int>attack_info.defend_hull + 1) % 4)))
-                            actions.append(('spend_redirect_token_action',(index, (<int>attack_info.defend_hull - 1) % 4)))
-
-                        elif defense_token.type == TokenType.EVADE :
-                            # choose 1 die to affect
-                            evade_dice_choices = dice_choices(attack_info.attack_pool_result, 1)
-                            for dice_choice in evade_dice_choices :
-                                actions.append(('spend_evade_token_action', (index, dice_choice)))
-
-                        else : actions.append(('spend_defense_token_action', index))
+                        actions.append(('spend_defense_token_action', index))
 
             actions.append(('pass_defense_token', None))
 
@@ -388,7 +371,7 @@ cdef class Armada:
         #             if squad.get_valid_target(): actions.append(('activate_squad_attack_action', squad.id))
         #     else :
         #         for squad in self.squads:
-        #             if squad.player != self.current_player or squad.activated or squad.destroyed:continue
+        #             if squad.team != self.current_player or squad.activated or squad.destroyed:continue
         #             if not squad.is_engaged(): actions.append(('activate_squad_move_action', squad.id))
         #             if squad.get_valid_target(): actions.append(('activate_squad_attack_action', squad.id))
         #     if not actions : actions = [('pass_activate_squad', None)]
@@ -446,7 +429,7 @@ cdef class Armada:
 
             needs_commands = False
             for ship in self.ships:
-                    if ship.player == self.current_player and len(ship.command_stack) < ship.command_value:
+                    if ship.team == self.current_player and len(ship.command_stack) < ship.command_value:
                         needs_commands = True
                         break 
 
@@ -465,7 +448,7 @@ cdef class Armada:
         elif action_type == 'activate_ship_action':
             ship_id = action_data
             self.active_ship = self.ships[ship_id]
-            self.current_player = self.active_ship.player
+            self.current_player = self.active_ship.team
             self.phase = Phase.SHIP_REVEAL_COMMAND_DIAL
 
 
@@ -599,9 +582,11 @@ cdef class Armada:
             self.phase = attack_info.phase # either ATTACK_RESOLVE_EFFECTS or ATTACK_SPEND_DEFENSE_TOKENS
 
         elif action_type == 'spend_accuracy_action':
-            (accuracy_dice, index)= action_data
+            index= action_data
             defense_token = defend_ship.defense_tokens[index]
             defense_token.accuracy = True
+            if attack_info.attack_pool_result[Dice.RED][ACCURACY_INDEX[Dice.RED]]: accuracy_dice = Dice.RED
+            else: accuracy_dice = Dice.BLUE
 
             dice_pool = list(EMPTY_DICE_POOL)
             dice_pool[accuracy_dice] = ACCURACY_DICE_1[accuracy_dice]
@@ -666,7 +651,29 @@ cdef class Armada:
             defense_token.spend()
             attack_info.calculate_total_damage()
 
+            if defense_token.type == TokenType.REDIRECT:
+                hull = attack_info.defend_hull
+                idx_left = (hull - 1) & 3
+                idx_right = (hull + 1) & 3
+                if defend_ship.shield[idx_left] > defend_ship.shield[idx_right] :
+                    attack_info.redirect_hull = idx_left
+                else:
+                    attack_info.redirect_hull = idx_right
+
+            elif defense_token.type == TokenType.EVADE:
+                evade_dice = fast_dice_choice(attack_info.attack_pool_result)
+
+                attack_info.remove_dice(evade_dice)
+
+                if attack_info.attack_range in [AttackRange.CLOSE, AttackRange.MEDIUM]:
+                    # Reroll Evade Dice
+                    for dice_type in DICE:
+                        dice_pool.append(sum(evade_dice[dice_type]))
+                    attack_info.dice_to_roll = tuple(dice_pool)
+                    self.phase = Phase.ATTACK_ROLL_DICE
+
         elif action_type == 'spend_redirect_token_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (index, hull) = action_data
             defense_token = defend_ship.defense_tokens[index]
 
@@ -677,6 +684,7 @@ cdef class Armada:
             attack_info.calculate_total_damage()
 
         elif action_type == 'spend_evade_token_action':
+            raise NotImplementedError(f"simplified {action_type}")
             (index, evade_dice) = action_data
             defense_token = defend_ship.defense_tokens[index]
 
@@ -1021,31 +1029,35 @@ cdef class Armada:
         self.visualize(f'\n{ship.name} is deployed.')
 
         ship_view = self.ship_encode_array[ship.id]
-        offset = 0
-        ship_view[offset] = int(ship.player == self.first_player); offset += 1
-        ship_view[offset] = <int>ship.size_class / <int>SizeClass.LARGE; offset += 1
-        ship_view[offset] = ship.command_value / 3; offset += 1
-        ship_view[offset] = ship.squad_value / Config.GLOBAL_MAX_SQUAD_VALUE; offset += 1
-        ship_view[offset] = ship.engineer_value / Config.GLOBAL_MAX_ENGINEER_VALUE; offset += 1
-        ship_view[offset] = ship.point / 100.0; offset += 1
-        ship_view[offset] = ship.max_hull / Config.GLOBAL_MAX_HULL; offset += 1
 
-        ship_view[offset] = ship.max_shield[HullSection.FRONT] / Config.GLOBAL_MAX_SHIELDS; offset += 1
-        ship_view[offset] = ship.max_shield[HullSection.RIGHT] / Config.GLOBAL_MAX_SHIELDS; offset += 1
-        ship_view[offset] = ship.max_shield[HullSection.REAR] / Config.GLOBAL_MAX_SHIELDS; offset += 1
-        ship_view[offset] = ship.max_shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS; offset += 1
 
-        for hull in range(hull_type):
-            ship_view[offset + hull*3 + 0] = ship.battery[hull][0] / Config.GLOBAL_MAX_DICE
-            ship_view[offset + hull*3 + 1] = ship.battery[hull][1] / Config.GLOBAL_MAX_DICE
-            ship_view[offset + hull*3 + 2] = ship.battery[hull][2] / Config.GLOBAL_MAX_DICE
-        ship_view[offset + 12] = ship.anti_squad[0] / Config.GLOBAL_MAX_DICE
-        ship_view[offset + 13] = ship.anti_squad[1] / Config.GLOBAL_MAX_DICE
-        ship_view[offset + 14] = ship.anti_squad[2] / Config.GLOBAL_MAX_DICE
-        offset += 15 # Advance offset by block size
+        cdef float MAX_DICE = Config.GLOBAL_MAX_DICE
+        
+        # Assign features 0 to 26 in a single block
+        # (11 Base Stats + 12 Battery Dice + 3 Anti-Squad Dice) = 26 values
+        ship_view[0:26] = [
+            # --- Status & Values (11 features) ---
+            ship.team,                                    # 0: Team 
+            ship.size_class / float(SizeClass.LARGE),     # 1: Size
+            ship.command_value / 3.0,                     # 2: Command
+            ship.squad_value / Config.GLOBAL_MAX_SQUAD_VALUE,    # 3: Squad
+            ship.engineer_value / Config.GLOBAL_MAX_ENGINEER_VALUE, # 4: Engineer
+            ship.point / 100.0,                           # 5: Points
+            ship.max_hull / Config.GLOBAL_MAX_HULL,       # 6: Hull
+            ship.max_shield[HullSection.FRONT] / Config.GLOBAL_MAX_SHIELDS, # 7: Front Shield
+            ship.max_shield[HullSection.RIGHT] / Config.GLOBAL_MAX_SHIELDS, # 8: Right Shield
+            ship.max_shield[HullSection.REAR] / Config.GLOBAL_MAX_SHIELDS,  # 9: Rear Shield
+            ship.max_shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS,  # 10: Left Shield
+            
+            # --- Battery Armament (4 hulls * 3 colors = 12 features) ---
+            *[dice / MAX_DICE for hull_dice in ship.battery for dice in hull_dice],
 
-        ship_view[offset:offset + 10] = ship.nav_chart_vector
-        offset += 10 # Advance offset by block size
+            # --- Anti-Squad Armament (3 features) ---
+            *[dice / MAX_DICE for dice in ship.anti_squad]
+        ]
+
+        # Assign Navigation Chart (Features 26 to 36)
+        ship_view[26:36] = ship.nav_chart_vector
 
     cpdef void deploy_squad(self, Squad squad, float x, float y) :
         raise NotImplementedError("simplified deploy_squad")
@@ -1059,7 +1071,7 @@ cdef class Armada:
 
         # --- Stats (15 features) ---
         squad_view[offset] = squad.max_hull / Config.GLOBAL_MAX_HULL; offset += 1
-        squad_view[offset] = squad.player; offset += 1
+        squad_view[offset] = squad.team; offset += 1
         squad_view[offset] = squad.speed / 5.0; offset += 1
         squad_view[offset] = squad.point / 20.0; offset += 1
         squad_view[offset] = squad.swarm; offset += 1
@@ -1116,7 +1128,7 @@ cdef class Armada:
     cdef bint total_destruction(self, int player) :
         cdef Ship ship
         for ship in self.ships:
-            if ship.player == player and not ship.destroyed:
+            if ship.team == player and not ship.destroyed:
                 return False
         return True
 
@@ -1128,7 +1140,7 @@ cdef class Armada:
         cdef list valid_ships = []
         cdef Ship ship
         for ship in self.ships:
-            if ship.player == player and not ship.destroyed and not ship.activated:
+            if ship.team == player and not ship.destroyed and not ship.activated:
                 valid_ships.append(ship)
         return valid_ships
 
@@ -1140,7 +1152,7 @@ cdef class Armada:
         cdef list valid_squadrons = []
         cdef Squad squad
         for squad in self.squads:
-            if squad.player == player and not squad.destroyed and not squad.activated:
+            if squad.team == player and not squad.destroyed and not squad.activated:
                 valid_squadrons.append(squad)
         return valid_squadrons
 
@@ -1197,10 +1209,10 @@ cdef class Armada:
         cdef list ship_point, squad_point
         cdef point = 0
         for ship in self.ships :
-            if ship.player != player and ship.destroyed :
+            if ship.team != player and ship.destroyed :
                 point += ship.point
         for squad in self.squads :
-            if squad.player != player and squad.destroyed :
+            if squad.team != player and squad.destroyed :
                 point += squad.point
         return point
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from typing import TypeAlias, Literal, TYPE_CHECKING
 
-from dice import dice_icon
+from dice import dice_icon, ACCURACY_INDEX
 from enum_class import *
 if TYPE_CHECKING:
     from armada import Armada
@@ -76,14 +76,15 @@ ActionType: TypeAlias = (
     tuple[Literal['gather_dice_action'], tuple[int, ...]] |
     tuple[Literal['roll_dice_action'], tuple[tuple[int, ...],...]] | 
 
-    tuple[Literal['spend_accuracy_action'], tuple[Dice, int]] |
+    # tuple[Literal['spend_accuracy_action'], tuple[Dice, int]] |
+    tuple[Literal['spend_accuracy_action'], int] |
     tuple[Literal['use_confire_dial_action'], tuple[int, ...]]|
     tuple[Literal['use_confire_token_action', 
                   'swarm_reroll_action'], tuple[tuple[int, ...],...]]|
 
     tuple[Literal['spend_defense_token_action'], int] | 
-    tuple[Literal['spend_redirect_token_action'], tuple[int, HullSection]] | 
-    tuple[Literal['spend_evade_token_action'], tuple[int, tuple[tuple[int, ...],...]]] |
+    # tuple[Literal['spend_redirect_token_action'], tuple[int, HullSection]] | 
+    # tuple[Literal['spend_evade_token_action'], tuple[int, tuple[tuple[int, ...],...]]] |
 
     tuple[Literal['use_critical_action'], Critical | None] |
     tuple[Literal['resolve_damage_action'], tuple[HullSection,int] | None]|
@@ -168,10 +169,17 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             dice_result = dice_icon(dice)
             action_str = f'Dice Roll {dice_result}'
 
-        case 'spend_accuracy_action', (dice_type, index) :
+        # case 'spend_accuracy_action', (dice_type, index) :
+        #     if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
+        #     defend_ship = game.ships[game.attack_info.defend_ship_id]
+        #     token = defend_ship.defense_tokens[index]
+        #     action_str = f'Spend {Dice(dice_type)} Accuracy : {token}'
+
+        case 'spend_accuracy_action', index :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
             defend_ship = game.ships[game.attack_info.defend_ship_id]
             token = defend_ship.defense_tokens[index]
+            dice_type = Dice.RED if game.attack_info.attack_pool_result[Dice.RED][ACCURACY_INDEX[Dice.RED]] else Dice.BLUE
             action_str = f'Spend {Dice(dice_type)} Accuracy : {token}'
 
         case 'spend_evade_token_action', (index, evade_dice) :

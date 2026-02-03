@@ -67,7 +67,13 @@ cpdef tuple get_terminal_value(Armada game):
     game_length = np.zeros(6, dtype=np.float32)
     game_length[game.round - 1] = 1.0
 
-    return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls}
+    win_prob = np.array([0.0, 0.0], dtype=np.float32)
+    if game.winner > 0:
+        win_prob[0] = 1.0
+    else:
+        win_prob[1] = 1.0
+
+    return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls, 'win_prob': win_prob}
 
 
 cpdef dict encode_game_state(Armada game):
@@ -81,9 +87,11 @@ cpdef dict encode_game_state(Armada game):
         'scalar': game.scalar_encode_array,
         'ship_entities': game.ship_encode_array,
         'ship_coords': game.ship_coords_array,
+        'ship_def_tokens': game.ship_def_token_array,
         'spatial': game.spatial_encode_array,
         'relations': game.relation_encode_array,
-        'active_ship_id': (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
+        'active_ship_id': (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships,
+        'target_ship_id': (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships,
     }
 
 @cython.boundscheck(False)
@@ -113,21 +121,15 @@ cdef void encode_scalar_features(Armada game):
     offset = 3
     
     # One-hot encoded initiative (2 features) (This information is NOT necessary but provides faction context)
-    if game.first_player == 1:
-        scalar_view[offset] = 1.0
-    else:
-        scalar_view[offset + 1] = 1.0
-    offset += 2
+    scalar_view[offset + (game.first_faction != 1)] = 1.0; offset += 2
+    scalar_view[offset + (game.second_faction != 1)] = 1.0; offset += 2
     
     # One-hot encoded phase (phase_type features)
-    scalar_view[offset + <int>game.phase - 1] = 1.0
-    offset += phase_type # phase_type = 21
+    scalar_view[offset + <int>game.phase] = 1.0
+    offset += phase_type # phase_type = 10
     
     # One-hot encoded current player (2 features)
-    if game.current_player == game.first_player:
-        scalar_view[offset] = 1.0
-    else:
-        scalar_view[offset + 1] = 1.0
+    scalar_view[offset + (game.current_player != 1)] = 1.0
     offset += 2
     
     # --- Attack Context Features (17 features) ---
@@ -197,9 +199,10 @@ cdef void encode_ship_entity_features(Armada game):
     # Memory view for the target row
     cdef cnp.float32_t[:] ship_view
     cdef cnp.float32_t[:] ship_coords_view
+    cdef cnp.float32_t[:] def_token_view
     
     # Indices and iterators
-    cdef int offset, stack_idx, defense_start_idx, defense_idx, hull, command
+    cdef int offset, stack_idx, defense_start_idx, hull, command
     
     # Booleans
     cdef bint is_attack = False
@@ -210,6 +213,7 @@ cdef void encode_ship_entity_features(Armada game):
     # This is crucial so we only have to write non-zero values.
     game.ship_encode_array[:, SHIP_STATS_FEATURES:].fill(0.0)
     game.ship_coords_array.fill(0.0)
+    game.ship_def_token_array.fill(0.0)
 
     # Get attack_info once outside the loop
     if game.attack_info is not None:
@@ -219,9 +223,29 @@ cdef void encode_ship_entity_features(Armada game):
     for ship in game.ships:
         if ship.id >= max_ships or ship.destroyed: continue
 
+        # coords
         ship_coords_view = game.ship_coords_array[ship.id]
         ship_coords_view[0] = ship.x / game.player_edge
         ship_coords_view[1] = ship.y / game.short_edge
+
+        # defense tokens
+        defense_start_idx = offset
+        for token in ship.defense_tokens:
+            if token.discarded: continue
+
+            def_token_view = game.ship_def_token_array[ship.id][token.id]
+
+            if token.readied: def_token_view[0] = 1.0
+            else: def_token_view[1] = 1.0
+
+            if not token.accuracy: def_token_view[2] = 1.0
+
+            if not(is_attack and (token.id in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
+                def_token_view[3] = 1.0
+            
+            def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type
+
+
 
         ship_view = game.ship_encode_array[ship.id]
 
@@ -250,7 +274,7 @@ cdef void encode_ship_entity_features(Armada game):
         ship_view[offset] = cos(ship.orientation); offset += 1
         
         # --- Command Stack (12 features) ---
-        if ship.player == game.simulation_player:
+        if ship.team == game.simulation_player:
             for stack_idx, command in enumerate(ship.command_stack):
                 ship_view[offset + stack_idx * c_command_type + command] = 1.0
         offset += max_command_stack * c_command_type # Advance offset by the block size
@@ -271,21 +295,10 @@ cdef void encode_ship_entity_features(Armada game):
                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
-        offset += 8 # Advance offset by block size
+                if attack_info.redirect_hull is not None:
+                    ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+        offset += 12 # Advance offset by block size
 
-        # --- Defense Tokens (24 features) ---
-        defense_start_idx = offset
-        for defense_idx, token in ship.defense_tokens.items():
-            if token.discarded: continue
-
-            if token.readied: ship_view[defense_start_idx + defense_idx * 4] = 1.0
-            else: ship_view[defense_start_idx + defense_idx * 4 + 1] = 1.0
-
-            if not token.accuracy: ship_view[defense_start_idx + defense_idx * 4 + 2] = 1.0
-
-            if not(is_attack and (defense_idx in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
-                ship_view[defense_start_idx + defense_idx * 4 + 3] = 1.0
-        offset += max_defense_tokens * 4
 
 
 @cython.boundscheck(False)

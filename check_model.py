@@ -13,12 +13,12 @@ from game_encoder import encode_game_state
 
 def model_check(game, model, action_manager):
     """
-    Evaluates the ArmadaNet model on a single game instance and returns
+    Evaluates the BigDeep model on a single game instance and returns
     both raw and masked policy outputs.
     
     Args:
         game (Armada): The game object representing the current state.
-        model (ArmadaNet): The neural network model.
+        model (BigDeep): The neural network model.
         action_manager (ActionManager): The manager handling action-to-index mapping.
         
     Returns:
@@ -113,14 +113,14 @@ def model_check(game, model, action_manager):
     }
 
 if __name__ == "__main__":
-    from armada_net import ArmadaNet
+    from big_deep import BigDeep
     from action_manager import ActionManager
     from setup_game import setup_game
     import random
     random.seed(6)
     
     am = ActionManager()
-    model = ArmadaNet(am).to(Config.DEVICE)
+    model = BigDeep(am).to(Config.DEVICE)
     
     # Automatic Checkpoint Loading
     if os.path.exists(Config.CHECKPOINT_DIR):

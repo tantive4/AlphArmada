@@ -53,6 +53,65 @@ def roll_dice(dice_pool: tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
 
     return (black_roll, blue_roll, red_roll)
 
+def fast_dice_choice(attack_pool_result: tuple[tuple[int, ...], ...]) -> tuple[tuple[int, ...], ...]:
+    """
+    Checks input tuple (3, 3, 5) structure for value > 0 in specific order:
+    9, 2, 8, 7, 4, 3, 1, 10, 5, 6, 0.
+    
+    Returns a matching structure with 1 at the found index and 0 elsewhere.
+    """
+    # Unpack for cleaner access (minor optimization over repeated indexing)
+    g0 = attack_pool_result[0]
+    g1 = attack_pool_result[1]
+    g2 = attack_pool_result[2]
+
+    # Check 9 -> Group 2, Index 3
+    if g2[3] > 0:
+        return ((0, 0, 0), (0, 0, 0), (0, 0, 0, 1, 0))
+
+    # Check 2 -> Group 0, Index 2
+    if g0[2] > 0:
+        return ((0, 0, 1), (0, 0, 0), (0, 0, 0, 0, 0))
+
+    # Check 8 -> Group 2, Index 2
+    if g2[2] > 0:
+        return ((0, 0, 0), (0, 0, 0), (0, 0, 1, 0, 0))
+
+    # Check 7 -> Group 2, Index 1
+    if g2[1] > 0:
+        return ((0, 0, 0), (0, 0, 0), (0, 1, 0, 0, 0))
+
+    # Check 4 -> Group 1, Index 1
+    if g1[1] > 0:
+        return ((0, 0, 0), (0, 1, 0), (0, 0, 0, 0, 0))
+
+    # Check 3 -> Group 1, Index 0
+    if g1[0] > 0:
+        return ((0, 0, 0), (1, 0, 0), (0, 0, 0, 0, 0))
+
+    # Check 1 -> Group 0, Index 1
+    if g0[1] > 0:
+        return ((0, 1, 0), (0, 0, 0), (0, 0, 0, 0, 0))
+
+    # Check 10 -> Group 2, Index 4
+    if g2[4] > 0:
+        return ((0, 0, 0), (0, 0, 0), (0, 0, 0, 0, 1))
+
+    # Check 5 -> Group 1, Index 2
+    if g1[2] > 0:
+        return ((0, 0, 0), (0, 0, 1), (0, 0, 0, 0, 0))
+
+    # Check 6 -> Group 2, Index 0
+    if g2[0] > 0:
+        return ((0, 0, 0), (0, 0, 0), (1, 0, 0, 0, 0))
+
+    # Check 0 -> Group 0, Index 0
+    if g0[0] > 0:
+        return ((1, 0, 0), (0, 0, 0), (0, 0, 0, 0, 0))
+
+    # Default Fallback (if no dice > 0 found)
+    return ((0, 0, 0), (0, 0, 0), (0, 0, 0, 0, 0))
+
 def dice_choices(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
     """
     Generates all possible outcomes of selecting a specific number of dice

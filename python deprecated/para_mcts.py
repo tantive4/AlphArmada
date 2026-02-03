@@ -8,7 +8,7 @@ import numpy as np
 import torch.nn.functional as F
 
 from action_manager import ActionManager
-from armada_net import ArmadaNet
+from big_deep import BigDeep
 from game_encoder import encode_game_state
 import dice
 from action_phase import Phase, ActionType
@@ -119,14 +119,14 @@ class MCTS:
     """
     Parallel Monte Carlo Tree Search for multiple Armada games.
     """
-    def __init__(self, games: list[Armada], action_manager : ActionManager, model : ArmadaNet) -> None:
+    def __init__(self, games: list[Armada], action_manager : ActionManager, model : BigDeep) -> None:
         self.para_games : list[Armada] = games
         self.root_snapshots :list[tuple] = [game.get_snapshot() for game in games]
         self.player_roots : list[dict[int, Node]] = [{ 1 : Node(game = game, action = ('initialize_game', None)),
                                                       -1 : Node(game = game, action = ('initialize_game', None))} 
                                                       for game in games]
         self.action_manager : ActionManager = action_manager
-        self.model : ArmadaNet = model
+        self.model : BigDeep = model
 
     def para_search(self, sim_players : dict[int, int], *,deep_search:bool = False) -> dict[int, np.ndarray]:
         para_indices = list(sim_players.keys())

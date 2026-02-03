@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from collections import Counter
 import itertools
 
 import numpy as np
@@ -21,9 +20,10 @@ from obstacle cimport Obstacle
 
 
 cdef class Ship:
-    def __init__(self, ship_dict : dict, player : Player) -> None:
-        self.player : int = player.value
+    def __init__(self, ship_dict : dict, team : int) -> None:
+        self.team : int = team
         self.name : str = ship_dict['name']
+        self.faction : int = ship_dict['faction']
 
         self.max_hull : int = ship_dict['hull']
         self.size_class : SizeClass = SizeClass[ship_dict['size_class']]
@@ -47,16 +47,10 @@ cdef class Ship:
             for attack_range in ATTACK_RANGES if attack_range != AttackRange.INVALID
         }
         
-        self.defense_tokens: dict[int, DefenseToken] = {}
-        token_counts = Counter()
-        # Iterate through the list of token strings from the JSON
-        for token_type_str in ship_dict['defense_token']:
-            token_enum = TokenType[token_type_str.upper()]
-            # token_counts[token_enum] will be 0 for the first, 1 for the second, etc.
-            key = token_enum * 2 + token_counts[token_enum]
-            # Add the token to the dictionary and increment the count for that type
-            self.defense_tokens[key] = DefenseToken(token_type_str)
-            token_counts[token_enum] += 1
+        self.defense_tokens: tuple[DefenseToken, ...] = tuple(
+            DefenseToken(token_type_str, id) 
+            for id, token_type_str in enumerate(ship_dict['defense_token'])
+            )
 
         self.nav_chart : dict[int, list[int]] = {int(k) : v for k, v in ship_dict['navchart'].items()}
         self.nav_chart_vector = np.zeros(10, dtype=np.float32)
@@ -468,7 +462,7 @@ cdef class Ship:
             int dice_count
 
         for ship in self.game.ships:
-            if ship.id == self.id or ship.destroyed or ship.player == self.player: continue
+            if ship.id == self.id or ship.destroyed or ship.team == self.team: continue
 
             target_dict, range_dict =  cache.attack_range_s2s(self.get_ship_hash_state(), ship.get_ship_hash_state())
 
@@ -519,7 +513,7 @@ cdef class Ship:
             int dice_count
 
         for squad in self.game.squads:
-            if squad.player == self.player or squad.destroyed : continue
+            if squad.team == self.team or squad.destroyed : continue
 
             range_dict =  cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())
             attack_range = range_dict[attack_hull]
@@ -566,7 +560,7 @@ cdef class Ship:
             Squad squad
             list valid_squads = []
         for squad in self.game.squads:
-            if squad.player == self.player and not squad.activated and not squad.destroyed \
+            if squad.team == self.team and not squad.activated and not squad.destroyed \
                and cache.range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state()) <= AttackRange.MEDIUM:
                 valid_squads.append(squad)
         return valid_squads
@@ -889,8 +883,7 @@ cdef class Ship:
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
             self.attack_count, self.attack_history, 
             self.engineer_point, self.repaired_hull, 
-            {key: (<DefenseToken>dt).get_snapshot() 
-             for key, dt in self.defense_tokens.items()}
+            [(<DefenseToken>dt).get_snapshot() for dt in self.defense_tokens]
         )
     
     cdef void revert_snapshot(self, object snapshot):
@@ -905,8 +898,8 @@ cdef class Ship:
             defense_tokens_state
         ) = snapshot
 
-        for key, token_state in defense_tokens_state.items():
-            (<DefenseToken>self.defense_tokens[key]).revert_snapshot(token_state)
+        for id, token_state in enumerate(defense_tokens_state):
+            (<DefenseToken>self.defense_tokens[id]).revert_snapshot(token_state)
 
     cpdef object get_ship_hash_state(self):
         """Returns a hashable tuple representing the ship's state."""

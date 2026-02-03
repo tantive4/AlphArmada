@@ -24,8 +24,8 @@ from defense_token cimport DefenseToken
 
 
 cdef class Squad :
-    def __init__(self, squad_dict : dict, player : Player) -> None:
-        self.player : int = player.value
+    def __init__(self, squad_dict : dict, team : int) -> None:
+        self.team : int = team
         self.name : str = squad_dict['name']
         self.unique : bool = squad_dict['unique']
 
@@ -130,7 +130,7 @@ cdef class Squad :
             Squad squad
 
         for squad in self.game.squads :
-            if squad.player == self.player or squad.destroyed or squad.heavy :
+            if squad.team == self.team or squad.destroyed or squad.heavy :
                 continue
 
             if not self.in_distance(squad, engage_distance, engage_distance_sq):
@@ -167,7 +167,7 @@ cdef class Squad :
 
         
         for squad in self.game.squads :
-            if squad.player == self.player or squad.destroyed :
+            if squad.team == self.team or squad.destroyed :
                 continue
             if self.in_distance(squad, distance1, distance1_sq):
                 if sum(self.anti_squad) <= 1 and self.is_obstruct_q2q(squad): continue
@@ -181,7 +181,7 @@ cdef class Squad :
             return valid_target
         
         for ship in self.game.ships :
-            if ship.player == self.player or ship.destroyed :
+            if ship.team == self.team or ship.destroyed :
                 continue
             for hull in HULL_SECTIONS :
                 in_range = cache.attack_range_q2s(self.get_squad_hash_state(), ship.get_ship_hash_state())[hull]
@@ -241,7 +241,7 @@ cdef class Squad :
             speed: the speed to move
             angle: the angle to move, in degree, 0 is to up **on player's perspective**, 90 is to right
         """
-        cdef float angle_rad = (M_PI*angle/180.0) * self.player # go "up" on player's perspective
+        cdef float angle_rad = (M_PI*angle/180.0) * self.team # go "up" on player's perspective
         self.coords = (<float>self.coords[0] + <float>DISTANCE[speed] * sin(angle_rad), <float>self.coords[1] + <float>DISTANCE[speed] * cos(angle_rad))
         self.can_move = False
 

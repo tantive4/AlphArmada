@@ -4,13 +4,13 @@ from squad cimport Squad
 
 cdef class Armada:
     cdef :
-        public int round, first_player, second_player, current_player, decision_player, simulation_player, squad_activation_count, image_counter, para_index
+        public int first_player, second_player, current_player, decision_player, simulation_player, first_faction, second_faction
+        public int round, squad_activation_count, image_counter, para_index
         public float player_edge, short_edge, winner 
         public list ships, squads, obstacles
         public object phase, active_ship, defend_ship, active_squad, attack_info
         public bint debuging_visual
-        public object 
-        public object scalar_encode_array, relation_encode_array, ship_encode_array, ship_coords_array, spatial_encode_array
+        public object scalar_encode_array, relation_encode_array, ship_encode_array, ship_coords_array, ship_def_token_array, spatial_encode_array
 
     
     # Declare the C-level methods

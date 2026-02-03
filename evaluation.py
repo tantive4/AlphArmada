@@ -9,7 +9,7 @@ import numpy as np
 from configs import Config
 from armada import Armada
 from setup_game import setup_game
-from armada_net import ArmadaNet
+from big_deep import BigDeep
 from action_manager import ActionManager
 from para_mcts import MCTS
 from action_phase import Phase, get_action_str
@@ -47,7 +47,7 @@ def main():
 
     # 2. Initialize Model
     action_manager = ActionManager()
-    model = ArmadaNet(action_manager).to(Config.DEVICE)
+    model = BigDeep(action_manager).to(Config.DEVICE)
     load_latest_model(model)
     
     # Pre-compile geometry for collision checks

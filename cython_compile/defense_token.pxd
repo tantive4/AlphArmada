@@ -2,6 +2,7 @@ cdef class DefenseToken:
     cdef :
         public object type
         public bint readied, discarded, accuracy
+        public int id
     cdef tuple get_snapshot(self)
     cdef void revert_snapshot(self, tuple snapshot)
     cpdef void spend(self)

@@ -134,26 +134,20 @@ def get_obstacle_polygon(obs_obj, x, y, orientation):
     return poly
 
 def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada: 
-
+    players = [Player.REBEL, Player.EMPIRE]
     # 1. Generate Fleets
-    rebel_ship_names, rebel_squad_names, reb_points = get_random_fleet(Player.REBEL, max_squad_points=0) # simplified
-    empire_ship_names, empire_squad_names, emp_points = get_random_fleet(Player.EMPIRE, max_squad_points=0) # simplified
+    first_faction, second_faction = random.choices(players, k=2)
+    first_ship_names, first_squad_names, first_points = get_random_fleet(first_faction, max_squad_points=0) # simplified
+    second_ship_names, second_squad_names, second_points = get_random_fleet(second_faction, max_squad_points=0) # simplified
 
-    initiative = random.choice([Player.REBEL, Player.EMPIRE])
-
-    game = Armada(initiative=initiative, para_index=para_index)
+    game = Armada(faction=[first_faction, second_faction], para_index=para_index)
     game.debuging_visual = debuging_visual
 
     # Create Objects
-    rebel_ships = [Ship(SHIP_DATA[name], Player.REBEL) for name in rebel_ship_names]
-    rebel_squads = [Squad(SQUAD_DATA[name], Player.REBEL) for name in rebel_squad_names]
-    empire_ships = [Ship(SHIP_DATA[name], Player.EMPIRE) for name in empire_ship_names]
-    empire_squads = [Squad(SQUAD_DATA[name], Player.EMPIRE) for name in empire_squad_names]
-
-    first_ship = rebel_ships if initiative == Player.REBEL else empire_ships
-    second_ship = empire_ships if initiative == Player.REBEL else rebel_ships
-    first_squad = rebel_squads if initiative == Player.REBEL else empire_squads
-    second_squad = empire_squads if initiative == Player.REBEL else rebel_squads
+    first_ships = [Ship(SHIP_DATA[name], 1) for name in first_ship_names]
+    first_squads = [Squad(SQUAD_DATA[name], 1) for name in first_squad_names]
+    second_ships = [Ship(SHIP_DATA[name], -1) for name in second_ship_names]
+    second_squads = [Squad(SQUAD_DATA[name], -1) for name in second_squad_names]
 
     obstacles = [
         Obstacle(ObstacleType.ASTEROID, 1),
@@ -210,9 +204,9 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
     second_ship_rect = (DIST_5, BOARD_HEIGHT - DIST_3, BOARD_WIDTH - DIST_5, BOARD_HEIGHT)
     second_ship_zone = box(*second_ship_rect)
     # 3. Place Ships
-    ships = first_ship + second_ship
+    ships = first_ships + second_ships
     for ship in ships:
-        is_first = ship in first_ship
+        is_first = ship in first_ships
         speed = random.choice(list(ship.nav_chart.keys()))
         placed = False
         for _ in range(200): # Retry limit
@@ -255,9 +249,9 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
     # second_squad_rect = (DIST_5, BOARD_HEIGHT - DIST_5, BOARD_WIDTH - DIST_5, BOARD_HEIGHT - DIST_3)
     # second_squad_zone = box(*second_squad_rect)
     # # 4. Place Squads
-    # squads = first_squad + second_squad
+    # squads = first_squads + second_squads
     # for squad in squads:
-    #     is_first = squad in first_squad
+    #     is_first = squad in first_squads
     #     placed = False
     #     for _ in range(200): # Retry limit
     #         if is_first:

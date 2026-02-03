@@ -138,14 +138,14 @@ class PointerHead(nn.Module):
     
 # --- Main Network Architecture ---
 
-class ArmadaNet(nn.Module):
+class BigDeep(nn.Module):
     """
     Transformer-Centric "Sandwich" Architecture.
     Sequence: [Scalar_Token, Ship_1, ..., Ship_N]
     Flow: Embed -> Block1 -> Spatial Sandwich -> Block2 -> Heads
     """
     def __init__(self, action_manager: ActionManager):
-        super(ArmadaNet, self).__init__()
+        super(BigDeep, self).__init__()
         self.action_manager = action_manager
         self.max_action_space : int = action_manager.max_action_space
 
@@ -348,7 +348,14 @@ class ArmadaNet(nn.Module):
 
         self.fast_policy_ready = True
 
-    def forward(self, scalar_input, ship_entity_input, ship_coord_input, spatial_input, relation_input, active_ship_indices, phases):
+    def forward(self, 
+                scalar_input, 
+                ship_entity_input, 
+                ship_coord_input, 
+                spatial_input, 
+                relation_input, 
+                active_ship_indices, 
+                phases):
         """
         Args:
             scalar_input: [B, 45]
