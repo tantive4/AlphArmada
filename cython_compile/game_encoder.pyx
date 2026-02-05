@@ -1,7 +1,7 @@
 # cython: profile=True
 
 from __future__ import annotations
-from libc.math cimport sin, cos
+from libc.math cimport sin, cos, sqrt, atan2
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -227,6 +227,7 @@ cdef void encode_ship_entity_features(Armada game):
         ship_coords_view = game.ship_coords_array[ship.id]
         ship_coords_view[0] = ship.x / game.player_edge
         ship_coords_view[1] = ship.y / game.short_edge
+        ship_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
 
         # defense tokens
         defense_start_idx = offset
@@ -266,12 +267,6 @@ cdef void encode_ship_entity_features(Armada game):
         for hull in range(c_hull_type):
             ship_view[offset + hull] = ship.shield[hull] / global_max_shields
         offset += c_hull_type
-
-        # --- Position and Orientation (4 features) ---
-        ship_view[offset] = ship.x / game.player_edge; offset += 1
-        ship_view[offset] = ship.y / game.short_edge; offset += 1
-        ship_view[offset] = sin(ship.orientation); offset += 1
-        ship_view[offset] = cos(ship.orientation); offset += 1
         
         # --- Command Stack (12 features) ---
         if ship.team == game.simulation_player:
@@ -441,12 +436,12 @@ cdef void encode_relation_matrix(Armada game):
     cdef int i, j, attacker_id, defender_id
     cdef int from_hull, to_hull
     cdef int flat_idx
-    cdef int attack_range
+    cdef float attack_range, dx, dy, dist, relative_bearing
     cdef list ships = game.ships 
     cdef int n_ships = len(ships)
     cdef Ship attacker, defender 
     
-    cdef cnp.uint8_t[:, :, ::1] rel_matrix = game.relation_encode_array
+    cdef cnp.float32_t[:, :, ::1] rel_matrix = game.relation_encode_array
     rel_matrix[:] = 0
 
     cdef list range_list, attack_range_list
@@ -455,7 +450,7 @@ cdef void encode_relation_matrix(Armada game):
     for i in range(n_ships):
         attacker = ships[i]
         
-        # Check destroyed status (assuming boolean property)
+        # Check destroyed status 
         if attacker.destroyed:
             continue
             
@@ -473,6 +468,7 @@ cdef void encode_relation_matrix(Armada game):
                 
             defender_id = defender.id
 
+            # Attack Range Ralation
             _, range_list = cache.attack_range_s2s(
                 attacker.get_ship_hash_state(), 
                 defender.get_ship_hash_state()
@@ -482,8 +478,25 @@ cdef void encode_relation_matrix(Armada game):
                 attack_range_list = range_list[from_hull] 
                 
                 for to_hull in range(c_hull_type):
-                    attack_range = <int>attack_range_list[to_hull]
+                    attack_range = <float>attack_range_list[to_hull]
                     
                     flat_idx = from_hull * c_hull_type + to_hull
                     
                     rel_matrix[attacker_id, defender_id, flat_idx] = attack_range
+
+            # Standard Geometric Relation
+            dx = (defender.x - attacker.x) / game.player_edge
+            dy = (defender.y - attacker.y) / game.short_edge
+            dist = sqrt(dx*dx + dy*dy)
+            
+            # Angle relative to attacker's front (Bearing)
+            angle_to_target = atan2(dy, dx)
+            relative_bearing = angle_to_target - attacker.orientation
+            
+            # --- Store them at the end of the vector ---
+            # Indices 0-15 are Hull Ranges
+            # Indices 16-19 are Relative Physics
+            rel_matrix[attacker_id, defender_id, 16] = dx
+            rel_matrix[attacker_id, defender_id, 17] = dy
+            rel_matrix[attacker_id, defender_id, 18] = dist
+            rel_matrix[attacker_id, defender_id, 19] = relative_bearing

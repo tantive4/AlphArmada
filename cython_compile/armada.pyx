@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 cimport numpy as cnp
+cnp.import_array()
 from skimage.draw import polygon as draw_polygon
 
 from configs import Config
@@ -54,9 +55,9 @@ cdef class Armada:
         self.para_index = para_index
 
         self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
-        self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type), dtype=np.uint8)
+        self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type + 4), dtype=np.float32)
         self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
-        self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 2), dtype=np.float32)
+        self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 3), dtype=np.float32)
         self.ship_def_token_array = np.zeros((Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), dtype=np.float32)
         
         h, w = Config.BOARD_RESOLUTION

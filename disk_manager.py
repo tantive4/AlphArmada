@@ -32,10 +32,10 @@ class DiskReplayBuffer:
 
             'scalar':            {'shape': (max_size, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
             'ship_entities':     {'shape': (max_size, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
-            'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 2), 'dtype': np.float32},
+            'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 3), 'dtype': np.float32},
             'ship_def_tokens':   {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), 'dtype': np.float32},
             'spatial':           {'shape': (max_size, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], (Config.BOARD_RESOLUTION[1]+7)//8), 'dtype': np.uint8},
-            'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 'dtype': np.uint8},
+            'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 'dtype': np.float32},
             'active_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
             'target_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
 
@@ -110,10 +110,10 @@ class ArmadaDiskDataset(Dataset):
 
             'scalar':            {'shape': (max_size, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
             'ship_entities':     {'shape': (max_size, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
-            'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 2), 'dtype': np.float32},
+            'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 3), 'dtype': np.float32},
             'ship_def_tokens':   {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), 'dtype': np.float32},
             'spatial':           {'shape': (max_size, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], (Config.BOARD_RESOLUTION[1]+7)//8), 'dtype': np.uint8},
-            'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 'dtype': np.uint8},
+            'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 'dtype': np.float32},
             'active_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
             'target_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
 

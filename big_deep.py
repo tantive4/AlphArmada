@@ -207,6 +207,9 @@ class BigDeep(nn.Module):
         self.nhead = 8
         self.policy_input_dim = self.embed_dim * 2 # Active Ship + Global State
 
+        # Coordinate Fourier Embedding
+        self.num_freqs = 10
+        self.coord_embed_dim = 3 * self.num_freqs * 2 # X/Y/θ * freq * sin/cos
 
         # --- 1. Embeddings ---
         # Scalar Token Encoder (The [CLS] Token)
@@ -227,7 +230,7 @@ class BigDeep(nn.Module):
         # --- 2. Ship Embedding (Fusion via Summation) ---
         # Input: Raw Ship Features + (Sum of Token Embeddings)
         # Size: Raw_Ship_Feats + 16
-        self.ship_input_dim = self.ship_feat_size + self.token_embed_dim
+        self.ship_input_dim = self.ship_feat_size + self.token_embed_dim + self.coord_embed_dim
         
         self.ship_embedding = nn.Linear(self.ship_input_dim, self.embed_dim)
 
@@ -235,7 +238,7 @@ class BigDeep(nn.Module):
         # The Scalar Token has no geometry. We learn its relationship to ships.
         # Shape: [Heads, 1, N] and [Heads, N, 1]
         self.relation_bias_net = nn.Sequential(
-            nn.Linear(16, 32),
+            nn.Linear(20, 32),
             nn.ReLU(),
             nn.Linear(32, self.nhead)
         )
@@ -476,6 +479,25 @@ class BigDeep(nn.Module):
 
         self.fast_policy_ready = True
 
+    def compute_fourier_features(self, coords):
+        """
+        coords: [Batch, N, 3] (x, y, θ) normalized 0-1
+        Returns: [Batch, N, coord_embed_dim]
+        """
+        # Create frequencies: 1, 2, 4, 8, 16... (powers of 2 are standard)
+        freqs = 2.0 ** torch.arange(self.num_freqs, device=coords.device)
+        freqs = freqs * torch.pi # Scale by PI
+        
+        # Reshape for broadcasting
+        # x: [B, N, 2, 1] * freq: [1, 1, 1, F] -> [B, N, 2, F]
+        args = coords.unsqueeze(-1) * freqs.view(1, 1, 1, -1)
+        
+        # Compute Sin/Cos
+        # [B, N, 2, F] -> [B, N, 2, F, 2] (last dim is sin/cos)
+        embeddings = torch.cat([torch.sin(args), torch.cos(args)], dim=-1)
+        
+        # Flatten to [B, N, 4*F]
+        return embeddings.flatten(start_dim=2)
 
 
     def forward(self, 
@@ -494,7 +516,7 @@ class BigDeep(nn.Module):
             ship_entity_input: [B, N, 110]
             ship_coord_input: [B, N, 2] - Normalized (0-1) coordinates for safer indexing
             spatial_input: [B, N, 10, H, W] - Plane 0 is presence, 1-9 are threat geometry
-            relation_input: [B, N, N, 16] - Raw 4x4 hull relation matrix (flattened)
+            relation_input: [B, N, N, 20] - Raw 4x4 hull relation matrix (flattened) + 4 geometric information
             active_ship_indices: [B] Tensor. Int index of active ship (0 to N-1). 
                                  Use N (Config.MAX_SHIPS) or -1 for "No Active Ship".
             target_ship_indices: [B] Tensor. Int index of target ship (0 to N-1).
@@ -514,15 +536,15 @@ class BigDeep(nn.Module):
         # [B, 45] -> [B, 1, 256]
         scalar_token = self.scalar_encoder(scalar_input).unsqueeze(1)
 
-        # B. Encode Tokens [B, N, T, 8] -> [B, N, T, 16]
+        # B. Encode Tokens [B, N, T, 8] -> [B, N, T, 16] -> [B, N, 16]
         token_encoded = self.token_encoder(ship_token_input) 
-        
-        # C. Sum Tokens [B, N, T, 16] -> [B, N, 16]
-        # "Bag of Tokens" feature for the ship
         token_summed = token_encoded.sum(dim=2)
         
+        # C. Coordinate Fourier Embedding
+        coord_features = self.compute_fourier_features(ship_coord_input) 
+
         # D. Fuse with Ship [B, N, Raw] + [B, N, 16] -> [B, N, Raw+16]
-        ship_combined_input = torch.cat([ship_entity_input, token_summed], dim=2)
+        ship_combined_input = torch.cat([ship_entity_input, token_summed, coord_features], dim=2)
         
         # E. Project to Embedding [B, N, 256]
         ship_tokens = self.ship_embedding(ship_combined_input)        
@@ -547,7 +569,7 @@ class BigDeep(nn.Module):
 
         # B. Attention Bias (Who relates to whom?)
         # 1. Process Geometric Relations (Ship-to-Ship)
-        # [B, N, N, 16] -> [B, N, N, Heads] -> [B, Heads, N, N]
+        # [B, N, N, 20] -> [B, N, N, Heads] -> [B, Heads, N, N]
         geom_bias = self.relation_bias_net(relation_input)
         geom_bias = torch.tanh(geom_bias) * self.bias_scale
         geom_bias = geom_bias.permute(0, 3, 1, 2) 
@@ -621,7 +643,7 @@ class BigDeep(nn.Module):
         
         # 1. Gather for Ships (Grid Sample)
         # [B, N, 2] -> [B, 1, N, 2] -> Sample -> [B, 64, 1, N] -> [B, N, 64]
-        grid_coords = ship_coord_input.unsqueeze(1) * 2 - 1 
+        grid_coords = ship_coord_input[:, :, :2].unsqueeze(1) * 2 - 1 
         grid_coords = grid_coords.clamp(-1, 1)
         
         if self.training and device == 'mps':
