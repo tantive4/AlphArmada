@@ -77,7 +77,7 @@ class AlphArmada:
                         continue
 
                     if game.decision_player :
-                        action = mcts.get_random_best_action(para_index, game.decision_player, game.round)
+                        action = mcts.get_random_best_action(para_index, game.round)
 
                     # Chance Node
                     elif game.phase == Phase.ATTACK_ROLL_DICE:
@@ -321,6 +321,7 @@ def main():
         model.load_state_dict(torch.load(checkpoint_path, map_location=Config.DEVICE))
 
     else:
+        # model.initialize_parameters()
         init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
         torch.save(model.state_dict(), init_checkpoint_path)
         print(f"[INITAIIZE MODEL] {init_checkpoint_path}")

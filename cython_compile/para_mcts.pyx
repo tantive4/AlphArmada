@@ -140,18 +140,17 @@ cdef class MCTS:
     Parallel Monte Carlo Tree Search for multiple Armada games.
     """
     cdef :
-        public list para_games, root_snapshots, player_roots
+        public list para_games, root_snapshots, root_nodes
         public ActionManager action_manager
         public object model
         public object action_mask
         cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer, target_ship_indices_buffer
 
-    def __init__(self, list games, ActionManager action_manager, object model) -> None:
-        self.para_games = games
-        self.root_snapshots = [(<Armada>game).get_snapshot() for game in games]
-        self.player_roots = [{ 1 : Node(game = game, action = ('initialize_game', None)),
-                               -1 : Node(game = game, action = ('initialize_game', None))} 
-                              for game in games]
+    def __init__(self, list para_games, ActionManager action_manager, object model) -> None:
+        self.para_games = para_games
+        self.root_snapshots = [(<Armada>game).get_snapshot() for game in para_games]
+        self.root_nodes = [Node(game = game, action = ('initialize_game', None))
+                              for game in para_games]
         
         self.model : BigDeep = model
 
@@ -186,10 +185,10 @@ cdef class MCTS:
         self.active_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
         self.target_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
 
-    cpdef dict para_search(self, dict sim_players, bint deep_search, int manual_iteration = 0):
+    cpdef dict para_search(self, list para_indices, bint deep_search, int manual_iteration = 0):
         cdef:
             Armada game
-            list para_indices, action_expandable_indices, valid_actions
+            list action_expandable_indices, valid_actions
             int para_index, sim_player, mcts_iteration, output_index, max_size, action_exp_len
             Node root_node, node
             dict para_path, para_action_probs
@@ -198,14 +197,10 @@ cdef class MCTS:
             float value, winner
             cnp.ndarray[cnp.float32_t, ndim=1] policy_arr
 
-        para_indices = list(sim_players.keys())
         for para_index in para_indices:
-            sim_player = sim_players[para_index]
-            root_node = self.player_roots[para_index][sim_player]
+            root_node = self.root_nodes[para_index]
             if root_node.chance_node or root_node.information_set:
                 raise ValueError("Don't use MCTS for chance node and information set")
-            game = self.para_games[para_index]
-            game.simulation_player = sim_player
 
 
         # one game / two tree
@@ -217,10 +212,10 @@ cdef class MCTS:
             para_path = {}
             action_expandable_indices = []
             for para_index in para_indices:
-                node = self.player_roots[para_index][sim_players[para_index]]
+                root_node = self.root_nodes[para_index]
             
                 # 1. Selection
-                path : deque[Node] = self._select(node, para_index)
+                path : deque[Node] = self._select(root_node, para_index)
                 para_path[para_index] = path
                 node = path[-1]
                 game = self.para_games[para_index]
@@ -254,6 +249,9 @@ cdef class MCTS:
 
                     # Add Dirichlet noise for exploration at the root node only
                     if len(path) == 1:
+                        if para_index ==0 : 
+                            print(game.phase)
+                            with open('policy list.txt', 'a') as f: f.write(f"{game.phase} \n{policy_arr}\n")
                         policy_arr = (1-Config.DIRICHLET_EPSILON) * policy_arr + \
                                      Config.DIRICHLET_EPSILON * np.random.dirichlet(np.full(len(policy_arr), Config.DIRICHLET_ALPHA)).astype(np.float32)
 
@@ -269,15 +267,14 @@ cdef class MCTS:
         # End of Search Iteration
         para_action_probs = {}
         for para_index in para_indices:
-            sim_player = sim_players[para_index]
-            para_action_probs[para_index] = self._get_final_action_probs(para_index, sim_player)
+            para_action_probs[para_index] = self._get_final_action_probs(para_index)
         return para_action_probs
 
-    cpdef object get_best_action(self, int para_index, int decision_player):
+    cpdef object get_best_action(self, int para_index):
         cdef Node root_node, best_child, child
         cdef int max_visits = -1
 
-        root_node = self.player_roots[para_index][decision_player]
+        root_node = self.root_nodes[para_index]
         for child in root_node.children:
             if child.visits > max_visits:
                 max_visits = child.visits
@@ -285,7 +282,7 @@ cdef class MCTS:
                 
         return best_child.action
 
-    cpdef object get_random_best_action(self, int para_index, int decision_player, int game_round):
+    cpdef object get_random_best_action(self, int para_index, int game_round):
         cdef:
             Node root_node, child, chosen_child
             float temperature
@@ -293,7 +290,7 @@ cdef class MCTS:
             int num_children, i
             cnp.ndarray[cnp.float32_t, ndim=1] visit_counts, visit_weights 
 
-        root_node = self.player_roots[para_index][decision_player]
+        root_node = self.root_nodes[para_index]
         children = root_node.children
         num_children = len(children)
         visit_counts = np.empty(num_children, dtype=np.float32)
@@ -318,7 +315,6 @@ cdef class MCTS:
             snapshot: The game snapshot after applying the action.
         """
         cdef:
-            int player
             Node root, matching_child
             bint found
 
@@ -326,20 +322,20 @@ cdef class MCTS:
         self.root_snapshots[para_index] = snapshot
         
         # Find the child node that matches the action taken.
-        for player in (-1, 1):
-            root = self.player_roots[para_index][player]
-            found = <bint>False
-            for child in root.children:
-                if child.action == action:
-                    matching_child = child
-                    found = <bint>True
-                    break
-            if not found:
-                matching_child = root.add_child(action, self.para_games[para_index])
+        root = self.root_nodes[para_index]
+        found = <bint>False
+        for child in root.children:
+            if child.action == action:
+                matching_child = child
+                found = <bint>True
+                break
+        if not found:
+            matching_child = root.add_child(action, self.para_games[para_index])
 
-            # The found child becomes the new root.
-            matching_child.reset_node()
-            self.player_roots[para_index][player] = matching_child
+        # The found child becomes the new root.
+        self.root_nodes[para_index] = matching_child
+
+    # cdef void _expand_root(self,)
 
     cdef object _select(self, Node root_node, int para_index):
         """
@@ -555,10 +551,10 @@ cdef class MCTS:
             
             node.update(result_for_node)
 
-    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self, int para_index, int sim_player):
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self, int para_index):
         cdef:
             cnp.ndarray[cnp.float32_t, ndim=1] action_probs = np.zeros(self.action_manager.max_action_space, dtype=np.float32)
-            Node root_node = self.player_roots[para_index][sim_player]
+            Node root_node = self.root_nodes[para_index]
             Node child
             float total_visits
 
