@@ -10,7 +10,7 @@ with open('squad_dict.json', 'r') as f:
 
 
 
-class Player(IntEnum):
+class Faction(IntEnum):
     REBEL = 1
     EMPIRE = -1
     def __str__(self):

@@ -81,14 +81,14 @@ cdef class Squad :
         """
         cdef DefenseToken token
         self.activated : bool = False
-        for token in self.defense_tokens.values():
+        for token in self.defense_tokens:
             token.ready()
 
     cpdef void destroy(self) :
         cdef DefenseToken token
         self.destroyed = True
         self.hull = 0
-        for token in self.defense_tokens.values() :
+        for token in self.defense_tokens :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
 

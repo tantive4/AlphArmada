@@ -18,22 +18,22 @@ from defense_token import DefenseToken, TokenType
 
 def setup_game(*,debuging_visual:bool=False, para_index:int=0) -> Armada: 
 
-    game = Armada(initiative=Player.REBEL, para_index=para_index) # randomly choose the first player
+    game = Armada(initiative=Faction.REBEL, para_index=para_index) # randomly choose the first player
     game.debuging_visual = debuging_visual
     rebel_ships = (
-        Ship(SHIP_DATA['CR90B'], Player.REBEL),
-        Ship(SHIP_DATA['Neb-B Support'], Player.REBEL),  
-        Ship(SHIP_DATA['CR90A'], Player.REBEL),
-        Ship(SHIP_DATA['Neb-B Escort'], Player.REBEL))
+        Ship(SHIP_DATA['CR90B'], Faction.REBEL),
+        Ship(SHIP_DATA['Neb-B Support'], Faction.REBEL),  
+        Ship(SHIP_DATA['CR90A'], Faction.REBEL),
+        Ship(SHIP_DATA['Neb-B Escort'], Faction.REBEL))
 
     
-    rebel_squads = (Squad(SQUAD_DATA['X-Wing'], Player.REBEL) for _ in range(3))
+    rebel_squads = (Squad(SQUAD_DATA['X-Wing'], Faction.REBEL) for _ in range(3))
 
     empire_ships = (
-        Ship(SHIP_DATA['VSD1'], Player.EMPIRE),
-        Ship(SHIP_DATA['VSD2'], Player.EMPIRE),)
+        Ship(SHIP_DATA['VSD1'], Faction.EMPIRE),
+        Ship(SHIP_DATA['VSD2'], Faction.EMPIRE),)
 
-    empire_squads = (Squad(SQUAD_DATA['TIE Fighter'], Player.EMPIRE) for _ in range(6))
+    empire_squads = (Squad(SQUAD_DATA['TIE Fighter'], Faction.EMPIRE) for _ in range(6))
 
     rebel_ship_deployment :list[tuple[float, float, float]] = [(600, 175, math.pi/16), (700, 175, math.pi/16), (1200, 175, 0), (1400, 175, 0)]
     empire_ship_deployment :list[tuple[float, float, float]] = [(600, 725, math.pi*7/8), (1200, 725, math.pi)]
@@ -51,7 +51,7 @@ def setup_game(*,debuging_visual:bool=False, para_index:int=0) -> Armada:
     return game
 
 class Armada:
-    def __init__(self, * ,initiative: Player, para_index:int = 0) -> None:
+    def __init__(self, * ,initiative: Faction, para_index:int = 0) -> None:
         self.player_edge = 1800 # mm
         self.short_edge = 900 # mm
         self.ships : list[Ship] = []
@@ -887,7 +887,7 @@ class Armada:
             if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
             maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
 
-        self.visualize(f"Round {self.round} | {self.phase.name.replace("_"," ").title()} | Player {Player(self.current_player)}\n{action_str}", maneuver_tool)
+        self.visualize(f"Round {self.round} | {self.phase.name.replace("_"," ").title()} | Player {Faction(self.current_player)}\n{action_str}", maneuver_tool)
 
     def deploy_ship(self, ship : Ship, x : float, y : float, orientation : float, speed : int) -> None :
         self.ships.append(ship)

@@ -23,7 +23,7 @@ cdef class Ship:
     def __init__(self, ship_dict : dict, team : int) -> None:
         self.team : int = team
         self.name : str = ship_dict['name']
-        self.faction : int = ship_dict['faction']
+        self.faction : Faction = Faction[ship_dict['faction']]
 
         self.max_hull : int = ship_dict['hull']
         self.size_class : SizeClass = SizeClass[ship_dict['size_class']]
@@ -143,7 +143,7 @@ cdef class Ship:
 
         self.hull = 0
         self.shield = (0, 0, 0, 0)
-        for token in self.defense_tokens.values() :
+        for token in self.defense_tokens :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
 
@@ -151,7 +151,7 @@ cdef class Ship:
         cdef DefenseToken token
 
         self.activated = False
-        for token in self.defense_tokens.values():
+        for token in self.defense_tokens :
             if not token.discarded:
                 token.ready()
 

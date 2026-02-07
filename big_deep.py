@@ -258,7 +258,7 @@ class BigDeep(nn.Module):
             batch_first=True,
             norm_first=True
         )
-        self.transformer_block1 = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        self.transformer_block1 = nn.TransformerEncoder(encoder_layer, num_layers=2, enable_nested_tensor=False)
 
 
         # --- 4. Spatial Sandwich Components ---
@@ -306,7 +306,7 @@ class BigDeep(nn.Module):
 
         # --- 5. Transformer Block 2 (Tactical Aware) ---
         # "Reasoning about tactical situations using spatial data"
-        self.transformer_block2 = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        self.transformer_block2 = nn.TransformerEncoder(encoder_layer, num_layers=2, enable_nested_tensor=False)
 
 
         # --- 6. Output Heads ---
@@ -363,6 +363,19 @@ class BigDeep(nn.Module):
                 nn.Linear(256, static_out_dim)
             )
 
+
+        self.active_phases = sorted(
+            [p for p in Phase if p.name in self.static_heads], 
+            key=lambda x: x.value
+        )
+        self.max_static_action_space = 0
+        for phase in self.active_phases:
+            head = cast(nn.Sequential, self.static_heads[phase.name])
+            # The last linear layer determines output size
+            out_dim = cast(int, head[-1].out_features)
+            self.max_static_action_space = max(self.max_static_action_space, out_dim)
+
+
         # Auxiliary: Hull Prediction
         # Input: Ship Token (256) + Scalar Token (256)
         self.hull_head = nn.Sequential(
@@ -397,24 +410,7 @@ class BigDeep(nn.Module):
         Compiles the individual ModuleDict static heads into stacked tensors for 
         efficient batched inference (BMM). Also builds lookup tables for phase types.
         """
-        # 1. Identify all active phases (Phases present in static_heads)
-        self.active_phases = sorted(
-            [p for p in Phase if p.name in self.static_heads], 
-            key=lambda x: x.value
-        )
-        
-        # 2. Determine Max Output Size (for padding the BMM stack)
-        # Type 1 (Ship): 1 (Pass)
-        # Type 2 (Token): Total - 4 Tokens
-        # Type 3 (Std): Total
-        self.max_static_action_space = 0
-        for phase in self.active_phases:
-            head = cast(nn.Sequential, self.static_heads[phase.name])
-            # The last linear layer determines output size
-            out_dim = cast(int, head[-1].out_features)
-            self.max_static_action_space = max(self.max_static_action_space, out_dim)
-
-        # 3. Build Lookup Tables
+        # 1. Build Lookup Tables
         max_phase_val = max(p.value for p in self.active_phases)
         
         # A. Stack Index Lookup (Phase -> Index in W_stack)
@@ -434,7 +430,7 @@ class BigDeep(nn.Module):
             else:
                 self.phase_type_lookup[phase.value] = 0
 
-        # 4. Pre-allocate Stacked Weights [Num_Phases, Out, In]
+        # 2. Pre-allocate Stacked Weights [Num_Phases, Out, In]
         num_phases = len(self.active_phases)
         
         # Layer 1 (256 -> 256)
@@ -452,7 +448,7 @@ class BigDeep(nn.Module):
         # Mask to ensure padded logits (indices > real_size) are -inf
         self.static_padding_mask = torch.zeros(num_phases, self.max_static_action_space, device=Config.DEVICE)
 
-        # 5. Copy Weights
+        # 3. Copy Weights
         with torch.no_grad():
             for idx, phase in enumerate(self.active_phases):
                 head = cast(nn.Sequential, self.static_heads[phase.name])
@@ -562,10 +558,10 @@ class BigDeep(nn.Module):
         
         # [B, N+1] - Initialize with False (Keep all)
         # In PyTorch MultiheadAttention, True values are IGNORED.
-        src_key_padding_mask = torch.zeros(batch_size, N + 1, dtype=torch.bool, device=device)
+        src_key_padding_mask = torch.zeros(batch_size, N + 1, dtype=scalar_input.dtype, device=device)
         
         # Mask out invalid ships (indices 1 to N). Index 0 (Scalar) is always kept.
-        src_key_padding_mask[:, 1:] = ~valid_ship_mask
+        src_key_padding_mask[:, 1:] = src_key_padding_mask[:, 1:].masked_fill(~valid_ship_mask, float('-inf'))
 
         # B. Attention Bias (Who relates to whom?)
         # 1. Process Geometric Relations (Ship-to-Ship)
@@ -774,10 +770,15 @@ class BigDeep(nn.Module):
             valid_ship_mask = (ship_entity_input.abs().sum(dim=2) > 0) # [B, N]
             valid_token_mask_raw = (active_tokens_raw.abs().sum(dim=2) > 0) # [B, T]
             valid_token_mask = F.pad(valid_token_mask_raw, (0, N-T)) # [B, N]
+
+            seq_indices = torch.arange(N, device=device).unsqueeze(0).expand(batch_size, -1)
+            is_active_ship_mask = (seq_indices == active_ship_indices.unsqueeze(1))
             
             # Combine validity with phase type
             final_pointer_mask = (valid_ship_mask & is_ship_ptr.squeeze(2)) | \
                                  (valid_token_mask & is_token_ptr.squeeze(2))
+            
+            final_pointer_mask = final_pointer_mask & (~is_active_ship_mask)
             
             # Apply -inf mask
             pointer_logits = pointer_logits.masked_fill(~final_pointer_mask, -1e9)
@@ -903,65 +904,3 @@ class BigDeep(nn.Module):
             "predicted_game_length": predicted_game_length
         }
         return outputs
-
-
-    def _init_weights(self, module):
-        """
-        Standard AlphaZero/MuZero style initialization.
-        """
-        if isinstance(module, (nn.Linear, nn.Conv2d)):
-            # Kaiming Normal for ReLU networks
-            nn.init.kaiming_normal_(module.weight, mode='fan_out', nonlinearity='relu')
-            if module.bias is not None:
-                nn.init.zeros_(module.bias)
-        
-        elif isinstance(module, nn.BatchNorm2d):
-            # Standard BN initialization
-            nn.init.ones_(module.weight)
-            nn.init.zeros_(module.bias)
-            
-        elif isinstance(module, nn.LayerNorm):
-            nn.init.ones_(module.weight)
-            nn.init.zeros_(module.bias)
-
-        # Transformer specific (PyTorch defaults are usually fine, but being explicit helps)
-        elif isinstance(module, nn.MultiheadAttention):
-            # Projections are Linear, so they might be caught above, 
-            # but usually we want Xavier for attention components
-            if module.in_proj_weight is not None:
-                nn.init.xavier_uniform_(module.in_proj_weight)
-            if module.out_proj.weight is not None:
-                nn.init.xavier_uniform_(module.out_proj.weight)
-
-    def initialize_parameters(self):
-        """
-        Apply initialization to all sub-modules.
-        """
-        # 1. Apply recursive initialization
-        self.apply(self._init_weights)
-        
-        # 2. Special handling for GlobalPoolingBias (Keep your logic)
-        # Your class already does this in __init__, but re-applying ensures consistency
-        for m in self.modules():
-            if isinstance(m, GlobalPoolingBias):
-                nn.init.zeros_(m.linear.weight)
-                nn.init.zeros_(m.linear.bias)
-
-        # 3. "Zero Gamma" Trick for ResNets
-        # Initialize the last BN in each ResBlock to zero so the block starts as Identity
-        for m in self.modules():
-            if isinstance(m, ResBlock):
-                nn.init.zeros_(m.bn2.weight)  # The last BN in your ResBlock
-                
-        # 4. Special handling for Heads (Optional but recommended)
-        # Start with lower variance to prevent confident random outputs
-        for phase_head in self.static_heads.values():
-            # Last layer of the policy MLP
-            last_linear = cast(nn.Linear, cast(nn.Sequential, phase_head)[-1]) 
-            nn.init.normal_(last_linear.weight, mean=0, std=0.01)
-            nn.init.zeros_(last_linear.bias)
-            
-        # Value head last layer
-        last_linear_value = cast(nn.Linear, cast(nn.Sequential, self.value_head)[-2])
-        nn.init.normal_(last_linear_value.weight, mean=0, std=0.01) # -2 because Tanh is last 
-        nn.init.zeros_(last_linear_value.bias) 

@@ -26,7 +26,7 @@ cdef class Armada:
     """
     The main class representing the Armada game.
     """
-    def __init__(self, faction: tuple[Player, Player], para_index:int = 0) -> None:
+    def __init__(self, faction: tuple[Faction, Faction], para_index:int = 0) -> None:
         self.player_edge = LONG_RANGE * 6
         self.short_edge = LONG_RANGE * 3
         self.ships : list[Ship] = []
@@ -260,7 +260,7 @@ cdef class Armada:
             blue_acc_count = attack_info.attack_pool_result[Dice.BLUE][ACCURACY_INDEX[Dice.BLUE]]
             red_acc_count = attack_info.attack_pool_result[Dice.RED][ACCURACY_INDEX[Dice.RED]]
 
-            for index, defense_token in defender.defense_tokens.items():
+            for index, defense_token in enumerate(defender.defense_tokens):
                 if defense_token.discarded or defense_token.accuracy :
                     continue
                 if blue_acc_count or red_acc_count : actions.append(('spend_accuracy_action', index))
@@ -773,7 +773,7 @@ cdef class Armada:
                 total_damage -= damage
 
             defend_ship.defend(<int>attack_info.defend_hull, total_damage, attack_info.critical)
-            for defense_token in defend_ship.defense_tokens.values() :
+            for defense_token in defend_ship.defense_tokens :
                 defense_token.accuracy = False
 
             self.attack_info = None
@@ -1022,7 +1022,7 @@ cdef class Armada:
             if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
             maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
 
-        self.visualize(f"Round {self.round} | {self.phase.name.replace('_',' ').title()} | Player {Player(self.current_player)}\n{action_str}", maneuver_tool)
+        self.visualize(f"Round {self.round} | {self.phase.name.replace('_',' ').title()} | Player {Faction(self.current_player)}\n{action_str}", maneuver_tool)
 
     cpdef void deploy_ship(self, Ship ship, float x, float y, float orientation, int speed) :
         self.ships.append(ship)
@@ -1051,7 +1051,7 @@ cdef class Armada:
             ship.max_shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS,  # 10: Left Shield
             
             # --- Battery Armament (4 hulls * 3 colors = 12 features) ---
-            *[dice / MAX_DICE for hull_dice in ship.battery for dice in hull_dice],
+            *[dice / MAX_DICE for hull_dice in ship.battery.values() for dice in hull_dice],
 
             # --- Anti-Squad Armament (3 features) ---
             *[dice / MAX_DICE for dice in ship.anti_squad]

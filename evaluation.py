@@ -15,7 +15,7 @@ from para_mcts import MCTS
 from action_phase import Phase, get_action_str
 from dice import roll_dice
 from jit_geometry import pre_compile_jit_geometry
-from enum_class import Player
+from enum_class import Faction
 
 def load_latest_model(model):
     """Loads the latest checkpoint from the checkpoint directory."""
@@ -71,11 +71,11 @@ def main():
     # 5. Select Sides
     human_input = input("Choose your faction (Rebel/Empire) [default: Rebel]: ").strip().lower()
     if human_input == 'empire':
-        human_player = Player.EMPIRE
-        ai_player = Player.REBEL
+        human_player = Faction.EMPIRE
+        ai_player = Faction.REBEL
     else:
-        human_player = Player.REBEL
-        ai_player = Player.EMPIRE
+        human_player = Faction.REBEL
+        ai_player = Faction.EMPIRE
 
     print(f"\nHuman playing as: {human_player.name}")
     print(f"AI playing as: {ai_player.name}")

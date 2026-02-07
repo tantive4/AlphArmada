@@ -59,7 +59,7 @@ OBSTACLE_GEOM_MAP = {
 
 # --- Helper Functions ---
 
-def get_random_fleet(faction: Player, max_points=200, max_squad_points=67):
+def get_random_fleet(faction: Faction, max_points=200, max_squad_points=67):
     """
     Generates a random fleet by iteratively adding any valid unit that fits 
     within the point constraints until no more units can be added.
@@ -134,13 +134,13 @@ def get_obstacle_polygon(obs_obj, x, y, orientation):
     return poly
 
 def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada: 
-    players = [Player.REBEL, Player.EMPIRE]
+    players = [Faction.REBEL, Faction.EMPIRE]
     # 1. Generate Fleets
     first_faction, second_faction = random.choices(players, k=2)
     first_ship_names, first_squad_names, first_points = get_random_fleet(first_faction, max_squad_points=0) # simplified
     second_ship_names, second_squad_names, second_points = get_random_fleet(second_faction, max_squad_points=0) # simplified
 
-    game = Armada(faction=[first_faction, second_faction], para_index=para_index)
+    game = Armada(faction=(first_faction, second_faction), para_index=para_index)
     game.debuging_visual = debuging_visual
 
     # Create Objects

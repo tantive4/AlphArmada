@@ -167,7 +167,7 @@ cdef class MCTS:
             dtype=np.float32
         )
         self.ship_coords_buffer = np.zeros(
-            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 2), 
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 3), 
             dtype=np.float32
         )
         self.ship_def_token_buffer = np.zeros(
@@ -180,7 +180,7 @@ cdef class MCTS:
             dtype=np.uint8
         )
         self.relation_buffer = np.zeros(
-            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_SHIPS, 16), 
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 
             dtype=np.float32
         )
         self.active_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
@@ -505,7 +505,7 @@ cdef class MCTS:
         else:
             # Handle rare cases where the network assigns 0 probability to all valid moves
             # Or if there are no valid moves (should not happen for an expandable node)
-            print(f"Warning: Zero policy sum for valid moves in {valid_actions}. Using uniform distribution. Original Policy: {policy}, Action Mask: {action_mask_view}")
+            raise ValueError(f"Warning: Zero policy sum for valid moves in \n{valid_actions}. \nUsing uniform distribution. \n\nOriginal Policy: \n{policy}, \n\nAction Mask: \n{action_mask_view}")
             num_valid = len(valid_actions)
             policy[action_mask_view] = 1.0 / num_valid
 
