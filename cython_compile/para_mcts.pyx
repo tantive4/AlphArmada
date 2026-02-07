@@ -79,6 +79,28 @@ cdef class Node:
         self.children.append(node)
         return node
 
+    cdef void _add_root_noise(self):
+        if not self.children:
+            return
+        
+        cdef:
+            int num_children = len(self.children)
+            cnp.ndarray[cnp.float32_t, ndim=1] noise
+            int i
+            Node child
+            float epsilon = Config.DIRICHLET_EPSILON
+            float alpha = Config.DIRICHLET_ALPHA_SCALE / <float>num_children
+
+        # Generate Dirichlet noise
+        noise = np.random.dirichlet(np.full(num_children, alpha)).astype(np.float32)
+
+        # Mix noise into the existing children's policies
+        for i in range(num_children):
+            child = self.children[i]
+            # Note: This permanently alters the prior for this node, 
+            child.policy = (1 - epsilon) * child.policy + epsilon * noise[i]
+
+
     cdef Node select_child(self):
         """
         Selects a child node using the UCT formula with random tie-breaking.
@@ -188,29 +210,60 @@ cdef class MCTS:
     cpdef dict para_search(self, list para_indices, bint deep_search, int manual_iteration = 0):
         cdef:
             Armada game
-            list action_expandable_indices, valid_actions
+            list leaf_root_indices, expandable_indices, valid_actions
             int para_index, sim_player, mcts_iteration, output_index, max_size, action_exp_len
             Node root_node, node
             dict para_path, para_action_probs
             object path
-            object action_values, action_policies
+            cnp.ndarray[cnp.float32_t, ndim=1] batch_value
+            cnp.ndarray[cnp.float32_t, ndim=2] batch_policy
             float value, winner
             cnp.ndarray[cnp.float32_t, ndim=1] policy_arr
 
+        # ===== Initialize Root Nodes and Add Noise =====
+        
+        leaf_root_indices = []
         for para_index in para_indices:
             root_node = self.root_nodes[para_index]
+            game = self.para_games[para_index]
+            game.revert_snapshot(root_node.snapshot)
+
             if root_node.chance_node or root_node.information_set:
                 raise ValueError("Don't use MCTS for chance node and information set")
-
-
-        # one game / two tree
+            if not root_node.children : 
+                leaf_root_indices.append(para_index)
         
+        # Expansion
+        if leaf_root_indices:
+            batch_value, batch_policy = self._get_value_policy(
+                [encode_game_state(self.para_games[para_index]) for para_index in leaf_root_indices],
+                [self.para_games[para_index].phase for para_index in leaf_root_indices],
+            )
+
+            for output_index, para_index in enumerate(leaf_root_indices):
+                root_node = self.root_nodes[para_index]
+                game = self.para_games[para_index]
+                
+                value = <float>(batch_value[output_index])
+                policy_arr = batch_policy[output_index]
+
+                valid_actions = game.get_valid_actions()
+
+                policy_arr = self._mask_policy(policy_arr, <int>game.phase, valid_actions)
+                self._expand(root_node, para_index, <int>game.phase, valid_actions, value, policy_arr)
+
+        for para_index in para_indices:
+            root_node = self.root_nodes[para_index]
+            root_node._add_root_noise()
+        
+
+        # ===== MCTS Iterations =====
 
         mcts_iteration = Config.MCTS_ITERATION if deep_search else Config.MCTS_ITERATION_FAST
         if manual_iteration : mcts_iteration = manual_iteration
         for _ in range(mcts_iteration):
             para_path = {}
-            action_expandable_indices = []
+            expandable_indices = []
             for para_index in para_indices:
                 root_node = self.root_nodes[para_index]
             
@@ -228,35 +281,25 @@ cdef class MCTS:
                     self._backpropagate(path, value)
                     game.revert_snapshot(self.root_snapshots[para_index])
                 else :
-                    action_expandable_indices.append(para_index)
+                    expandable_indices.append(para_index)
 
             # 2. Expansion (for player decision nodes)
             # note that leaf node is not chance node or information set node
-            if action_expandable_indices:
-                action_values, action_policies = self._get_value_policy(
-                    [encode_game_state(self.para_games[para_index]) for para_index in action_expandable_indices],
-                    [self.para_games[para_index].phase for para_index in action_expandable_indices],
+            if expandable_indices:
+                batch_value, batch_policy = self._get_value_policy(
+                    [encode_game_state(self.para_games[para_index]) for para_index in expandable_indices],
+                    [self.para_games[para_index].phase for para_index in expandable_indices],
                 )
 
-                for output_index, para_index in enumerate(action_expandable_indices):
+                for output_index, para_index in enumerate(expandable_indices):
                     path = para_path[para_index]
                     node = path[-1]
                     game = self.para_games[para_index]
 
-                    value = <float>(action_values[output_index])
-                    policy_arr = action_policies[output_index]
+                    value = <float>(batch_value[output_index])
+                    policy_arr = batch_policy[output_index]
                     
-
-                    # Add Dirichlet noise for exploration at the root node only
-                    if len(path) == 1:
-                        if para_index ==0 : 
-                            print(game.phase)
-                            with open('policy list.txt', 'a') as f: f.write(f"{game.phase} \n{policy_arr}\n")
-                        policy_arr = (1-Config.DIRICHLET_EPSILON) * policy_arr + \
-                                     Config.DIRICHLET_EPSILON * np.random.dirichlet(np.full(len(policy_arr), Config.DIRICHLET_ALPHA)).astype(np.float32)
-
                     valid_actions: list[ActionType] = game.get_valid_actions()
-
                     policy_arr = self._mask_policy(policy_arr, <int>game.phase, valid_actions)
 
                     self._expand(node, para_index, <int>game.phase, valid_actions, value, policy_arr)
@@ -264,7 +307,7 @@ cdef class MCTS:
                     # 3. Backpropagation (Updated for -1 to 1 scoring)
                     self._backpropagate(path, value)
 
-        # End of Search Iteration
+        # ===== End of Search Iteration =====
         para_action_probs = {}
         for para_index in para_indices:
             para_action_probs[para_index] = self._get_final_action_probs(para_index)

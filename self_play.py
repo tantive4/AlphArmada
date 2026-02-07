@@ -58,12 +58,12 @@ class AlphArmada:
         action_counter : int = 0
         with tqdm(total=Config.PARALLEL_PLAY, desc=f"[SELF-PLAY]", unit="game") as pbar:
             while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
-                simulation_players: dict[int, int] = {i: game.decision_player for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0}
+                para_indices: list[int] = [i for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0]
 
-                if simulation_players :
+                if para_indices :
                     # --- Perform MCTS search in parallel for decision nodes ---
                     deep_search = random.random() < Config.DEEP_SEARCH_RATIO
-                    para_action_probs : dict[int, np.ndarray] = mcts.para_search(simulation_players, deep_search=deep_search)
+                    para_action_probs : dict[int, np.ndarray] = mcts.para_search(para_indices, deep_search=deep_search)
                     if deep_search :
                         for para_index in para_action_probs:
                             game : Armada = para_games[para_index]

@@ -1021,8 +1021,8 @@ cdef class Armada:
             course, placement = action[1]
             if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
             maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
-
-        self.visualize(f"Round {self.round} | {self.phase.name.replace('_',' ').title()} | Player {Faction(self.current_player)}\n{action_str}", maneuver_tool)
+        turn = 'First' if self.current_player == self.first_player else 'Second'
+        self.visualize(f"Round {self.round} | {self.phase.name.replace('_',' ').title()} | {turn} Player\n{action_str}", maneuver_tool)
 
     cpdef void deploy_ship(self, Ship ship, float x, float y, float orientation, int speed) :
         self.ships.append(ship)
