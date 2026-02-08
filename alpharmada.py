@@ -100,7 +100,7 @@ class AlphArmadaWorker():
                 action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
-            with open('simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
+            with open(f'{Config.MOUNT_PATH}/simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
         
         delete_cache()
         del para_games
@@ -155,7 +155,7 @@ class AlphArmadaWorker():
 
         self.replay_buffer.add_batch(collated_data)
 
-        with open(f'replay_stats_worker_{self.worker_id:02d}.txt', 'a') as f:
+        with open(f'{Config.MOUNT_PATH}/replay_stats_worker_{self.worker_id:02d}.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
     
 class AlphArmadaTrainer:
@@ -201,7 +201,7 @@ class AlphArmadaTrainer:
 
         print(f"[TRAINING] {new_checkpoint} completed. Final loss: {loss:.4f}")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open('loss.txt', 'a') as f:
+        with open(f'{Config.MOUNT_PATH}/loss.txt', 'a') as f:
             f.write(f"{timestamp}, {loss:.4f}\n")
 
 

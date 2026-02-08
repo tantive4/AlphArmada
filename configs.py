@@ -48,7 +48,7 @@ class Config:
 
     # Replay Buffer
     REPLAY_BUFFER_SIZE = 128000  # 10 iteration to take for full buffer replacement
-    REPLAY_BUFFER_DIR = "replay_buffers"
+    
 
     # Neural Network Training
     EPOCHS = 100
@@ -65,5 +65,7 @@ class Config:
     
 
     # Model Paths
-    CHECKPOINT_DIR = "model_checkpoints"
+    MOUNT_PATH = "/root/data"
+    CHECKPOINT_DIR = f"{MOUNT_PATH}/model_checkpoints"
+    REPLAY_BUFFER_DIR = f"{MOUNT_PATH}/replay_buffers"
     NUM_WORKERS = 20
