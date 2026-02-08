@@ -3855,6 +3855,7 @@ static const char __pyx_k_state[] = "state";
 static const char __pyx_k_swarm[] = "swarm";
 static const char __pyx_k_upper[] = "upper";
 static const char __pyx_k_value[] = "value";
+static const char __pyx_k_A_IT_q[] = "\200A\360\n\000\t\r\320\014 \240\001\330\010\014\210I\220T\230\021\330\014\021\220\026\220q";
 static const char __pyx_k_A_Ja_q[] = "\200A\360\014\000\t\r\210J\220a\330\010\014\320\014\037\230q";
 static const char __pyx_k_A_w_ay[] = "\200A\360\016\000\t\020\210w\320\026&\240a\240y\260\001";
 static const char __pyx_k_bomber[] = "bomber";
@@ -3873,7 +3874,6 @@ static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_typing[] = "typing";
 static const char __pyx_k_unique[] = "unique";
 static const char __pyx_k_update[] = "update";
-static const char __pyx_k_values[] = "values";
 static const char __pyx_k_A_r_T_D[] = "\200A\330\010\017\210r\220\024\220T\230\033\240D\250\001";
 static const char __pyx_k_Counter[] = "Counter";
 static const char __pyx_k_battery[] = "battery";
@@ -3886,7 +3886,6 @@ static const char __pyx_k_strides[] = "strides";
 static const char __pyx_k_to_hull[] = "to_hull";
 static const char __pyx_k_to_ship[] = "to_ship";
 static const char __pyx_k_A_IQ_4vS[] = "\200A\360\n\000\t\r\210I\220Q\330\010\013\2104\210v\220S\230\001\330\014\020\220\010\230\001";
-static const char __pyx_k_A_IT_q_q[] = "\200A\360\n\000\t\r\320\014 \240\001\330\010\014\210I\220T\230\037\250\007\250q\330\014\021\220\026\220q";
 static const char __pyx_k_A_c_3a_q[] = "\200A\330\010\"\240!\330\010\013\210;\220c\230\032\2403\240a\330\014\031\230\027\240\001\240\030\250\021\330\010\017\210q";
 static const char __pyx_k_Critical[] = "Critical";
 static const char __pyx_k_DISTANCE[] = "DISTANCE";
@@ -4005,6 +4004,7 @@ static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_pyx_unpickle_Squad[] = "__pyx_unpickle_Squad";
 static const char __pyx_k_get_critical_effect[] = "get_critical_effect";
 static const char __pyx_k_get_datetime64_unit[] = "get_datetime64_unit";
+static const char __pyx_k_A_M_HA_IT_t5_U_E_1Bd[] = "\200A\340\010\014\210M\230\021\330\010\014\210H\220A\330\010\014\210I\220T\230\021\330\014\017\210t\2205\230\r\240U\250(\260!\330\010\014\210E\220\032\2301\230B\230d\240!";
 static const char __pyx_k_Squad_end_activation[] = "Squad.end_activation";
 static const char __pyx_k_Squad_is_engage_with[] = "Squad.is_engage_with";
 static const char __pyx_k_get_datetime64_value[] = "get_datetime64_value";
@@ -4022,7 +4022,6 @@ static const char __pyx_k_Squad_is_obstruct_q2q[] = "Squad.is_obstruct_q2q";
 static const char __pyx_k_Squad_is_obstruct_q2s[] = "Squad.is_obstruct_q2s";
 static const char __pyx_k_get_timedelta64_value[] = "get_timedelta64_value";
 static const char __pyx_k_is_timedelta64_object[] = "is_timedelta64_object";
-static const char __pyx_k_A_M_HA_IT_q_t5_U_E_1Bd[] = "\200A\340\010\014\210M\230\021\330\010\014\210H\220A\330\010\014\210I\220T\230\037\250\007\250q\330\014\017\210t\2205\230\r\240U\250(\260!\330\010\014\210E\220\032\2301\230B\230d\240!";
 static const char __pyx_k_PyDatetimeArrType_Type[] = "PyDatetimeArrType_Type";
 static const char __pyx_k_Squad_get_valid_target[] = "Squad.get_valid_target";
 static const char __pyx_k_Squad_start_activation[] = "Squad.start_activation";
@@ -4195,7 +4194,7 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
   PyObject *__pyx_tuple[2];
   PyObject *__pyx_codeobj_tab[116];
-  PyObject *__pyx_string_tab[232];
+  PyObject *__pyx_string_tab[231];
   PyObject *__pyx_int_0;
   PyObject *__pyx_int_1;
   PyObject *__pyx_int_2;
@@ -4468,10 +4467,9 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_upper __pyx_string_tab[225]
 #define __pyx_n_u_use_setstate __pyx_string_tab[226]
 #define __pyx_n_u_value __pyx_string_tab[227]
-#define __pyx_n_u_values __pyx_string_tab[228]
-#define __pyx_n_u_visualize __pyx_string_tab[229]
-#define __pyx_n_u_x __pyx_string_tab[230]
-#define __pyx_n_u_y __pyx_string_tab[231]
+#define __pyx_n_u_visualize __pyx_string_tab[228]
+#define __pyx_n_u_x __pyx_string_tab[229]
+#define __pyx_n_u_y __pyx_string_tab[230]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -4516,7 +4514,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type_5squad_Squad);
   for (int i=0; i<2; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<116; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<232; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<231; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   Py_CLEAR(clear_module_state->__pyx_int_0);
   Py_CLEAR(clear_module_state->__pyx_int_1);
   Py_CLEAR(clear_module_state->__pyx_int_2);
@@ -4568,7 +4566,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type_5squad_Squad);
   for (int i=0; i<2; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<116; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<232; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<231; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_0);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_1);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_2);
@@ -7934,7 +7932,7 @@ static void __pyx_f_5squad_5Squad_status_phase(struct __pyx_obj_5squad_Squad *__
  *         """
  *         cdef DefenseToken token
  *         self.activated : bool = False             # <<<<<<<<<<<<<<
- *         for token in self.defense_tokens.values():
+ *         for token in self.defense_tokens:
  *             token.ready()
 */
   __pyx_v_self->activated = 0;
@@ -7942,22 +7940,22 @@ static void __pyx_f_5squad_5Squad_status_phase(struct __pyx_obj_5squad_Squad *__
   /* "squad.pyx":84
  *         cdef DefenseToken token
  *         self.activated : bool = False
- *         for token in self.defense_tokens.values():             # <<<<<<<<<<<<<<
+ *         for token in self.defense_tokens:             # <<<<<<<<<<<<<<
  *             token.ready()
  * 
 */
   __pyx_t_6 = 0;
   if (unlikely(__pyx_v_self->defense_tokens == Py_None)) {
-    PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "values");
+    PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
     __PYX_ERR(0, 84, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_dict_iterator(__pyx_v_self->defense_tokens, 1, __pyx_mstate_global->__pyx_n_u_values, (&__pyx_t_7), (&__pyx_t_8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_dict_iterator(__pyx_v_self->defense_tokens, 1, ((PyObject *)NULL), (&__pyx_t_7), (&__pyx_t_8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_1);
   __pyx_t_1 = __pyx_t_2;
   __pyx_t_2 = 0;
   while (1) {
-    __pyx_t_9 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_7, &__pyx_t_6, NULL, &__pyx_t_2, NULL, __pyx_t_8);
+    __pyx_t_9 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_7, &__pyx_t_6, &__pyx_t_2, NULL, NULL, __pyx_t_8);
     if (unlikely(__pyx_t_9 == 0)) break;
     if (unlikely(__pyx_t_9 == -1)) __PYX_ERR(0, 84, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -7967,7 +7965,7 @@ static void __pyx_f_5squad_5Squad_status_phase(struct __pyx_obj_5squad_Squad *__
 
     /* "squad.pyx":85
  *         self.activated : bool = False
- *         for token in self.defense_tokens.values():
+ *         for token in self.defense_tokens:
  *             token.ready()             # <<<<<<<<<<<<<<
  * 
  *     cpdef void destroy(self) :
@@ -8184,7 +8182,7 @@ static void __pyx_f_5squad_5Squad_destroy(struct __pyx_obj_5squad_Squad *__pyx_v
  *         cdef DefenseToken token
  *         self.destroyed = True             # <<<<<<<<<<<<<<
  *         self.hull = 0
- *         for token in self.defense_tokens.values() :
+ *         for token in self.defense_tokens :
 */
   __pyx_v_self->destroyed = 1;
 
@@ -8192,7 +8190,7 @@ static void __pyx_f_5squad_5Squad_destroy(struct __pyx_obj_5squad_Squad *__pyx_v
  *         cdef DefenseToken token
  *         self.destroyed = True
  *         self.hull = 0             # <<<<<<<<<<<<<<
- *         for token in self.defense_tokens.values() :
+ *         for token in self.defense_tokens :
  *             if not token.discarded : token.discard()
 */
   __pyx_v_self->hull = 0;
@@ -8200,22 +8198,22 @@ static void __pyx_f_5squad_5Squad_destroy(struct __pyx_obj_5squad_Squad *__pyx_v
   /* "squad.pyx":91
  *         self.destroyed = True
  *         self.hull = 0
- *         for token in self.defense_tokens.values() :             # <<<<<<<<<<<<<<
+ *         for token in self.defense_tokens :             # <<<<<<<<<<<<<<
  *             if not token.discarded : token.discard()
  *         self.game.visualize(f'{self} is destroyed!')
 */
   __pyx_t_6 = 0;
   if (unlikely(__pyx_v_self->defense_tokens == Py_None)) {
-    PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "values");
+    PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
     __PYX_ERR(0, 91, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_dict_iterator(__pyx_v_self->defense_tokens, 1, __pyx_mstate_global->__pyx_n_u_values, (&__pyx_t_7), (&__pyx_t_8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_dict_iterator(__pyx_v_self->defense_tokens, 1, ((PyObject *)NULL), (&__pyx_t_7), (&__pyx_t_8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_1);
   __pyx_t_1 = __pyx_t_2;
   __pyx_t_2 = 0;
   while (1) {
-    __pyx_t_9 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_7, &__pyx_t_6, NULL, &__pyx_t_2, NULL, __pyx_t_8);
+    __pyx_t_9 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_7, &__pyx_t_6, &__pyx_t_2, NULL, NULL, __pyx_t_8);
     if (unlikely(__pyx_t_9 == 0)) break;
     if (unlikely(__pyx_t_9 == -1)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -8225,7 +8223,7 @@ static void __pyx_f_5squad_5Squad_destroy(struct __pyx_obj_5squad_Squad *__pyx_v
 
     /* "squad.pyx":92
  *         self.hull = 0
- *         for token in self.defense_tokens.values() :
+ *         for token in self.defense_tokens :
  *             if not token.discarded : token.discard()             # <<<<<<<<<<<<<<
  *         self.game.visualize(f'{self} is destroyed!')
  * 
@@ -8238,7 +8236,7 @@ static void __pyx_f_5squad_5Squad_destroy(struct __pyx_obj_5squad_Squad *__pyx_v
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "squad.pyx":93
- *         for token in self.defense_tokens.values() :
+ *         for token in self.defense_tokens :
  *             if not token.discarded : token.discard()
  *         self.game.visualize(f'{self} is destroyed!')             # <<<<<<<<<<<<<<
  * 
@@ -21181,7 +21179,6 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_upper, sizeof(__pyx_k_upper), 0, 1, 1}, /* PyObject cname: __pyx_n_u_upper */
   {__pyx_k_use_setstate, sizeof(__pyx_k_use_setstate), 0, 1, 1}, /* PyObject cname: __pyx_n_u_use_setstate */
   {__pyx_k_value, sizeof(__pyx_k_value), 0, 1, 1}, /* PyObject cname: __pyx_n_u_value */
-  {__pyx_k_values, sizeof(__pyx_k_values), 0, 1, 1}, /* PyObject cname: __pyx_n_u_values */
   {__pyx_k_visualize, sizeof(__pyx_k_visualize), 0, 1, 1}, /* PyObject cname: __pyx_n_u_visualize */
   {__pyx_k_x, sizeof(__pyx_k_x), 0, 1, 1}, /* PyObject cname: __pyx_n_u_x */
   {__pyx_k_y, sizeof(__pyx_k_y), 0, 1, 1}, /* PyObject cname: __pyx_n_u_y */
@@ -21471,14 +21468,14 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_deploy, __pyx_k_A_Q_L_M_Q_S_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 78, 32};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 78, 28};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_status_phase, __pyx_k_A_IT_q_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_status_phase, __pyx_k_A_IT_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 87, 59};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 87, 55};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[39] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_destroy, __pyx_k_A_M_HA_IT_q_t5_U_E_1Bd, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[39])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[39] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_squad_pyx, __pyx_mstate->__pyx_n_u_destroy, __pyx_k_A_M_HA_IT_t5_U_E_1Bd, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[39])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 95, 36};

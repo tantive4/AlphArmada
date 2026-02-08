@@ -1051,7 +1051,7 @@ cdef class Armada:
             ship.max_shield[HullSection.LEFT] / Config.GLOBAL_MAX_SHIELDS,  # 10: Left Shield
             
             # --- Battery Armament (4 hulls * 3 colors = 12 features) ---
-            *[dice / MAX_DICE for hull_dice in ship.battery.values() for dice in hull_dice],
+            *[dice / MAX_DICE for hull in range(hull_type) for dice in ship.battery[hull]],
 
             # --- Anti-Squad Armament (3 features) ---
             *[dice / MAX_DICE for dice in ship.anti_squad]
