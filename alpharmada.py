@@ -162,7 +162,6 @@ class AlphArmadaTrainer:
     def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:
         self.model = model
         self.max_action_space = model.max_action_space
-        self.replay_buffer = DiskReplayBuffer(Config.REPLAY_BUFFER_DIR, Config.REPLAY_BUFFER_SIZE, self.max_action_space)
         self.optimizer = optimizer
 
     def train_model(self, new_checkpoint : int) -> None:
@@ -172,13 +171,14 @@ class AlphArmadaTrainer:
 
         # --- LOAD DATASET ---
         dataset = ArmadaDiskDataset(
-            data_dir=Config.REPLAY_BUFFER_DIR, 
-            max_size=Config.REPLAY_BUFFER_SIZE, 
-            current_size=self.replay_buffer.current_size, 
+            data_root=Config.REPLAY_BUFFER_DIR, 
+            num_workers=Config.NUM_WORKERS, # Make sure to add this to your Config!
+            max_size_per_worker=Config.REPLAY_BUFFER_SIZE, 
             action_space_size=self.max_action_space
         )
-        if self.replay_buffer.current_size < Config.REPLAY_BUFFER_SIZE:
-            print(f"[TRAINING] Not enough data to train. Current size: {self.replay_buffer.current_size} / {Config.REPLAY_BUFFER_SIZE}")
+        current_total_size = len(dataset)
+        if current_total_size < Config.REPLAY_BUFFER_SIZE:
+            print(f"[TRAINING] Not enough data to train. Current size: {current_total_size} / {Config.REPLAY_BUFFER_SIZE}")
             return
 
         dataloader = DataLoader(

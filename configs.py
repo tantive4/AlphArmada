@@ -66,3 +66,4 @@ class Config:
 
     # Model Paths
     CHECKPOINT_DIR = "model_checkpoints"
+    NUM_WORKERS = 20

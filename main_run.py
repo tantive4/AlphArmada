@@ -23,7 +23,6 @@ def train(model : BigDeep, current_iter : int) -> None:
 
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer")
     parser.add_argument("--worker_id", type=int, required=False, default=0, help="Machine ID for multi-machine setup")
@@ -35,7 +34,6 @@ def main():
         work(model, args.worker_id)
 
     elif args.mode == "trainer": 
-        
         train(model, current_iter)
 
 if __name__ == "__main__":
