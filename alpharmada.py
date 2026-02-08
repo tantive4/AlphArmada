@@ -52,8 +52,8 @@ class AlphArmadaWorker():
             para_game.para_index = para_index
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
         
-        # if os.path.exists("game_visuals"):import shutil; shutil.rmtree("game_visuals")
-        # para_games[0].debuging_visual = True
+        if os.path.exists("game_visuals"):import shutil; shutil.rmtree("game_visuals")
+        para_games[0].debuging_visual = True
 
 
         action_counter : int = 0
@@ -150,12 +150,12 @@ class AlphArmadaWorker():
             'target_values': np.array(winner_list, dtype=np.float32).reshape(-1, 1),
             'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_list]),
             'target_game_length': np.stack([t['game_length'] for t in aux_list]),
-            'target_win_probs': np.stack([t['win_probs'] for t in aux_list])
+            'target_win_probs': np.stack([t['win_prob'] for t in aux_list])
         }
 
         self.replay_buffer.add_batch(collated_data)
 
-        with open(f'{Config.MOUNT_PATH}/replay_stats_worker_{self.worker_id:02d}.txt', 'a') as f:
+        with open(f'{Config.MOUNT_PATH}/replay_stats/worker_{self.worker_id:02d}.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
     
 class AlphArmadaTrainer:

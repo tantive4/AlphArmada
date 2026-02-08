@@ -66,6 +66,7 @@ class Config:
 
     # Model Paths
     MOUNT_PATH = "/root/data"
+    # MOUNT_PATH = "."
     CHECKPOINT_DIR = f"{MOUNT_PATH}/model_checkpoints"
     REPLAY_BUFFER_DIR = f"{MOUNT_PATH}/replay_buffers"
     NUM_WORKERS = 20
