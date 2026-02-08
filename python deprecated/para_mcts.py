@@ -13,7 +13,7 @@ from game_encoder import encode_game_state
 import dice
 from action_phase import Phase, ActionType
 from armada import Armada
-from self_play import Config
+from alpharmada import Config
 
 
 class Node:

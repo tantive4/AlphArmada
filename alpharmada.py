@@ -1,8 +1,5 @@
 import random
 import os
-import argparse
-import sys
-import time
 from datetime import datetime
 import copy
 from tqdm import trange, tqdm
@@ -11,8 +8,7 @@ import gc
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
-import pickle
+from torch.utils.data import DataLoader
 import numpy as np
 
 from disk_manager import DiskReplayBuffer, ArmadaDiskDataset
@@ -20,24 +16,29 @@ from configs import Config
 from armada import Armada
 from setup_game import setup_game
 from cache_function import delete_cache
-from jit_geometry import pre_compile_jit_geometry
 from big_deep import BigDeep
 from game_encoder import encode_game_state, get_terminal_value
 from para_mcts import MCTS
 from action_manager import ActionManager
-from action_phase import Phase, get_action_str
+from action_phase import Phase
 from dice import roll_dice
 
+class AlphArmadaWorker():
+    def __init__(self, model : BigDeep, worker_id : int) :
+        self.worker_id = worker_id
+        self.model = model
+        self.model.eval()
+        self.model.compile_fast_policy()
 
-class AlphArmada:
-    def __init__(self, model : BigDeep, optimizer : optim.AdamW) :
-        self.model : BigDeep = model
-        self.optimizer : optim.AdamW = optimizer
+        replay_buffer_dir = os.path.join(Config.REPLAY_BUFFER_DIR, f"worker_{worker_id:02d}")
 
-        self.max_action_space = model.max_action_space
-        self.replay_buffer = DiskReplayBuffer(Config.REPLAY_BUFFER_DIR, Config.REPLAY_BUFFER_SIZE, self.max_action_space)
-        
-    def para_self_play(self) -> None:
+        self.replay_buffer = DiskReplayBuffer(
+            replay_buffer_dir, 
+            Config.REPLAY_BUFFER_SIZE, 
+            model.max_action_space
+        )
+
+    def self_play(self) -> None:
         memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
 
         action_manager = ActionManager()
@@ -51,8 +52,8 @@ class AlphArmada:
             para_game.para_index = para_index
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
         
-        if os.path.exists("game_visuals"):import shutil; shutil.rmtree("game_visuals")
-        para_games[0].debuging_visual = True
+        # if os.path.exists("game_visuals"):import shutil; shutil.rmtree("game_visuals")
+        # para_games[0].debuging_visual = True
 
 
         action_counter : int = 0
@@ -86,11 +87,6 @@ class AlphArmada:
                         dice_roll = roll_dice(game.attack_info.dice_to_roll)
                         action = ('roll_dice_action', dice_roll)
 
-                    # Information Set Node
-                    elif game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL:
-                        if len(game.get_valid_actions()) != 1:
-                            raise ValueError("Multiple valid actions in information set node.")
-                        action = game.get_valid_actions()[0]
                     game.apply_action(action)
                     mcts.advance_tree(para_index, action, game.get_snapshot())
                     
@@ -159,8 +155,60 @@ class AlphArmada:
 
         self.replay_buffer.add_batch(collated_data)
 
-        with open('replay_stats.txt', 'a') as f:
+        with open(f'replay_stats_worker_{self.worker_id:02d}.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
+    
+class AlphArmadaTrainer:
+    def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:
+        self.model = model
+        self.max_action_space = model.max_action_space
+        self.replay_buffer = DiskReplayBuffer(Config.REPLAY_BUFFER_DIR, Config.REPLAY_BUFFER_SIZE, self.max_action_space)
+        self.optimizer = optimizer
+
+    def train_model(self, new_checkpoint : int) -> None:
+
+        # --- PREPARE TRAINING ---
+        self.model.train()
+
+        # --- LOAD DATASET ---
+        dataset = ArmadaDiskDataset(
+            data_dir=Config.REPLAY_BUFFER_DIR, 
+            max_size=Config.REPLAY_BUFFER_SIZE, 
+            current_size=self.replay_buffer.current_size, 
+            action_space_size=self.max_action_space
+        )
+        if self.replay_buffer.current_size < Config.REPLAY_BUFFER_SIZE:
+            print(f"[TRAINING] Not enough data to train. Current size: {self.replay_buffer.current_size} / {Config.REPLAY_BUFFER_SIZE}")
+            return
+
+        dataloader = DataLoader(
+            dataset, 
+            batch_size=Config.BATCH_SIZE, 
+            shuffle=True, 
+            num_workers=4, 
+        )
+
+
+        # --- TRAINING LOOP ---
+        iterator = iter(dataloader)
+        for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
+            try:
+                batch = next(iterator)
+            except StopIteration:
+                iterator = iter(dataloader)
+                batch = next(iterator)
+            loss = self.train(batch)
+
+        print(f"[TRAINING] {new_checkpoint} completed. Final loss: {loss:.4f}")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open('loss.txt', 'a') as f:
+            f.write(f"{timestamp}, {loss:.4f}\n")
+
+
+        # --- SAVE MODEL ---
+        checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{new_checkpoint}.pth")
+        torch.save(self.model.state_dict(), checkpoint_path)
+        print(f"[SAVE MODEL] {checkpoint_path}")
 
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
         """
@@ -233,104 +281,3 @@ class AlphArmada:
         self.optimizer.step()
 
         return total_loss.item()
-
-    def learn(self, current_iteration):
-            """
-            Main training loop:
-            1. Perform self-play to generate training data & save to disk.
-            2. Load data from disk into DataLoader.
-            3. Train the model on the data.
-            4. Save the updated model checkpoint.
-            """
-
-            # --- SELF PLAY & SAVE DATA ---
-            self.model.eval()
-            self.model.compile_fast_policy()
-            self.para_self_play()
-
-            
-
-            # --- PREPARE TRAINING ---
-            self.model.train()
-            self.model.fast_policy_ready = False
-            if hasattr(self.model, 'w1_stack'):
-                del self.model.w1_stack, self.model.b1_stack, self.model.w2_stack, self.model.b2_stack, self.model.w3_stack, self.model.b3_stack
-
-            dataset = ArmadaDiskDataset(
-                data_dir=Config.REPLAY_BUFFER_DIR, 
-                max_size=Config.REPLAY_BUFFER_SIZE, 
-                current_size=self.replay_buffer.current_size, 
-                action_space_size=self.max_action_space
-            )
-            if self.replay_buffer.current_size < Config.REPLAY_BUFFER_SIZE // 2:
-                print(f"[TRAINING] Not enough data to train. Current size: {self.replay_buffer.current_size} / {Config.REPLAY_BUFFER_SIZE}")
-                return
-
-            dataloader = DataLoader(
-                dataset, 
-                batch_size=Config.BATCH_SIZE, 
-                shuffle=True, 
-                num_workers=4, 
-                # pin_memory=True
-            )
-
-
-            # --- TRAINING LOOP ---
-            iterator = iter(dataloader)
-            self.optimizer.zero_grad()
-            for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
-                try:
-                    batch = next(iterator)
-                except StopIteration:
-                    iterator = iter(dataloader)
-                    batch = next(iterator)
-                loss = self.train(batch)
-
-            print(f"[TRAINING] {current_iteration+1} completed. Final loss: {loss:.4f}")
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open('loss.txt', 'a') as f:
-                f.write(f"{timestamp}, {loss:.4f}\n")
-
-
-            # --- SAVE MODEL ---
-            checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{current_iteration + 1}.pth")
-            torch.save(self.model.state_dict(), checkpoint_path)
-            print(f"[SAVE MODEL] {checkpoint_path}")
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--iter", type=int, required=True, help="Current iteration number")
-    args = parser.parse_args()
-    
-    current_iter = args.iter
-
-    # Initialize the model and optimizer
-    model = BigDeep(ActionManager()).to(Config.DEVICE)
-    os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
-    
-    # Find all checkpoint files
-    checkpoints = [f for f in os.listdir(Config.CHECKPOINT_DIR) if f.startswith('model_iter_') and f.endswith('.pth')]
-    
-    if checkpoints:
-        # Find the checkpoint with the highest iteration number
-        latest_checkpoint_file = max(checkpoints, key=lambda f: int(f.split('_')[-1].split('.')[0]))
-        
-        checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, latest_checkpoint_file)
-        print(f"[LOAD MODEL] {checkpoint_path}")
-        model.load_state_dict(torch.load(checkpoint_path, map_location=Config.DEVICE))
-
-    else:
-        # model.initialize_parameters()
-        init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
-        torch.save(model.state_dict(), init_checkpoint_path)
-        print(f"[INITAIIZE MODEL] {init_checkpoint_path}")
-    
-    optimizer = optim.AdamW(model.parameters(), lr=Config.LEARNING_RATE, weight_decay=Config.L2_LAMBDA)
-
-    # Create the training manager and start the learning process
-    alpharmada_trainer = AlphArmada(model, optimizer)
-    alpharmada_trainer.learn(current_iteration=current_iter)
-
-if __name__ == "__main__":
-    main()

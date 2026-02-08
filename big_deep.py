@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -904,3 +906,32 @@ class BigDeep(nn.Module):
             "predicted_game_length": predicted_game_length
         }
         return outputs
+
+
+def load_model()-> tuple[BigDeep, int]:    
+    """
+    Loads the BigDeep model from the latest checkpoint if available.
+    If no checkpoint exists, initializes a new model and saves the initial state.
+    """
+    model = BigDeep(ActionManager()).to(Config.DEVICE)
+    os.makedirs(Config.CHECKPOINT_DIR, exist_ok=True)
+    
+    # Find all checkpoint files
+    checkpoints = [f for f in os.listdir(Config.CHECKPOINT_DIR) if f.startswith('model_iter_') and f.endswith('.pth')]
+    
+    if checkpoints:
+        # Find the checkpoint with the highest iteration number
+        latest_checkpoint_file = max(checkpoints, key=lambda f: int(f.split('_')[-1].split('.')[0]))
+        
+        checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, latest_checkpoint_file)
+        print(f"[LOAD MODEL] {checkpoint_path}")
+        model.load_state_dict(torch.load(checkpoint_path, map_location=Config.DEVICE))
+        current_iter = int(latest_checkpoint_file.split('_')[-1].split('.')[0])
+
+    else:
+        init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
+        torch.save(model.state_dict(), init_checkpoint_path)
+        print(f"[INITAIIZE MODEL] {init_checkpoint_path}")
+        current_iter = 0
+        
+    return model, current_iter
