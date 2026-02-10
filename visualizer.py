@@ -177,5 +177,5 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
 
     output_dir = os.path.join("output", "game_visuals")
     os.makedirs(output_dir, exist_ok=True)
-    img.save(os.path.join(output_dir, f'game_state_{game.image_counter}.png'))
+    img.save(os.path.join(output_dir, f'game_state_{game.image_counter:03d}.png'))
     game.image_counter += 1
