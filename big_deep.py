@@ -931,14 +931,14 @@ def load_recent_model()-> tuple[BigDeep, int]:
     else:
         init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
         torch.save(model.state_dict(), init_checkpoint_path)
-        print(f"[INITAIIZE MODEL] {init_checkpoint_path}")
+        print(f"[INITIALIZE MODEL] {init_checkpoint_path}")
         current_iter = 0
         
     return model, current_iter
 
 def load_model() -> BigDeep:
     model = BigDeep(ActionManager()).to(Config.DEVICE)
-    model_path = os.path.join(Config.CHECKPOINT_DIR, "best_model.pth")
+    model_path = os.path.join(Config.CHECKPOINT_DIR, "model_best.pth")
     print(f"[LOAD MODEL] {model_path}")
     model.load_state_dict(torch.load(model_path, map_location=Config.DEVICE))
     return model
