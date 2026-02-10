@@ -2,15 +2,33 @@ import argparse
 
 import torch.optim as optim
 
-from big_deep import BigDeep, load_model
+from storage_manager import *
+from big_deep import load_model
 from alpharmada import AlphArmadaWorker, AlphArmadaTrainer
 from configs import Config
 
-def work(model : BigDeep, worker_id: int) -> None:
+def work(worker_id: int) -> None:
+    """
+    1. Download latest model from Vessl
+    2. Run self-play to generate replay buffer data
+    3. Upload replay buffer to Vessl
+    """
+    download_model()
+
+    model, _ = load_model()
     worker = AlphArmadaWorker(model, worker_id)
     worker.self_play()
 
-def train(model : BigDeep, current_iter : int) -> None:
+    upload_replay_buffer(worker_id)
+
+def train() -> None:
+    """
+    1. Download latest replay buffer from Vessl
+    2. Train the model on the replay buffer
+    3. Upload the new model to Vessl
+    """
+
+    model, current_iter = load_model()
 
     optimizer = optim.AdamW(
             model.parameters(), 
@@ -21,20 +39,24 @@ def train(model : BigDeep, current_iter : int) -> None:
     trainer = AlphArmadaTrainer(model, optimizer)
     trainer.train_model(current_iter + 1)
 
+    upload_model()
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer")
     parser.add_argument("--worker_id", type=int, required=False, default=0, help="Machine ID for multi-machine setup")
     args = parser.parse_args()
-
-    model, current_iter = load_model()
+        
     
     if args.mode == "worker":
-        work(model, args.worker_id)
+        create_worker_volume(args.worker_id)
+        while True:
+            work(args.worker_id)
 
     elif args.mode == "trainer": 
-        train(model, current_iter)
+        while True:
+            train()
 
 if __name__ == "__main__":
     main()

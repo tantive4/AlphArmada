@@ -30,7 +30,6 @@ class Config:
     ITERATIONS = 64 # self_play & train for ITERATIONS times
 
     # Self Play
-    SELF_PLAY_GAMES = 1 # run SELF_PLAY_GAMES batch self-play games in each iteration
     PARALLEL_DIVERSE_FACTOR = 8 # run games in batch
     PARALLEL_SAME_GAME = 16 # same geometry game setup
     PARALLEL_PLAY = PARALLEL_DIVERSE_FACTOR * PARALLEL_SAME_GAME
@@ -38,8 +37,8 @@ class Config:
 
     # MCTS
     DEEP_SEARCH_RATIO = 0.25
-    MCTS_ITERATION = 200
-    MCTS_ITERATION_FAST = 50
+    MCTS_ITERATION = 20
+    MCTS_ITERATION_FAST = 5
     MAX_GAME_STEP = 2000
     TEMPERATURE = 1.25
     EXPLORATION_CONSTANT = 2
@@ -47,7 +46,7 @@ class Config:
     DIRICHLET_EPSILON = 0.25
 
     # Replay Buffer
-    REPLAY_BUFFER_SIZE = 128000  # 10 iteration to take for full buffer replacement
+    REPLAY_BUFFER_SIZE = 32000      # 320 games / worker
     
 
     # Neural Network Training
@@ -65,8 +64,6 @@ class Config:
     
 
     # Model Paths
-    MOUNT_PATH = "/root/data"
-    # MOUNT_PATH = "."
-    CHECKPOINT_DIR = f"{MOUNT_PATH}/model_checkpoints"
-    REPLAY_BUFFER_DIR = f"{MOUNT_PATH}/replay_buffers"
+    CHECKPOINT_DIR = f"model_checkpoints"
+    REPLAY_BUFFER_DIR = f"replay_buffers"
     NUM_WORKERS = 20
