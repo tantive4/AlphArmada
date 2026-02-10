@@ -103,7 +103,7 @@ class AlphArmadaWorker():
                     saved_states += self.save_game_data(game, memory[para_index],action_counter)
                     memory[para_index].clear()
             if action_counter % 20 == 0:
-                vessl.log(step=action_counter, payload={"saved_states": saved_states, "ended_games" : Config.PARALLEL_PLAY - sum(1 for g in para_games if g.winner == 0.0)})
+                vessl.log(payload={"action_count": action_counter, "saved_states": saved_states, "ended_games" : Config.PARALLEL_PLAY - sum(1 for g in para_games if g.winner == 0.0)})
             action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
