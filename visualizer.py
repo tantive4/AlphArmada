@@ -175,7 +175,7 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
                 ]
                 draw.ellipse(bounding_box, fill='darkgrey')
 
-    output_dir = "game_visuals"
+    output_dir = os.path.join("output", "game_visuals")
     os.makedirs(output_dir, exist_ok=True)
     img.save(os.path.join(output_dir, f'game_state_{game.image_counter}.png'))
     game.image_counter += 1

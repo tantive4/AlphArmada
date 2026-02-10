@@ -32,7 +32,7 @@ class AlphArmadaWorker():
         self.model.eval()
         self.model.compile_fast_policy()
 
-        replay_buffer_dir = Config.REPLAY_BUFFER_DIR
+        replay_buffer_dir = os.path.join("output", Config.REPLAY_BUFFER_DIR)
 
         self.replay_buffer = DiskReplayBuffer(
             replay_buffer_dir, 
@@ -107,7 +107,7 @@ class AlphArmadaWorker():
             action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
-            with open(f'simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
+            with open(f'output/simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
 
         print(f"[SELF-PLAY] saved {saved_states} states.")
         
@@ -164,7 +164,7 @@ class AlphArmadaWorker():
 
         self.replay_buffer.add_batch(collated_data)
 
-        with open(f'replay_stats.txt', 'a') as f:
+        with open(f'output/replay_stats.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
         return deep_search_count
     

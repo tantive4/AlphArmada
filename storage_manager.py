@@ -1,26 +1,10 @@
 import os
 import vessl
 import vessl.storage
-from vessl.util.exception import VesslApiException
 from configs import Config
 
-# def create_worker_volume(worker_id : int) -> None:
-#     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
-#     try:
-#         vessl.storage.create_volume(
-#             name=volume_name,
-#             storage_name="vessl-storage",
-#         )
-#         print(f"Created volume {volume_name}")
-#     except VesslApiException as e:
-#         # 409 Conflict: Duplicate entity
-#         if e.status == 409 :
-#             pass
-#         else:
-#             raise e
 
-
-def upload_replay_result(worker_id : int, path: str=".") -> None:
+def upload_replay_result(worker_id : int, path: str="output") -> None:
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
 
     vessl.storage.upload_volume_file(
@@ -29,38 +13,33 @@ def upload_replay_result(worker_id : int, path: str=".") -> None:
         dest_volume_name=volume_name,
     )
 
-def download_model(path:str = Config.CHECKPOINT_DIR) -> None:
-    vessl.storage.download_volume_file(
-        source_storage_name="vessl-storage",
-        source_volume_name="alpharmada-volume-model",
-        dest_path=path,
+def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
+    """for worker"""
+    model_list = vessl.list_model_volume_files(
+        repository_name="BigDeep",
+        model_number=1,
+        path=""
+    )
+    model_path = str(model_list[-1].path)
+    vessl.download_model_volume_file(
+        repository_name="BigDeep",
+        model_number=1,
+        source_path=model_path,
+        dest_path=os.path.join(local_path, "model_best.pth")
     )
 
-def upload_model(path:str = Config.CHECKPOINT_DIR) -> None:
-    vessl.storage.delete_volume_file(
-        storage_name="vessl-storage",
-        volume_name="alpharmada-volume-model",
-        path="",
-        recursive=True,
-    )
-
-
+def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
+    """for trainer"""
     # Find all checkpoint files
-    checkpoints = [f for f in os.listdir(Config.CHECKPOINT_DIR) if f.startswith('model_iter_') and f.endswith('.pth')]
+    checkpoints = [f for f in os.listdir(local_path) if f.startswith('model_iter_') and f.endswith('.pth')]
     
     # Find the checkpoint with the highest iteration number
     latest_checkpoint_file = max(checkpoints, key=lambda f: int(f.split('_')[-1].split('.')[0]))
-    checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, latest_checkpoint_file)
+    checkpoint_path = os.path.join(local_path, latest_checkpoint_file)
 
-    vessl.storage.upload_volume_file(
+    vessl.upload_model_volume_file(
+        repository_name="BigDeep",
+        model_number=1,
         source_path=checkpoint_path,
-        dest_storage_name="vessl-storage",
-        dest_volume_name="alpharmada-volume-model",
-        dest_path="",
-    )
-    vessl.storage.upload_volume_file(
-        source_path=checkpoint_path,
-        dest_storage_name="vessl-storage",
-        dest_volume_name="alpharmada-volume-trainer",
-        dest_path="model",
+        dest_path=latest_checkpoint_file
     )
