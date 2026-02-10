@@ -1,18 +1,24 @@
 import os
 import vessl
 import vessl.storage
+from vessl.util.exception import VesslApiException
 from configs import Config
 
 def create_worker_volume(worker_id : int) -> None:
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
-    storage_list = vessl.storage.list_volumes(storage_name="vessl-storage")
-
-    if volume_name not in [v.name for v in storage_list]:
-        print(f"Creating volume {volume_name}")
+    try:
         vessl.storage.create_volume(
             name=volume_name,
             storage_name="vessl-storage",
         )
+        print(f"Created volume {volume_name}")
+    except VesslApiException as e:
+        # 409 Conflict: Duplicate entity
+        if e.status == 409 :
+            pass
+        else:
+            raise e
+
 
 def upload_replay_buffer(worker_id : int, path: str=Config.REPLAY_BUFFER_DIR) -> None:
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
@@ -59,3 +65,5 @@ def upload_model(path:str = Config.CHECKPOINT_DIR) -> None:
         dest_volume_name="alpharmada-volume-trainer",
         dest_path="model",
     )
+
+create_worker_volume(0)
