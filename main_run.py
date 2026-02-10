@@ -50,7 +50,6 @@ def main():
         
     
     if args.mode == "worker":
-        create_worker_volume(args.worker_id)
         while True:
             work(args.worker_id)
 
