@@ -99,10 +99,11 @@ class AlphArmadaWorker():
                 if game.winner != 0.0:
                     # pbar.update(1)
                     # pbar.set_postfix(last_winner=game.winner)
-                    vessl.progress(len(para_indices) / Config.PARALLEL_PLAY)
+                    
                     saved_states += self.save_game_data(game, memory[para_index],action_counter)
                     memory[para_index].clear()
-
+            if action_counter % 20 == 0:
+                vessl.log(step=action_counter, payload={"saved_states": saved_states, "ended_games" : Config.PARALLEL_PLAY - sum(1 for g in para_games if g.winner == 0.0)})
             action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
@@ -208,7 +209,7 @@ class AlphArmadaTrainer:
                 iterator = iter(dataloader)
                 batch = next(iterator)
             loss = self.train(batch)
-            vessl.progress(step+1 / Config.EPOCHS)
+            vessl.log(step=step, payload={"training_loss": loss})
 
         print(f"[TRAINING] {new_checkpoint} completed. Final loss: {loss:.4f}")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
