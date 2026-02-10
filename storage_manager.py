@@ -20,14 +20,13 @@ from configs import Config
 #             raise e
 
 
-def upload_replay_result(worker_id : int, path: str="") -> None:
+def upload_replay_result(worker_id : int, path: str=".") -> None:
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
 
     vessl.storage.upload_volume_file(
         source_path=path,
         dest_storage_name="vessl-storage",
         dest_volume_name=volume_name,
-        dest_path=path,
     )
 
 def download_model(path:str = Config.CHECKPOINT_DIR) -> None:
