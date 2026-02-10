@@ -10,6 +10,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import numpy as np
+import vessl
 
 from disk_manager import DiskReplayBuffer, ArmadaDiskDataset
 from configs import Config
@@ -57,50 +58,55 @@ class AlphArmadaWorker():
 
 
         action_counter : int = 0
-        with tqdm(total=Config.PARALLEL_PLAY, desc=f"[SELF-PLAY]", unit="game") as pbar:
-            while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
-                para_indices: list[int] = [i for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0]
+        saved_states : int = 0
+        # with tqdm(total=Config.PARALLEL_PLAY, desc=f"[SELF-PLAY]", unit="game") as pbar:
 
-                if para_indices :
-                    # --- Perform MCTS search in parallel for decision nodes ---
-                    deep_search = random.random() < Config.DEEP_SEARCH_RATIO
-                    para_action_probs : dict[int, np.ndarray] = mcts.para_search(para_indices, deep_search=deep_search)
-                    if deep_search :
-                        for para_index in para_action_probs:
-                            game : Armada = para_games[para_index]
-                            snapshot = game.get_snapshot()
-                            memory[para_index].append((game.phase, snapshot, para_action_probs[para_index]))
+        while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
+            para_indices: list[int] = [i for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0]
+
+            if para_indices :
+                # --- Perform MCTS search in parallel for decision nodes ---
+                deep_search = random.random() < Config.DEEP_SEARCH_RATIO
+                para_action_probs : dict[int, np.ndarray] = mcts.para_search(para_indices, deep_search=deep_search)
+                if deep_search :
+                    for para_index in para_action_probs:
+                        game : Armada = para_games[para_index]
+                        snapshot = game.get_snapshot()
+                        memory[para_index].append((game.phase, snapshot, para_action_probs[para_index]))
+            
+            # --- Process all games (decision and non-decision) for one step ---
+            for para_index in range(Config.PARALLEL_PLAY) :
+                game : Armada = para_games[para_index]
+                if game.winner != 0.0:
+                    continue
+
+                if game.decision_player :
+                    action = mcts.get_random_best_action(para_index, game.round)
+
+                # Chance Node
+                elif game.phase == Phase.ATTACK_ROLL_DICE:
+                    if game.attack_info is None:
+                        raise ValueError("No attack info for the current game phase.")
+                    dice_roll = roll_dice(game.attack_info.dice_to_roll)
+                    action = ('roll_dice_action', dice_roll)
+
+                game.apply_action(action)
+                mcts.advance_tree(para_index, action, game.get_snapshot())
                 
-                # --- Process all games (decision and non-decision) for one step ---
-                for para_index in range(Config.PARALLEL_PLAY) :
-                    game : Armada = para_games[para_index]
-                    if game.winner != 0.0:
-                        continue
+                # --- Check for terminal states ---
+                if game.winner != 0.0:
+                    # pbar.update(1)
+                    # pbar.set_postfix(last_winner=game.winner)
+                    vessl.progress(len(para_indices) / Config.PARALLEL_PLAY)
+                    saved_states += self.save_game_data(game, memory[para_index],action_counter)
+                    memory[para_index].clear()
 
-                    if game.decision_player :
-                        action = mcts.get_random_best_action(para_index, game.round)
-
-                    # Chance Node
-                    elif game.phase == Phase.ATTACK_ROLL_DICE:
-                        if game.attack_info is None:
-                            raise ValueError("No attack info for the current game phase.")
-                        dice_roll = roll_dice(game.attack_info.dice_to_roll)
-                        action = ('roll_dice_action', dice_roll)
-
-                    game.apply_action(action)
-                    mcts.advance_tree(para_index, action, game.get_snapshot())
-                    
-                    # --- Check for terminal states ---
-                    if game.winner != 0.0:
-                        pbar.update(1)
-                        pbar.set_postfix(last_winner=game.winner)
-                        self.save_game_data(game, memory[para_index],action_counter)
-                        memory[para_index].clear()
-
-                action_counter += 1
+            action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
             with open(f'simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
+
+        print(f"[SELF-PLAY] saved {saved_states} states.")
         
         delete_cache()
         del para_games
@@ -111,7 +117,7 @@ class AlphArmadaWorker():
         gc.collect()
         return
 
-    def save_game_data(self, game : Armada, game_memory, action_count) -> None:
+    def save_game_data(self, game : Armada, game_memory, action_count) -> int:
         """Helper to collate and save a single game's data to disk."""
 
         winner, aux_target = get_terminal_value(game)
@@ -157,6 +163,7 @@ class AlphArmadaWorker():
 
         with open(f'replay_stats.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
+        return deep_search_count
     
 class AlphArmadaTrainer:
     def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:
@@ -191,13 +198,15 @@ class AlphArmadaTrainer:
 
         # --- TRAINING LOOP ---
         iterator = iter(dataloader)
-        for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
+        # for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
+        for step in range(Config.EPOCHS):
             try:
                 batch = next(iterator)
             except StopIteration:
                 iterator = iter(dataloader)
                 batch = next(iterator)
             loss = self.train(batch)
+            vessl.progress(step+1 / Config.EPOCHS)
 
         print(f"[TRAINING] {new_checkpoint} completed. Final loss: {loss:.4f}")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

@@ -20,7 +20,7 @@ from configs import Config
 #             raise e
 
 
-def upload_replay_buffer(worker_id : int, path: str=Config.REPLAY_BUFFER_DIR) -> None:
+def upload_replay_result(worker_id : int, path: str="") -> None:
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
 
     vessl.storage.upload_volume_file(

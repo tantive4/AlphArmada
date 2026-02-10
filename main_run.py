@@ -19,7 +19,7 @@ def work(worker_id: int) -> None:
     worker = AlphArmadaWorker(model, worker_id)
     worker.self_play()
 
-    upload_replay_buffer(worker_id)
+    upload_replay_result(worker_id)
 
 def train() -> None:
     """
