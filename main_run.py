@@ -3,7 +3,7 @@ import argparse
 import torch.optim as optim
 
 from storage_manager import *
-from big_deep import load_model
+from big_deep import load_recent_model, load_model
 from alpharmada import AlphArmadaWorker, AlphArmadaTrainer
 from configs import Config
 
@@ -15,7 +15,7 @@ def work(worker_id: int) -> None:
     """
     download_model()
 
-    model, _ = load_model()
+    model = load_model()
     worker = AlphArmadaWorker(model, worker_id)
     worker.self_play()
 
@@ -28,7 +28,7 @@ def train() -> None:
     3. Upload the new model to Vessl
     """
 
-    model, current_iter = load_model()
+    model, current_iter = load_recent_model()
 
     optimizer = optim.AdamW(
             model.parameters(), 

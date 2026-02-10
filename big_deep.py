@@ -908,7 +908,7 @@ class BigDeep(nn.Module):
         return outputs
 
 
-def load_model()-> tuple[BigDeep, int]:    
+def load_recent_model()-> tuple[BigDeep, int]:    
     """
     Loads the BigDeep model from the latest checkpoint if available.
     If no checkpoint exists, initializes a new model and saves the initial state.
@@ -935,3 +935,10 @@ def load_model()-> tuple[BigDeep, int]:
         current_iter = 0
         
     return model, current_iter
+
+def load_model() -> BigDeep:
+    model = BigDeep(ActionManager()).to(Config.DEVICE)
+    model_path = os.path.join(Config.CHECKPOINT_DIR, "best_model.pth")
+    print(f"[LOAD MODEL] {model_path}")
+    model.load_state_dict(torch.load(model_path, map_location=Config.DEVICE))
+    return model
