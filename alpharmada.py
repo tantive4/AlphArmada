@@ -54,9 +54,9 @@ class AlphArmadaWorker():
             para_game.para_index = para_index
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
         
-        if self.worker_id == 1 :
-            shutil.rmtree("game_visuals", ignore_errors=True)
-            para_games[0].debuging_visual = True
+        # if self.worker_id == 1 :
+        #     shutil.rmtree("game_visuals", ignore_errors=True)
+        #     para_games[0].debuging_visual = True
 
 
         action_counter : int = 0
