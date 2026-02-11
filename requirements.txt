@@ -12,5 +12,6 @@ scipy==1.17.0
 shapely==2.1.2
 tifffile==2026.1.28
 tqdm==4.67.3
+matplotlib==3.10.8
 # Install torch manually
 # Also install vessl

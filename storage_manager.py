@@ -4,10 +4,33 @@ import vessl
 import vessl.storage
 from configs import Config
 
+def _format_time(start_time, end_time):
+    elapsed_time = end_time - start_time
+    miniutes, seconds = divmod(elapsed_time.total_seconds(), 60)
+    return f"{int(miniutes):02d}:{int(seconds):02d}"
+
+
+def download_replay_result(worker_id : int, local_path: str="output") -> None:
+    """for worker"""
+    volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
+
+    start_time = datetime.datetime.now()
+    vessl.storage.download_volume_file(
+        source_storage_name="vessl-storage",
+        source_volume_name=volume_name,
+        dest_path=local_path
+    )
+    end_time = datetime.datetime.now()
+    time = _format_time(start_time, end_time)
+
+    print(f"[DOWNLOAD] worker-{worker_id:02d} data ({time})")
+
 
 def upload_replay_result(worker_id : int, path: str="output") -> None:
+    """for worker"""
 
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
+
     start_time = datetime.datetime.now()
     vessl.storage.upload_volume_file(
         source_path=path,
@@ -15,8 +38,9 @@ def upload_replay_result(worker_id : int, path: str="output") -> None:
         dest_volume_name=volume_name
     )
     end_time = datetime.datetime.now()
-    elapsed_time = end_time - start_time
-    print(f"[UPLOAD] worker-{worker_id:02d} ({elapsed_time})")
+    time = _format_time(start_time, end_time)
+
+    print(f"[UPLOAD] worker-{worker_id:02d} replay ({time})")
 
 def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
     """for worker"""

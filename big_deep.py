@@ -644,9 +644,9 @@ class BigDeep(nn.Module):
         grid_coords = ship_coord_input[:, :, :2].unsqueeze(1) * 2 - 1 
         grid_coords = grid_coords.clamp(-1, 1)
         
-        if self.training and device == 'mps':
-             # MPS workaround for grid_sample
-             gathered_spatial = F.grid_sample(
+        if self.training and device.type == 'mps':
+            # MPS workaround for grid_sample
+            gathered_spatial = F.grid_sample(
                 spatial_features_map.cpu(), grid_coords.cpu(), align_corners=False, padding_mode='zeros'
             ).to(device)
         else:

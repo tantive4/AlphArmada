@@ -195,7 +195,6 @@ class AlphArmadaTrainer:
             dataset, 
             batch_size=Config.BATCH_SIZE, 
             shuffle=True, 
-            num_workers=4, 
         )
 
 

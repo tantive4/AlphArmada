@@ -45,11 +45,12 @@ def train() -> None:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer")
-    parser.add_argument("--worker_id", type=int, required=False, default=0, help="Machine ID for multi-machine setup")
+    parser.add_argument("--worker_id", type=int, required=False, help="Machine ID for multi-machine setup")
     args = parser.parse_args()
         
     
     if args.mode == "worker":
+        download_replay_result(args.worker_id)
         while True:
             work(args.worker_id)
 

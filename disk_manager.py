@@ -131,7 +131,7 @@ class ArmadaDiskDataset(Dataset):
         self.total_size = 0
 
         for i in range(1,num_workers+1):
-            worker_subdir = os.path.join(data_root, f"worker_{i:02d}")
+            worker_subdir = os.path.join(data_root, f"worker_{i:02d}",data_root)
             meta_path = os.path.join(worker_subdir, "metadata.pkl")
             
             # 1. Determine size for this worker
@@ -175,24 +175,24 @@ class ArmadaDiskDataset(Dataset):
         memmaps = worker['memmaps']
 
         # 3. Fetch data
-        # NOTE: .clone() is important because memmap is read-only and torch might want a writeable copy,
-        # plus it moves data from disk-mapped-page to RAM.
         sample = {
             'phases': int(memmaps['phases'][local_idx]),
 
-            'scalar': torch.from_numpy(memmaps['scalar'][local_idx]).clone(),
-            'ship_entities': torch.from_numpy(memmaps['ship_entities'][local_idx]).clone(),
-            'ship_coords': torch.from_numpy(memmaps['ship_coords'][local_idx]).clone(),
-            'ship_def_tokens': torch.from_numpy(memmaps['ship_def_tokens'][local_idx]).clone(),
-            # Convert spatial to Long or Byte. Long is often safer for downstream gathering/masking.
-            'spatial': torch.from_numpy(memmaps['spatial'][local_idx]).clone().long(),
-            'relations': torch.from_numpy(memmaps['relations'][local_idx]).clone(),
+            'scalar': torch.tensor(memmaps['scalar'][local_idx]),
+            'ship_entities': torch.tensor(memmaps['ship_entities'][local_idx]),
+            'ship_coords': torch.tensor(memmaps['ship_coords'][local_idx]),
+            'ship_def_tokens': torch.tensor(memmaps['ship_def_tokens'][local_idx]),
+            
+            'spatial': torch.tensor(memmaps['spatial'][local_idx]).long(), # Convert spatial to Long
+            'relations': torch.tensor(memmaps['relations'][local_idx]),
             'active_ship_id': int(memmaps['active_ship_id'][local_idx]),
             'target_ship_id': int(memmaps['target_ship_id'][local_idx]),
 
-            'target_policies': torch.from_numpy(memmaps['target_policies'][local_idx]).clone(),
-            'target_values': torch.from_numpy(memmaps['target_values'][local_idx]).clone(),
-            'target_ship_hulls': torch.from_numpy(memmaps['target_ship_hulls'][local_idx]).clone(),
-            'target_game_length': torch.from_numpy(memmaps['target_game_length'][local_idx]).clone(),
+            'target_policies': torch.tensor(memmaps['target_policies'][local_idx]),
+            'target_values': torch.tensor(memmaps['target_values'][local_idx]),
+            'target_ship_hulls': torch.tensor(memmaps['target_ship_hulls'][local_idx]),
+            'target_game_length': torch.tensor(memmaps['target_game_length'][local_idx]),
+            'target_win_probs': torch.tensor(memmaps['target_win_probs'][local_idx]),
+
         }
         return sample
