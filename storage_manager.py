@@ -1,17 +1,22 @@
 import os
+import datetime
 import vessl
 import vessl.storage
 from configs import Config
 
 
 def upload_replay_result(worker_id : int, path: str="output") -> None:
-    volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
 
+    volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
+    start_time = datetime.datetime.now()
     vessl.storage.upload_volume_file(
         source_path=path,
         dest_storage_name="vessl-storage",
         dest_volume_name=volume_name
     )
+    end_time = datetime.datetime.now()
+    elapsed_time = end_time - start_time
+    print(f"[UPLOAD] worker-{worker_id:02d} ({elapsed_time})")
 
 def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
     """for worker"""
@@ -27,6 +32,7 @@ def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
         source_path=model_path,
         dest_path=os.path.join(local_path, "model_best.pth")
     )
+    print(f"[DOWNLOAD] {model_path}")
 
 def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
     """for trainer"""
@@ -43,3 +49,4 @@ def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
         source_path=checkpoint_path,
         dest_path=latest_checkpoint_file
     )
+    print(f"[UPLOAD] {latest_checkpoint_file}")
