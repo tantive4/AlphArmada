@@ -65,7 +65,6 @@ def main():
         
     
     if args.mode == "worker":
-        download_replay_result(args.worker_id)
         while True:
             work(args.worker_id)
 

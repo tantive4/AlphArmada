@@ -11,7 +11,7 @@ def _format_time(start_time, end_time):
 
 
 def download_replay_result(worker_id : int, local_path: str="output") -> None:
-    """for worker/downloader"""
+    """for downloader"""
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
 
     start_time = datetime.datetime.now()
@@ -31,7 +31,7 @@ def upload_replay_result(worker_id : int) -> None:
 
     start_time = datetime.datetime.now()
 
-    # upload replay buffer
+    # Upload Replay Buffer
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
     path = Config.REPLAY_BUFFER_DIR
     
@@ -41,8 +41,7 @@ def upload_replay_result(worker_id : int) -> None:
         dest_volume_name=volume_name
     )
 
-    # upload sub outputs
-
+    # Upload Sub Outputs
     vessl.storage.upload_volume_file(
         source_path="output",
         dest_storage_name="vessl-storage",
@@ -50,11 +49,24 @@ def upload_replay_result(worker_id : int) -> None:
         dest_path=f"output_{worker_id:02d}"
     )
 
+    # Upload Timestamp Flag (The "Commit" Signal)
+    # Format: timestamp_YYYYMMDD_HHMMSS.txt
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    flag_filename = f"timestamp_{timestamp}.txt"
+    
+    # Create empty file
+    with open(flag_filename, 'w') as f:
+        pass 
+        
+    vessl.storage.upload_volume_file(
+        source_path=flag_filename,
+        dest_storage_name="vessl-storage",
+        dest_volume_name=volume_name,
+        dest_path=os.path.join("timestemp", flag_filename)
+    )
+    
     end_time = datetime.datetime.now()
     time = _format_time(start_time, end_time)
-
-    
-
     print(f"[UPLOAD] worker-{worker_id:02d} replay ({time})")
 
 def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:

@@ -25,7 +25,7 @@ from action_manager import ActionManager
 from action_phase import Phase
 from dice import roll_dice
 
-class AlphArmadaWorker():
+class AlphArmadaWorker:
     def __init__(self, model : BigDeep, worker_id : int) :
         self.worker_id = worker_id
         self.model = model
@@ -296,3 +296,4 @@ class AlphArmadaTrainer:
         self.optimizer.step()
 
         return total_loss.item()
+    

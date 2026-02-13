@@ -133,7 +133,7 @@ class ArmadaDiskDataset(Dataset):
         self.total_size = 0
 
         for i in range(1,num_workers+1):
-            worker_subdir = os.path.join(data_root, f"worker_{i:02d}",data_root)
+            worker_subdir = os.path.join(data_root, f"worker_{i:02d}")
             meta_path = os.path.join(worker_subdir, "metadata.pkl")
             
             # 1. Determine size for this worker
