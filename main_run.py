@@ -21,7 +21,7 @@ def work(worker_id: int) -> None:
 
     upload_replay_result(worker_id)
 
-def train() -> None:
+def train(num_worker) -> None:
     """
     1. Download latest replay buffer from Vessl
     2. Train the model on the replay buffer
@@ -36,16 +36,31 @@ def train() -> None:
             weight_decay=Config.L2_LAMBDA
             )
     
-    trainer = AlphArmadaTrainer(model, optimizer)
-    trainer.train_model(current_iter + 1)
+    trainer = AlphArmadaTrainer(model, optimizer, num_worker)
+    trainer.train_model(new_checkpoint=current_iter + 1)
 
     upload_model()
 
+def download_all(num_worker) -> None:
+    """
+    Continuously downloads data from all workers (1-20) in a loop.
+    Designed to run in the background while the trainer runs.
+    """
+    
+    for i in range(1, num_worker + 1): 
+        try:
+            target_dir = os.path.join(Config.REPLAY_BUFFER_DIR, f"worker_{i:02d}")
+
+            download_replay_result(i, local_path=target_dir)
+            
+        except Exception as e:
+            print(f"[DOWNLOAD] Error downloading worker {i}: {e}")
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer")
+    parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer / downloader")
     parser.add_argument("--worker_id", type=int, required=False, help="Machine ID for multi-machine setup")
+    parser.add_argument("--num_worker", type=int, required=False, help="Total number of workers in multi-machine setup")
     args = parser.parse_args()
         
     
@@ -55,8 +70,12 @@ def main():
             work(args.worker_id)
 
     elif args.mode == "trainer": 
+        download_all(args.num_worker)
         while True:
-            train()
+            train(args.num_worker)
+
+    elif args.mode == "downloader":
+        download_all(args.num_worker)
 
 if __name__ == "__main__":
     main()

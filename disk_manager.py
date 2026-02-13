@@ -13,18 +13,6 @@ class DiskReplayBuffer:
         self.data_dir = data_dir
         self.max_size = max_size
         self.cursor = 0
-        self.current_size = 0
-        
-        # Load metadata if exists to restore cursor position (persistency)
-        self.meta_path = os.path.join(data_dir, "metadata.pkl")
-        if os.path.exists(self.meta_path):
-            try:
-                with open(self.meta_path, 'rb') as f:
-                    meta = pickle.load(f)
-                    self.cursor = meta.get('cursor', 0)
-                    self.current_size = meta.get('current_size', 0)
-            except Exception:
-                print("Warning: Could not load metadata.pkl, starting buffer from 0.")
 
         # Define data shapes for memmap
         # Note: 'spatial' uses uint8 for bit-packed data
@@ -51,12 +39,8 @@ class DiskReplayBuffer:
         os.makedirs(self.data_dir, exist_ok=True)
         for name, spec in self.specs.items():
             path = os.path.join(self.data_dir, f'{name}.npy')
-            if not os.path.exists(path):
-                # Create file with 'w+' (allocates space)
-                mm = np.memmap(path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
-                del mm
             # Open in read/write mode
-            self.files[name] = np.memmap(path, dtype=spec['dtype'], mode='r+', shape=spec['shape'])
+            self.files[name] = np.memmap(path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
 
     def add_batch(self, batch_data):
         """
@@ -70,32 +54,50 @@ class DiskReplayBuffer:
         start = self.cursor
         end = start + batch_size
 
-        if end <= self.max_size:
-            # Case 1: Contiguous write (No wrapping)
-            for key, arr in batch_data.items():
-                if key in self.files:
-                    self.files[key][start:end] = arr
-        else:
-            # Case 2: Wrapped write
-            first_part_len = self.max_size - start
-            second_part_len = batch_size - first_part_len
-            
-            for key, arr in batch_data.items():
-                if key in self.files:
-                    # Write to end of buffer
-                    self.files[key][start:self.max_size] = arr[:first_part_len]
-                    # Write remainder to beginning
-                    self.files[key][0:second_part_len] = arr[first_part_len:]
+        if end > self.max_size:
+            raise ValueError(f"Batch write exceeds buffer limit! Cursor: {start}, Batch: {batch_size}, Max: {self.max_size}. Increase WORKER_BUFFER_SIZE.")
         
-        # Update cursor and size
-        self.cursor = (self.cursor + batch_size) % self.max_size
-        self.current_size = min(self.current_size + batch_size, self.max_size)
+        # Write data
+        for key, arr in batch_data.items():
+            if key in self.files:
+                self.files[key][start:end] = arr
+        
+        # Update cursor 
+        self.cursor = end
 
-        # Save metadata logic can be deferred or done periodically
-        # doing it here for safety
-        with open(self.meta_path, 'wb') as f:
-            pickle.dump({'cursor': self.cursor, 'current_size': self.current_size}, f)
+    def trim_buffer(self):
+        """
+        Finalizes the batch by truncating all files to the exact size of data written.
+        Must be called before uploading.
+        """
+        final_size = self.cursor
+        if final_size == 0:
+            print("[Buffer] Warning: No data to trim.")
+            return
 
+        print(f"[Buffer] Trimming files from {self.max_size} to {final_size} samples...")
+
+        # 1. Flush and close all memmaps to release file handles
+        for name, mm in self.files.items():
+            mm.flush()
+            del mm 
+        self.files.clear()
+
+        # 2. Truncate files on disk
+        for name, spec in self.specs.items():
+            path = os.path.join(self.data_dir, f'{name}.npy')
+            if os.path.exists(path):
+                # Calculate new size in bytes
+                # shape[1:] represents the size of a single sample
+                element_shape = spec['shape'][1:] 
+                num_elements = np.prod(element_shape) if element_shape else 1
+                dtype_size = np.dtype(spec['dtype']).itemsize
+                
+                target_bytes = int(final_size * num_elements * dtype_size)
+                
+                with open(path, 'r+b') as f:
+                    f.truncate(target_bytes)
+                    
     def flush(self):
         for mm in self.files.values():
             mm.flush()

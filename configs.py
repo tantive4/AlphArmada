@@ -46,7 +46,7 @@ class Config:
     DIRICHLET_EPSILON = 0.25
 
     # Replay Buffer
-    REPLAY_BUFFER_SIZE = 32000      # 320 games / worker
+    REPLAY_BUFFER_SIZE = 16000 # safe buffer for ONE batch games
     
 
     # Neural Network Training
@@ -66,4 +66,3 @@ class Config:
     # Model Paths
     CHECKPOINT_DIR = f"model_checkpoints"
     REPLAY_BUFFER_DIR = f"replay_buffers"
-    NUM_WORKERS = 20

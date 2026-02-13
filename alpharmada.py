@@ -32,7 +32,9 @@ class AlphArmadaWorker():
         self.model.eval()
         self.model.compile_fast_policy()
 
-        replay_buffer_dir = os.path.join("output", Config.REPLAY_BUFFER_DIR)
+        replay_buffer_dir = Config.REPLAY_BUFFER_DIR
+        if os.path.exists(replay_buffer_dir):
+            shutil.rmtree(replay_buffer_dir)
 
         self.replay_buffer = DiskReplayBuffer(
             replay_buffer_dir, 
@@ -110,7 +112,8 @@ class AlphArmadaWorker():
             with open(f'output/simulation_log.txt', 'a') as f: f.write(f"\nRuntime Warning: Game {game.para_index}\n{game.get_snapshot()}\n")
 
         print(f"[SELF-PLAY] saved {saved_states} states.")
-        
+        self.replay_buffer.trim_buffer()
+
         delete_cache()
         del para_games
         del mcts
@@ -169,10 +172,11 @@ class AlphArmadaWorker():
         return deep_search_count
     
 class AlphArmadaTrainer:
-    def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:
+    def __init__(self, model : BigDeep, optimizer : optim.AdamW, num_worker: int) -> None:
         self.model = model
         self.max_action_space = model.max_action_space
         self.optimizer = optimizer
+        self.num_worker = num_worker
 
     def train_model(self, new_checkpoint : int) -> None:
 
@@ -182,7 +186,7 @@ class AlphArmadaTrainer:
         # --- LOAD DATASET ---
         dataset = ArmadaDiskDataset(
             data_root=Config.REPLAY_BUFFER_DIR, 
-            num_workers=Config.NUM_WORKERS, # Make sure to add this to your Config!
+            num_workers=self.num_worker,
             max_size_per_worker=Config.REPLAY_BUFFER_SIZE, 
             action_space_size=self.max_action_space
         )
