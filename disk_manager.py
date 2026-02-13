@@ -9,16 +9,27 @@ import numpy as np
 from configs import Config
 
 class DiskReplayBuffer:
-    def __init__(self, data_dir, max_size, action_space_size):
+    def __init__(self, data_dir, max_size):
         self.data_dir = data_dir
         self.max_size = max_size
         self.cursor = 0
+        self.specs = self.get_specs(max_size)
 
+        
+            
+        self.files = {}
+        os.makedirs(self.data_dir, exist_ok=True)
+        for name, spec in self.specs.items():
+            path = os.path.join(self.data_dir, f'{name}.npy')
+            # Open in read/write mode
+            self.files[name] = np.memmap(path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
+
+    @staticmethod
+    def get_specs(max_size):
         # Define data shapes for memmap
         # Note: 'spatial' uses uint8 for bit-packed data
-        self.specs = {
+        return {
             'phases':            {'shape': (max_size,), 'dtype': np.int32},
-
             'scalar':            {'shape': (max_size, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
             'ship_entities':     {'shape': (max_size, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
             'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 3), 'dtype': np.float32},
@@ -27,21 +38,13 @@ class DiskReplayBuffer:
             'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 'dtype': np.float32},
             'active_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
             'target_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
-
-            'target_policies':   {'shape': (max_size, action_space_size), 'dtype': np.float32},
+            'target_policies':   {'shape': (max_size, Config.MAX_ACTION_SPACE), 'dtype': np.float32},
             'target_values':     {'shape': (max_size, 1), 'dtype': np.float32},
             'target_win_probs':  {'shape': (max_size, 2), 'dtype': np.float32},
             'target_ship_hulls': {'shape': (max_size, Config.MAX_SHIPS), 'dtype': np.float32},
             'target_game_length':{'shape': (max_size, 6), 'dtype': np.float32},
         }
-
-        self.files = {}
-        os.makedirs(self.data_dir, exist_ok=True)
-        for name, spec in self.specs.items():
-            path = os.path.join(self.data_dir, f'{name}.npy')
-            # Open in read/write mode
-            self.files[name] = np.memmap(path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
-
+    
     def add_batch(self, batch_data):
         """
         Efficiently writes a batch of data to disk, handling circular buffer wrapping.
@@ -97,69 +100,134 @@ class DiskReplayBuffer:
                 
                 with open(path, 'r+b') as f:
                     f.truncate(target_bytes)
-                    
+
+        # 3. Save Metadata (since all batches have different size)
+        meta_path = os.path.join(self.data_dir, "metadata.pkl")
+        with open(meta_path, 'wb') as f:
+            pickle.dump({'current_size': final_size}, f)
+        print(f"[Buffer] Trimmed and saved metadata for size {final_size}")
+
     def flush(self):
         for mm in self.files.values():
             mm.flush()
 
-class ArmadaDiskDataset(Dataset):
-    def __init__(self, data_root, num_workers, max_size_per_worker, action_space_size):
-        self.data_root = data_root
-        self.max_size = max_size_per_worker
+
+def aggregate_staging_buffers(staging_root, output_dir):
+    """
+    Merges all buffers in staging_root subdirectories into a single buffer in output_dir.
+    """
+    # 1. Identify all valid staging subdirectories
+    staging_dirs = sorted([
+        os.path.join(staging_root, d) for d in os.listdir(staging_root) 
+        if os.path.isdir(os.path.join(staging_root, d))
+    ])
+    
+    if not staging_dirs:
+        print("[Aggregator] No staging buffers found.")
+        return
+
+    # 2. Calculate total size
+    total_size = 0
+    buffer_sizes = []
+    
+    print(f"[Aggregator] Found {len(staging_dirs)} buffers. Calculating total size...")
+    
+    for d in staging_dirs:
+        meta_path = os.path.join(d, "metadata.pkl")
+        size = 0
+        if os.path.exists(meta_path):
+            with open(meta_path, 'rb') as f:
+                size = pickle.load(f).get('current_size', 0)
+        else:
+            # Fallback: infer from scalar.npy size
+            scalar_path = os.path.join(d, "scalar.npy")
+            if os.path.exists(scalar_path):
+                file_size = os.path.getsize(scalar_path)
+                itemsize = Config.SCALAR_FEATURE_SIZE * 4 # float32 = 4 bytes
+                size = file_size // itemsize
         
-        # Duplicate specs to read
-        self.specs = {
-            'phases':            {'shape': (max_size_per_worker,), 'dtype': np.int32},
+        buffer_sizes.append(size)
+        total_size += size
 
-            'scalar':            {'shape': (max_size_per_worker, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
-            'ship_entities':     {'shape': (max_size_per_worker, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
-            'ship_coords':       {'shape': (max_size_per_worker, Config.MAX_SHIPS, 3), 'dtype': np.float32},
-            'ship_def_tokens':   {'shape': (max_size_per_worker, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), 'dtype': np.float32},
-            'spatial':           {'shape': (max_size_per_worker, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], (Config.BOARD_RESOLUTION[1]+7)//8), 'dtype': np.uint8},
-            'relations':         {'shape': (max_size_per_worker, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 'dtype': np.float32},
-            'active_ship_id':    {'shape': (max_size_per_worker,), 'dtype': np.uint8},
-            'target_ship_id':    {'shape': (max_size_per_worker,), 'dtype': np.uint8},
+    print(f"[Aggregator] Total aggregated size: {total_size} samples.")
 
-            'target_policies':   {'shape': (max_size_per_worker, action_space_size), 'dtype': np.float32},
-            'target_values':     {'shape': (max_size_per_worker, 1), 'dtype': np.float32},
-            'target_win_probs':  {'shape': (max_size_per_worker, 2), 'dtype': np.float32},
-            'target_ship_hulls': {'shape': (max_size_per_worker, Config.MAX_SHIPS), 'dtype': np.float32},
-            'target_game_length':{'shape': (max_size_per_worker, 6), 'dtype': np.float32},
-        }
+    # 3. Create Output Buffer (Memmapped)
+    os.makedirs(output_dir, exist_ok=True)
+    specs = DiskReplayBuffer.get_specs(total_size)
+    output_files = {}
+    
+    for name, spec in specs.items():
+        path = os.path.join(output_dir, f'{name}.npy')
+        output_files[name] = np.memmap(path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
+
+    # 4. Copy Data
+    cursor = 0
+    for idx, d in enumerate(staging_dirs):
+        current_size = buffer_sizes[idx]
+        if current_size == 0: continue
+
+        for name, spec in specs.items():
+            src_path = os.path.join(d, f'{name}.npy')
+            if os.path.exists(src_path):
+                # Open read-only
+                src_mm = np.memmap(src_path, dtype=spec['dtype'], mode='r', shape=(current_size, *spec['shape'][1:]))
+                output_files[name][cursor : cursor + current_size] = src_mm
+                del src_mm # Close handle
+
+        cursor += current_size
+
+    # 5. Flush and Metadata
+    for mm in output_files.values():
+        mm.flush()
+        del mm
+    
+    with open(os.path.join(output_dir, "metadata.pkl"), 'wb') as f:
+        pickle.dump({'current_size': total_size}, f)
+
+    print(f"[Aggregator] Aggregation complete at {output_dir}")
+
+class ArmadaDiskDataset(Dataset):
+    def __init__(self, data_root):
+        self.data_root = data_root
+        
+        # 1. Find all valid timestamp subdirectories
+        self.worker_dirs = sorted([
+            os.path.join(data_root, d) for d in os.listdir(data_root) 
+            if os.path.isdir(os.path.join(data_root, d))
+        ])
         
         # Multi-worker aggregation logic
         self.worker_data = []  # Stores dicts: {'memmaps': {...}, 'size': int}
         self.cumulative_sizes = [0]
         self.total_size = 0
 
-        for i in range(1,num_workers+1):
-            worker_subdir = os.path.join(data_root, f"worker_{i:02d}")
-            meta_path = os.path.join(worker_subdir, "metadata.pkl")
-            
-            # 1. Determine size for this worker
+        print(f"[Dataset] Loading {len(self.worker_dirs)} buffer folders...")
+
+        for w_dir in self.worker_dirs:
+            meta_path = os.path.join(w_dir, "metadata.pkl")
             current_size = 0
+            
             if os.path.exists(meta_path):
                 try:
                     with open(meta_path, 'rb') as f:
-                        meta = pickle.load(f)
-                        current_size = meta.get('current_size', 0)
-                except Exception:
-                    pass # Treat corrupted/locked file as empty
-
-            # 2. If worker has data, open memmaps
+                        current_size = pickle.load(f).get('current_size', 0)
+                except:
+                    pass
+            
             if current_size > 0:
                 memmaps = {}
+                specs = DiskReplayBuffer.get_specs(current_size)
+                
                 try:
-                    for name, spec in self.specs.items():
-                        path = os.path.join(worker_subdir, f'{name}.npy')
-                        # Open read-only
+                    for name, spec in specs.items():
+                        path = os.path.join(w_dir, f'{name}.npy')
                         memmaps[name] = np.memmap(path, dtype=spec['dtype'], mode='r', shape=spec['shape'])
                     
                     self.worker_data.append({'memmaps': memmaps, 'size': current_size})
                     self.total_size += current_size
                     self.cumulative_sizes.append(self.total_size)
                 except Exception as e:
-                    print(f"Warning: Failed to load data for worker {i}: {e}")
+                    print(f"Warning: Failed to load {w_dir}: {e}")
 
     def __len__(self):
         return self.total_size

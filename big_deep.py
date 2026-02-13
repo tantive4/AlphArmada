@@ -198,6 +198,9 @@ class BigDeep(nn.Module):
         self.action_manager = action_manager
         self.max_action_space : int = action_manager.max_action_space
 
+        if self.max_action_space != Config.MAX_ACTION_SPACE :
+            raise ValueError(f"!!!action space size mismatch!!! action_manager {self.max_action_space}, config {Config.MAX_ACTION_SPACE}")
+
         # --- Constants & Configuration ---
         self.ship_feat_size = Config.SHIP_ENTITY_FEATURE_SIZE
         self.scalar_feat_size = Config.SCALAR_FEATURE_SIZE

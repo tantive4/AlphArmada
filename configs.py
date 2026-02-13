@@ -21,6 +21,7 @@ class Config:
     DEF_TOKEN_FEATURE_SIZE = 8
     SQUAD_ENTITY_FEATURE_SIZE = 30
     SCALAR_FEATURE_SIZE = 48
+    MAX_ACTION_SPACE = 947
 
     # Hardware
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"

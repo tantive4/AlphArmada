@@ -9,6 +9,27 @@ def _format_time(start_time, end_time):
     miniutes, seconds = divmod(elapsed_time.total_seconds(), 60)
     return f"{int(miniutes):02d}:{int(seconds):02d}"
 
+def get_worker_timestamp(worker_id: int) -> str:
+    """
+    Checks the remote volume for the latest timestamp file in 'timestemp/' folder.
+    Returns the filename (e.g., 'timestamp_20260102_120000.txt') or None if not found.
+    """
+    volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
+    try:
+        # List files in the 'timestemp' directory of the volume
+        files = vessl.storage.list_volume_files(
+            storage_name="vessl-storage",
+            volume_name=volume_name,
+            path="timestemp/"
+        )
+        # Filter for timestamp files and sort to get the latest
+        timestamp_files = [f.path for f in files if "timestamp_" in f.path]
+        if not timestamp_files:
+            return ""
+        return sorted(timestamp_files)[-1]  # Return the latest one
+    except Exception as e:
+        print(f"[Check] Error checking worker-{worker_id:02d}: {e}")
+        return ""
 
 def download_replay_result(worker_id : int, local_path: str="output") -> None:
     """for downloader"""
