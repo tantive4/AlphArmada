@@ -11,16 +11,15 @@ def _format_time(start_time, end_time):
 
 def get_worker_timestamp(worker_id: int) -> str:
     """
-    Checks the remote volume for the latest timestamp file in 'timestemp/' folder.
+    Checks the remote volume for the latest timestamp file in 'timestamp/' folder.
     Returns the filename (e.g., 'timestamp_20260102_120000.txt') or None if not found.
     """
-    volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
     try:
-        # List files in the 'timestemp' directory of the volume
+        # List files in the 'timestamp' directory of the volume
         files = vessl.storage.list_volume_files(
             storage_name="vessl-storage",
-            volume_name=volume_name,
-            path="timestemp/"
+            volume_name="alpharmada-volume-worker-common",
+            path=os.path.join(f"output_{worker_id:02d}", "timestamp")
         )
         # Filter for timestamp files and sort to get the latest
         timestamp_files = [f.path for f in files if "timestamp_" in f.path]
@@ -82,15 +81,15 @@ def upload_replay_result(worker_id : int) -> None:
     vessl.storage.upload_volume_file(
         source_path=flag_filename,
         dest_storage_name="vessl-storage",
-        dest_volume_name=volume_name,
-        dest_path=os.path.join("timestemp", flag_filename)
+        dest_volume_name="alpharmada-volume-worker-common",
+        dest_path=os.path.join(f"output_{worker_id:02d}","timestamp", flag_filename)
     )
     
     end_time = datetime.datetime.now()
     time = _format_time(start_time, end_time)
     print(f"[UPLOAD] worker-{worker_id:02d} replay ({time})")
 
-def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
+def download_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True) -> None:
     """for worker"""
     model_list = vessl.list_model_volume_files(
         repository_name="BigDeep",
@@ -98,11 +97,13 @@ def download_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
         path=""
     )
     model_path = str(model_list[-1].path)
+
+    dest_path = os.path.join(local_path, "model_best.pth") if save_best else model_path
     vessl.download_model_volume_file(
         repository_name="BigDeep",
         model_number=1,
         source_path=model_path,
-        dest_path=os.path.join(local_path, "model_best.pth")
+        dest_path=dest_path
     )
     print(f"[DOWNLOAD] {model_path}")
 

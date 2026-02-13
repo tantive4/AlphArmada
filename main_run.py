@@ -35,14 +35,20 @@ def train(num_worker) -> None:
     buffer_root = Config.REPLAY_BUFFER_DIR
     if not os.path.exists(buffer_root):
         os.makedirs(buffer_root)
-        
+        download_model(save_best=False)
     all_buffers = sorted([
         os.path.join(buffer_root, d) for d in os.listdir(buffer_root) 
         if os.path.isdir(os.path.join(buffer_root, d))
     ])
     
-    MAX_WINDOW = 10
-    if len(all_buffers) > MAX_WINDOW:
+    num_batch = len(all_buffers)
+    if num_batch < 2: 
+        print("[TRAINER] Not enough data")
+        time.sleep(60)
+        return
+    
+    MAX_WINDOW = 20
+    if num_batch > MAX_WINDOW:
         to_delete = all_buffers[:-MAX_WINDOW] # Keep the last 10
         for p in to_delete:
             print(f"[SlidingWindow] Deleting old buffer: {p}")
@@ -76,7 +82,7 @@ def download_all(num_worker) -> None:
     output_dir = Config.REPLAY_BUFFER_DIR
     
     staging_idx = 1
-    MAX_STAGING = 32
+    MAX_STAGING =16
     
     if os.path.exists(staging_dir):
         # Clean start to ensure index alignment
@@ -99,7 +105,6 @@ def download_all(num_worker) -> None:
                     
                     print(f"[Downloader] New data from Worker {i}: {latest_ts} -> Slot {staging_idx}")
                     download_replay_result(i, local_path=target_path)
-                    time.sleep(10)
 
                     # Update state
                     worker_timestamps[i] = latest_ts
@@ -139,8 +144,7 @@ def main():
         while True:
             work(args.worker_id)
 
-    elif args.mode == "trainer": 
-        download_all(args.num_worker)
+    elif args.mode == "trainer":
         while True:
             train(args.num_worker)
 

@@ -186,16 +186,7 @@ class AlphArmadaTrainer:
         self.model.train()
 
         # --- LOAD DATASET ---
-        dataset = ArmadaDiskDataset(
-            data_root=Config.REPLAY_BUFFER_DIR, 
-            num_workers=self.num_worker,
-            max_size_per_worker=Config.REPLAY_BUFFER_SIZE, 
-            action_space_size=self.max_action_space
-        )
-        current_total_size = len(dataset)
-        if current_total_size < Config.REPLAY_BUFFER_SIZE:
-            print(f"[TRAINING] Not enough data to train. Current size: {current_total_size} / {Config.REPLAY_BUFFER_SIZE}")
-            return
+        dataset = ArmadaDiskDataset(data_root=Config.REPLAY_BUFFER_DIR)
 
         dataloader = DataLoader(
             dataset, 
