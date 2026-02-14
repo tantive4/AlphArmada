@@ -135,7 +135,7 @@ def download_all(num_worker) -> None:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer / downloader")
-    parser.add_argument("--loop", type=bool, required=False, default=True, help="Worker Loop. If False, create only single self play")
+    parser.add_argument("--no-loop", dest="loop", action="store_false", default=True, help="type main_run.py --no_loop for single run setup")
     parser.add_argument("--worker_id", type=int, required=False, help="Machine ID for multi-machine setup")
     parser.add_argument("--num_worker", type=int, required=False, help="Total number of workers in multi-machine setup")
     args = parser.parse_args()
