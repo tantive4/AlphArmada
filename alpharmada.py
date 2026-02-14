@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 import vessl
 
-from disk_manager import DiskReplayBuffer, ArmadaDiskDataset
+from disk_manager import DiskReplayBuffer, ArmadaChunkDataset
 from configs import Config
 from armada import Armada
 from setup_game import setup_game
@@ -41,7 +41,6 @@ class AlphArmadaWorker:
         self.replay_buffer = DiskReplayBuffer(
             replay_buffer_dir, 
             Config.REPLAY_BUFFER_SIZE, 
-            model.max_action_space
         )
 
     def self_play(self) -> None:
@@ -181,42 +180,65 @@ class AlphArmadaTrainer:
         self.num_worker = num_worker
 
     def train_model(self, new_checkpoint : int) -> None:
-
         # --- PREPARE TRAINING ---
         self.model.train()
 
-        # --- LOAD DATASET ---
-        dataset = ArmadaDiskDataset(data_root=Config.REPLAY_BUFFER_DIR)
-
+        # --- INITIALIZE LOADER ---
+        # Sequential block size = 128 (Config.BATCH_SIZE)
+        # We will pick 2 chunks per step -> Total Batch 256
+        dataset = ArmadaChunkDataset(data_root=Config.REPLAY_BUFFER_DIR, seq_len=Config.BATCH_SIZE)
+        
+        # This is the magic sauce:
+        # batch_size=2: Grab 2 chunks (Total 256 samples)
+        # num_workers=2: Use 2 CPU cores to load them in parallel
         dataloader = DataLoader(
             dataset, 
-            batch_size=Config.BATCH_SIZE, 
-            shuffle=True, 
+            batch_size=2,          
+            num_workers=2,         
+            pin_memory=True,       # Fast GPU transfer
+            persistent_workers=True, # Keep workers alive (avoids re-spawn overhead)
+            prefetch_factor=2      # Buffer 2 batches per worker (smoother pipeline)
         )
 
+        iterator = iter(dataloader)
 
         # --- TRAINING LOOP ---
-        iterator = iter(dataloader)
-        # for step in trange(Config.TRAINING_STEPS, desc="[TRAINING]", unit="epoch"):
+        total_loss_accum = 0.0
+        
         for step in range(Config.TRAINING_STEPS):
+            # 1. Sample (2 * 128 = 256)
             try:
-                batch = next(iterator)
+                raw_batch = next(iterator)
             except StopIteration:
+                # Should not happen with infinite dataset, but safety first
                 iterator = iter(dataloader)
-                batch = next(iterator)
-            loss = self.train(batch)
+                raw_batch = next(iterator)
+            
+            # --- FLATTEN BATCH ---
+            # DataLoader returns: [Batch_Chunks, Seq_Len, Features] -> [2, 128, ...]
+            # We need: [Total_Batch, Features] -> [256, ...]
+            training_batch = {}
+            for k, v in raw_batch.items():
+                # Flatten first two dimensions (2 * 128 -> 256)
+                training_batch[k] = v.flatten(0, 1)
+                
+            # 2. Train
+            loss = self.train(training_batch)
+            total_loss_accum += loss
+            
             vessl.log(step=step, payload={"training_loss": loss})
 
-        print(f"[TRAINING] {new_checkpoint} completed. Final loss: {loss:.4f}")
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        avg_loss = total_loss_accum / Config.TRAINING_STEPS
+        print(f"[TRAINING] {new_checkpoint} completed. Avg loss: {avg_loss:.4f}")
+        
         with open(f'loss.txt', 'a') as f:
-            f.write(f"{timestamp}, {loss:.4f}\n")
-
+            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {avg_loss:.4f}\n")
 
         # --- SAVE MODEL ---
         checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{new_checkpoint}.pth")
         torch.save(self.model.state_dict(), checkpoint_path)
         print(f"[SAVE MODEL] {checkpoint_path}")
+
 
     def train(self, training_batch: dict[str, torch.Tensor]) -> float:
         """
@@ -227,35 +249,22 @@ class AlphArmadaTrainer:
             return 0.0
         
         # 1. Prepare Inputs
-        scalar_batch : torch.Tensor = training_batch['scalar'].to(Config.DEVICE)
-        ship_entity_batch : torch.Tensor = training_batch['ship_entities'].to(Config.DEVICE)
-        ship_coord_batch : torch.Tensor = training_batch['ship_coords'].to(Config.DEVICE)
-        ship_def_token_batch : torch.Tensor = training_batch['ship_def_tokens'].to(Config.DEVICE)
-        spatial_batch : torch.Tensor = training_batch['spatial'].to(Config.DEVICE)
-        relation_batch : torch.Tensor = training_batch['relations'].to(device=Config.DEVICE, dtype=torch.float32)
-        active_ship_id_batch : torch.Tensor = training_batch['active_ship_id'].to(Config.DEVICE).long()
-        target_ship_id_batch : torch.Tensor = training_batch['target_ship_id'].to(Config.DEVICE).long()
+        b = {
+            k: v.to(Config.DEVICE, non_blocking=True) 
+            for k, v in training_batch.items()
+        }
 
-        phases_int_tensor = training_batch['phases']
-        phases_tensor = phases_int_tensor.to(device=Config.DEVICE, dtype=torch.long)
-
-        training_batch['target_values'] = training_batch['target_values'].to(Config.DEVICE)
-        training_batch['target_policies'] = training_batch['target_policies'].to(Config.DEVICE)
-        training_batch['target_ship_hulls'] = training_batch['target_ship_hulls'].to(Config.DEVICE)
-        training_batch['target_game_length'] = training_batch['target_game_length'].to(Config.DEVICE)
-        training_batch['target_win_probs'] = training_batch['target_win_probs'].to(Config.DEVICE)
-        
-        # 2. Forward Pass (Unified)
+        # 2. Forward Pass (Use 'b' dictionary directly)
         outputs = self.model(
-            scalar_input=scalar_batch,
-            ship_entity_input=ship_entity_batch,
-            ship_coord_input=ship_coord_batch,
-            ship_token_input=ship_def_token_batch,
-            spatial_input=spatial_batch,
-            relation_input=relation_batch,
-            active_ship_indices=active_ship_id_batch,
-            target_ship_indices=target_ship_id_batch,
-            phases=phases_tensor
+            scalar_input=b['scalar'],
+            ship_entity_input=b['ship_entities'],
+            ship_coord_input=b['ship_coords'],
+            ship_token_input=b['ship_def_tokens'],
+            spatial_input=b['spatial'],      # uint8 is handled by model
+            relation_input=b['relations'],
+            active_ship_indices=b['active_ship_id'],
+            target_ship_indices=b['target_ship_id'],
+            phases=b['phases']
         )
         
         # 3. Calculate Losses

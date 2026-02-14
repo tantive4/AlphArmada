@@ -1,9 +1,10 @@
 import os
 import pickle
-import bisect
+import random
+import time
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import IterableDataset, get_worker_info
 import numpy as np
 
 from configs import Config
@@ -204,84 +205,100 @@ def aggregate_staging_buffers(staging_root, output_dir):
         pickle.dump({'current_size': total_size}, f)
 
     print(f"[Aggregator] Aggregation complete at {output_dir}")
-
-class ArmadaDiskDataset(Dataset):
-    def __init__(self, data_root):
+  
+class ArmadaChunkDataset(IterableDataset):
+    def __init__(self, data_root, seq_len=128):
         self.data_root = data_root
+        self.seq_len = seq_len
+        # We need the element shapes (ignoring the batch size dimension)
+        full_specs = DiskReplayBuffer.get_specs(1)
+        self.feature_specs = {k: {'dtype': v['dtype'], 'shape': v['shape'][1:]} for k, v in full_specs.items()}
         
-        # 1. Find all valid timestamp subdirectories
-        self.worker_dirs = sorted([
-            os.path.join(data_root, d) for d in os.listdir(data_root) 
-            if os.path.isdir(os.path.join(data_root, d))
+        self.buffer_dirs = []
+        self.refresh_buffer_list()
+
+    def refresh_buffer_list(self):
+        """Scans the data root for valid chunk directories."""
+        if not os.path.exists(self.data_root):
+            self.buffer_dirs = []
+            return
+
+        # Look for folders containing metadata.pkl
+        candidates = sorted([
+            os.path.join(self.data_root, d) for d in os.listdir(self.data_root) 
+            if os.path.isdir(os.path.join(self.data_root, d))
         ])
         
-        # Multi-worker aggregation logic
-        self.worker_data = []  # Stores dicts: {'memmaps': {...}, 'size': int}
-        self.cumulative_sizes = [0]
-        self.total_size = 0
+        self.buffer_dirs = [d for d in candidates if os.path.exists(os.path.join(d, "metadata.pkl"))]
+        # print(f"[Loader] Found {len(self.buffer_dirs)} valid chunks.")
 
-        print(f"[Dataset] Loading {len(self.worker_dirs)} buffer folders...")
+    def _load_chunk(self, chunk_dir):
+        """Loads one sequence (128 samples) from the chunk."""
+        try:
+            with open(os.path.join(chunk_dir, "metadata.pkl"), 'rb') as f:
+                meta = pickle.load(f)
+                total_size = meta['current_size']
+        except:
+            return None
 
-        for w_dir in self.worker_dirs:
-            meta_path = os.path.join(w_dir, "metadata.pkl")
-            current_size = 0
+        if total_size <= self.seq_len:
+            return None
             
-            if os.path.exists(meta_path):
-                try:
-                    with open(meta_path, 'rb') as f:
-                        current_size = pickle.load(f).get('current_size', 0)
-                except:
-                    pass
+        start_idx = random.randint(0, total_size - self.seq_len)
+        data_slice = {}
+
+        for name, spec in self.feature_specs.items():
+            file_path = os.path.join(chunk_dir, f"{name}.npy")
+            if not os.path.exists(file_path): continue
             
-            if current_size > 0:
-                memmaps = {}
-                specs = DiskReplayBuffer.get_specs(current_size)
-                
-                try:
-                    for name, spec in specs.items():
-                        path = os.path.join(w_dir, f'{name}.npy')
-                        memmaps[name] = np.memmap(path, dtype=spec['dtype'], mode='r', shape=spec['shape'])
-                    
-                    self.worker_data.append({'memmaps': memmaps, 'size': current_size})
-                    self.total_size += current_size
-                    self.cumulative_sizes.append(self.total_size)
-                except Exception as e:
-                    print(f"Warning: Failed to load {w_dir}: {e}")
-
-    def __len__(self):
-        return self.total_size
-
-    def __getitem__(self, idx):
-        # 1. Find which worker owns this index
-        # cumulative_sizes example: [0, 100, 250]
-        # if idx = 150, bisect_right returns 2. worker_idx = 2-1 = 1.
-        worker_idx = bisect.bisect_right(self.cumulative_sizes, idx) - 1
-        
-        # 2. Calculate local index
-        local_idx = idx - self.cumulative_sizes[worker_idx]
-        
-        worker = self.worker_data[worker_idx]
-        memmaps = worker['memmaps']
-
-        # 3. Fetch data
-        sample = {
-            'phases': int(memmaps['phases'][local_idx]),
-
-            'scalar': torch.tensor(memmaps['scalar'][local_idx]),
-            'ship_entities': torch.tensor(memmaps['ship_entities'][local_idx]),
-            'ship_coords': torch.tensor(memmaps['ship_coords'][local_idx]),
-            'ship_def_tokens': torch.tensor(memmaps['ship_def_tokens'][local_idx]),
+            # Open memmap, copy, close
+            full_shape = (total_size, *spec['shape'])
+            mm = np.memmap(file_path, dtype=spec['dtype'], mode='r', shape=full_shape)
             
-            'spatial': torch.tensor(memmaps['spatial'][local_idx]).long(), # Convert spatial to Long
-            'relations': torch.tensor(memmaps['relations'][local_idx]),
-            'active_ship_id': int(memmaps['active_ship_id'][local_idx]),
-            'target_ship_id': int(memmaps['target_ship_id'][local_idx]),
+            # .copy() is CRITICAL here to detach from file handle for multiprocessing safety
+            arr = mm[start_idx : start_idx + self.seq_len].copy()
+            
+            # Convert to Tensor immediately
+            tensor = torch.from_numpy(arr)
+            
+            # Type handling
+            if name in ['phases', 'active_ship_id', 'target_ship_id']:
+                tensor = tensor.long()
+            
+            data_slice[name] = tensor
+            del mm
+            
+        return data_slice
 
-            'target_policies': torch.tensor(memmaps['target_policies'][local_idx]),
-            'target_values': torch.tensor(memmaps['target_values'][local_idx]),
-            'target_ship_hulls': torch.tensor(memmaps['target_ship_hulls'][local_idx]),
-            'target_game_length': torch.tensor(memmaps['target_game_length'][local_idx]),
-            'target_win_probs': torch.tensor(memmaps['target_win_probs'][local_idx]),
+    def __iter__(self):
+        """
+        Infinite generator running on each worker.
+        """
+        worker_info = get_worker_info()
+        if worker_info is not None:
+            # We are in a worker process
+            # Seed = Base Seed + Worker ID
+            seed = (int(time.time()) + worker_info.id) % 2**32
+            random.seed(seed)
+            np.random.seed(seed)
+        else:
+            # We are in the main process (single-thread debugging)
+            pass
 
-        }
-        return sample
+        # If no data, yield nothing and finish (avoids infinite crash loops)
+        if not self.buffer_dirs:
+            return
+
+        while True:
+            # Pick random chunk
+            chunk_path = random.choice(self.buffer_dirs)
+            
+            # Load data
+            batch = self._load_chunk(chunk_path)
+            
+            if batch is not None:
+                yield batch
+            else:
+                # If chunk was invalid/too small, remove it from local list to avoid retrying immediately
+                if chunk_path in self.buffer_dirs:
+                    self.buffer_dirs.remove(chunk_path)
