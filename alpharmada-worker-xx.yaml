@@ -19,5 +19,5 @@ run:
 
 
       # Run the worker
-      python -u main_run.py --mode worker --worker_id 01 --no_loop
+      python -u main_run.py --mode worker --worker_id 01
     workdir: /root/alpharmada

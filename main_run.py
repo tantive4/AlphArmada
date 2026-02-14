@@ -151,7 +151,7 @@ def main():
     if args.mode == "worker":
         while True:
             work(args.worker_id)
-            if args.no_loop : break
+            if args.loop : break
 
     elif args.mode == "trainer":
         download_model(save_best=False)
