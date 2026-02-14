@@ -35,7 +35,7 @@ class AlphArmadaWorker:
         replay_buffer_dir = Config.REPLAY_BUFFER_DIR
         if os.path.exists(replay_buffer_dir):
             shutil.rmtree(replay_buffer_dir)
-        os.makedirs(os.path.dirname("output"), exist_ok=True)
+        os.makedirs("output", exist_ok=True)
 
 
         self.replay_buffer = DiskReplayBuffer(

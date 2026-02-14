@@ -1,0 +1,23 @@
+name: alpharmada-worker-01
+description: AlphArmada Self Play Worker 01
+tags:
+  - worker
+import:
+  /root/alpharmada/: git://github.com/tantive4/alpharmada.git
+resources:
+  cluster: snu-eng-gtx1080
+  preset: gpu-1
+image: quay.io/vessl-ai/torch:2.1.0-cuda12.2-r3
+run:
+  - command: |-
+      pip install --upgrade pip --quiet
+      pip install torch --index-url https://download.pytorch.org/whl/cu126 --quiet
+      pip install numpy shapely pillow cython numba scikit-image tqdm vessl --quiet > /dev/null 2>&1
+      pip install --upgrade vessl --quiet
+
+      python cython_compile/setup.py build_ext --inplace > /dev/null
+
+
+      # Run the worker
+      python -u main_run.py --mode worker --worker_id 01 --loop False
+    workdir: /root/alpharmada
