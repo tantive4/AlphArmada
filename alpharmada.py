@@ -105,7 +105,7 @@ class AlphArmadaWorker:
                     
                     saved_states += self.save_game_data(game, memory[para_index],action_counter)
                     memory[para_index].clear()
-            if action_counter % 10 == 0:
+            if action_counter % 20 == 0:
                 vessl.log(payload={"action_count": action_counter, "saved_states": saved_states, "ended_games" : Config.PARALLEL_PLAY - sum(1 for g in para_games if g.winner == 0.0)})
             action_counter += 1
 
@@ -173,11 +173,10 @@ class AlphArmadaWorker:
         return deep_search_count
     
 class AlphArmadaTrainer:
-    def __init__(self, model : BigDeep, optimizer : optim.AdamW, num_worker: int) -> None:
+    def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:
         self.model = model
         self.max_action_space = model.max_action_space
         self.optimizer = optimizer
-        self.num_worker = num_worker
 
     def train_model(self, new_checkpoint : int) -> None:
         # --- PREPARE TRAINING ---
@@ -195,7 +194,7 @@ class AlphArmadaTrainer:
             dataset, 
             batch_size=2,          
             num_workers=2,         
-            pin_memory=True,       # Fast GPU transfer
+            # pin_memory=True,       # Fast GPU transfer (no support on mps)
             persistent_workers=True, # Keep workers alive (avoids re-spawn overhead)
             prefetch_factor=2      # Buffer 2 batches per worker (smoother pipeline)
         )
@@ -205,7 +204,7 @@ class AlphArmadaTrainer:
         # --- TRAINING LOOP ---
         total_loss_accum = 0.0
         
-        for step in range(Config.TRAINING_STEPS):
+        for step in trange(Config.TRAINING_STEPS):
             # 1. Sample (2 * 128 = 256)
             try:
                 raw_batch = next(iterator)
@@ -225,8 +224,10 @@ class AlphArmadaTrainer:
             # 2. Train
             loss = self.train(training_batch)
             total_loss_accum += loss
-            
-            vessl.log(step=step, payload={"training_loss": loss})
+            if step % 100 == 99: 
+                avg_loss = total_loss_accum / step
+                with open(f'loss.txt', 'a') as f:f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {avg_loss:.4f}\n")
+            # vessl.log(step=step, payload={"training_loss": loss})
 
         avg_loss = total_loss_accum / Config.TRAINING_STEPS
         print(f"[TRAINING] {new_checkpoint} completed. Avg loss: {avg_loss:.4f}")
@@ -270,16 +271,16 @@ class AlphArmadaTrainer:
         # 3. Calculate Losses
 
         # A. Value Loss
-        value_loss = F.mse_loss(outputs["value"], training_batch['target_values'], reduction='mean')
+        value_loss = F.mse_loss(outputs["value"], b['target_values'], reduction='mean')
 
         # B. Aux Heads Loss
-        hull_loss = F.mse_loss(outputs["predicted_hull"], training_batch['target_ship_hulls'], reduction='mean')
-        game_len_loss = F.cross_entropy(outputs["predicted_game_length"], training_batch['target_game_length'], reduction='mean')
-        win_prob_loss = F.binary_cross_entropy_with_logits(outputs["predicted_win_prob"], training_batch['target_win_probs'], reduction='mean')
+        hull_loss = F.mse_loss(outputs["predicted_hull"], b['target_ship_hulls'], reduction='mean')
+        game_len_loss = F.cross_entropy(outputs["predicted_game_length"], b['target_game_length'], reduction='mean')
+        win_prob_loss = F.binary_cross_entropy_with_logits(outputs["predicted_win_prob"], b['target_win_probs'], reduction='mean')
         
         # C. Policy Loss
         logits = outputs["policy_logits"]
-        targets = training_batch['target_policies']
+        targets = b['target_policies']
 
         # Use F.cross_entropy which accepts soft probabilities (targets) and handles numerical stability
         policy_loss = F.cross_entropy(logits, targets, reduction='mean')

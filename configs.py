@@ -51,13 +51,12 @@ class Config:
     
 
     # Neural Network Training
-    TRAINING_STEPS = 100
-    BATCH_SIZE = 128
-    # train on 128 * 100 = 12800 states per iteration
+    TRAINING_STEPS = 1000
+    BATCH_SIZE = 128 # * 2 = 512 mini batch (sample 128 data from chunk)
 
 
     # Optimization
-    LEARNING_RATE = 0.0001
+    LEARNING_RATE = 5e-5
     L2_LAMBDA = 1e-4
     HULL_LOSS_WEIGHT = 0.05
     SQUAD_LOSS_WEIGHT = 0.05

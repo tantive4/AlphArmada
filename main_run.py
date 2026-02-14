@@ -24,7 +24,7 @@ def work(worker_id: int) -> None:
 
     upload_replay_result(worker_id)
 
-def train(num_worker) -> None:
+def train() -> None:
     """
     1. Manage Sliding Window (keep max 10 folders in 'replay_buffers')
     2. Create dataset from remaining folders
@@ -41,29 +41,32 @@ def train(num_worker) -> None:
         if os.path.isdir(os.path.join(buffer_root, d))
     ])
     
-    num_batch = len(all_buffers)
-    if num_batch < 2: 
+    num_chunk = len(all_buffers)
+    
+    MIN_WINDOW = 4
+    MAX_WINDOW = 40
+
+    if num_chunk < MIN_WINDOW: 
         print("[TRAINER] Not enough data")
         time.sleep(60)
         return
-    
-    MAX_WINDOW = 40
-    if num_batch > MAX_WINDOW:
+    elif num_chunk > MAX_WINDOW:
         to_delete = all_buffers[:-MAX_WINDOW] # Keep the last 10
         for p in to_delete:
             print(f"[SlidingWindow] Deleting old buffer: {p}")
             shutil.rmtree(p)
+    chunk_ratio = num_chunk / MAX_WINDOW
 
     # --- 2. Train ---
     model, current_iter = load_recent_model()
 
     optimizer = optim.AdamW(
             model.parameters(), 
-            lr=Config.LEARNING_RATE, 
+            lr=Config.LEARNING_RATE * chunk_ratio, 
             weight_decay=Config.L2_LAMBDA
             )
     
-    trainer = AlphArmadaTrainer(model, optimizer, num_worker)
+    trainer = AlphArmadaTrainer(model, optimizer)
     trainer.train_model(new_checkpoint=current_iter + 1)
 
     upload_model()
@@ -95,6 +98,7 @@ def download_all(num_worker) -> None:
         data_downloaded_this_loop = False
         
         for i in range(1, num_worker + 1): 
+            time.sleep(2)
             try:
                 # Check remote timestamp
                 latest_ts = get_worker_timestamp(i)
@@ -121,9 +125,10 @@ def download_all(num_worker) -> None:
                         aggregate_staging_buffers(staging_dir, final_output_path)
                         
                         # Reset Staging
-                        print("[Downloader] Clearing staging area...")
+                        
                         shutil.rmtree(staging_dir)
                         os.makedirs(staging_dir)
+                        print("[Downloader] Cleared staging area\n")
                         staging_idx = 1
                         
             except Exception as e:
@@ -148,7 +153,7 @@ def main():
 
     elif args.mode == "trainer":
         while True:
-            train(args.num_worker)
+            train()
 
     elif args.mode == "downloader":
         download_all(args.num_worker)

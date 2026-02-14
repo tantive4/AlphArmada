@@ -87,7 +87,7 @@ def upload_replay_result(worker_id : int) -> None:
     
     end_time = datetime.datetime.now()
     time = _format_time(start_time, end_time)
-    print(f"[UPLOAD] worker-{worker_id:02d} replay ({time})")
+    print(f"[UPLOAD] worker-{worker_id:02d} replay ({time})\n")
 
 def download_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True) -> None:
     """for worker"""
@@ -98,14 +98,14 @@ def download_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True
     )
     model_path = str(model_list[-1].path)
 
-    dest_path = os.path.join(local_path, "model_best.pth") if save_best else model_path
+    dest_path = os.path.join(local_path, "model_best.pth" if save_best else model_path)
     vessl.download_model_volume_file(
         repository_name="BigDeep",
         model_number=1,
         source_path=model_path,
         dest_path=dest_path
     )
-    print(f"[DOWNLOAD] {model_path}")
+    print(f"[DOWNLOADER] {model_path}")
 
 def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
     """for trainer"""

@@ -29,7 +29,7 @@ cdef class Node:
     """
     cdef :
         public tuple snapshot
-        public int first_player_perspective
+        public int decision_player
         public bint chance_node
         public bint information_set
 
@@ -52,7 +52,7 @@ cdef class Node:
         
         self.snapshot = game.get_snapshot()
 
-        self.first_player_perspective = game.decision_player # decision player used when get_possible_action is called on this node
+        self.decision_player = game.decision_player # decision player used when get_possible_action is called on this node
 
         self.chance_node = <bint>(game.phase == Phase.ATTACK_ROLL_DICE)
         # simplified
@@ -575,7 +575,7 @@ cdef class MCTS:
         Backpropagates the simulation result up the tree.
         """
         cdef Node node
-        cdef int perspective_player
+        cdef int parent_perspective
         cdef float result_for_node
 
         while path:
@@ -583,14 +583,14 @@ cdef class MCTS:
             
             # Use the parent's perspective to update the child node's stats
             if path:
-                perspective = (<Node>path[-1]).first_player_perspective
+                parent_perspective = (<Node>path[-1]).decision_player
             else: 
-                perspective = 0 
+                parent_perspective = 0 
 
             # Calculate result: 
             # If First Player Won (+1) and Parent is First Player (+1) -> +1 (Good)
             # If First Player Won (+1) and Parent is Second Player (-1) -> -1 (Bad)
-            result_for_node = value * perspective
+            result_for_node = value * parent_perspective
             
             node.update(result_for_node)
 
