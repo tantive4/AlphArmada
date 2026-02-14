@@ -82,7 +82,7 @@ def upload_replay_result(worker_id : int) -> None:
         source_path=flag_filename,
         dest_storage_name="vessl-storage",
         dest_volume_name="alpharmada-volume-worker-common",
-        dest_path=os.path.join(f"output_{worker_id:02d}","timestamp", flag_filename)
+        dest_path=os.path.join(f"output_{worker_id:02d}","timestamp")
     )
     
     end_time = datetime.datetime.now()
