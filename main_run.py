@@ -20,7 +20,10 @@ def work(worker_id: int) -> None:
 
     model = load_model()
     worker = AlphArmadaWorker(model, worker_id)
-    worker.self_play()
+    try:
+        worker.self_play()
+    except Exception as e:
+        print(f"[WORKER] Unknown Error occured!!!! {e}")
 
     upload_replay_result(worker_id)
 
@@ -140,7 +143,7 @@ def download_all(num_worker) -> None:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, required=False, default="worker", help="Mode: worker / trainer / downloader")
-    parser.add_argument("--no-loop", dest="loop", action="store_false", default=True, help="type main_run.py --no_loop for single run setup")
+    parser.add_argument("--no_loop", dest="loop", action="store_false", default=True, help="type main_run.py --no_loop for single run setup")
     parser.add_argument("--worker_id", type=int, required=False, help="Machine ID for multi-machine setup")
     parser.add_argument("--num_worker", type=int, required=False, help="Total number of workers in multi-machine setup")
     args = parser.parse_args()
@@ -149,7 +152,7 @@ def main():
     if args.mode == "worker":
         while True:
             work(args.worker_id)
-            if args.loop == False : break
+            if args.no_loop : break
 
     elif args.mode == "trainer":
         while True:
