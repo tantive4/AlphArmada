@@ -43,7 +43,7 @@ def download_replay_result(worker_id : int, local_path: str="output") -> None:
     end_time = datetime.datetime.now()
     time = _format_time(start_time, end_time)
 
-    print(f"[DOWNLOAD] worker-{worker_id:02d} data ({time})")
+    print(f"[DOWNLOAD] worker-{worker_id:02d} data ({time})\n")
 
 
 def upload_replay_result(worker_id : int) -> None:
@@ -105,7 +105,7 @@ def download_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True
         source_path=model_path,
         dest_path=dest_path
     )
-    print(f"[DOWNLOADER] {model_path}")
+    print(f"[DOWNLOAD] {model_path}")
 
 def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
     """for trainer"""

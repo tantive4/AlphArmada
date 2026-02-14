@@ -38,7 +38,6 @@ def train() -> None:
     buffer_root = Config.REPLAY_BUFFER_DIR
     if not os.path.exists(buffer_root):
         os.makedirs(buffer_root)
-        download_model(save_best=False)
     all_buffers = sorted([
         os.path.join(buffer_root, d) for d in os.listdir(buffer_root) 
         if os.path.isdir(os.path.join(buffer_root, d))
@@ -50,7 +49,7 @@ def train() -> None:
     MAX_WINDOW = 40
 
     if num_chunk < MIN_WINDOW: 
-        print("[TRAINER] Not enough data")
+        # print("[TRAINER] Not enough data")
         time.sleep(60)
         return
     elif num_chunk > MAX_WINDOW:
@@ -155,6 +154,7 @@ def main():
             if args.no_loop : break
 
     elif args.mode == "trainer":
+        download_model(save_best=False)
         while True:
             train()
 
