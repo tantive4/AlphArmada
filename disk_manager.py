@@ -148,39 +148,58 @@ def aggregate_staging_buffers(staging_root, output_dir):
         
         buffer_sizes.append(size)
         total_size += size
-
+    
     print(f"[Aggregator] Total aggregated size: {total_size} samples.")
 
-    # 3. Create Output Buffer (Memmapped)
+
+
+
+    # 3. Generate Random Permutation (The Magic Step)
+    # This ensures that reading the final file sequentially = random sampling
+    permutation = np.random.permutation(total_size)
+
+    # 4. Process Key-by-Key to save RAM
+    # We load all data for ONE key (e.g., 'spatial') into RAM, shuffle it, and write it.
     os.makedirs(output_dir, exist_ok=True)
     specs = DiskReplayBuffer.get_specs(total_size)
-    output_files = {}
     
     for name, spec in specs.items():
-        path = os.path.join(output_dir, f'{name}.npy')
-        output_files[name] = np.memmap(path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
-
-    # 4. Copy Data
-    cursor = 0
-    for idx, d in enumerate(staging_dirs):
-        current_size = buffer_sizes[idx]
-        if current_size == 0: continue
-
-        for name, spec in specs.items():
+        # A. Allocate memory for the full merged array
+        # Note: We use a standard numpy array for fast in-memory shuffling, then write to file
+        merged_data = np.empty(spec['shape'], dtype=spec['dtype'])
+        
+        # B. Load data from all workers into merged_data
+        cursor = 0
+        for idx, d in enumerate(staging_dirs):
+            current_size = buffer_sizes[idx]
+            if current_size == 0: continue
+            
             src_path = os.path.join(d, f'{name}.npy')
             if os.path.exists(src_path):
-                # Open read-only
+                # Read from disk
                 src_mm = np.memmap(src_path, dtype=spec['dtype'], mode='r', shape=(current_size, *spec['shape'][1:]))
-                output_files[name][cursor : cursor + current_size] = src_mm
+                merged_data[cursor : cursor + current_size] = src_mm
                 del src_mm # Close handle
+            else:
+                print(f"[DOWNLOADER] WARNING missing file {src_path}")
+            
+            cursor += current_size
 
-        cursor += current_size
+        # C. Apply Shuffle
+        shuffled_data = merged_data[permutation]
+        
+        # D. Write to Final Output (Memmap is good for writing large chunks)
+        out_path = os.path.join(output_dir, f'{name}.npy')
+        output_mm = np.memmap(out_path, dtype=spec['dtype'], mode='w+', shape=spec['shape'])
+        output_mm[:] = shuffled_data[:]
+        output_mm.flush()
+        
+        # E. Cleanup Memory
+        del output_mm
+        del merged_data
+        del shuffled_data
+        import gc; gc.collect()
 
-    # 5. Flush and Metadata
-    for mm in output_files.values():
-        mm.flush()
-        del mm
-    
     with open(os.path.join(output_dir, "metadata.pkl"), 'wb') as f:
         pickle.dump({'current_size': total_size}, f)
 

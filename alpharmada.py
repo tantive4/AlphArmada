@@ -197,8 +197,8 @@ class AlphArmadaTrainer:
 
         # --- TRAINING LOOP ---
         iterator = iter(dataloader)
-        # for step in trange(Config.EPOCHS, desc="[TRAINING]", unit="epoch"):
-        for step in range(Config.EPOCHS):
+        # for step in trange(Config.TRAINING_STEPS, desc="[TRAINING]", unit="epoch"):
+        for step in range(Config.TRAINING_STEPS):
             try:
                 batch = next(iterator)
             except StopIteration:

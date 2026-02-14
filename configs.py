@@ -31,8 +31,8 @@ class Config:
     ITERATIONS = 64 # self_play & train for ITERATIONS times
 
     # Self Play
-    PARALLEL_DIVERSE_FACTOR = 8 # run games in batch
-    PARALLEL_SAME_GAME = 16 # same geometry game setup
+    PARALLEL_DIVERSE_FACTOR = 16 # run games in batch
+    PARALLEL_SAME_GAME = 8 # same geometry game setup
     PARALLEL_PLAY = PARALLEL_DIVERSE_FACTOR * PARALLEL_SAME_GAME
     # 1 * 128 * 400 * 0.25 = 12800 states are created
 
@@ -51,7 +51,7 @@ class Config:
     
 
     # Neural Network Training
-    EPOCHS = 100
+    TRAINING_STEPS = 100
     BATCH_SIZE = 128
     # train on 128 * 100 = 12800 states per iteration
 

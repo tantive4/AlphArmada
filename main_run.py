@@ -47,7 +47,7 @@ def train(num_worker) -> None:
         time.sleep(60)
         return
     
-    MAX_WINDOW = 20
+    MAX_WINDOW = 40
     if num_batch > MAX_WINDOW:
         to_delete = all_buffers[:-MAX_WINDOW] # Keep the last 10
         for p in to_delete:
@@ -82,7 +82,7 @@ def download_all(num_worker) -> None:
     output_dir = Config.REPLAY_BUFFER_DIR
     
     staging_idx = 1
-    MAX_STAGING =16
+    MAX_STAGING = 8
     
     if os.path.exists(staging_dir):
         # Clean start to ensure index alignment
