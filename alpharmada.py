@@ -294,6 +294,7 @@ class AlphArmadaTrainer:
 
         self.optimizer.zero_grad()
         total_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
         self.optimizer.step()
 
         return total_loss.item()
