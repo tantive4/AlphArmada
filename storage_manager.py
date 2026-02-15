@@ -27,7 +27,7 @@ def get_worker_timestamp(worker_id: int) -> str:
             return ""
         return sorted(timestamp_files)[-1]  # Return the latest one
     except Exception as e:
-        print(f"[Check] Error checking worker-{worker_id:02d}: {e}")
+        print(f"[CHECK] Error checking worker-{worker_id:02d}: {e}")
         return ""
 
 def download_replay_result(worker_id : int, local_path: str="output") -> None:
@@ -122,4 +122,4 @@ def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
         source_path=checkpoint_path,
         dest_path=latest_checkpoint_file
     )
-    print(f"[UPLOAD] {latest_checkpoint_file}")
+    print(f"[UPLOAD] {latest_checkpoint_file}") 

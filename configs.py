@@ -27,9 +27,6 @@ class Config:
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     GPU_INPUT_BATCH_SIZE = 128  # for neural network inference batch size
 
-    # Training Loop
-    ITERATIONS = 64 # self_play & train for ITERATIONS times
-
     # Self Play
     PARALLEL_DIVERSE_FACTOR = 16 # run games in batch
     PARALLEL_SAME_GAME = 8 # same geometry game setup

@@ -17,7 +17,7 @@ def work(worker_id: int) -> None:
     2. Run self-play to generate replay buffer data
     3. Upload replay buffer to Vessl
     """
-    download_model()
+    # download_model()
 
     model = load_model()
     worker = AlphArmadaWorker(model, worker_id)
@@ -25,6 +25,7 @@ def work(worker_id: int) -> None:
         worker.self_play()
     except Exception as e:
         print(f"[WORKER] Unknown Error occured!!!! {e}")
+        raise e
 
     upload_replay_result(worker_id)
 
@@ -94,7 +95,7 @@ def download_all(num_worker) -> None:
         shutil.rmtree(staging_dir)
     os.makedirs(staging_dir)
 
-    print("[Downloader] Started monitoring workers...")
+    print("[DOWNLOADER] Started monitoring workers...")
 
     while True:
         data_downloaded_this_loop = False
@@ -120,7 +121,7 @@ def download_all(num_worker) -> None:
 
                     # Check aggregation trigger
                     if staging_idx > MAX_STAGING:
-                        print("[Downloader] Staging full. Aggregating...")
+                        print("[DOWNLOADER] Staging full. Aggregating...")
                         
                         agg_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                         final_output_path = os.path.join(output_dir, agg_timestamp)
@@ -131,11 +132,11 @@ def download_all(num_worker) -> None:
                         
                         shutil.rmtree(staging_dir)
                         os.makedirs(staging_dir)
-                        print("[Downloader] Cleared staging area\n")
+                        print("[DOWNLOADER] Cleared staging area\n")
                         staging_idx = 1
                         
             except Exception as e:
-                print(f"[Downloader] Error processing worker {i}: {e}")
+                print(f"[DOWNLOADER] Error processing worker {i}: {e}")
         
         if not data_downloaded_this_loop:
             time.sleep(60) # Sleep if no new data to avoid spamming Vessl API
@@ -147,7 +148,8 @@ def main():
     parser.add_argument("--worker_id", type=int, required=False, help="Machine ID for multi-machine setup")
     parser.add_argument("--num_worker", type=int, required=False, help="Total number of workers in multi-machine setup")
     args = parser.parse_args()
-        
+
+    print(f"[{args.mode}.upper()] Running on {Config.DEVICE}")
     
     if args.mode == "worker":
         while True:
@@ -155,7 +157,7 @@ def main():
             if not args.loop : break
 
     elif args.mode == "trainer":
-        download_model(save_best=False)
+        # download_model(save_best=False)
         while True:
             train()
 

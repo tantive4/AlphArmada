@@ -231,9 +231,7 @@ class AlphArmadaTrainer:
 
         avg_loss = total_loss_accum / Config.TRAINING_STEPS
         print(f"[TRAINING] {new_checkpoint} completed. Avg loss: {avg_loss:.4f}")
-        
-        with open(f'loss.txt', 'a') as f:
-            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {avg_loss:.4f}\n")
+
 
         # --- SAVE MODEL ---
         checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{new_checkpoint:03d}.pth")

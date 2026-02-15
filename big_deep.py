@@ -9,8 +9,34 @@ from typing import cast
 # input shapes match the encoder's output shapes perfectly.
 from configs import Config
 from action_manager import ActionManager
-from action_phase import Phase, POINTER_PHASE
+from action_phase import Phase
 from enum_class import *
+
+# --- Helper Functions ---
+def check_nan(x, label: str):
+    """
+    Checks a tensor (or list/dict of tensors) for NaN/Inf.
+    Raises ValueError if NaN is found to stop execution immediately.
+    """
+    if x is None: 
+        return
+        
+    # Handle dictionary (e.g., output of forward)
+    if isinstance(x, dict):
+        for k, v in x.items():
+            check_nan(v, f"{label} -> {k}")
+        return
+
+    # Handle Tensor
+    if isinstance(x, torch.Tensor):
+        if torch.isnan(x).any():
+            print(f"\n❌ FATAL: NaN detected at [{label}]")
+            print(f"   - Min: {x.min()}, Max: {x.max()}, Mean: {x.mean()}")
+            raise ValueError(f"NaN detected at {label}")
+        
+        if torch.isinf(x).any():
+            print(f"\n❌ FATAL: Inf detected at [{label}]")
+            print(f"   - Min: {x.min()}, Max: {x.max()}, Mean: {x.mean()}")
 
 # --- Helper Modules ---
 class GlobalPoolingBias(nn.Module):
@@ -48,7 +74,7 @@ class GlobalPoolingBias(nn.Module):
 class ResBlock(nn.Module):
     """
     Pre-Activation ResBlock (KataGo Style).
-    Order: BN -> ReLU -> Conv -> BN -> ReLU -> Conv
+    Order: BN -> GELU -> Conv -> BN -> GELU -> Conv
     """
     def __init__(self, channels, use_global_pooling=False):
         super(ResBlock, self).__init__()
@@ -72,10 +98,10 @@ class ResBlock(nn.Module):
         # x is the input (residual path)
         
         # Branch 
-        out = F.relu(self.bn1(x))
+        out = F.gelu(self.bn1(x))
         out = self.conv1(out)
         
-        out = F.relu(self.bn2(out))
+        out = F.gelu(self.bn2(out))
         out = self.conv2(out)
         
         # Global Pooling Bias applied within the branch
@@ -220,7 +246,7 @@ class BigDeep(nn.Module):
         # Scalar Token Encoder (The [CLS] Token)
         self.scalar_encoder = nn.Sequential(
             nn.Linear(self.scalar_feat_size, 128),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(128, self.embed_dim),
         )
 
@@ -228,7 +254,7 @@ class BigDeep(nn.Module):
         # Processes raw token features [B, N, 4, 8] -> [B, N, 4, 64]
         self.token_encoder = nn.Sequential(
             nn.Linear(self.token_feat_size, 32),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(32, self.token_embed_dim)
         )
 
@@ -244,7 +270,7 @@ class BigDeep(nn.Module):
         # Shape: [Heads, 1, N] and [Heads, N, 1]
         self.relation_bias_net = nn.Sequential(
             nn.Linear(20, 32),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(32, self.nhead)
         )
         self.bias_scale = 10.0
@@ -253,6 +279,14 @@ class BigDeep(nn.Module):
         self.scalar_bias_row = nn.Parameter(torch.zeros(self.nhead, 1, 1))
         self.scalar_bias_col = nn.Parameter(torch.zeros(self.nhead, 1, 1))
         self.scalar_self_bias = nn.Parameter(torch.zeros(self.nhead, 1, 1))
+
+        # --- DEFINE NORMS ---
+        # Add these new layers
+        self.norm1 = nn.LayerNorm(self.embed_dim)
+        self.norm2 = nn.LayerNorm(self.embed_dim)
+        self.norm_fusion = nn.LayerNorm(self.embed_dim)
+        self.norm_policy = nn.LayerNorm(self.policy_input_dim)
+
 
         # --- 3. Transformer Block 1 (Geometry Aware) ---
         # "Reasoning about immediate geometric relations"
@@ -270,11 +304,19 @@ class BigDeep(nn.Module):
         
         # Projectors (Transformer -> Spatial Map)
         self.presence_channels = 32
-        self.presence_projector = nn.Linear(self.embed_dim, self.presence_channels)
+        self.presence_projector = nn.Sequential(
+            nn.Linear(self.embed_dim, self.embed_dim // 2),
+            nn.GELU(),
+            nn.Linear(self.embed_dim // 2, self.presence_channels)
+        )
         
         self.threat_channels = 4
         self.num_threat_planes = 9
-        self.threat_projector = nn.Linear(self.embed_dim, self.threat_channels * self.num_threat_planes)
+        self.threat_projector = nn.Sequential(
+            nn.Linear(self.embed_dim, self.embed_dim), 
+            nn.GELU(),
+            nn.Linear(self.embed_dim, self.threat_channels * self.num_threat_planes)
+        )
 
         # Spatial ResNet
         self.spatial_in_channels = self.presence_channels + self.threat_channels
@@ -296,7 +338,7 @@ class BigDeep(nn.Module):
         )
         self.spatial_tail = nn.Sequential(
             nn.BatchNorm2d(64),
-            nn.ReLU()
+            nn.GELU()
         )
 
         # Fusion Layers (Spatial Map -> Transformer)
@@ -319,7 +361,7 @@ class BigDeep(nn.Module):
         # Value Head: Uses Scalar Token (The "Game State")
         self.value_head = nn.Sequential(
             nn.Linear(self.embed_dim, 64),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(64, 1),
             nn.Tanh()
         )
@@ -362,9 +404,9 @@ class BigDeep(nn.Module):
             # Create the Static MLP
             self.static_heads[phase.name] = nn.Sequential(
                 nn.Linear(self.policy_input_dim, 256),
-                nn.ReLU(),
+                nn.GELU(),
                 nn.Linear(256, 256),
-                nn.ReLU(),
+                nn.GELU(),
                 nn.Linear(256, static_out_dim)
             )
 
@@ -385,7 +427,7 @@ class BigDeep(nn.Module):
         # Input: Ship Token (256) + Scalar Token (256)
         self.hull_head = nn.Sequential(
             nn.Linear(self.policy_input_dim, 128),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(128, 1),
             nn.Sigmoid()
         )
@@ -394,7 +436,7 @@ class BigDeep(nn.Module):
         # Input: Scalar Token (256)
         self.game_length_head = nn.Sequential(
             nn.Linear(self.embed_dim, 64),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(64, 6)
         )
 
@@ -402,7 +444,7 @@ class BigDeep(nn.Module):
         # Input: Scalar Token (256)
         self.win_prob_head = nn.Sequential(
             nn.Linear(self.embed_dim, 64),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(64, 2)
         )
 
@@ -600,6 +642,8 @@ class BigDeep(nn.Module):
         # Input: [B, N+1, 256]
         # Output: [B, N+1, 256]
         tokens_l1 = self.transformer_block1(tokens, mask=attn_bias, src_key_padding_mask=src_key_padding_mask)
+        tokens_l1 = self.norm1(tokens_l1)
+
 
 
         # === 4. Spatial Sandwich (Scatter -> ResNet -> Gather) ===
@@ -677,12 +721,13 @@ class BigDeep(nn.Module):
         # Project back to 256
         fused_input = torch.cat([tokens_l1, spatial_ctx], dim=2)
         tokens_l2_input = self.sandwich_fusion(fused_input) # [B, N+1, 256]
+        tokens_l2_input = self.norm_fusion(tokens_l2_input)
 
 
         # === 5. Transformer Block 2 (Tactical Reasoning) ===
         # Reuse the same attention bias (or you could have a separate one)
         final_tokens = self.transformer_block2(tokens_l2_input, mask=attn_bias, src_key_padding_mask=src_key_padding_mask)
-
+        final_tokens = self.norm2(final_tokens)
 
         # === 6. Head Preparation ===
         
@@ -709,7 +754,7 @@ class BigDeep(nn.Module):
 
         # Construct Policy Context: [Active_Ship (256) + Game_State (256)]
         policy_context = torch.cat([active_ship_state, scalar_final_state], dim=1) # [B, 512]
-
+        policy_context = self.norm_policy(policy_context)
 
 
 
@@ -794,11 +839,11 @@ class BigDeep(nn.Module):
             # Layer 1
             w1, b1 = self.w1_stack[stack_indices], self.b1_stack[stack_indices]
             x = policy_context.unsqueeze(2) # [B, 512, 1]
-            x = F.relu(torch.bmm(w1, x).squeeze(2) + b1).unsqueeze(2)
+            x = F.gelu(torch.bmm(w1, x).squeeze(2) + b1).unsqueeze(2)
             
             # Layer 2
             w2, b2 = self.w2_stack[stack_indices], self.b2_stack[stack_indices]
-            x = F.relu(torch.bmm(w2, x).squeeze(2) + b2).unsqueeze(2)
+            x = F.gelu(torch.bmm(w2, x).squeeze(2) + b2).unsqueeze(2)
             
             # Layer 3
             w3, b3 = self.w3_stack[stack_indices], self.b3_stack[stack_indices]
@@ -850,11 +895,26 @@ class BigDeep(nn.Module):
                         group_context, group_ships, candidate_type='ship'
                     )
                     
-                    # Apply Mask
+                    # Apply Valid Ship Mask
                     group_mask = (ship_entity_input[indices_tensor].abs().sum(dim=2) > 0)
+
+                    group_active_ships = active_ship_indices[indices_tensor] # [Sub_Batch]
+
+                    # Do not pick "active ship" Mask
+                    # Generate mask: True if index matches active_ship
+                    # seq_indices: [Sub_Batch, N]
+                    sub_b = len(indices)
+                    seq_indices = torch.arange(N, device=device).unsqueeze(0).expand(sub_b, -1)
+                    is_active_mask = (seq_indices == group_active_ships.unsqueeze(1))
+                    
+                    # Exclude Active Ship from the valid mask
+                    group_mask = group_mask & (~is_active_mask)
+
                     ptr_logits = ptr_logits.masked_fill(~group_mask, -1e9)
                     
                     policy_logits[indices_tensor, :N] = ptr_logits
+                    if phase_enum == Phase.SHIP_ACTIVATE:
+                        policy_logits[indices_tensor, N] = -1e9
 
                 elif phase_enum in self.token_pointer_phases:
                     # Type 2: Token Pointer
@@ -908,6 +968,7 @@ class BigDeep(nn.Module):
             "predicted_hull": predicted_hull,
             "predicted_game_length": predicted_game_length
         }
+
         return outputs
 
 
@@ -932,7 +993,7 @@ def load_recent_model()-> tuple[BigDeep, int]:
         current_iter = int(latest_checkpoint_file.split('_')[-1].split('.')[0])
 
     else:
-        init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_0.pth")
+        init_checkpoint_path = os.path.join(Config.CHECKPOINT_DIR, "model_iter_000.pth")
         torch.save(model.state_dict(), init_checkpoint_path)
         print(f"[INITIALIZE MODEL] {init_checkpoint_path}")
         current_iter = 0
