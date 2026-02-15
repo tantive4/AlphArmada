@@ -5,6 +5,7 @@ import time
 import torch.optim as optim
 
 from storage_manager import *
+from downloader import *
 from disk_manager import aggregate_staging_buffers
 from big_deep import load_recent_model, load_model
 from alpharmada import AlphArmadaWorker, AlphArmadaTrainer
@@ -81,8 +82,7 @@ def download_all(num_worker) -> None:
     3. Download to staging/replay{01..32}
     4. If staging full, aggregate to replay_buffers/{timestamp} and reset.
     """
-    
-    worker_timestamps = {} # {worker_id: last_seen_timestamp_string}
+    worker_timestamps = load_state() # {worker_id: last_seen_timestamp_string}
     staging_dir = "staging"
     output_dir = Config.REPLAY_BUFFER_DIR
     
@@ -114,12 +114,13 @@ def download_all(num_worker) -> None:
 
                     # Update state
                     worker_timestamps[i] = latest_ts
+                    save_state(worker_timestamps)
                     staging_idx += 1
                     data_downloaded_this_loop = True
 
                     # Check aggregation trigger
                     if staging_idx > MAX_STAGING:
-                        print("[Downloader] Staging full (32/32). Aggregating...")
+                        print("[Downloader] Staging full. Aggregating...")
                         
                         agg_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                         final_output_path = os.path.join(output_dir, agg_timestamp)
