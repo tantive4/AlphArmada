@@ -105,7 +105,7 @@ class AlphArmadaWorker:
                     
                     saved_states += self.save_game_data(game, memory[para_index],action_counter)
                     memory[para_index].clear()
-            if action_counter % 20 == 0:
+            if action_counter % 10 == 0:
                 vessl.log(payload={"action_count": action_counter, "saved_states": saved_states, "ended_games" : Config.PARALLEL_PLAY - sum(1 for g in para_games if g.winner == 0.0)})
             action_counter += 1
 
@@ -204,7 +204,7 @@ class AlphArmadaTrainer:
         # --- TRAINING LOOP ---
         total_loss_accum = 0.0
         
-        for step in trange(Config.TRAINING_STEPS):
+        for step in trange(Config.TRAINING_STEPS, desc="[TRAINER]"):
             # 1. Sample (2 * 128 = 256)
             try:
                 raw_batch = next(iterator)
@@ -230,7 +230,7 @@ class AlphArmadaTrainer:
             # vessl.log(step=step, payload={"training_loss": loss})
 
         avg_loss = total_loss_accum / Config.TRAINING_STEPS
-        print(f"[TRAINING] {new_checkpoint} completed. Avg loss: {avg_loss:.4f}")
+        print(f"[TRAINER] {new_checkpoint} completed. Avg loss: {avg_loss:.4f}")
 
 
         # --- SAVE MODEL ---

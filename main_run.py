@@ -17,7 +17,7 @@ def work(worker_id: int) -> None:
     2. Run self-play to generate replay buffer data
     3. Upload replay buffer to Vessl
     """
-    # download_model()
+    download_model()
 
     model = load_model()
     worker = AlphArmadaWorker(model, worker_id)
@@ -57,7 +57,7 @@ def train() -> None:
     elif num_chunk > MAX_WINDOW:
         to_delete = all_buffers[:-MAX_WINDOW] # Keep the last 10
         for p in to_delete:
-            print(f"[SlidingWindow] Deleting old buffer: {p}")
+            print(f"[TRAINER] Deleting old buffer: {p}")
             shutil.rmtree(p)
     chunk_ratio = num_chunk / MAX_WINDOW
 
