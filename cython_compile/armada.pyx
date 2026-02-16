@@ -54,14 +54,7 @@ cdef class Armada:
         self.simulation_player = 0
         self.para_index = para_index
 
-        self.scalar_encode_array = np.zeros(Config.SCALAR_FEATURE_SIZE, dtype=np.float32)
-        self.relation_encode_array = np.zeros((Config.MAX_SHIPS, Config.MAX_SHIPS, hull_type * hull_type + 4), dtype=np.float32)
-        self.ship_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
-        self.ship_coords_array = np.zeros((Config.MAX_SHIPS, 3), dtype=np.float32)
-        self.ship_def_token_array = np.zeros((Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), dtype=np.float32)
-        
-        h, w = Config.BOARD_RESOLUTION
-        self.spatial_encode_array = np.zeros((Config.MAX_SHIPS, 10, h, w//8), dtype=np.uint8) # ships , presence+hull_type*range_type, height, width
+        self.ship_static_encode_array = np.zeros((Config.MAX_SHIPS, Config.SHIP_STATIC_OFFSET), dtype=np.float32)
 
     def rollout(self, max_simulation_step : int = 2000) -> float :
         """
@@ -1029,7 +1022,7 @@ cdef class Armada:
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
         self.visualize(f'\n{ship.name} is deployed.')
 
-        ship_view = self.ship_encode_array[ship.id]
+        ship_view = self.ship_static_encode_array[ship.id]
 
 
         cdef float MAX_DICE = Config.GLOBAL_MAX_DICE

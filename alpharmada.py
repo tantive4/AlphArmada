@@ -44,7 +44,7 @@ class AlphArmadaWorker:
         )
 
     def self_play(self) -> None:
-        memory : dict[int, list[tuple[Phase, tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
+        memory : dict[int, list[tuple[tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
 
         action_manager = ActionManager()
         initial_games = [setup_game() for _ in range(Config.PARALLEL_DIVERSE_FACTOR)]
@@ -77,7 +77,7 @@ class AlphArmadaWorker:
                     for para_index in para_action_probs:
                         game : Armada = para_games[para_index]
                         snapshot = game.get_snapshot()
-                        memory[para_index].append((game.phase, snapshot, para_action_probs[para_index]))
+                        memory[para_index].append((snapshot, para_action_probs[para_index]))
             
             # --- Process all games (decision and non-decision) for one step ---
             for para_index in range(Config.PARALLEL_PLAY) :
@@ -124,41 +124,61 @@ class AlphArmadaWorker:
         gc.collect()
         return
 
-    def save_game_data(self, game : Armada, game_memory, action_count) -> int:
+    def save_game_data(self, game : Armada, game_memory : list[tuple], action_count) -> int:
         """Helper to collate and save a single game's data to disk."""
 
         winner, aux_target = get_terminal_value(game)
-        phase_list, state_list, policy_list, winner_list, aux_list = [], [], [], [], []
         end_snapshop = game.get_snapshot()
 
+        num_steps = len(game_memory)
+        
+        scalar_store = np.zeros((num_steps, Config.SCALAR_FEATURE_SIZE), dtype=np.float32)
+        ship_entity_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
+        ship_coords_store = np.zeros((num_steps, Config.MAX_SHIPS, 3), dtype=np.float32)
+        ship_def_token_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), dtype=np.float32)
+        spatial_store = np.zeros((num_steps, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), dtype=np.uint8)
+        relation_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), dtype=np.float32)
+        
+        active_id_store = np.zeros(num_steps, dtype=np.int8)
+        target_id_store = np.zeros(num_steps, dtype=np.int8)
+        phase_store = np.zeros(num_steps, dtype=np.int32)
+        policy_list, winner_list, aux_list = [], [], []
+        
+
         # 'Rewind' the game using snapshots to generate encoded states
-        for phase, snapshot, action_probs in game_memory:
+        for i, (snapshot, action_probs) in enumerate(game_memory):
             game.revert_snapshot(snapshot)
-            encoded_state_views = encode_game_state(game)
-            encoded_state_copy = {
-                key: array.copy() if hasattr(array, 'copy') else array 
-                for key, array in encoded_state_views.items()
-            }
             
-            phase_list.append(phase)
-            state_list.append(encoded_state_copy)
+            act_id, tgt_id, phase_val = encode_game_state(
+                game,
+                scalar_store[i],
+                ship_entity_store[i],
+                ship_coords_store[i],
+                ship_def_token_store[i],
+                spatial_store[i],
+                relation_store[i]
+            )
+            active_id_store[i] = act_id
+            target_id_store[i] = tgt_id
+            phase_store[i] = phase_val
+
             policy_list.append(action_probs)
             winner_list.append(winner)
             aux_list.append(aux_target)
         
         game.revert_snapshot(end_snapshop)
-        deep_search_count = len(phase_list)
 
         collated_data = {
-            'phases': list(phase_list),
-            'scalar': np.stack([s['scalar'] for s in state_list]),
-            'ship_entities': np.stack([s['ship_entities'] for s in state_list]),
-            'ship_coords': np.stack([s['ship_coords'] for s in state_list]),
-            'ship_def_tokens': np.stack([s['ship_def_tokens'] for s in state_list]),
-            'spatial': np.stack([s['spatial'] for s in state_list]),
-            'relations': np.stack([s['relations'] for s in state_list]),
-            'active_ship_id': np.stack([s['active_ship_id'] for s in state_list]),
-            'target_ship_id': np.stack([s['target_ship_id'] for s in state_list]),
+            'scalar': scalar_store,
+            'ship_entities': ship_entity_store,
+            'ship_coords': ship_coords_store,
+            'ship_def_tokens': ship_def_token_store,
+            'spatial': spatial_store,
+            'relations': relation_store,
+            'active_ship_id': active_id_store,
+            'target_ship_id': target_id_store,
+            'phases': phase_store,
+
             'target_policies': np.stack(policy_list),
             'target_values': np.array(winner_list, dtype=np.float32).reshape(-1, 1),
             'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_list]),
@@ -169,8 +189,8 @@ class AlphArmadaWorker:
         self.replay_buffer.add_batch(collated_data)
 
         with open(f'output/replay_stats.txt', 'a') as f:
-            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {deep_search_count}, {round(winner,1)}\n")
-        return deep_search_count
+            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {num_steps}, {round(winner,1)}\n")
+        return num_steps
     
 class AlphArmadaTrainer:
     def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:

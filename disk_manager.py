@@ -30,7 +30,6 @@ class DiskReplayBuffer:
         # Define data shapes for memmap
         # Note: 'spatial' uses uint8 for bit-packed data
         return {
-            'phases':            {'shape': (max_size,), 'dtype': np.int32},
             'scalar':            {'shape': (max_size, Config.SCALAR_FEATURE_SIZE), 'dtype': np.float32},
             'ship_entities':     {'shape': (max_size, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 'dtype': np.float32},
             'ship_coords':       {'shape': (max_size, Config.MAX_SHIPS, 3), 'dtype': np.float32},
@@ -39,6 +38,8 @@ class DiskReplayBuffer:
             'relations':         {'shape': (max_size, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 'dtype': np.float32},
             'active_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
             'target_ship_id':    {'shape': (max_size,), 'dtype': np.uint8},
+            'phases':            {'shape': (max_size,), 'dtype': np.int32},
+            
             'target_policies':   {'shape': (max_size, Config.MAX_ACTION_SPACE), 'dtype': np.float32},
             'target_values':     {'shape': (max_size, 1), 'dtype': np.float32},
             'target_win_probs':  {'shape': (max_size, 2), 'dtype': np.float32},

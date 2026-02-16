@@ -166,7 +166,7 @@ cdef class MCTS:
         public ActionManager action_manager
         public object model
         public object action_mask
-        cnp.ndarray scalar_buffer, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer, target_ship_indices_buffer
+        cnp.ndarray phase_buffer, scalar_buffer, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer, target_ship_indices_buffer
 
     def __init__(self, list para_games, ActionManager action_manager, object model) -> None:
         self.para_games = para_games
@@ -179,33 +179,35 @@ cdef class MCTS:
         self.action_manager = action_manager
         self.action_mask = np.zeros(action_manager.max_action_space, dtype=np.bool_)
         
-        self.scalar_buffer = np.zeros(
+        self.scalar_buffer = np.zeros(                                    # type: ignore
             (Config.GPU_INPUT_BATCH_SIZE, Config.SCALAR_FEATURE_SIZE), 
             dtype=np.float32
-        )
-        self.ship_entity_buffer = np.zeros(
+        ) 
+        self.ship_entity_buffer = np.zeros(                               # type: ignore    
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), 
             dtype=np.float32
         )
-        self.ship_coords_buffer = np.zeros(
-            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 3), 
+        self.ship_coords_buffer = np.zeros(                                # type: ignore   
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 3),     
             dtype=np.float32
         )
-        self.ship_def_token_buffer = np.zeros(
+        self.ship_def_token_buffer = np.zeros(                               # type: ignore 
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE),
             dtype=np.float32
         )
         # Spatial buffer is the largest (ensure dims match BigDeep: [B, N, 10, H, W/8])
-        self.spatial_buffer = np.zeros(
+        self.spatial_buffer = np.zeros(                                      # type: ignore 
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), 
             dtype=np.uint8
         )
-        self.relation_buffer = np.zeros(
+        self.relation_buffer = np.zeros(                                     # type: ignore
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), 
             dtype=np.float32
         )
-        self.active_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
-        self.target_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)
+        self.active_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)   # type: ignore
+        self.target_ship_indices_buffer = np.full(Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, dtype=np.int8)   # type: ignore
+        self.phase_buffer = np.zeros(Config.GPU_INPUT_BATCH_SIZE, dtype=np.int32)   # type: ignore
+
 
     cpdef dict para_search(self, list para_indices, bint deep_search, int manual_iteration = 0):
         cdef:
@@ -235,10 +237,7 @@ cdef class MCTS:
         
         # Expansion
         if leaf_root_indices:
-            batch_value, batch_policy = self._get_value_policy(
-                [encode_game_state(self.para_games[para_index]) for para_index in leaf_root_indices],
-                [self.para_games[para_index].phase for para_index in leaf_root_indices],
-            )
+            batch_value, batch_policy = self._get_value_policy(leaf_root_indices)
 
             for output_index, para_index in enumerate(leaf_root_indices):
                 root_node = self.root_nodes[para_index]
@@ -286,10 +285,7 @@ cdef class MCTS:
             # 2. Expansion (for player decision nodes)
             # note that leaf node is not chance node or information set node
             if expandable_indices:
-                batch_value, batch_policy = self._get_value_policy(
-                    [encode_game_state(self.para_games[para_index]) for para_index in expandable_indices],
-                    [self.para_games[para_index].phase for para_index in expandable_indices],
-                )
+                batch_value, batch_policy = self._get_value_policy(expandable_indices)
 
                 for output_index, para_index in enumerate(expandable_indices):
                     path = para_path[para_index]
@@ -435,18 +431,19 @@ cdef class MCTS:
             path.append(node)
         return path
 
-    cdef object _get_value_policy(self, encoded_states: list, phases: list):
+    cdef object _get_value_policy(self, list para_indices):
         """
         Compute value and policy for a BATCH of encoded states using a SINGLE model call.
         """
-        if not encoded_states:
+        if not para_indices:
             return np.array([]), np.array([])
 
-        cdef int current_batch_size = len(phases)
+        cdef int current_batch_size = len(para_indices)
         cdef int bucket_step = 16 
         cdef int target_batch_size = ((current_batch_size + bucket_step - 1) // bucket_step) * bucket_step
         cdef int max_batch_size = Config.GPU_INPUT_BATCH_SIZE
-        cdef int i
+        cdef int i, para_index, active_id, target_id, phase_val
+        cdef Armada game
 
         if target_batch_size > max_batch_size:
             target_batch_size = max_batch_size
@@ -454,16 +451,21 @@ cdef class MCTS:
         # 1. Fill buffers with current data (No allocation)
         # This replaces np.stack which was the CPU bottleneck
         for i in range(current_batch_size):
-            state = encoded_states[i]
-            # Copy data from small dict arrays into the big pinned buffer
-            self.scalar_buffer[i] = state['scalar']
-            self.ship_entity_buffer[i] = state['ship_entities']
-            self.ship_coords_buffer[i] = state['ship_coords']
-            self.ship_def_token_buffer[i] = state['ship_def_tokens']
-            self.spatial_buffer[i] = state['spatial']
-            self.relation_buffer[i] = state['relations']
-            self.active_ship_indices_buffer[i] = state['active_ship_id']
-            self.target_ship_indices_buffer[i] = state['target_ship_id']
+            para_index = para_indices[i]
+            game = self.para_games[para_index]
+
+            active_id, target_id, phase_val = encode_game_state(
+                game,
+                self.scalar_buffer[i],
+                self.ship_entity_buffer[i],
+                self.ship_coords_buffer[i],
+                self.ship_def_token_buffer[i],
+                self.spatial_buffer[i],
+                self.relation_buffer[i]
+            )
+            self.active_ship_indices_buffer[i] = active_id
+            self.target_ship_indices_buffer[i] = target_id
+            self.phase_buffer[i] = phase_val
 
         # 2. Zero-out padding area if needed (to clean up dirty data from previous steps)
         # Only strictly necessary if Batch Normalization statistics are sensitive to garbage
@@ -476,12 +478,9 @@ cdef class MCTS:
             self.relation_buffer[current_batch_size:target_batch_size].fill(0)
             self.active_ship_indices_buffer[current_batch_size:target_batch_size].fill(max_ships)
             self.target_ship_indices_buffer[current_batch_size:target_batch_size].fill(max_ships)
+            self.phase_buffer[current_batch_size:target_batch_size].fill(0)
 
-        # 3. Handle Phases (simple list padding is fast enough)
-        pad_len = target_batch_size - current_batch_size
-        phase_ints = [p.value for p in phases] + [0] * pad_len
-
-        # 4. Convert to PyTorch tensors
+        # 3. Convert to PyTorch tensors
         scalar_tensor = torch.from_numpy(self.scalar_buffer[:target_batch_size]).to(Config.DEVICE)
         ship_entity_tensor = torch.from_numpy(self.ship_entity_buffer[:target_batch_size]).to(Config.DEVICE)
         ship_coords_tensor = torch.from_numpy(self.ship_coords_buffer[:target_batch_size]).to(Config.DEVICE)
@@ -490,7 +489,7 @@ cdef class MCTS:
         relation_tensor = torch.from_numpy(self.relation_buffer[:target_batch_size]).to(Config.DEVICE)
         active_ship_indices_tensor = torch.from_numpy(self.active_ship_indices_buffer[:target_batch_size]).to(Config.DEVICE, dtype=torch.long)
         target_ship_indices_tensor = torch.from_numpy(self.target_ship_indices_buffer[:target_batch_size]).to(Config.DEVICE, dtype=torch.long)
-        phases_tensor = torch.tensor(phase_ints, dtype=torch.long, device=Config.DEVICE)
+        phases_tensor = torch.from_numpy(self.phase_buffer[:target_batch_size]).to(Config.DEVICE, dtype=torch.long)
 
         with torch.no_grad():
             # Perform a single, batched forward pass

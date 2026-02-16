@@ -2048,12 +2048,7 @@ struct __pyx_obj_6armada_Armada {
   PyObject *active_squad;
   PyObject *attack_info;
   int debuging_visual;
-  PyArrayObject *scalar_encode_array;
-  PyArrayObject *relation_encode_array;
-  PyArrayObject *ship_encode_array;
-  PyArrayObject *ship_coords_array;
-  PyArrayObject *ship_def_token_array;
-  PyArrayObject *spatial_encode_array;
+  PyArrayObject *ship_static_encode_array;
 };
 
 
@@ -4078,16 +4073,19 @@ static int __Pyx_ValidateAndInit_memviewslice(
                 PyObject *original_obj);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_5numpy_uint8_t(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_float(PyObject *, int writable_flag);
+
+/* ObjectToMemviewSlice.proto */
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsds_float(PyObject *, int writable_flag);
+
+/* ObjectToMemviewSlice.proto */
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsdsds_nn___pyx_t_5numpy_uint8_t(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_long(PyObject *, int writable_flag);
-
-/* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float32_t(PyObject *, int writable_flag);
 
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
@@ -4447,7 +4445,7 @@ static int __pyx_v_12game_encoder_height_res;
 static int __pyx_v_12game_encoder_width_res;
 static float __pyx_v_12game_encoder_width_step;
 static float __pyx_v_12game_encoder_height_step;
-static int __pyx_v_12game_encoder_SHIP_STATS_FEATURES;
+static int __pyx_v_12game_encoder_ship_static_offset;
 static PyObject *__pyx_collections_abc_Sequence = 0;
 static PyObject *generic = 0;
 static PyObject *strided = 0;
@@ -4457,11 +4455,11 @@ static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
 static PyObject *__pyx_f_12game_encoder_get_terminal_value(struct __pyx_obj_6armada_Armada *, int __pyx_skip_dispatch); /*proto*/
-static PyObject *__pyx_f_12game_encoder_encode_game_state(struct __pyx_obj_6armada_Armada *, int __pyx_skip_dispatch); /*proto*/
-static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6armada_Armada *); /*proto*/
-static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_6armada_Armada *); /*proto*/
-static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_Armada *); /*proto*/
-static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6armada_Armada *); /*proto*/
+static PyObject *__pyx_f_12game_encoder_encode_game_state(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, int __pyx_skip_dispatch); /*proto*/
+static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice); /*proto*/
 static int __pyx_array_allocate_buffer(struct __pyx_array_obj *); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char const *, char *); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo const *); /*proto*/
@@ -4498,6 +4496,7 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 /* #### Code section: typeinfo ### */
 static const __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t = { "float32_t", NULL, sizeof(__pyx_t_5numpy_float32_t), { 0 }, 0, 'R', 0, 0 };
+static const __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
 static const __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t = { "uint8_t", NULL, sizeof(__pyx_t_5numpy_uint8_t), { 0 }, 0, __PYX_IS_UNSIGNED(__pyx_t_5numpy_uint8_t) ? 'U' : 'I', __PYX_IS_UNSIGNED(__pyx_t_5numpy_uint8_t), 0 };
 static const __Pyx_TypeInfo __Pyx_TypeInfo_long = { "long", NULL, sizeof(long), { 0 }, 0, __PYX_IS_UNSIGNED(long) ? 'U' : 'I', __PYX_IS_UNSIGNED(long), 0 };
 /* #### Code section: before_global_var ### */
@@ -4558,7 +4557,7 @@ static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED 
 static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_15View_dot_MemoryView___pyx_unpickle_Enum(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_12game_encoder_get_terminal_value(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6armada_Armada *__pyx_v_game); /* proto */
-static PyObject *__pyx_pf_12game_encoder_2encode_game_state(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6armada_Armada *__pyx_v_game); /* proto */
+static PyObject *__pyx_pf_12game_encoder_2encode_game_state(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_scalar_buffer, __Pyx_memviewslice __pyx_v_ship_entity_buffer, __Pyx_memviewslice __pyx_v_ship_coords_buffer, __Pyx_memviewslice __pyx_v_ship_def_token_buffer, __Pyx_memviewslice __pyx_v_spatial_buffer, __Pyx_memviewslice __pyx_v_relation_buffer); /* proto */
 static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -4618,7 +4617,7 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
   PyObject *__pyx_slice[1];
   PyObject *__pyx_tuple[1];
-  PyObject *__pyx_codeobj_tab[42];
+  PyObject *__pyx_codeobj_tab[41];
   PyObject *__pyx_string_tab[277];
   PyObject *__pyx_number_tab[9];
 /* #### Code section: module_state_contents ### */
@@ -4738,42 +4737,42 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_PyTimedeltaArrType_Type __pyx_string_tab[74]
 #define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[75]
 #define __pyx_n_u_RED __pyx_string_tab[76]
-#define __pyx_n_u_SHIP_STATS_FEATURES __pyx_string_tab[77]
-#define __pyx_n_u_SQUAD_STATS_FEATURES __pyx_string_tab[78]
-#define __pyx_n_u_Sequence __pyx_string_tab[79]
-#define __pyx_n_u_TYPE_CHECKING __pyx_string_tab[80]
-#define __pyx_n_u_View_MemoryView __pyx_string_tab[81]
-#define __pyx_n_u__6 __pyx_string_tab[82]
-#define __pyx_n_u_a __pyx_string_tab[83]
-#define __pyx_n_u_abc __pyx_string_tab[84]
-#define __pyx_n_u_action_phase __pyx_string_tab[85]
-#define __pyx_n_u_active_ship_id __pyx_string_tab[86]
-#define __pyx_n_u_alignment __pyx_string_tab[87]
-#define __pyx_n_u_allocate_buffer __pyx_string_tab[88]
-#define __pyx_n_u_arr __pyx_string_tab[89]
-#define __pyx_n_u_array __pyx_string_tab[90]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[91]
-#define __pyx_n_u_attack_range_s2s __pyx_string_tab[92]
-#define __pyx_n_u_b __pyx_string_tab[93]
-#define __pyx_n_u_base __pyx_string_tab[94]
-#define __pyx_n_u_board_resolution __pyx_string_tab[95]
-#define __pyx_n_u_c __pyx_string_tab[96]
-#define __pyx_n_u_c_command_type __pyx_string_tab[97]
-#define __pyx_n_u_c_critical_type __pyx_string_tab[98]
-#define __pyx_n_u_c_hull_type __pyx_string_tab[99]
-#define __pyx_n_u_c_obstacle_type __pyx_string_tab[100]
-#define __pyx_n_u_c_phase_type __pyx_string_tab[101]
-#define __pyx_n_u_cache __pyx_string_tab[102]
-#define __pyx_n_u_cache_function __pyx_string_tab[103]
-#define __pyx_n_u_class __pyx_string_tab[104]
-#define __pyx_n_u_class_getitem __pyx_string_tab[105]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[106]
-#define __pyx_n_u_command_type __pyx_string_tab[107]
-#define __pyx_n_u_configs __pyx_string_tab[108]
-#define __pyx_n_u_count __pyx_string_tab[109]
-#define __pyx_n_u_critical_type __pyx_string_tab[110]
-#define __pyx_n_u_d __pyx_string_tab[111]
-#define __pyx_n_u_data __pyx_string_tab[112]
+#define __pyx_n_u_SHIP_STATIC_OFFSET __pyx_string_tab[77]
+#define __pyx_n_u_Sequence __pyx_string_tab[78]
+#define __pyx_n_u_TYPE_CHECKING __pyx_string_tab[79]
+#define __pyx_n_u_View_MemoryView __pyx_string_tab[80]
+#define __pyx_n_u__6 __pyx_string_tab[81]
+#define __pyx_n_u_a __pyx_string_tab[82]
+#define __pyx_n_u_abc __pyx_string_tab[83]
+#define __pyx_n_u_action_phase __pyx_string_tab[84]
+#define __pyx_n_u_alignment __pyx_string_tab[85]
+#define __pyx_n_u_allocate_buffer __pyx_string_tab[86]
+#define __pyx_n_u_arr __pyx_string_tab[87]
+#define __pyx_n_u_array __pyx_string_tab[88]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[89]
+#define __pyx_n_u_attack_range_s2s __pyx_string_tab[90]
+#define __pyx_n_u_b __pyx_string_tab[91]
+#define __pyx_n_u_base __pyx_string_tab[92]
+#define __pyx_n_u_board_resolution __pyx_string_tab[93]
+#define __pyx_n_u_c __pyx_string_tab[94]
+#define __pyx_n_u_c_command_type __pyx_string_tab[95]
+#define __pyx_n_u_c_critical_type __pyx_string_tab[96]
+#define __pyx_n_u_c_hull_type __pyx_string_tab[97]
+#define __pyx_n_u_c_obstacle_type __pyx_string_tab[98]
+#define __pyx_n_u_c_phase_type __pyx_string_tab[99]
+#define __pyx_n_u_cache __pyx_string_tab[100]
+#define __pyx_n_u_cache_function __pyx_string_tab[101]
+#define __pyx_n_u_class __pyx_string_tab[102]
+#define __pyx_n_u_class_getitem __pyx_string_tab[103]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[104]
+#define __pyx_n_u_command_type __pyx_string_tab[105]
+#define __pyx_n_u_configs __pyx_string_tab[106]
+#define __pyx_n_u_coords_view_buffer __pyx_string_tab[107]
+#define __pyx_n_u_count __pyx_string_tab[108]
+#define __pyx_n_u_critical_type __pyx_string_tab[109]
+#define __pyx_n_u_d __pyx_string_tab[110]
+#define __pyx_n_u_data __pyx_string_tab[111]
+#define __pyx_n_u_def_token_view_buffer __pyx_string_tab[112]
 #define __pyx_n_u_descr __pyx_string_tab[113]
 #define __pyx_n_u_dice __pyx_string_tab[114]
 #define __pyx_n_u_dict __pyx_string_tab[115]
@@ -4787,156 +4786,156 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_encode_scalar_features __pyx_string_tab[123]
 #define __pyx_n_u_encode_ship_entity_features __pyx_string_tab[124]
 #define __pyx_n_u_encode_spatial_mask __pyx_string_tab[125]
-#define __pyx_n_u_encode_squad_entity_features __pyx_string_tab[126]
-#define __pyx_n_u_enum_class __pyx_string_tab[127]
-#define __pyx_n_u_enumerate __pyx_string_tab[128]
-#define __pyx_n_u_error __pyx_string_tab[129]
-#define __pyx_n_u_fields __pyx_string_tab[130]
-#define __pyx_n_u_fill __pyx_string_tab[131]
-#define __pyx_n_u_flags __pyx_string_tab[132]
-#define __pyx_n_u_float32 __pyx_string_tab[133]
-#define __pyx_n_u_format __pyx_string_tab[134]
-#define __pyx_n_u_fortran __pyx_string_tab[135]
-#define __pyx_n_u_func __pyx_string_tab[136]
-#define __pyx_n_u_game __pyx_string_tab[137]
-#define __pyx_n_u_game_encoder __pyx_string_tab[138]
-#define __pyx_n_u_game_length __pyx_string_tab[139]
-#define __pyx_n_u_get_array_base __pyx_string_tab[140]
-#define __pyx_n_u_get_datetime64_unit __pyx_string_tab[141]
-#define __pyx_n_u_get_datetime64_value __pyx_string_tab[142]
-#define __pyx_n_u_get_terminal_value __pyx_string_tab[143]
-#define __pyx_n_u_get_timedelta64_value __pyx_string_tab[144]
-#define __pyx_n_u_getstate __pyx_string_tab[145]
-#define __pyx_n_u_global_max_dice __pyx_string_tab[146]
-#define __pyx_n_u_global_max_engineer_value __pyx_string_tab[147]
-#define __pyx_n_u_global_max_hull __pyx_string_tab[148]
-#define __pyx_n_u_global_max_shields __pyx_string_tab[149]
-#define __pyx_n_u_global_max_squad_value __pyx_string_tab[150]
-#define __pyx_n_u_height_res __pyx_string_tab[151]
-#define __pyx_n_u_height_step __pyx_string_tab[152]
-#define __pyx_n_u_hull_type __pyx_string_tab[153]
-#define __pyx_n_u_id __pyx_string_tab[154]
-#define __pyx_n_u_import __pyx_string_tab[155]
-#define __pyx_n_u_import_array __pyx_string_tab[156]
-#define __pyx_n_u_import_ufunc __pyx_string_tab[157]
-#define __pyx_n_u_import_umath __pyx_string_tab[158]
-#define __pyx_n_u_index __pyx_string_tab[159]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[160]
-#define __pyx_n_u_is_datetime64_object __pyx_string_tab[161]
-#define __pyx_n_u_is_timedelta64_object __pyx_string_tab[162]
-#define __pyx_n_u_items __pyx_string_tab[163]
-#define __pyx_n_u_itemsize __pyx_string_tab[164]
-#define __pyx_n_u_iters __pyx_string_tab[165]
-#define __pyx_n_u_main __pyx_string_tab[166]
-#define __pyx_n_u_max_command_stack __pyx_string_tab[167]
-#define __pyx_n_u_max_defense_tokens __pyx_string_tab[168]
-#define __pyx_n_u_max_engineer_value __pyx_string_tab[169]
-#define __pyx_n_u_max_ships __pyx_string_tab[170]
-#define __pyx_n_u_max_squad_defense_tokens __pyx_string_tab[171]
-#define __pyx_n_u_max_squad_value __pyx_string_tab[172]
-#define __pyx_n_u_max_squads __pyx_string_tab[173]
-#define __pyx_n_u_measurement __pyx_string_tab[174]
-#define __pyx_n_u_memview __pyx_string_tab[175]
-#define __pyx_n_u_mode __pyx_string_tab[176]
-#define __pyx_n_u_module __pyx_string_tab[177]
-#define __pyx_n_u_name __pyx_string_tab[178]
-#define __pyx_n_u_name_2 __pyx_string_tab[179]
-#define __pyx_n_u_names __pyx_string_tab[180]
-#define __pyx_n_u_nd __pyx_string_tab[181]
-#define __pyx_n_u_ndim __pyx_string_tab[182]
-#define __pyx_n_u_new __pyx_string_tab[183]
-#define __pyx_n_u_np __pyx_string_tab[184]
-#define __pyx_n_u_numiter __pyx_string_tab[185]
-#define __pyx_n_u_numpy __pyx_string_tab[186]
-#define __pyx_n_u_obj __pyx_string_tab[187]
-#define __pyx_n_u_obstacle_type __pyx_string_tab[188]
-#define __pyx_n_u_pack __pyx_string_tab[189]
-#define __pyx_n_u_phase_type __pyx_string_tab[190]
-#define __pyx_n_u_pi __pyx_string_tab[191]
-#define __pyx_n_u_pop __pyx_string_tab[192]
-#define __pyx_n_u_pyx_capi __pyx_string_tab[193]
-#define __pyx_n_u_pyx_checksum __pyx_string_tab[194]
-#define __pyx_n_u_pyx_state __pyx_string_tab[195]
-#define __pyx_n_u_pyx_type __pyx_string_tab[196]
-#define __pyx_n_u_pyx_unpickle_Enum __pyx_string_tab[197]
-#define __pyx_n_u_pyx_vtable __pyx_string_tab[198]
-#define __pyx_n_u_qualname __pyx_string_tab[199]
-#define __pyx_n_u_reduce __pyx_string_tab[200]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[201]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[202]
-#define __pyx_n_u_register __pyx_string_tab[203]
-#define __pyx_n_u_relations __pyx_string_tab[204]
-#define __pyx_n_u_scalar __pyx_string_tab[205]
-#define __pyx_n_u_self __pyx_string_tab[206]
-#define __pyx_n_u_set_array_base __pyx_string_tab[207]
-#define __pyx_n_u_set_name __pyx_string_tab[208]
-#define __pyx_n_u_setdefault __pyx_string_tab[209]
-#define __pyx_n_u_setstate __pyx_string_tab[210]
-#define __pyx_n_u_setstate_cython __pyx_string_tab[211]
-#define __pyx_n_u_shape __pyx_string_tab[212]
-#define __pyx_n_u_ship_coords __pyx_string_tab[213]
-#define __pyx_n_u_ship_def_tokens __pyx_string_tab[214]
-#define __pyx_n_u_ship_entities __pyx_string_tab[215]
-#define __pyx_n_u_ship_hulls __pyx_string_tab[216]
-#define __pyx_n_u_ship_presence_indices __pyx_string_tab[217]
-#define __pyx_n_u_ship_threat_indices __pyx_string_tab[218]
-#define __pyx_n_u_size __pyx_string_tab[219]
-#define __pyx_n_u_spatial __pyx_string_tab[220]
-#define __pyx_n_u_squad_encode_array __pyx_string_tab[221]
-#define __pyx_n_u_start __pyx_string_tab[222]
-#define __pyx_n_u_step __pyx_string_tab[223]
-#define __pyx_n_u_stop __pyx_string_tab[224]
-#define __pyx_n_u_strides __pyx_string_tab[225]
-#define __pyx_n_u_struct __pyx_string_tab[226]
-#define __pyx_n_u_subarray __pyx_string_tab[227]
-#define __pyx_n_u_target_ship_id __pyx_string_tab[228]
-#define __pyx_n_u_test __pyx_string_tab[229]
-#define __pyx_n_u_typing __pyx_string_tab[230]
-#define __pyx_n_u_unpack __pyx_string_tab[231]
-#define __pyx_n_u_update __pyx_string_tab[232]
-#define __pyx_n_u_values __pyx_string_tab[233]
-#define __pyx_n_u_width_res __pyx_string_tab[234]
-#define __pyx_n_u_width_step __pyx_string_tab[235]
-#define __pyx_n_u_win_prob __pyx_string_tab[236]
-#define __pyx_n_u_x __pyx_string_tab[237]
-#define __pyx_n_u_zeros __pyx_string_tab[238]
-#define __pyx_kp_b_PyObject_struct___pyx_obj_6armad __pyx_string_tab[239]
-#define __pyx_kp_b_iso88591_1 __pyx_string_tab[240]
-#define __pyx_kp_b_iso88591_1A __pyx_string_tab[241]
-#define __pyx_kp_b_iso88591_1_2 __pyx_string_tab[242]
-#define __pyx_kp_b_iso88591_1_3 __pyx_string_tab[243]
-#define __pyx_kp_b_iso88591_1_q_q_1_a_Q_t1_4q_4q_T_6_OsRVVl __pyx_string_tab[244]
-#define __pyx_kp_b_iso88591_2_Q_U_1_A_4t3fKs_a_D_A_E_Qa_E_a __pyx_string_tab[245]
-#define __pyx_kp_b_iso88591_35_q_U_1_t_q_d_A_A_4t3j_4_1_4_1 __pyx_string_tab[246]
-#define __pyx_kp_b_iso88591_4_5U_1_t_q_d_A_Q_5_C_U_T_AU_U_Q __pyx_string_tab[247]
-#define __pyx_kp_b_iso88591_7_1 __pyx_string_tab[248]
-#define __pyx_kp_b_iso88591_7_q __pyx_string_tab[249]
-#define __pyx_kp_b_iso88591_7t7 __pyx_string_tab[250]
-#define __pyx_kp_b_iso88591_8_AQ __pyx_string_tab[251]
-#define __pyx_kp_b_iso88591_AQ __pyx_string_tab[252]
-#define __pyx_kp_b_iso88591_AQ_2 __pyx_string_tab[253]
-#define __pyx_kp_b_iso88591_Qa_q __pyx_string_tab[254]
-#define __pyx_kp_b_iso88591_Qa_way_q __pyx_string_tab[255]
-#define __pyx_kp_b_iso88591_Qe1A __pyx_string_tab[256]
-#define __pyx_kp_b_iso88591_T __pyx_string_tab[257]
-#define __pyx_kp_b_iso88591__8 __pyx_string_tab[258]
-#define __pyx_kp_b_iso88591__9 __pyx_string_tab[259]
-#define __pyx_kp_b_iso88591_a_4q_Qa_q_T_q_T_1Cr_q_T_2S_Q_q __pyx_string_tab[260]
-#define __pyx_kp_b_iso88591_aq __pyx_string_tab[261]
-#define __pyx_kp_b_iso88591_d_2 __pyx_string_tab[262]
-#define __pyx_kp_b_iso88591_d_s_1_0t1_fA_U_1_5_81_ha_E_aq_r __pyx_string_tab[263]
-#define __pyx_kp_b_iso88591_q __pyx_string_tab[264]
-#define __pyx_kp_b_iso88591_q_2 __pyx_string_tab[265]
-#define __pyx_kp_b_iso88591_q_3 __pyx_string_tab[266]
-#define __pyx_kp_b_iso88591_q_7 __pyx_string_tab[267]
-#define __pyx_kp_b_iso88591_q_7_WA __pyx_string_tab[268]
-#define __pyx_kp_b_iso88591_q_7_WCwc __pyx_string_tab[269]
-#define __pyx_kp_b_iso88591_q_7_WCwc_HTU __pyx_string_tab[270]
-#define __pyx_kp_b_iso88591_q_7_WCxq __pyx_string_tab[271]
-#define __pyx_kp_b_iso88591_q_Q_k __pyx_string_tab[272]
-#define __pyx_kp_b_iso88591_q_k __pyx_string_tab[273]
-#define __pyx_kp_b_iso88591_q_uCq_q_81 __pyx_string_tab[274]
-#define __pyx_kp_b_iso88591_t83a_j_6_V2Q_A_4t3j_4_1_4wd_a_F __pyx_string_tab[275]
+#define __pyx_n_u_enum_class __pyx_string_tab[126]
+#define __pyx_n_u_enumerate __pyx_string_tab[127]
+#define __pyx_n_u_error __pyx_string_tab[128]
+#define __pyx_n_u_fields __pyx_string_tab[129]
+#define __pyx_n_u_flags __pyx_string_tab[130]
+#define __pyx_n_u_float32 __pyx_string_tab[131]
+#define __pyx_n_u_format __pyx_string_tab[132]
+#define __pyx_n_u_fortran __pyx_string_tab[133]
+#define __pyx_n_u_func __pyx_string_tab[134]
+#define __pyx_n_u_game __pyx_string_tab[135]
+#define __pyx_n_u_game_encoder __pyx_string_tab[136]
+#define __pyx_n_u_game_length __pyx_string_tab[137]
+#define __pyx_n_u_get_array_base __pyx_string_tab[138]
+#define __pyx_n_u_get_datetime64_unit __pyx_string_tab[139]
+#define __pyx_n_u_get_datetime64_value __pyx_string_tab[140]
+#define __pyx_n_u_get_terminal_value __pyx_string_tab[141]
+#define __pyx_n_u_get_timedelta64_value __pyx_string_tab[142]
+#define __pyx_n_u_getstate __pyx_string_tab[143]
+#define __pyx_n_u_global_max_dice __pyx_string_tab[144]
+#define __pyx_n_u_global_max_engineer_value __pyx_string_tab[145]
+#define __pyx_n_u_global_max_hull __pyx_string_tab[146]
+#define __pyx_n_u_global_max_shields __pyx_string_tab[147]
+#define __pyx_n_u_global_max_squad_value __pyx_string_tab[148]
+#define __pyx_n_u_height_res __pyx_string_tab[149]
+#define __pyx_n_u_height_step __pyx_string_tab[150]
+#define __pyx_n_u_hull_type __pyx_string_tab[151]
+#define __pyx_n_u_id __pyx_string_tab[152]
+#define __pyx_n_u_import __pyx_string_tab[153]
+#define __pyx_n_u_import_array __pyx_string_tab[154]
+#define __pyx_n_u_import_ufunc __pyx_string_tab[155]
+#define __pyx_n_u_import_umath __pyx_string_tab[156]
+#define __pyx_n_u_index __pyx_string_tab[157]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[158]
+#define __pyx_n_u_is_datetime64_object __pyx_string_tab[159]
+#define __pyx_n_u_is_timedelta64_object __pyx_string_tab[160]
+#define __pyx_n_u_items __pyx_string_tab[161]
+#define __pyx_n_u_itemsize __pyx_string_tab[162]
+#define __pyx_n_u_iters __pyx_string_tab[163]
+#define __pyx_n_u_main __pyx_string_tab[164]
+#define __pyx_n_u_max_command_stack __pyx_string_tab[165]
+#define __pyx_n_u_max_defense_tokens __pyx_string_tab[166]
+#define __pyx_n_u_max_engineer_value __pyx_string_tab[167]
+#define __pyx_n_u_max_ships __pyx_string_tab[168]
+#define __pyx_n_u_max_squad_defense_tokens __pyx_string_tab[169]
+#define __pyx_n_u_max_squad_value __pyx_string_tab[170]
+#define __pyx_n_u_max_squads __pyx_string_tab[171]
+#define __pyx_n_u_measurement __pyx_string_tab[172]
+#define __pyx_n_u_memview __pyx_string_tab[173]
+#define __pyx_n_u_mode __pyx_string_tab[174]
+#define __pyx_n_u_module __pyx_string_tab[175]
+#define __pyx_n_u_name __pyx_string_tab[176]
+#define __pyx_n_u_name_2 __pyx_string_tab[177]
+#define __pyx_n_u_names __pyx_string_tab[178]
+#define __pyx_n_u_nd __pyx_string_tab[179]
+#define __pyx_n_u_ndim __pyx_string_tab[180]
+#define __pyx_n_u_new __pyx_string_tab[181]
+#define __pyx_n_u_np __pyx_string_tab[182]
+#define __pyx_n_u_numiter __pyx_string_tab[183]
+#define __pyx_n_u_numpy __pyx_string_tab[184]
+#define __pyx_n_u_obj __pyx_string_tab[185]
+#define __pyx_n_u_obstacle_type __pyx_string_tab[186]
+#define __pyx_n_u_pack __pyx_string_tab[187]
+#define __pyx_n_u_phase_type __pyx_string_tab[188]
+#define __pyx_n_u_pi __pyx_string_tab[189]
+#define __pyx_n_u_planes_view __pyx_string_tab[190]
+#define __pyx_n_u_pop __pyx_string_tab[191]
+#define __pyx_n_u_pyx_capi __pyx_string_tab[192]
+#define __pyx_n_u_pyx_checksum __pyx_string_tab[193]
+#define __pyx_n_u_pyx_state __pyx_string_tab[194]
+#define __pyx_n_u_pyx_type __pyx_string_tab[195]
+#define __pyx_n_u_pyx_unpickle_Enum __pyx_string_tab[196]
+#define __pyx_n_u_pyx_vtable __pyx_string_tab[197]
+#define __pyx_n_u_qualname __pyx_string_tab[198]
+#define __pyx_n_u_reduce __pyx_string_tab[199]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[200]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[201]
+#define __pyx_n_u_register __pyx_string_tab[202]
+#define __pyx_n_u_rel_matrix __pyx_string_tab[203]
+#define __pyx_n_u_relation_buffer __pyx_string_tab[204]
+#define __pyx_n_u_scalar_buffer __pyx_string_tab[205]
+#define __pyx_n_u_scalar_view __pyx_string_tab[206]
+#define __pyx_n_u_self __pyx_string_tab[207]
+#define __pyx_n_u_set_array_base __pyx_string_tab[208]
+#define __pyx_n_u_set_name __pyx_string_tab[209]
+#define __pyx_n_u_setdefault __pyx_string_tab[210]
+#define __pyx_n_u_setstate __pyx_string_tab[211]
+#define __pyx_n_u_setstate_cython __pyx_string_tab[212]
+#define __pyx_n_u_shape __pyx_string_tab[213]
+#define __pyx_n_u_ship_coords_buffer __pyx_string_tab[214]
+#define __pyx_n_u_ship_def_token_buffer __pyx_string_tab[215]
+#define __pyx_n_u_ship_entity_buffer __pyx_string_tab[216]
+#define __pyx_n_u_ship_hulls __pyx_string_tab[217]
+#define __pyx_n_u_ship_presence_indices __pyx_string_tab[218]
+#define __pyx_n_u_ship_static_offset __pyx_string_tab[219]
+#define __pyx_n_u_ship_threat_indices __pyx_string_tab[220]
+#define __pyx_n_u_ship_view_buffer __pyx_string_tab[221]
+#define __pyx_n_u_size __pyx_string_tab[222]
+#define __pyx_n_u_spatial_buffer __pyx_string_tab[223]
+#define __pyx_n_u_start __pyx_string_tab[224]
+#define __pyx_n_u_step __pyx_string_tab[225]
+#define __pyx_n_u_stop __pyx_string_tab[226]
+#define __pyx_n_u_strides __pyx_string_tab[227]
+#define __pyx_n_u_struct __pyx_string_tab[228]
+#define __pyx_n_u_subarray __pyx_string_tab[229]
+#define __pyx_n_u_test __pyx_string_tab[230]
+#define __pyx_n_u_typing __pyx_string_tab[231]
+#define __pyx_n_u_unpack __pyx_string_tab[232]
+#define __pyx_n_u_update __pyx_string_tab[233]
+#define __pyx_n_u_values __pyx_string_tab[234]
+#define __pyx_n_u_width_res __pyx_string_tab[235]
+#define __pyx_n_u_width_step __pyx_string_tab[236]
+#define __pyx_n_u_win_prob __pyx_string_tab[237]
+#define __pyx_n_u_x __pyx_string_tab[238]
+#define __pyx_n_u_zeros __pyx_string_tab[239]
+#define __pyx_kp_b_PyObject_struct___pyx_obj_6armad __pyx_string_tab[240]
+#define __pyx_kp_b_iso88591_1 __pyx_string_tab[241]
+#define __pyx_kp_b_iso88591_1A __pyx_string_tab[242]
+#define __pyx_kp_b_iso88591_1_2 __pyx_string_tab[243]
+#define __pyx_kp_b_iso88591_1_3 __pyx_string_tab[244]
+#define __pyx_kp_b_iso88591_6_q_Na_q_a_6_M_NcQUUkkllrrv_w_D __pyx_string_tab[245]
+#define __pyx_kp_b_iso88591_7_1 __pyx_string_tab[246]
+#define __pyx_kp_b_iso88591_7_q __pyx_string_tab[247]
+#define __pyx_kp_b_iso88591_7t7 __pyx_string_tab[248]
+#define __pyx_kp_b_iso88591_8_AQ __pyx_string_tab[249]
+#define __pyx_kp_b_iso88591_AQ __pyx_string_tab[250]
+#define __pyx_kp_b_iso88591_AQ_2 __pyx_string_tab[251]
+#define __pyx_kp_b_iso88591_Q_F_fA_q_t_q_d_A_A_4t3j_4_1_q_A __pyx_string_tab[252]
+#define __pyx_kp_b_iso88591_Qa_q __pyx_string_tab[253]
+#define __pyx_kp_b_iso88591_Qa_way_q __pyx_string_tab[254]
+#define __pyx_kp_b_iso88591_Qe1A __pyx_string_tab[255]
+#define __pyx_kp_b_iso88591_T __pyx_string_tab[256]
+#define __pyx_kp_b_iso88591__8 __pyx_string_tab[257]
+#define __pyx_kp_b_iso88591__9 __pyx_string_tab[258]
+#define __pyx_kp_b_iso88591_a_vQ_q_T_q_T_1Cr_q_T_2S_Q_q_s_o __pyx_string_tab[259]
+#define __pyx_kp_b_iso88591_aq __pyx_string_tab[260]
+#define __pyx_kp_b_iso88591_d_2 __pyx_string_tab[261]
+#define __pyx_kp_b_iso88591_d_s_1_fA_U_1_5_81_ha_E_aq_r_A_u __pyx_string_tab[262]
+#define __pyx_kp_b_iso88591_q __pyx_string_tab[263]
+#define __pyx_kp_b_iso88591_q_2 __pyx_string_tab[264]
+#define __pyx_kp_b_iso88591_q_3 __pyx_string_tab[265]
+#define __pyx_kp_b_iso88591_q_7 __pyx_string_tab[266]
+#define __pyx_kp_b_iso88591_q_7_WA __pyx_string_tab[267]
+#define __pyx_kp_b_iso88591_q_7_WCwc __pyx_string_tab[268]
+#define __pyx_kp_b_iso88591_q_7_WCwc_HTU __pyx_string_tab[269]
+#define __pyx_kp_b_iso88591_q_7_WCxq __pyx_string_tab[270]
+#define __pyx_kp_b_iso88591_q_Q_k __pyx_string_tab[271]
+#define __pyx_kp_b_iso88591_q_k __pyx_string_tab[272]
+#define __pyx_kp_b_iso88591_q_uCq_q_81 __pyx_string_tab[273]
+#define __pyx_kp_b_iso88591_t83a_j_6_V2Q_A_4t3j_4_1_4wd_a_F __pyx_string_tab[274]
+#define __pyx_kp_b_iso88591_vQ_A_4t3fKs_a_D_A_E_Qa_E_awfAQ __pyx_string_tab[275]
 #define __pyx_n_b_O __pyx_string_tab[276]
 #define __pyx_float_0_0 __pyx_number_tab[0]
 #define __pyx_float_1_0 __pyx_number_tab[1]
@@ -4993,7 +4992,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type___pyx_memoryviewslice);
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_slice[i]); }
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
-  for (int i=0; i<42; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<41; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<277; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<9; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
@@ -5050,7 +5049,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type___pyx_memoryviewslice);
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_slice[i]); }
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
-  for (int i=0; i<42; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<41; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<277; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<9; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
@@ -21294,9 +21293,9 @@ static PyObject *__pyx_pf_12game_encoder_get_terminal_value(CYTHON_UNUSED PyObje
 /* "game_encoder.pyx":79
  * 
  * 
- * cpdef dict encode_game_state(Armada game):             # <<<<<<<<<<<<<<
- *     """Main function to encode the entire game state into numpy arrays for the NN."""
- *     encode_scalar_features(game)
+ * cpdef tuple encode_game_state(Armada game,             # <<<<<<<<<<<<<<
+ *                               float[:] scalar_buffer,
+ *                               float[:, :] ship_entity_buffer,
 */
 
 static PyObject *__pyx_pw_12game_encoder_3encode_game_state(PyObject *__pyx_self, 
@@ -21306,16 +21305,21 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyObject *__pyx_f_12game_encoder_encode_game_state(struct __pyx_obj_6armada_Armada *__pyx_v_game, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_f_12game_encoder_encode_game_state(struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_scalar_buffer, __Pyx_memviewslice __pyx_v_ship_entity_buffer, __Pyx_memviewslice __pyx_v_ship_coords_buffer, __Pyx_memviewslice __pyx_v_ship_def_token_buffer, __Pyx_memviewslice __pyx_v_spatial_buffer, __Pyx_memviewslice __pyx_v_relation_buffer, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  int __pyx_v_active_id;
+  int __pyx_v_target_id;
+  int __pyx_v_phase;
   PyObject *__pyx_r = NULL;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
+  int __pyx_t_1;
+  int __pyx_t_2;
   int __pyx_t_3;
-  PyObject *__pyx_t_4 = NULL;
-  int __pyx_t_5;
+  int __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
   PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_8 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -21323,179 +21327,132 @@ static PyObject *__pyx_f_12game_encoder_encode_game_state(struct __pyx_obj_6arma
   __Pyx_RefNannySetupContext("encode_game_state", 0);
   __Pyx_TraceStartFunc("encode_game_state", __pyx_f[0], 79, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 79, __pyx_L1_error));
 
-  /* "game_encoder.pyx":81
- * cpdef dict encode_game_state(Armada game):
- *     """Main function to encode the entire game state into numpy arrays for the NN."""
- *     encode_scalar_features(game)             # <<<<<<<<<<<<<<
- *     encode_ship_entity_features(game)
- *     encode_spatial_mask(game)
-*/
-  __pyx_f_12game_encoder_encode_scalar_features(__pyx_v_game); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 81, __pyx_L1_error)
-
-  /* "game_encoder.pyx":82
- *     """Main function to encode the entire game state into numpy arrays for the NN."""
- *     encode_scalar_features(game)
- *     encode_ship_entity_features(game)             # <<<<<<<<<<<<<<
- *     encode_spatial_mask(game)
- *     encode_relation_matrix(game)
-*/
-  __pyx_f_12game_encoder_encode_ship_entity_features(__pyx_v_game); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 82, __pyx_L1_error)
-
-  /* "game_encoder.pyx":83
- *     encode_scalar_features(game)
- *     encode_ship_entity_features(game)
- *     encode_spatial_mask(game)             # <<<<<<<<<<<<<<
- *     encode_relation_matrix(game)
- * 
-*/
-  __pyx_f_12game_encoder_encode_spatial_mask(__pyx_v_game); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 83, __pyx_L1_error)
-
-  /* "game_encoder.pyx":84
- *     encode_ship_entity_features(game)
- *     encode_spatial_mask(game)
- *     encode_relation_matrix(game)             # <<<<<<<<<<<<<<
- * 
- *     return {
-*/
-  __pyx_f_12game_encoder_encode_relation_matrix(__pyx_v_game); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 84, __pyx_L1_error)
-
-  /* "game_encoder.pyx":86
- *     encode_relation_matrix(game)
- * 
- *     return {             # <<<<<<<<<<<<<<
- *         'scalar': game.scalar_encode_array,
- *         'ship_entities': game.ship_encode_array,
-*/
-  __Pyx_XDECREF(__pyx_r);
-
-  /* "game_encoder.pyx":87
- * 
- *     return {
- *         'scalar': game.scalar_encode_array,             # <<<<<<<<<<<<<<
- *         'ship_entities': game.ship_encode_array,
- *         'ship_coords': game.ship_coords_array,
-*/
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 87, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_scalar, ((PyObject *)__pyx_v_game->scalar_encode_array)) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
-
-  /* "game_encoder.pyx":88
- *     return {
- *         'scalar': game.scalar_encode_array,
- *         'ship_entities': game.ship_encode_array,             # <<<<<<<<<<<<<<
- *         'ship_coords': game.ship_coords_array,
- *         'ship_def_tokens': game.ship_def_token_array,
-*/
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_ship_entities, ((PyObject *)__pyx_v_game->ship_encode_array)) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
-
-  /* "game_encoder.pyx":89
- *         'scalar': game.scalar_encode_array,
- *         'ship_entities': game.ship_encode_array,
- *         'ship_coords': game.ship_coords_array,             # <<<<<<<<<<<<<<
- *         'ship_def_tokens': game.ship_def_token_array,
- *         'spatial': game.spatial_encode_array,
-*/
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_ship_coords, ((PyObject *)__pyx_v_game->ship_coords_array)) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
-
   /* "game_encoder.pyx":90
- *         'ship_entities': game.ship_encode_array,
- *         'ship_coords': game.ship_coords_array,
- *         'ship_def_tokens': game.ship_def_token_array,             # <<<<<<<<<<<<<<
- *         'spatial': game.spatial_encode_array,
- *         'relations': game.relation_encode_array,
+ *     Returns (active_ship_id, target_ship_id).
+ *     """
+ *     encode_scalar_features(game, scalar_buffer)             # <<<<<<<<<<<<<<
+ *     encode_ship_entity_features(game, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer)
+ *     encode_spatial_mask(game, spatial_buffer)
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_ship_def_tokens, ((PyObject *)__pyx_v_game->ship_def_token_array)) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __pyx_f_12game_encoder_encode_scalar_features(__pyx_v_game, __pyx_v_scalar_buffer); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
 
   /* "game_encoder.pyx":91
- *         'ship_coords': game.ship_coords_array,
- *         'ship_def_tokens': game.ship_def_token_array,
- *         'spatial': game.spatial_encode_array,             # <<<<<<<<<<<<<<
- *         'relations': game.relation_encode_array,
- *         'active_ship_id': (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships,
+ *     """
+ *     encode_scalar_features(game, scalar_buffer)
+ *     encode_ship_entity_features(game, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer)             # <<<<<<<<<<<<<<
+ *     encode_spatial_mask(game, spatial_buffer)
+ *     encode_relation_matrix(game, relation_buffer)
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_spatial, ((PyObject *)__pyx_v_game->spatial_encode_array)) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __pyx_f_12game_encoder_encode_ship_entity_features(__pyx_v_game, __pyx_v_ship_entity_buffer, __pyx_v_ship_coords_buffer, __pyx_v_ship_def_token_buffer); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 91, __pyx_L1_error)
 
   /* "game_encoder.pyx":92
- *         'ship_def_tokens': game.ship_def_token_array,
- *         'spatial': game.spatial_encode_array,
- *         'relations': game.relation_encode_array,             # <<<<<<<<<<<<<<
- *         'active_ship_id': (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships,
- *         'target_ship_id': (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships,
-*/
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_relations, ((PyObject *)__pyx_v_game->relation_encode_array)) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
-
-  /* "game_encoder.pyx":93
- *         'spatial': game.spatial_encode_array,
- *         'relations': game.relation_encode_array,
- *         'active_ship_id': (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships,             # <<<<<<<<<<<<<<
- *         'target_ship_id': (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships,
- *     }
-*/
-  __pyx_t_3 = (__pyx_v_game->decision_player != __pyx_v_game->current_player);
-  if (__pyx_t_3) {
-    __pyx_t_4 = __Pyx_PyLong_From_int(((struct __pyx_obj_4ship_Ship *)__pyx_v_game->defend_ship)->id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 93, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __pyx_t_4;
-    __pyx_t_4 = 0;
-  } else {
-    __pyx_t_5 = (__pyx_v_game->active_ship != Py_None);
-    if (__pyx_t_5) {
-      __pyx_t_6 = __Pyx_PyLong_From_int(((struct __pyx_obj_4ship_Ship *)__pyx_v_game->active_ship)->id); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 93, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __pyx_t_6;
-      __pyx_t_6 = 0;
-    } else {
-      __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_12game_encoder_max_ships); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 93, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __pyx_t_6;
-      __pyx_t_6 = 0;
-    }
-    __pyx_t_2 = __pyx_t_4;
-    __pyx_t_4 = 0;
-  }
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_active_ship_id, __pyx_t_2) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-  /* "game_encoder.pyx":94
- *         'relations': game.relation_encode_array,
- *         'active_ship_id': (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships,
- *         'target_ship_id': (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships,             # <<<<<<<<<<<<<<
- *     }
+ *     encode_scalar_features(game, scalar_buffer)
+ *     encode_ship_entity_features(game, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer)
+ *     encode_spatial_mask(game, spatial_buffer)             # <<<<<<<<<<<<<<
+ *     encode_relation_matrix(game, relation_buffer)
  * 
 */
-  __pyx_t_3 = (__pyx_v_game->defend_ship != Py_None);
-  if (__pyx_t_3) {
-    __pyx_t_4 = __Pyx_PyLong_From_int(((struct __pyx_obj_4ship_Ship *)__pyx_v_game->defend_ship)->id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __pyx_t_4;
-    __pyx_t_4 = 0;
+  __pyx_f_12game_encoder_encode_spatial_mask(__pyx_v_game, __pyx_v_spatial_buffer); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 92, __pyx_L1_error)
+
+  /* "game_encoder.pyx":93
+ *     encode_ship_entity_features(game, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer)
+ *     encode_spatial_mask(game, spatial_buffer)
+ *     encode_relation_matrix(game, relation_buffer)             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
+*/
+  __pyx_f_12game_encoder_encode_relation_matrix(__pyx_v_game, __pyx_v_relation_buffer); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 93, __pyx_L1_error)
+
+  /* "game_encoder.pyx":95
+ *     encode_relation_matrix(game, relation_buffer)
+ * 
+ *     cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships             # <<<<<<<<<<<<<<
+ *     cdef int target_id = (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships
+ *     cdef int phase = <int>game.phase
+*/
+  __pyx_t_2 = (__pyx_v_game->decision_player != __pyx_v_game->current_player);
+  if (__pyx_t_2) {
+    __pyx_t_1 = ((struct __pyx_obj_4ship_Ship *)__pyx_v_game->defend_ship)->id;
   } else {
-    __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_12game_encoder_max_ships); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __pyx_t_4;
-    __pyx_t_4 = 0;
+    __pyx_t_4 = (__pyx_v_game->active_ship != Py_None);
+    if (__pyx_t_4) {
+      __pyx_t_3 = ((struct __pyx_obj_4ship_Ship *)__pyx_v_game->active_ship)->id;
+    } else {
+      __pyx_t_3 = __pyx_v_12game_encoder_max_ships;
+    }
+    __pyx_t_1 = __pyx_t_3;
   }
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_target_ship_id, __pyx_t_2) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_r = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
-  __Pyx_TraceReturnValue(__pyx_r, 13, 0, __PYX_ERR(0, 86, __pyx_L1_error));
+  __pyx_v_active_id = __pyx_t_1;
+
+  /* "game_encoder.pyx":96
+ * 
+ *     cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
+ *     cdef int target_id = (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships             # <<<<<<<<<<<<<<
+ *     cdef int phase = <int>game.phase
+ * 
+*/
+  __pyx_t_2 = (__pyx_v_game->defend_ship != Py_None);
+  if (__pyx_t_2) {
+    __pyx_t_1 = ((struct __pyx_obj_4ship_Ship *)__pyx_v_game->defend_ship)->id;
+  } else {
+    __pyx_t_1 = __pyx_v_12game_encoder_max_ships;
+  }
+  __pyx_v_target_id = __pyx_t_1;
+
+  /* "game_encoder.pyx":97
+ *     cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
+ *     cdef int target_id = (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships
+ *     cdef int phase = <int>game.phase             # <<<<<<<<<<<<<<
+ * 
+ *     return active_id, target_id, phase
+*/
+  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_game->phase); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 97, __pyx_L1_error)
+  __pyx_v_phase = ((int)__pyx_t_1);
+
+  /* "game_encoder.pyx":99
+ *     cdef int phase = <int>game.phase
+ * 
+ *     return active_id, target_id, phase             # <<<<<<<<<<<<<<
+ * 
+ * @cython.boundscheck(False)
+*/
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_active_id); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_target_id); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_phase); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_8 = PyTuple_New(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  __Pyx_GIVEREF(__pyx_t_5);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_5) != (0)) __PYX_ERR(0, 99, __pyx_L1_error);
+  __Pyx_GIVEREF(__pyx_t_6);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, __pyx_t_6) != (0)) __PYX_ERR(0, 99, __pyx_L1_error);
+  __Pyx_GIVEREF(__pyx_t_7);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 2, __pyx_t_7) != (0)) __PYX_ERR(0, 99, __pyx_L1_error);
+  __pyx_t_5 = 0;
+  __pyx_t_6 = 0;
+  __pyx_t_7 = 0;
+  __pyx_r = ((PyObject*)__pyx_t_8);
+  __pyx_t_8 = 0;
+  __Pyx_TraceReturnValue(__pyx_r, 55, 0, __PYX_ERR(0, 99, __pyx_L1_error));
   goto __pyx_L0;
 
   /* "game_encoder.pyx":79
  * 
  * 
- * cpdef dict encode_game_state(Armada game):             # <<<<<<<<<<<<<<
- *     """Main function to encode the entire game state into numpy arrays for the NN."""
- *     encode_scalar_features(game)
+ * cpdef tuple encode_game_state(Armada game,             # <<<<<<<<<<<<<<
+ *                               float[:] scalar_buffer,
+ *                               float[:, :] ship_entity_buffer,
 */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_8);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
@@ -21519,7 +21476,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_12game_encoder_2encode_game_state, "Main function to encode the entire game state into numpy arrays for the NN.");
+PyDoc_STRVAR(__pyx_doc_12game_encoder_2encode_game_state, "\n    Writes encoding directly into the provided memory views.\n    Returns (active_ship_id, target_ship_id).\n    ");
 static PyMethodDef __pyx_mdef_12game_encoder_3encode_game_state = {"encode_game_state", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12game_encoder_3encode_game_state, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_12game_encoder_2encode_game_state};
 static PyObject *__pyx_pw_12game_encoder_3encode_game_state(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
@@ -21529,11 +21486,17 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ) {
   struct __pyx_obj_6armada_Armada *__pyx_v_game = 0;
+  __Pyx_memviewslice __pyx_v_scalar_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_ship_entity_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_ship_coords_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_ship_def_token_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_spatial_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_relation_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
   #if !CYTHON_METH_FASTCALL
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   #endif
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject* values[1] = {0};
+  PyObject* values[7] = {0,0,0,0,0,0,0};
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -21549,11 +21512,35 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   #endif
   __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_game,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_game,&__pyx_mstate_global->__pyx_n_u_scalar_buffer,&__pyx_mstate_global->__pyx_n_u_ship_entity_buffer,&__pyx_mstate_global->__pyx_n_u_ship_coords_buffer,&__pyx_mstate_global->__pyx_n_u_ship_def_token_buffer,&__pyx_mstate_global->__pyx_n_u_spatial_buffer,&__pyx_mstate_global->__pyx_n_u_relation_buffer,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 79, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
+        case  7:
+        values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 79, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  6:
+        values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 79, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  5:
+        values[4] = __Pyx_ArgRef_FASTCALL(__pyx_args, 4);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 79, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  4:
+        values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 79, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  3:
+        values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 79, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  2:
+        values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 79, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 79, __pyx_L3_error)
@@ -21563,32 +21550,56 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
       if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "encode_game_state", 0) < (0)) __PYX_ERR(0, 79, __pyx_L3_error)
-      for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("encode_game_state", 1, 1, 1, i); __PYX_ERR(0, 79, __pyx_L3_error) }
+      for (Py_ssize_t i = __pyx_nargs; i < 7; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("encode_game_state", 1, 7, 7, i); __PYX_ERR(0, 79, __pyx_L3_error) }
       }
-    } else if (unlikely(__pyx_nargs != 1)) {
+    } else if (unlikely(__pyx_nargs != 7)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 79, __pyx_L3_error)
+      values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 79, __pyx_L3_error)
+      values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 79, __pyx_L3_error)
+      values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 79, __pyx_L3_error)
+      values[4] = __Pyx_ArgRef_FASTCALL(__pyx_args, 4);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 79, __pyx_L3_error)
+      values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 79, __pyx_L3_error)
+      values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 79, __pyx_L3_error)
     }
     __pyx_v_game = ((struct __pyx_obj_6armada_Armada *)values[0]);
+    __pyx_v_scalar_buffer = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_scalar_buffer.memview)) __PYX_ERR(0, 80, __pyx_L3_error)
+    __pyx_v_ship_entity_buffer = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_ship_entity_buffer.memview)) __PYX_ERR(0, 81, __pyx_L3_error)
+    __pyx_v_ship_coords_buffer = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_ship_coords_buffer.memview)) __PYX_ERR(0, 82, __pyx_L3_error)
+    __pyx_v_ship_def_token_buffer = __Pyx_PyObject_to_MemoryviewSlice_dsdsds_float(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_ship_def_token_buffer.memview)) __PYX_ERR(0, 83, __pyx_L3_error)
+    __pyx_v_spatial_buffer = __Pyx_PyObject_to_MemoryviewSlice_dsdsdsds_nn___pyx_t_5numpy_uint8_t(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_spatial_buffer.memview)) __PYX_ERR(0, 84, __pyx_L3_error)
+    __pyx_v_relation_buffer = __Pyx_PyObject_to_MemoryviewSlice_dsdsds_float(values[6], PyBUF_WRITABLE); if (unlikely(!__pyx_v_relation_buffer.memview)) __PYX_ERR(0, 85, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("encode_game_state", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 79, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("encode_game_state", 1, 7, 7, __pyx_nargs); __PYX_ERR(0, 79, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_scalar_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_entity_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_coords_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_def_token_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_spatial_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_relation_buffer, 1);
   __Pyx_AddTraceback("game_encoder.encode_game_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_game), __pyx_mstate_global->__pyx_ptype_6armada_Armada, 1, "game", 0))) __PYX_ERR(0, 79, __pyx_L1_error)
-  __pyx_r = __pyx_pf_12game_encoder_2encode_game_state(__pyx_self, __pyx_v_game);
+  __pyx_r = __pyx_pf_12game_encoder_2encode_game_state(__pyx_self, __pyx_v_game, __pyx_v_scalar_buffer, __pyx_v_ship_entity_buffer, __pyx_v_ship_coords_buffer, __pyx_v_ship_def_token_buffer, __pyx_v_spatial_buffer, __pyx_v_relation_buffer);
 
   /* function exit code */
   goto __pyx_L0;
@@ -21603,11 +21614,17 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     Py_XDECREF(values[__pyx_temp]);
   }
   __pyx_L7_cleaned_up:;
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_scalar_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_entity_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_coords_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_def_token_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_spatial_buffer, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_relation_buffer, 1);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12game_encoder_2encode_game_state(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6armada_Armada *__pyx_v_game) {
+static PyObject *__pyx_pf_12game_encoder_2encode_game_state(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_scalar_buffer, __Pyx_memviewslice __pyx_v_ship_entity_buffer, __Pyx_memviewslice __pyx_v_ship_coords_buffer, __Pyx_memviewslice __pyx_v_ship_def_token_buffer, __Pyx_memviewslice __pyx_v_spatial_buffer, __Pyx_memviewslice __pyx_v_relation_buffer) {
   PyObject *__pyx_r = NULL;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
@@ -21619,7 +21636,13 @@ static PyObject *__pyx_pf_12game_encoder_2encode_game_state(CYTHON_UNUSED PyObje
   __Pyx_RefNannySetupContext("encode_game_state", 0);
   __Pyx_TraceStartFunc("encode_game_state (wrapper)", __pyx_f[0], 79, 0, 0, 0, __PYX_ERR(0, 79, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_12game_encoder_encode_game_state(__pyx_v_game, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
+  if (unlikely(!__pyx_v_scalar_buffer.memview)) { __Pyx_RaiseUnboundLocalError("scalar_buffer"); __PYX_ERR(0, 79, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_ship_entity_buffer.memview)) { __Pyx_RaiseUnboundLocalError("ship_entity_buffer"); __PYX_ERR(0, 79, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_ship_coords_buffer.memview)) { __Pyx_RaiseUnboundLocalError("ship_coords_buffer"); __PYX_ERR(0, 79, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_ship_def_token_buffer.memview)) { __Pyx_RaiseUnboundLocalError("ship_def_token_buffer"); __PYX_ERR(0, 79, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_spatial_buffer.memview)) { __Pyx_RaiseUnboundLocalError("spatial_buffer"); __PYX_ERR(0, 79, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_relation_buffer.memview)) { __Pyx_RaiseUnboundLocalError("relation_buffer"); __PYX_ERR(0, 79, __pyx_L1_error) }
+  __pyx_t_1 = __pyx_f_12game_encoder_encode_game_state(__pyx_v_game, __pyx_v_scalar_buffer, __pyx_v_ship_entity_buffer, __pyx_v_ship_coords_buffer, __pyx_v_ship_def_token_buffer, __pyx_v_spatial_buffer, __pyx_v_relation_buffer, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -21643,46 +21666,36 @@ static PyObject *__pyx_pf_12game_encoder_2encode_game_state(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "game_encoder.pyx":97
- *     }
+/* "game_encoder.pyx":101
+ *     return active_id, target_id, phase
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_scalar_features(Armada game):
+ * cdef void encode_scalar_features(Armada game, float[:] scalar_view):
 */
 
-static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6armada_Armada *__pyx_v_game) {
+static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_scalar_view) {
   int __pyx_v_offset;
   struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_attack_info = 0;
   PyObject *__pyx_v_pool_result = 0;
-  PyArrayObject *__pyx_v_scalar_array = 0;
-  __Pyx_memviewslice __pyx_v_scalar_view = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_scalar_array;
-  __Pyx_Buffer __pyx_pybuffer_scalar_array;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  __Pyx_memviewslice __pyx_t_2 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_1;
+  int __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
-  size_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
-  int __pyx_t_8;
-  float __pyx_t_9;
-  double __pyx_t_10;
+  float __pyx_t_7;
+  double __pyx_t_8;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[37]))
   __Pyx_RefNannySetupContext("encode_scalar_features", 0);
-  __Pyx_TraceStartFunc("encode_scalar_features", __pyx_f[0], 97, 0, 0, 0, __PYX_ERR(0, 97, __pyx_L1_error));
-  __pyx_pybuffer_scalar_array.pybuffer.buf = NULL;
-  __pyx_pybuffer_scalar_array.refcount = 0;
-  __pyx_pybuffernd_scalar_array.data = NULL;
-  __pyx_pybuffernd_scalar_array.rcbuffer = &__pyx_pybuffer_scalar_array;
+  __Pyx_TraceStartFunc("encode_scalar_features", __pyx_f[0], 101, 0, 0, 0, __PYX_ERR(0, 101, __pyx_L1_error));
 
-  /* "game_encoder.pyx":104
+  /* "game_encoder.pyx":108
  *     context about an ongoing attack from game.attack_info.
  *     """
  *     cdef int offset = 0             # <<<<<<<<<<<<<<
@@ -21691,56 +21704,27 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
 */
   __pyx_v_offset = 0;
 
-  /* "game_encoder.pyx":109
+  /* "game_encoder.pyx":113
  *     cdef tuple pool_result
  * 
- *     cdef cnp.ndarray[cnp.float32_t, ndim=1] scalar_array = game.scalar_encode_array             # <<<<<<<<<<<<<<
- *     cdef cnp.float32_t[:] scalar_view = scalar_array
- * 
-*/
-  __pyx_t_1 = ((PyObject *)__pyx_v_game->scalar_encode_array);
-  __Pyx_INCREF(__pyx_t_1);
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_scalar_array.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
-      __pyx_v_scalar_array = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_scalar_array.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 109, __pyx_L1_error)
-    } else {__pyx_pybuffernd_scalar_array.diminfo[0].strides = __pyx_pybuffernd_scalar_array.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_scalar_array.diminfo[0].shape = __pyx_pybuffernd_scalar_array.rcbuffer->pybuffer.shape[0];
-    }
-  }
-  __pyx_v_scalar_array = ((PyArrayObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "game_encoder.pyx":110
- * 
- *     cdef cnp.ndarray[cnp.float32_t, ndim=1] scalar_array = game.scalar_encode_array
- *     cdef cnp.float32_t[:] scalar_view = scalar_array             # <<<<<<<<<<<<<<
- * 
- *     # Reset the pre-allocated array
-*/
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(((PyObject *)__pyx_v_scalar_array), PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 110, __pyx_L1_error)
-  __pyx_v_scalar_view = __pyx_t_2;
-  __pyx_t_2.memview = NULL;
-  __pyx_t_2.data = NULL;
-
-  /* "game_encoder.pyx":113
- * 
- *     # Reset the pre-allocated array
- *     scalar_array.fill(0.0)             # <<<<<<<<<<<<<<
+ *     scalar_view[:] = 0.0             # <<<<<<<<<<<<<<
  * 
  *     # --- Base Game State Features ---
 */
-  __pyx_t_3 = ((PyObject *)__pyx_v_scalar_array);
-  __Pyx_INCREF(__pyx_t_3);
-  __pyx_t_4 = 0;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_mstate_global->__pyx_float_0_0};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_fill, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
+      float __pyx_temp_scalar = 0.0;
+      {
+          Py_ssize_t __pyx_temp_extent_0 = __pyx_v_scalar_view.shape[0];
+          Py_ssize_t __pyx_temp_stride_0 = __pyx_v_scalar_view.strides[0];
+          char *__pyx_temp_pointer_0;
+          Py_ssize_t __pyx_temp_idx_0;
+          __pyx_temp_pointer_0 = __pyx_v_scalar_view.data;
+          for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+            *((float *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
+            __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+          }
+      }
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "game_encoder.pyx":118
  * 
@@ -21749,8 +21733,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     scalar_view[1] = game.get_point(1) / 200.0
  *     scalar_view[2] = game.get_point(-1) / 200.0
 */
-  __pyx_t_5 = 0;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = (((double)__pyx_v_game->round) / 6.0);
+  __pyx_t_1 = 0;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = (((double)__pyx_v_game->round) / 6.0);
 
   /* "game_encoder.pyx":119
  *     # Simple scalar values (3 features)
@@ -21759,9 +21743,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     scalar_view[2] = game.get_point(-1) / 200.0
  *     offset = 3
 */
-  __pyx_t_6 = ((struct __pyx_vtabstruct_6armada_Armada *)__pyx_v_game->__pyx_vtab)->get_point(__pyx_v_game, 1, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 119, __pyx_L1_error)
-  __pyx_t_5 = 1;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = (((double)__pyx_t_6) / 200.0);
+  __pyx_t_2 = ((struct __pyx_vtabstruct_6armada_Armada *)__pyx_v_game->__pyx_vtab)->get_point(__pyx_v_game, 1, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 119, __pyx_L1_error)
+  __pyx_t_1 = 1;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = (((double)__pyx_t_2) / 200.0);
 
   /* "game_encoder.pyx":120
  *     scalar_view[0] = game.round / 6.0
@@ -21770,9 +21754,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     offset = 3
  * 
 */
-  __pyx_t_6 = ((struct __pyx_vtabstruct_6armada_Armada *)__pyx_v_game->__pyx_vtab)->get_point(__pyx_v_game, -1, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 120, __pyx_L1_error)
-  __pyx_t_5 = 2;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = (((double)__pyx_t_6) / 200.0);
+  __pyx_t_2 = ((struct __pyx_vtabstruct_6armada_Armada *)__pyx_v_game->__pyx_vtab)->get_point(__pyx_v_game, -1, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 120, __pyx_L1_error)
+  __pyx_t_1 = 2;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = (((double)__pyx_t_2) / 200.0);
 
   /* "game_encoder.pyx":121
  *     scalar_view[1] = game.get_point(1) / 200.0
@@ -21790,8 +21774,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     scalar_view[offset + (game.second_faction != 1)] = 1.0; offset += 2
  * 
 */
-  __pyx_t_5 = (__pyx_v_offset + (__pyx_v_game->first_faction != 1));
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
+  __pyx_t_1 = (__pyx_v_offset + (__pyx_v_game->first_faction != 1));
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
   __pyx_v_offset = (__pyx_v_offset + 2);
 
   /* "game_encoder.pyx":125
@@ -21801,8 +21785,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  * 
  *     # One-hot encoded phase (phase_type features)
 */
-  __pyx_t_5 = (__pyx_v_offset + (__pyx_v_game->second_faction != 1));
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
+  __pyx_t_1 = (__pyx_v_offset + (__pyx_v_game->second_faction != 1));
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
   __pyx_v_offset = (__pyx_v_offset + 2);
 
   /* "game_encoder.pyx":128
@@ -21812,9 +21796,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     offset += phase_type # phase_type = 10
  * 
 */
-  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_v_game->phase); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + ((int)__pyx_t_6));
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
+  __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_v_game->phase); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + ((int)__pyx_t_2));
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
 
   /* "game_encoder.pyx":129
  *     # One-hot encoded phase (phase_type features)
@@ -21823,17 +21807,17 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  * 
  *     # One-hot encoded current player (2 features)
 */
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_offset); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 129, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_phase_type); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_offset); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 129, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 129, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_phase_type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_7); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 129, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_v_offset = __pyx_t_6;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_t_5); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 129, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_v_offset = __pyx_t_2;
 
   /* "game_encoder.pyx":132
  * 
@@ -21842,8 +21826,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     offset += 2
  * 
 */
-  __pyx_t_5 = (__pyx_v_offset + (__pyx_v_game->current_player != 1));
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
+  __pyx_t_1 = (__pyx_v_offset + (__pyx_v_game->current_player != 1));
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
 
   /* "game_encoder.pyx":133
  *     # One-hot encoded current player (2 features)
@@ -21858,43 +21842,43 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     # --- Attack Context Features (17 features) ---
  * 
  *     if game.attack_info is None:             # <<<<<<<<<<<<<<
- *         return  # No attack in progress, return early
+ *         return # No attack in progress, return early
  * 
 */
-  __pyx_t_8 = (__pyx_v_game->attack_info == Py_None);
-  if (__pyx_t_8) {
+  __pyx_t_6 = (__pyx_v_game->attack_info == Py_None);
+  if (__pyx_t_6) {
 
     /* "game_encoder.pyx":138
  * 
  *     if game.attack_info is None:
- *         return  # No attack in progress, return early             # <<<<<<<<<<<<<<
+ *         return # No attack in progress, return early             # <<<<<<<<<<<<<<
  * 
  *     attack_info = game.attack_info
 */
-    __Pyx_TraceReturnValue(Py_None, 87, 0, __PYX_ERR(0, 138, __pyx_L1_error));
+    __Pyx_TraceReturnValue(Py_None, 81, 0, __PYX_ERR(0, 138, __pyx_L1_error));
     goto __pyx_L0;
 
     /* "game_encoder.pyx":137
  *     # --- Attack Context Features (17 features) ---
  * 
  *     if game.attack_info is None:             # <<<<<<<<<<<<<<
- *         return  # No attack in progress, return early
+ *         return # No attack in progress, return early
  * 
 */
   }
 
   /* "game_encoder.pyx":140
- *         return  # No attack in progress, return early
+ *         return # No attack in progress, return early
  * 
  *     attack_info = game.attack_info             # <<<<<<<<<<<<<<
  * 
  *     # Attack availability flags (3 features)
 */
-  __pyx_t_7 = __pyx_v_game->attack_info;
-  __Pyx_INCREF(__pyx_t_7);
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_mstate_global->__pyx_ptype_11attack_info_AttackInfo))))) __PYX_ERR(0, 140, __pyx_L1_error)
-  __pyx_v_attack_info = ((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_t_7);
-  __pyx_t_7 = 0;
+  __pyx_t_5 = __pyx_v_game->attack_info;
+  __Pyx_INCREF(__pyx_t_5);
+  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_mstate_global->__pyx_ptype_11attack_info_AttackInfo))))) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_v_attack_info = ((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_t_5);
+  __pyx_t_5 = 0;
 
   /* "game_encoder.pyx":143
  * 
@@ -21903,8 +21887,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     scalar_view[offset + 1] = float(attack_info.con_fire_token)
  *     scalar_view[offset + 2] = float(attack_info.swarm)
 */
-  __pyx_t_5 = __pyx_v_offset;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((double)__pyx_v_attack_info->con_fire_dial);
+  __pyx_t_1 = __pyx_v_offset;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((double)__pyx_v_attack_info->con_fire_dial);
 
   /* "game_encoder.pyx":144
  *     # Attack availability flags (3 features)
@@ -21913,8 +21897,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     scalar_view[offset + 2] = float(attack_info.swarm)
  *     offset += 3
 */
-  __pyx_t_5 = (__pyx_v_offset + 1);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((double)__pyx_v_attack_info->con_fire_token);
+  __pyx_t_1 = (__pyx_v_offset + 1);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((double)__pyx_v_attack_info->con_fire_token);
 
   /* "game_encoder.pyx":145
  *     scalar_view[offset] = float(attack_info.con_fire_dial)
@@ -21923,8 +21907,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     offset += 3
  * 
 */
-  __pyx_t_5 = (__pyx_v_offset + 2);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((double)__pyx_v_attack_info->swarm);
+  __pyx_t_1 = (__pyx_v_offset + 2);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((double)__pyx_v_attack_info->swarm);
 
   /* "game_encoder.pyx":146
  *     scalar_view[offset + 1] = float(attack_info.con_fire_token)
@@ -21946,17 +21930,17 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 150, __pyx_L1_error)
   }
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_Dice); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_BLACK); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_attack_info->attack_pool_result, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(PyTuple_CheckExact(__pyx_t_7))||((__pyx_t_7) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_7))) __PYX_ERR(0, 150, __pyx_L1_error)
-  __pyx_v_pool_result = ((PyObject*)__pyx_t_7);
-  __pyx_t_7 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_Dice); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_BLACK); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_attack_info->attack_pool_result, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (!(likely(PyTuple_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_5))) __PYX_ERR(0, 150, __pyx_L1_error)
+  __pyx_v_pool_result = ((PyObject*)__pyx_t_5);
+  __pyx_t_5 = 0;
 
   /* "game_encoder.pyx":151
  *     # Black (3)
@@ -21969,9 +21953,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 151, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 0)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 151, __pyx_L1_error)
-  __pyx_t_5 = __pyx_v_offset;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 0)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_1 = __pyx_v_offset;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":152
  *     pool_result = attack_info.attack_pool_result[Dice.BLACK]
@@ -21984,9 +21968,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 152, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 1)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 1);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 1)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 1);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":153
  *     scalar_view[offset] = <float>pool_result[0]
@@ -21999,9 +21983,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 153, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 2)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 2);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 2)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 2);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":154
  *     scalar_view[offset + 1] = <float>pool_result[1]
@@ -22023,17 +22007,17 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 157, __pyx_L1_error)
   }
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_Dice); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_BLUE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_attack_info->attack_pool_result, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(PyTuple_CheckExact(__pyx_t_7))||((__pyx_t_7) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_7))) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_DECREF_SET(__pyx_v_pool_result, ((PyObject*)__pyx_t_7));
-  __pyx_t_7 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_Dice); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_BLUE); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_attack_info->attack_pool_result, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (!(likely(PyTuple_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_5))) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_DECREF_SET(__pyx_v_pool_result, ((PyObject*)__pyx_t_5));
+  __pyx_t_5 = 0;
 
   /* "game_encoder.pyx":158
  *     # Blue (3)
@@ -22046,9 +22030,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 158, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 0)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
-  __pyx_t_5 = __pyx_v_offset;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 0)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_t_1 = __pyx_v_offset;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":159
  *     pool_result = attack_info.attack_pool_result[Dice.BLUE]
@@ -22061,9 +22045,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 159, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 1)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 1);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 1)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 1);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":160
  *     scalar_view[offset] = <float>pool_result[0]
@@ -22076,9 +22060,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 160, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 2)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 2);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 2)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 2);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":161
  *     scalar_view[offset + 1] = <float>pool_result[1]
@@ -22100,17 +22084,17 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 164, __pyx_L1_error)
   }
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_Dice); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 164, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_RED); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_attack_info->attack_pool_result, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 164, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(PyTuple_CheckExact(__pyx_t_7))||((__pyx_t_7) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_7))) __PYX_ERR(0, 164, __pyx_L1_error)
-  __Pyx_DECREF_SET(__pyx_v_pool_result, ((PyObject*)__pyx_t_7));
-  __pyx_t_7 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_Dice); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_RED); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_attack_info->attack_pool_result, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (!(likely(PyTuple_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_5))) __PYX_ERR(0, 164, __pyx_L1_error)
+  __Pyx_DECREF_SET(__pyx_v_pool_result, ((PyObject*)__pyx_t_5));
+  __pyx_t_5 = 0;
 
   /* "game_encoder.pyx":165
  *     # Red (5)
@@ -22123,9 +22107,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 165, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 0)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 165, __pyx_L1_error)
-  __pyx_t_5 = __pyx_v_offset;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 0)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 165, __pyx_L1_error)
+  __pyx_t_1 = __pyx_v_offset;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":166
  *     pool_result = attack_info.attack_pool_result[Dice.RED]
@@ -22138,9 +22122,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 166, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 1)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 166, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 1);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 1)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 1);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":167
  *     scalar_view[offset] = <float>pool_result[0]
@@ -22153,9 +22137,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 167, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 2)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 167, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 2);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 2)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 167, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 2);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":168
  *     scalar_view[offset + 1] = <float>pool_result[1]
@@ -22168,9 +22152,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 168, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 3)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 168, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 3);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 3)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 168, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 3);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":169
  *     scalar_view[offset + 2] = <float>pool_result[2]
@@ -22183,9 +22167,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 169, __pyx_L1_error)
   }
-  __pyx_t_9 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 4)); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 169, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_v_offset + 4);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_9);
+  __pyx_t_7 = __Pyx_PyFloat_AsFloat(__Pyx_PyTuple_GET_ITEM(__pyx_v_pool_result, 4)); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_v_offset + 4);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = ((float)__pyx_t_7);
 
   /* "game_encoder.pyx":170
  *     scalar_view[offset + 3] = <float>pool_result[3]
@@ -22203,8 +22187,8 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *         scalar_view[offset + <int>attack_info.critical] = 1.0
  *     offset += c_critical_type # critical_type is 1
 */
-  __pyx_t_8 = (__pyx_v_attack_info->critical != Py_None);
-  if (__pyx_t_8) {
+  __pyx_t_6 = (__pyx_v_attack_info->critical != Py_None);
+  if (__pyx_t_6) {
 
     /* "game_encoder.pyx":174
  *     # Critical Effect (one-hot, 1 feature)
@@ -22213,9 +22197,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     offset += c_critical_type # critical_type is 1
  * 
 */
-    __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_v_attack_info->critical); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 174, __pyx_L1_error)
-    __pyx_t_5 = (__pyx_v_offset + ((int)__pyx_t_6));
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
+    __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_v_attack_info->critical); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 174, __pyx_L1_error)
+    __pyx_t_1 = (__pyx_v_offset + ((int)__pyx_t_2));
+    *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = 1.0;
 
     /* "game_encoder.pyx":173
  * 
@@ -22242,9 +22226,9 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  *     scalar_view[offset + 1] = 1.0 if attack_info.obstructed else 0.0
  *     offset += 2 # End of array
 */
-  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_v_attack_info->attack_range); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 178, __pyx_L1_error)
-  __pyx_t_5 = __pyx_v_offset;
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = (((double)((int)__pyx_t_6)) / 4.0);
+  __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_v_attack_info->attack_range); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_1 = __pyx_v_offset;
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = (((double)((int)__pyx_t_2)) / 4.0);
 
   /* "game_encoder.pyx":179
  *     # Range & Obstruction (2 features)
@@ -22254,12 +22238,12 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  * 
 */
   if (__pyx_v_attack_info->obstructed) {
-    __pyx_t_10 = 1.0;
+    __pyx_t_8 = 1.0;
   } else {
-    __pyx_t_10 = 0.0;
+    __pyx_t_8 = 0.0;
   }
-  __pyx_t_5 = (__pyx_v_offset + 1);
-  *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_5 * __pyx_v_scalar_view.strides[0]) )) = __pyx_t_10;
+  __pyx_t_1 = (__pyx_v_offset + 1);
+  *((float *) ( /* dim=0 */ (__pyx_v_scalar_view.data + __pyx_t_1 * __pyx_v_scalar_view.strides[0]) )) = __pyx_t_8;
 
   /* "game_encoder.pyx":180
  *     scalar_view[offset] = (<int>attack_info.attack_range) / 4.0
@@ -22270,43 +22254,31 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
 */
   __pyx_v_offset = (__pyx_v_offset + 2);
 
-  /* "game_encoder.pyx":97
- *     }
+  /* "game_encoder.pyx":101
+ *     return active_id, target_id, phase
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_scalar_features(Armada game):
+ * cdef void encode_scalar_features(Armada game, float[:] scalar_view):
 */
 
   /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 97, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 101, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_t_2, 1);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_7);
-  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
-    __Pyx_PyThreadState_declare
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_scalar_array.rcbuffer->pybuffer);
-  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 97, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 101, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("game_encoder.encode_scalar_features", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  goto __pyx_L2;
   __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_scalar_array.rcbuffer->pybuffer);
-  __pyx_L2:;
   __Pyx_XDECREF((PyObject *)__pyx_v_attack_info);
   __Pyx_XDECREF(__pyx_v_pool_result);
-  __Pyx_XDECREF((PyObject *)__pyx_v_scalar_array);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_scalar_view, 1);
   __Pyx_PyMonitoring_ExitScope(0);
   __Pyx_RefNannyFinishContext();
 }
@@ -22316,16 +22288,17 @@ static void __pyx_f_12game_encoder_encode_scalar_features(struct __pyx_obj_6arma
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_ship_entity_features(Armada game):
+ * cdef void encode_ship_entity_features(Armada game,
 */
 
-static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_6armada_Armada *__pyx_v_game) {
+static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_ship_view_buffer, __Pyx_memviewslice __pyx_v_coords_view_buffer, __Pyx_memviewslice __pyx_v_def_token_view_buffer) {
   struct __pyx_obj_4ship_Ship *__pyx_v_ship = 0;
   struct __pyx_obj_13defense_token_DefenseToken *__pyx_v_token = 0;
   struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_attack_info = 0;
-  __Pyx_memviewslice __pyx_v_ship_view = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_ship_coords_view = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_def_token_view = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_single_ship_view = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_single_coords_view = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_single_def_token_view = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_static_stats_view = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_offset;
   int __pyx_v_stack_idx;
   CYTHON_UNUSED int __pyx_v_defense_start_idx;
@@ -22334,22 +22307,23 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
   int __pyx_v_is_attack;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
+  __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  size_t __pyx_t_5;
+  Py_ssize_t __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  int __pyx_t_8;
-  __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_10;
+  __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
   __pyx_t_5numpy_float32_t __pyx_t_11;
   Py_ssize_t __pyx_t_12;
   int __pyx_t_13;
-  double __pyx_t_14;
-  int __pyx_t_15;
+  __Pyx_memviewslice __pyx_t_14 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  double __pyx_t_15;
   int __pyx_t_16;
+  int __pyx_t_17;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -22357,7 +22331,19 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
   __Pyx_RefNannySetupContext("encode_ship_entity_features", 0);
   __Pyx_TraceStartFunc("encode_ship_entity_features", __pyx_f[0], 185, 0, 0, 0, __PYX_ERR(0, 185, __pyx_L1_error));
 
-  /* "game_encoder.pyx":208
+  /* "game_encoder.pyx":206
+ *     cdef cnp.float32_t[:] single_coords_view
+ *     cdef cnp.float32_t[:] single_def_token_view
+ *     cdef float[:, :] static_stats_view = game.ship_static_encode_array             # <<<<<<<<<<<<<<
+ *     # Indices and iterators
+ *     cdef int offset, stack_idx, defense_start_idx, hull, command
+*/
+  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_game->ship_static_encode_array), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_v_static_stats_view = __pyx_t_1;
+  __pyx_t_1.memview = NULL;
+  __pyx_t_1.data = NULL;
+
+  /* "game_encoder.pyx":211
  * 
  *     # Booleans
  *     cdef bint is_attack = False             # <<<<<<<<<<<<<<
@@ -22366,104 +22352,128 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
   __pyx_v_is_attack = 0;
 
-  /* "game_encoder.pyx":214
+  /* "game_encoder.pyx":217
  *     # Zero out the entire array at the beginning.
  *     # This is crucial so we only have to write non-zero values.
- *     game.ship_encode_array[:, SHIP_STATS_FEATURES:].fill(0.0)             # <<<<<<<<<<<<<<
- *     game.ship_coords_array.fill(0.0)
- *     game.ship_def_token_array.fill(0.0)
+ *     ship_view_buffer[:] = 0.0             # <<<<<<<<<<<<<<
+ *     coords_view_buffer[:] = 0.0
+ *     def_token_view_buffer[:] = 0.0
 */
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_12game_encoder_SHIP_STATS_FEATURES); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PySlice_New(__pyx_t_3, Py_None, Py_None); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 214, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_INCREF(__pyx_mstate_global->__pyx_slice[0]);
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_slice[0]);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_mstate_global->__pyx_slice[0]) != (0)) __PYX_ERR(0, 214, __pyx_L1_error);
-  __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_4) != (0)) __PYX_ERR(0, 214, __pyx_L1_error);
-  __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_game->ship_encode_array), __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 214, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_2 = __pyx_t_4;
-  __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_5 = 0;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_float_0_0};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_fill, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 214, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
+      float __pyx_temp_scalar = 0.0;
+      {
+          Py_ssize_t __pyx_temp_extent_0 = __pyx_v_ship_view_buffer.shape[0];
+          Py_ssize_t __pyx_temp_stride_0 = __pyx_v_ship_view_buffer.strides[0];
+          char *__pyx_temp_pointer_0;
+          Py_ssize_t __pyx_temp_idx_0;
+          Py_ssize_t __pyx_temp_extent_1 = __pyx_v_ship_view_buffer.shape[1];
+          Py_ssize_t __pyx_temp_stride_1 = __pyx_v_ship_view_buffer.strides[1];
+          char *__pyx_temp_pointer_1;
+          Py_ssize_t __pyx_temp_idx_1;
+          __pyx_temp_pointer_0 = __pyx_v_ship_view_buffer.data;
+          for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+            __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
+            for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
+              *((float *) __pyx_temp_pointer_1) = __pyx_temp_scalar;
+              __pyx_temp_pointer_1 += __pyx_temp_stride_1;
+            }
+            __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+          }
+      }
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "game_encoder.pyx":215
+  /* "game_encoder.pyx":218
  *     # This is crucial so we only have to write non-zero values.
- *     game.ship_encode_array[:, SHIP_STATS_FEATURES:].fill(0.0)
- *     game.ship_coords_array.fill(0.0)             # <<<<<<<<<<<<<<
- *     game.ship_def_token_array.fill(0.0)
+ *     ship_view_buffer[:] = 0.0
+ *     coords_view_buffer[:] = 0.0             # <<<<<<<<<<<<<<
+ *     def_token_view_buffer[:] = 0.0
  * 
 */
-  __pyx_t_4 = ((PyObject *)__pyx_v_game->ship_coords_array);
-  __Pyx_INCREF(__pyx_t_4);
-  __pyx_t_5 = 0;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_float_0_0};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_fill, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 215, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
+      float __pyx_temp_scalar = 0.0;
+      {
+          Py_ssize_t __pyx_temp_extent_0 = __pyx_v_coords_view_buffer.shape[0];
+          Py_ssize_t __pyx_temp_stride_0 = __pyx_v_coords_view_buffer.strides[0];
+          char *__pyx_temp_pointer_0;
+          Py_ssize_t __pyx_temp_idx_0;
+          Py_ssize_t __pyx_temp_extent_1 = __pyx_v_coords_view_buffer.shape[1];
+          Py_ssize_t __pyx_temp_stride_1 = __pyx_v_coords_view_buffer.strides[1];
+          char *__pyx_temp_pointer_1;
+          Py_ssize_t __pyx_temp_idx_1;
+          __pyx_temp_pointer_0 = __pyx_v_coords_view_buffer.data;
+          for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+            __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
+            for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
+              *((float *) __pyx_temp_pointer_1) = __pyx_temp_scalar;
+              __pyx_temp_pointer_1 += __pyx_temp_stride_1;
+            }
+            __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+          }
+      }
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "game_encoder.pyx":216
- *     game.ship_encode_array[:, SHIP_STATS_FEATURES:].fill(0.0)
- *     game.ship_coords_array.fill(0.0)
- *     game.ship_def_token_array.fill(0.0)             # <<<<<<<<<<<<<<
+  /* "game_encoder.pyx":219
+ *     ship_view_buffer[:] = 0.0
+ *     coords_view_buffer[:] = 0.0
+ *     def_token_view_buffer[:] = 0.0             # <<<<<<<<<<<<<<
  * 
  *     # Get attack_info once outside the loop
 */
-  __pyx_t_4 = ((PyObject *)__pyx_v_game->ship_def_token_array);
-  __Pyx_INCREF(__pyx_t_4);
-  __pyx_t_5 = 0;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_float_0_0};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_fill, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
+      float __pyx_temp_scalar = 0.0;
+      {
+          Py_ssize_t __pyx_temp_extent_0 = __pyx_v_def_token_view_buffer.shape[0];
+          Py_ssize_t __pyx_temp_stride_0 = __pyx_v_def_token_view_buffer.strides[0];
+          char *__pyx_temp_pointer_0;
+          Py_ssize_t __pyx_temp_idx_0;
+          Py_ssize_t __pyx_temp_extent_1 = __pyx_v_def_token_view_buffer.shape[1];
+          Py_ssize_t __pyx_temp_stride_1 = __pyx_v_def_token_view_buffer.strides[1];
+          char *__pyx_temp_pointer_1;
+          Py_ssize_t __pyx_temp_idx_1;
+          Py_ssize_t __pyx_temp_extent_2 = __pyx_v_def_token_view_buffer.shape[2];
+          Py_ssize_t __pyx_temp_stride_2 = __pyx_v_def_token_view_buffer.strides[2];
+          char *__pyx_temp_pointer_2;
+          Py_ssize_t __pyx_temp_idx_2;
+          __pyx_temp_pointer_0 = __pyx_v_def_token_view_buffer.data;
+          for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+            __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
+            for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
+              __pyx_temp_pointer_2 = __pyx_temp_pointer_1;
+              for (__pyx_temp_idx_2 = 0; __pyx_temp_idx_2 < __pyx_temp_extent_2; __pyx_temp_idx_2++) {
+                *((float *) __pyx_temp_pointer_2) = __pyx_temp_scalar;
+                __pyx_temp_pointer_2 += __pyx_temp_stride_2;
+              }
+              __pyx_temp_pointer_1 += __pyx_temp_stride_1;
+            }
+            __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+          }
+      }
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "game_encoder.pyx":219
+  /* "game_encoder.pyx":222
  * 
  *     # Get attack_info once outside the loop
  *     if game.attack_info is not None:             # <<<<<<<<<<<<<<
  *         attack_info = game.attack_info
  *         is_attack = True
 */
-  __pyx_t_6 = (__pyx_v_game->attack_info != Py_None);
-  if (__pyx_t_6) {
+  __pyx_t_2 = (__pyx_v_game->attack_info != Py_None);
+  if (__pyx_t_2) {
 
-    /* "game_encoder.pyx":220
+    /* "game_encoder.pyx":223
  *     # Get attack_info once outside the loop
  *     if game.attack_info is not None:
  *         attack_info = game.attack_info             # <<<<<<<<<<<<<<
  *         is_attack = True
  * 
 */
-    __pyx_t_1 = __pyx_v_game->attack_info;
-    __Pyx_INCREF(__pyx_t_1);
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_11attack_info_AttackInfo))))) __PYX_ERR(0, 220, __pyx_L1_error)
-    __pyx_v_attack_info = ((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_t_1);
-    __pyx_t_1 = 0;
+    __pyx_t_3 = __pyx_v_game->attack_info;
+    __Pyx_INCREF(__pyx_t_3);
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_11attack_info_AttackInfo))))) __PYX_ERR(0, 223, __pyx_L1_error)
+    __pyx_v_attack_info = ((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_t_3);
+    __pyx_t_3 = 0;
 
-    /* "game_encoder.pyx":221
+    /* "game_encoder.pyx":224
  *     if game.attack_info is not None:
  *         attack_info = game.attack_info
  *         is_attack = True             # <<<<<<<<<<<<<<
@@ -22472,7 +22482,7 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
     __pyx_v_is_attack = 1;
 
-    /* "game_encoder.pyx":219
+    /* "game_encoder.pyx":222
  * 
  *     # Get attack_info once outside the loop
  *     if game.attack_info is not None:             # <<<<<<<<<<<<<<
@@ -22481,7 +22491,7 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
   }
 
-  /* "game_encoder.pyx":223
+  /* "game_encoder.pyx":226
  *         is_attack = True
  * 
  *     for ship in game.ships:             # <<<<<<<<<<<<<<
@@ -22490,128 +22500,137 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
   if (unlikely(__pyx_v_game->ships == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 223, __pyx_L1_error)
+    __PYX_ERR(0, 226, __pyx_L1_error)
   }
-  __pyx_t_1 = __pyx_v_game->ships; __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_7 = 0;
+  __pyx_t_3 = __pyx_v_game->ships; __Pyx_INCREF(__pyx_t_3);
+  __pyx_t_4 = 0;
   for (;;) {
     {
-      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
+      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_3);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 223, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 226, __pyx_L1_error)
       #endif
-      if (__pyx_t_7 >= __pyx_temp) break;
+      if (__pyx_t_4 >= __pyx_temp) break;
     }
-    __pyx_t_4 = __Pyx_PyList_GetItemRefFast(__pyx_t_1, __pyx_t_7, __Pyx_ReferenceSharing_OwnStrongReference);
-    ++__pyx_t_7;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 223, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 223, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_ship, ((struct __pyx_obj_4ship_Ship *)__pyx_t_4));
-    __pyx_t_4 = 0;
+    __pyx_t_5 = __Pyx_PyList_GetItemRefFast(__pyx_t_3, __pyx_t_4, __Pyx_ReferenceSharing_OwnStrongReference);
+    ++__pyx_t_4;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 226, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 226, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_ship, ((struct __pyx_obj_4ship_Ship *)__pyx_t_5));
+    __pyx_t_5 = 0;
 
-    /* "game_encoder.pyx":224
+    /* "game_encoder.pyx":227
  * 
  *     for ship in game.ships:
  *         if ship.id >= max_ships or ship.destroyed: continue             # <<<<<<<<<<<<<<
  * 
  *         # coords
 */
-    __pyx_t_8 = (__pyx_v_ship->id >= __pyx_v_12game_encoder_max_ships);
-    if (!__pyx_t_8) {
+    __pyx_t_6 = (__pyx_v_ship->id >= __pyx_v_12game_encoder_max_ships);
+    if (!__pyx_t_6) {
     } else {
-      __pyx_t_6 = __pyx_t_8;
+      __pyx_t_2 = __pyx_t_6;
       goto __pyx_L7_bool_binop_done;
     }
-    __pyx_t_6 = __pyx_v_ship->destroyed;
+    __pyx_t_2 = __pyx_v_ship->destroyed;
     __pyx_L7_bool_binop_done:;
-    if (__pyx_t_6) {
+    if (__pyx_t_2) {
       goto __pyx_L4_continue;
     }
 
-    /* "game_encoder.pyx":227
+    /* "game_encoder.pyx":230
  * 
  *         # coords
- *         ship_coords_view = game.ship_coords_array[ship.id]             # <<<<<<<<<<<<<<
- *         ship_coords_view[0] = ship.x / game.player_edge
- *         ship_coords_view[1] = ship.y / game.short_edge
+ *         single_coords_view = coords_view_buffer[ship.id]             # <<<<<<<<<<<<<<
+ *         single_coords_view[0] = ship.x / game.player_edge
+ *         single_coords_view[1] = ship.y / game.short_edge
 */
-    __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_game->ship_coords_array), __pyx_v_ship->id, int, 1, __Pyx_PyLong_From_int, 0, 0, 0, 1, __Pyx_ReferenceSharing_SharedReference); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 227, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 227, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_coords_view, 1);
-    __pyx_v_ship_coords_view = __pyx_t_9;
-    __pyx_t_9.memview = NULL;
-    __pyx_t_9.data = NULL;
+    __pyx_t_7.data = __pyx_v_coords_view_buffer.data;
+    __pyx_t_7.memview = __pyx_v_coords_view_buffer.memview;
+    __PYX_INC_MEMVIEW(&__pyx_t_7, 1);
+    {
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_ship->id;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_coords_view_buffer.strides[0];
+        __pyx_t_7.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
 
-    /* "game_encoder.pyx":228
+__pyx_t_7.shape[0] = __pyx_v_coords_view_buffer.shape[1];
+__pyx_t_7.strides[0] = __pyx_v_coords_view_buffer.strides[1];
+    __pyx_t_7.suboffsets[0] = -1;
+
+__PYX_XCLEAR_MEMVIEW(&__pyx_v_single_coords_view, 1);
+    __pyx_v_single_coords_view = __pyx_t_7;
+    __pyx_t_7.memview = NULL;
+    __pyx_t_7.data = NULL;
+
+    /* "game_encoder.pyx":231
  *         # coords
- *         ship_coords_view = game.ship_coords_array[ship.id]
- *         ship_coords_view[0] = ship.x / game.player_edge             # <<<<<<<<<<<<<<
- *         ship_coords_view[1] = ship.y / game.short_edge
- *         ship_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
+ *         single_coords_view = coords_view_buffer[ship.id]
+ *         single_coords_view[0] = ship.x / game.player_edge             # <<<<<<<<<<<<<<
+ *         single_coords_view[1] = ship.y / game.short_edge
+ *         single_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
 */
     if (unlikely(__pyx_v_game->player_edge == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 228, __pyx_L1_error)
+      __PYX_ERR(0, 231, __pyx_L1_error)
     }
-    __pyx_t_10 = 0;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_coords_view.data + __pyx_t_10 * __pyx_v_ship_coords_view.strides[0]) )) = (__pyx_v_ship->x / __pyx_v_game->player_edge);
+    __pyx_t_8 = 0;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_coords_view.data + __pyx_t_8 * __pyx_v_single_coords_view.strides[0]) )) = (__pyx_v_ship->x / __pyx_v_game->player_edge);
 
-    /* "game_encoder.pyx":229
- *         ship_coords_view = game.ship_coords_array[ship.id]
- *         ship_coords_view[0] = ship.x / game.player_edge
- *         ship_coords_view[1] = ship.y / game.short_edge             # <<<<<<<<<<<<<<
- *         ship_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
+    /* "game_encoder.pyx":232
+ *         single_coords_view = coords_view_buffer[ship.id]
+ *         single_coords_view[0] = ship.x / game.player_edge
+ *         single_coords_view[1] = ship.y / game.short_edge             # <<<<<<<<<<<<<<
+ *         single_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
  * 
 */
     if (unlikely(__pyx_v_game->short_edge == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 229, __pyx_L1_error)
+      __PYX_ERR(0, 232, __pyx_L1_error)
     }
-    __pyx_t_10 = 1;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_coords_view.data + __pyx_t_10 * __pyx_v_ship_coords_view.strides[0]) )) = (__pyx_v_ship->y / __pyx_v_game->short_edge);
+    __pyx_t_8 = 1;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_coords_view.data + __pyx_t_8 * __pyx_v_single_coords_view.strides[0]) )) = (__pyx_v_ship->y / __pyx_v_game->short_edge);
 
-    /* "game_encoder.pyx":230
- *         ship_coords_view[0] = ship.x / game.player_edge
- *         ship_coords_view[1] = ship.y / game.short_edge
- *         ship_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)             # <<<<<<<<<<<<<<
+    /* "game_encoder.pyx":233
+ *         single_coords_view[0] = ship.x / game.player_edge
+ *         single_coords_view[1] = ship.y / game.short_edge
+ *         single_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)             # <<<<<<<<<<<<<<
  * 
  *         # defense tokens
 */
-    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_ship->orientation); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_pi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyLong_MultiplyCObj(__pyx_mstate_global->__pyx_int_2, __pyx_t_3, 2, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Remainder(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyLong_MultiplyCObj(__pyx_mstate_global->__pyx_int_2, __pyx_t_4, 2, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_11 = __Pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_11 == ((npy_float32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_10 = 2;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_coords_view.data + __pyx_t_10 * __pyx_v_ship_coords_view.strides[0]) )) = __pyx_t_11;
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_ship->orientation); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_pi); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __pyx_t_9 = __Pyx_PyLong_MultiplyCObj(__pyx_mstate_global->__pyx_int_2, __pyx_t_10, 2, 0, 0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __pyx_t_10 = PyNumber_Remainder(__pyx_t_5, __pyx_t_9); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_pi); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __pyx_t_9 = __Pyx_PyLong_MultiplyCObj(__pyx_mstate_global->__pyx_int_2, __pyx_t_5, 2, 0, 0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = __Pyx_PyNumber_Divide(__pyx_t_10, __pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __pyx_t_11 = __Pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_11 == ((npy_float32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_8 = 2;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_coords_view.data + __pyx_t_8 * __pyx_v_single_coords_view.strides[0]) )) = __pyx_t_11;
 
-    /* "game_encoder.pyx":233
+    /* "game_encoder.pyx":236
  * 
  *         # defense tokens
  *         defense_start_idx = offset             # <<<<<<<<<<<<<<
@@ -22620,7 +22639,7 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
     __pyx_v_defense_start_idx = __pyx_v_offset;
 
-    /* "game_encoder.pyx":234
+    /* "game_encoder.pyx":237
  *         # defense tokens
  *         defense_start_idx = offset
  *         for token in ship.defense_tokens:             # <<<<<<<<<<<<<<
@@ -22629,159 +22648,171 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
     if (unlikely(__pyx_v_ship->defense_tokens == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      __PYX_ERR(0, 234, __pyx_L1_error)
+      __PYX_ERR(0, 237, __pyx_L1_error)
     }
-    __pyx_t_4 = __pyx_v_ship->defense_tokens; __Pyx_INCREF(__pyx_t_4);
+    __pyx_t_5 = __pyx_v_ship->defense_tokens; __Pyx_INCREF(__pyx_t_5);
     __pyx_t_12 = 0;
     for (;;) {
       {
-        Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_4);
+        Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_5);
         #if !CYTHON_ASSUME_SAFE_SIZE
-        if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 234, __pyx_L1_error)
+        if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 237, __pyx_L1_error)
         #endif
         if (__pyx_t_12 >= __pyx_temp) break;
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-      __pyx_t_2 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_12));
+      __pyx_t_9 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_12));
       #else
-      __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_12);
+      __pyx_t_9 = __Pyx_PySequence_ITEM(__pyx_t_5, __pyx_t_12);
       #endif
       ++__pyx_t_12;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_13defense_token_DefenseToken))))) __PYX_ERR(0, 234, __pyx_L1_error)
-      __Pyx_XDECREF_SET(__pyx_v_token, ((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_2));
-      __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 237, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      if (!(likely(((__pyx_t_9) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_9, __pyx_mstate_global->__pyx_ptype_13defense_token_DefenseToken))))) __PYX_ERR(0, 237, __pyx_L1_error)
+      __Pyx_XDECREF_SET(__pyx_v_token, ((struct __pyx_obj_13defense_token_DefenseToken *)__pyx_t_9));
+      __pyx_t_9 = 0;
 
-      /* "game_encoder.pyx":235
+      /* "game_encoder.pyx":238
  *         defense_start_idx = offset
  *         for token in ship.defense_tokens:
  *             if token.discarded: continue             # <<<<<<<<<<<<<<
  * 
- *             def_token_view = game.ship_def_token_array[ship.id][token.id]
+ *             single_def_token_view = def_token_view_buffer[ship.id, token.id]
 */
       if (__pyx_v_token->discarded) {
         goto __pyx_L9_continue;
       }
 
-      /* "game_encoder.pyx":237
+      /* "game_encoder.pyx":240
  *             if token.discarded: continue
  * 
- *             def_token_view = game.ship_def_token_array[ship.id][token.id]             # <<<<<<<<<<<<<<
+ *             single_def_token_view = def_token_view_buffer[ship.id, token.id]             # <<<<<<<<<<<<<<
  * 
- *             if token.readied: def_token_view[0] = 1.0
+ *             if token.readied: single_def_token_view[0] = 1.0
 */
-      __pyx_t_2 = __Pyx_GetItemInt(((PyObject *)__pyx_v_game->ship_def_token_array), __pyx_v_ship->id, int, 1, __Pyx_PyLong_From_int, 0, 0, 0, 1, __Pyx_ReferenceSharing_SharedReference); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_token->id, int, 1, __Pyx_PyLong_From_int, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 237, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_XCLEAR_MEMVIEW(&__pyx_v_def_token_view, 1);
-      __pyx_v_def_token_view = __pyx_t_9;
-      __pyx_t_9.memview = NULL;
-      __pyx_t_9.data = NULL;
+      __pyx_t_7.data = __pyx_v_def_token_view_buffer.data;
+      __pyx_t_7.memview = __pyx_v_def_token_view_buffer.memview;
+      __PYX_INC_MEMVIEW(&__pyx_t_7, 1);
+      {
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_ship->id;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_def_token_view_buffer.strides[0];
+        __pyx_t_7.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
 
-      /* "game_encoder.pyx":239
- *             def_token_view = game.ship_def_token_array[ship.id][token.id]
+{
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_token->id;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_def_token_view_buffer.strides[1];
+        __pyx_t_7.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
+
+__pyx_t_7.shape[0] = __pyx_v_def_token_view_buffer.shape[2];
+__pyx_t_7.strides[0] = __pyx_v_def_token_view_buffer.strides[2];
+    __pyx_t_7.suboffsets[0] = -1;
+
+__PYX_XCLEAR_MEMVIEW(&__pyx_v_single_def_token_view, 1);
+      __pyx_v_single_def_token_view = __pyx_t_7;
+      __pyx_t_7.memview = NULL;
+      __pyx_t_7.data = NULL;
+
+      /* "game_encoder.pyx":242
+ *             single_def_token_view = def_token_view_buffer[ship.id, token.id]
  * 
- *             if token.readied: def_token_view[0] = 1.0             # <<<<<<<<<<<<<<
- *             else: def_token_view[1] = 1.0
+ *             if token.readied: single_def_token_view[0] = 1.0             # <<<<<<<<<<<<<<
+ *             else: single_def_token_view[1] = 1.0
  * 
 */
       if (__pyx_v_token->readied) {
-        __pyx_t_10 = 0;
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_def_token_view.data + __pyx_t_10 * __pyx_v_def_token_view.strides[0]) )) = 1.0;
+        __pyx_t_8 = 0;
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_def_token_view.data + __pyx_t_8 * __pyx_v_single_def_token_view.strides[0]) )) = 1.0;
         goto __pyx_L12;
       }
 
-      /* "game_encoder.pyx":240
+      /* "game_encoder.pyx":243
  * 
- *             if token.readied: def_token_view[0] = 1.0
- *             else: def_token_view[1] = 1.0             # <<<<<<<<<<<<<<
+ *             if token.readied: single_def_token_view[0] = 1.0
+ *             else: single_def_token_view[1] = 1.0             # <<<<<<<<<<<<<<
  * 
- *             if not token.accuracy: def_token_view[2] = 1.0
+ *             if not token.accuracy: single_def_token_view[2] = 1.0
 */
       /*else*/ {
-        __pyx_t_10 = 1;
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_def_token_view.data + __pyx_t_10 * __pyx_v_def_token_view.strides[0]) )) = 1.0;
+        __pyx_t_8 = 1;
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_def_token_view.data + __pyx_t_8 * __pyx_v_single_def_token_view.strides[0]) )) = 1.0;
       }
       __pyx_L12:;
 
-      /* "game_encoder.pyx":242
- *             else: def_token_view[1] = 1.0
+      /* "game_encoder.pyx":245
+ *             else: single_def_token_view[1] = 1.0
  * 
- *             if not token.accuracy: def_token_view[2] = 1.0             # <<<<<<<<<<<<<<
+ *             if not token.accuracy: single_def_token_view[2] = 1.0             # <<<<<<<<<<<<<<
  * 
  *             if not(is_attack and (token.id in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
 */
-      __pyx_t_6 = (!__pyx_v_token->accuracy);
-      if (__pyx_t_6) {
-        __pyx_t_10 = 2;
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_def_token_view.data + __pyx_t_10 * __pyx_v_def_token_view.strides[0]) )) = 1.0;
+      __pyx_t_2 = (!__pyx_v_token->accuracy);
+      if (__pyx_t_2) {
+        __pyx_t_8 = 2;
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_def_token_view.data + __pyx_t_8 * __pyx_v_single_def_token_view.strides[0]) )) = 1.0;
       }
 
-      /* "game_encoder.pyx":244
- *             if not token.accuracy: def_token_view[2] = 1.0
+      /* "game_encoder.pyx":247
+ *             if not token.accuracy: single_def_token_view[2] = 1.0
  * 
  *             if not(is_attack and (token.id in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):             # <<<<<<<<<<<<<<
- *                 def_token_view[3] = 1.0
+ *                 single_def_token_view[3] = 1.0
  * 
 */
       if (__pyx_v_is_attack) {
       } else {
-        __pyx_t_6 = __pyx_v_is_attack;
+        __pyx_t_2 = __pyx_v_is_attack;
         goto __pyx_L15_bool_binop_done;
       }
-      __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_token->id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 244, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 244, __pyx_L1_error) }
-      __pyx_t_8 = (__Pyx_PySequence_ContainsTF(__pyx_t_3, __pyx_v_attack_info->spent_token_indices, Py_EQ)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 244, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (!__pyx_t_8) {
+      __pyx_t_9 = __Pyx_PyLong_From_int(__pyx_v_token->id); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 247, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 247, __pyx_L1_error) }
+      __pyx_t_6 = (__Pyx_PySequence_ContainsTF(__pyx_t_9, __pyx_v_attack_info->spent_token_indices, Py_EQ)); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 247, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      if (!__pyx_t_6) {
       } else {
-        __pyx_t_6 = __pyx_t_8;
+        __pyx_t_2 = __pyx_t_6;
         goto __pyx_L15_bool_binop_done;
       }
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 244, __pyx_L1_error) }
-      __pyx_t_8 = (__Pyx_PySequence_ContainsTF(__pyx_v_token->type, __pyx_v_attack_info->spent_token_types, Py_EQ)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 244, __pyx_L1_error)
-      __pyx_t_6 = __pyx_t_8;
+      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 247, __pyx_L1_error) }
+      __pyx_t_6 = (__Pyx_PySequence_ContainsTF(__pyx_v_token->type, __pyx_v_attack_info->spent_token_types, Py_EQ)); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 247, __pyx_L1_error)
+      __pyx_t_2 = __pyx_t_6;
       __pyx_L15_bool_binop_done:;
-      __pyx_t_8 = (!__pyx_t_6);
-      if (__pyx_t_8) {
+      __pyx_t_6 = (!__pyx_t_2);
+      if (__pyx_t_6) {
 
-        /* "game_encoder.pyx":245
+        /* "game_encoder.pyx":248
  * 
  *             if not(is_attack and (token.id in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
- *                 def_token_view[3] = 1.0             # <<<<<<<<<<<<<<
+ *                 single_def_token_view[3] = 1.0             # <<<<<<<<<<<<<<
  * 
- *             def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type
+ *             single_def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type
 */
-        __pyx_t_10 = 3;
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_def_token_view.data + __pyx_t_10 * __pyx_v_def_token_view.strides[0]) )) = 1.0;
+        __pyx_t_8 = 3;
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_def_token_view.data + __pyx_t_8 * __pyx_v_single_def_token_view.strides[0]) )) = 1.0;
 
-        /* "game_encoder.pyx":244
- *             if not token.accuracy: def_token_view[2] = 1.0
+        /* "game_encoder.pyx":247
+ *             if not token.accuracy: single_def_token_view[2] = 1.0
  * 
  *             if not(is_attack and (token.id in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):             # <<<<<<<<<<<<<<
- *                 def_token_view[3] = 1.0
+ *                 single_def_token_view[3] = 1.0
  * 
 */
       }
 
-      /* "game_encoder.pyx":247
- *                 def_token_view[3] = 1.0
+      /* "game_encoder.pyx":250
+ *                 single_def_token_view[3] = 1.0
  * 
- *             def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type             # <<<<<<<<<<<<<<
+ *             single_def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type             # <<<<<<<<<<<<<<
  * 
  * 
 */
-      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_token->type); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 247, __pyx_L1_error)
-      __pyx_t_10 = (((int)__pyx_t_13) + 4);
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_def_token_view.data + __pyx_t_10 * __pyx_v_def_token_view.strides[0]) )) = 1.0;
+      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_token->type); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 250, __pyx_L1_error)
+      __pyx_t_8 = (((int)__pyx_t_13) + 4);
+      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_def_token_view.data + __pyx_t_8 * __pyx_v_single_def_token_view.strides[0]) )) = 1.0;
 
-      /* "game_encoder.pyx":234
+      /* "game_encoder.pyx":237
  *         # defense tokens
  *         defense_start_idx = offset
  *         for token in ship.defense_tokens:             # <<<<<<<<<<<<<<
@@ -22790,540 +22821,596 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
       __pyx_L9_continue:;
     }
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-    /* "game_encoder.pyx":251
- * 
- * 
- *         ship_view = game.ship_encode_array[ship.id]             # <<<<<<<<<<<<<<
- * 
- *         offset = SHIP_STATS_FEATURES
-*/
-    __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_game->ship_encode_array), __pyx_v_ship->id, int, 1, __Pyx_PyLong_From_int, 0, 0, 0, 1, __Pyx_ReferenceSharing_SharedReference); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 251, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 251, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_view, 1);
-    __pyx_v_ship_view = __pyx_t_9;
-    __pyx_t_9.memview = NULL;
-    __pyx_t_9.data = NULL;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
     /* "game_encoder.pyx":253
- *         ship_view = game.ship_encode_array[ship.id]
  * 
- *         offset = SHIP_STATS_FEATURES             # <<<<<<<<<<<<<<
  * 
- *         # --- Status (8 features) ---
+ *         single_ship_view = ship_view_buffer[ship.id]             # <<<<<<<<<<<<<<
+ *         single_ship_view[:ship_static_offset] = static_stats_view[ship.id,:]
+ *         offset = ship_static_offset
 */
-    __pyx_v_offset = __pyx_v_12game_encoder_SHIP_STATS_FEATURES;
+    __pyx_t_7.data = __pyx_v_ship_view_buffer.data;
+    __pyx_t_7.memview = __pyx_v_ship_view_buffer.memview;
+    __PYX_INC_MEMVIEW(&__pyx_t_7, 1);
+    {
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_ship->id;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_ship_view_buffer.strides[0];
+        __pyx_t_7.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
 
-    /* "game_encoder.pyx":256
+__pyx_t_7.shape[0] = __pyx_v_ship_view_buffer.shape[1];
+__pyx_t_7.strides[0] = __pyx_v_ship_view_buffer.strides[1];
+    __pyx_t_7.suboffsets[0] = -1;
+
+__PYX_XCLEAR_MEMVIEW(&__pyx_v_single_ship_view, 1);
+    __pyx_v_single_ship_view = __pyx_t_7;
+    __pyx_t_7.memview = NULL;
+    __pyx_t_7.data = NULL;
+
+    /* "game_encoder.pyx":254
+ * 
+ *         single_ship_view = ship_view_buffer[ship.id]
+ *         single_ship_view[:ship_static_offset] = static_stats_view[ship.id,:]             # <<<<<<<<<<<<<<
+ *         offset = ship_static_offset
+ * 
+*/
+    __pyx_t_7.data = __pyx_v_static_stats_view.data;
+    __pyx_t_7.memview = __pyx_v_static_stats_view.memview;
+    __PYX_INC_MEMVIEW(&__pyx_t_7, 1);
+    {
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_ship->id;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_static_stats_view.strides[0];
+        __pyx_t_7.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
+
+__pyx_t_7.shape[0] = __pyx_v_static_stats_view.shape[1];
+__pyx_t_7.strides[0] = __pyx_v_static_stats_view.strides[1];
+    __pyx_t_7.suboffsets[0] = -1;
+
+__pyx_t_14.data = __pyx_v_single_ship_view.data;
+    __pyx_t_14.memview = __pyx_v_single_ship_view.memview;
+    __PYX_INC_MEMVIEW(&__pyx_t_14, 1);
+    __pyx_t_13 = -1;
+    if (unlikely(__pyx_memoryview_slice_memviewslice(
+    &__pyx_t_14,
+    __pyx_v_single_ship_view.shape[0], __pyx_v_single_ship_view.strides[0], __pyx_v_single_ship_view.suboffsets[0],
+    0,
+    0,
+    &__pyx_t_13,
+    0,
+    __pyx_v_12game_encoder_ship_static_offset,
+    0,
+    0,
+    1,
+    0,
+    1) < 0))
+{
+    __PYX_ERR(0, 254, __pyx_L1_error)
+}
+
+if (unlikely((__pyx_memoryview_copy_contents(__pyx_t_7, __pyx_t_14, 1, 1, 0) < 0))) __PYX_ERR(0, 254, __pyx_L1_error)
+    __PYX_XCLEAR_MEMVIEW(&__pyx_t_14, 1);
+    __pyx_t_14.memview = NULL; __pyx_t_14.data = NULL;
+    __PYX_XCLEAR_MEMVIEW(&__pyx_t_7, 1);
+    __pyx_t_7.memview = NULL; __pyx_t_7.data = NULL;
+
+    /* "game_encoder.pyx":255
+ *         single_ship_view = ship_view_buffer[ship.id]
+ *         single_ship_view[:ship_static_offset] = static_stats_view[ship.id,:]
+ *         offset = ship_static_offset             # <<<<<<<<<<<<<<
  * 
  *         # --- Status (8 features) ---
- *         ship_view[offset] = float(ship == game.active_ship); offset += 1             # <<<<<<<<<<<<<<
- *         ship_view[offset] = float(ship == game.defend_ship); offset += 1
- *         ship_view[offset] = float(ship.activated); offset += 1
 */
-    __pyx_t_4 = PyObject_RichCompare(((PyObject *)__pyx_v_ship), __pyx_v_game->active_ship, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 256, __pyx_L1_error)
-    __pyx_t_14 = __Pyx_PyObject_AsDouble(__pyx_t_4); if (unlikely(__PYX_CHECK_FLOAT_EXCEPTION(__pyx_t_14, ((double)((double)-1))) && PyErr_Occurred())) __PYX_ERR(0, 256, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_10 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = __pyx_t_14;
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":257
- *         # --- Status (8 features) ---
- *         ship_view[offset] = float(ship == game.active_ship); offset += 1
- *         ship_view[offset] = float(ship == game.defend_ship); offset += 1             # <<<<<<<<<<<<<<
- *         ship_view[offset] = float(ship.activated); offset += 1
- *         ship_view[offset] = ship.speed / 4.0; offset += 1
-*/
-    __pyx_t_4 = PyObject_RichCompare(((PyObject *)__pyx_v_ship), __pyx_v_game->defend_ship, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 257, __pyx_L1_error)
-    __pyx_t_14 = __Pyx_PyObject_AsDouble(__pyx_t_4); if (unlikely(__PYX_CHECK_FLOAT_EXCEPTION(__pyx_t_14, ((double)((double)-1))) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_10 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = __pyx_t_14;
-    __pyx_v_offset = (__pyx_v_offset + 1);
+    __pyx_v_offset = __pyx_v_12game_encoder_ship_static_offset;
 
     /* "game_encoder.pyx":258
- *         ship_view[offset] = float(ship == game.active_ship); offset += 1
- *         ship_view[offset] = float(ship == game.defend_ship); offset += 1
- *         ship_view[offset] = float(ship.activated); offset += 1             # <<<<<<<<<<<<<<
- *         ship_view[offset] = ship.speed / 4.0; offset += 1
- *         for hull in range(c_hull_type):
+ * 
+ *         # --- Status (8 features) ---
+ *         single_ship_view[offset] = float(ship == game.active_ship); offset += 1             # <<<<<<<<<<<<<<
+ *         single_ship_view[offset] = float(ship == game.defend_ship); offset += 1
+ *         single_ship_view[offset] = float(ship.activated); offset += 1
 */
-    __pyx_t_10 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = ((double)__pyx_v_ship->activated);
+    __pyx_t_5 = PyObject_RichCompare(((PyObject *)__pyx_v_ship), __pyx_v_game->active_ship, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 258, __pyx_L1_error)
+    __pyx_t_15 = __Pyx_PyObject_AsDouble(__pyx_t_5); if (unlikely(__PYX_CHECK_FLOAT_EXCEPTION(__pyx_t_15, ((double)((double)-1))) && PyErr_Occurred())) __PYX_ERR(0, 258, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_8 = __pyx_v_offset;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = __pyx_t_15;
     __pyx_v_offset = (__pyx_v_offset + 1);
 
     /* "game_encoder.pyx":259
- *         ship_view[offset] = float(ship == game.defend_ship); offset += 1
- *         ship_view[offset] = float(ship.activated); offset += 1
- *         ship_view[offset] = ship.speed / 4.0; offset += 1             # <<<<<<<<<<<<<<
- *         for hull in range(c_hull_type):
- *             if ship.attack_history[hull] is not None:
+ *         # --- Status (8 features) ---
+ *         single_ship_view[offset] = float(ship == game.active_ship); offset += 1
+ *         single_ship_view[offset] = float(ship == game.defend_ship); offset += 1             # <<<<<<<<<<<<<<
+ *         single_ship_view[offset] = float(ship.activated); offset += 1
+ *         single_ship_view[offset] = ship.speed / 4.0; offset += 1
 */
-    __pyx_t_10 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = (((double)__pyx_v_ship->speed) / 4.0);
+    __pyx_t_5 = PyObject_RichCompare(((PyObject *)__pyx_v_ship), __pyx_v_game->defend_ship, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 259, __pyx_L1_error)
+    __pyx_t_15 = __Pyx_PyObject_AsDouble(__pyx_t_5); if (unlikely(__PYX_CHECK_FLOAT_EXCEPTION(__pyx_t_15, ((double)((double)-1))) && PyErr_Occurred())) __PYX_ERR(0, 259, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_8 = __pyx_v_offset;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = __pyx_t_15;
     __pyx_v_offset = (__pyx_v_offset + 1);
 
     /* "game_encoder.pyx":260
- *         ship_view[offset] = float(ship.activated); offset += 1
- *         ship_view[offset] = ship.speed / 4.0; offset += 1
+ *         single_ship_view[offset] = float(ship == game.active_ship); offset += 1
+ *         single_ship_view[offset] = float(ship == game.defend_ship); offset += 1
+ *         single_ship_view[offset] = float(ship.activated); offset += 1             # <<<<<<<<<<<<<<
+ *         single_ship_view[offset] = ship.speed / 4.0; offset += 1
+ *         for hull in range(c_hull_type):
+*/
+    __pyx_t_8 = __pyx_v_offset;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = ((double)__pyx_v_ship->activated);
+    __pyx_v_offset = (__pyx_v_offset + 1);
+
+    /* "game_encoder.pyx":261
+ *         single_ship_view[offset] = float(ship == game.defend_ship); offset += 1
+ *         single_ship_view[offset] = float(ship.activated); offset += 1
+ *         single_ship_view[offset] = ship.speed / 4.0; offset += 1             # <<<<<<<<<<<<<<
+ *         for hull in range(c_hull_type):
+ *             if ship.attack_history[hull] is not None:
+*/
+    __pyx_t_8 = __pyx_v_offset;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = (((double)__pyx_v_ship->speed) / 4.0);
+    __pyx_v_offset = (__pyx_v_offset + 1);
+
+    /* "game_encoder.pyx":262
+ *         single_ship_view[offset] = float(ship.activated); offset += 1
+ *         single_ship_view[offset] = ship.speed / 4.0; offset += 1
  *         for hull in range(c_hull_type):             # <<<<<<<<<<<<<<
  *             if ship.attack_history[hull] is not None:
- *                 ship_view[offset + hull] = 1.0
+ *                 single_ship_view[offset + hull] = 1.0
 */
     __pyx_t_13 = __pyx_v_12game_encoder_c_hull_type;
-    __pyx_t_15 = __pyx_t_13;
-    for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
-      __pyx_v_hull = __pyx_t_16;
+    __pyx_t_16 = __pyx_t_13;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_hull = __pyx_t_17;
 
-      /* "game_encoder.pyx":261
- *         ship_view[offset] = ship.speed / 4.0; offset += 1
+      /* "game_encoder.pyx":263
+ *         single_ship_view[offset] = ship.speed / 4.0; offset += 1
  *         for hull in range(c_hull_type):
  *             if ship.attack_history[hull] is not None:             # <<<<<<<<<<<<<<
- *                 ship_view[offset + hull] = 1.0
+ *                 single_ship_view[offset + hull] = 1.0
  *         offset += c_hull_type
 */
       if (unlikely(__pyx_v_ship->attack_history == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 261, __pyx_L1_error)
+        __PYX_ERR(0, 263, __pyx_L1_error)
       }
-      __pyx_t_8 = (__Pyx_PyTuple_GET_ITEM(__pyx_v_ship->attack_history, __pyx_v_hull) != Py_None);
-      if (__pyx_t_8) {
+      __pyx_t_6 = (__Pyx_PyTuple_GET_ITEM(__pyx_v_ship->attack_history, __pyx_v_hull) != Py_None);
+      if (__pyx_t_6) {
 
-        /* "game_encoder.pyx":262
+        /* "game_encoder.pyx":264
  *         for hull in range(c_hull_type):
  *             if ship.attack_history[hull] is not None:
- *                 ship_view[offset + hull] = 1.0             # <<<<<<<<<<<<<<
+ *                 single_ship_view[offset + hull] = 1.0             # <<<<<<<<<<<<<<
  *         offset += c_hull_type
  * 
 */
-        __pyx_t_10 = (__pyx_v_offset + __pyx_v_hull);
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+        __pyx_t_8 = (__pyx_v_offset + __pyx_v_hull);
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-        /* "game_encoder.pyx":261
- *         ship_view[offset] = ship.speed / 4.0; offset += 1
+        /* "game_encoder.pyx":263
+ *         single_ship_view[offset] = ship.speed / 4.0; offset += 1
  *         for hull in range(c_hull_type):
  *             if ship.attack_history[hull] is not None:             # <<<<<<<<<<<<<<
- *                 ship_view[offset + hull] = 1.0
+ *                 single_ship_view[offset + hull] = 1.0
  *         offset += c_hull_type
 */
       }
     }
 
-    /* "game_encoder.pyx":263
+    /* "game_encoder.pyx":265
  *             if ship.attack_history[hull] is not None:
- *                 ship_view[offset + hull] = 1.0
+ *                 single_ship_view[offset + hull] = 1.0
  *         offset += c_hull_type             # <<<<<<<<<<<<<<
  * 
  *         # --- Hull and Shields (5 features) ---
 */
     __pyx_v_offset = (__pyx_v_offset + __pyx_v_12game_encoder_c_hull_type);
 
-    /* "game_encoder.pyx":266
+    /* "game_encoder.pyx":268
  * 
  *         # --- Hull and Shields (5 features) ---
- *         ship_view[offset] = ship.hull / global_max_hull; offset += 1             # <<<<<<<<<<<<<<
+ *         single_ship_view[offset] = ship.hull / global_max_hull; offset += 1             # <<<<<<<<<<<<<<
  *         for hull in range(c_hull_type):
- *             ship_view[offset + hull] = ship.shield[hull] / global_max_shields
+ *             single_ship_view[offset + hull] = ship.shield[hull] / global_max_shields
 */
     if (unlikely(__pyx_v_12game_encoder_global_max_hull == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 266, __pyx_L1_error)
+      __PYX_ERR(0, 268, __pyx_L1_error)
     }
-    __pyx_t_10 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = (((double)__pyx_v_ship->hull) / ((double)__pyx_v_12game_encoder_global_max_hull));
+    __pyx_t_8 = __pyx_v_offset;
+    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = (((double)__pyx_v_ship->hull) / ((double)__pyx_v_12game_encoder_global_max_hull));
     __pyx_v_offset = (__pyx_v_offset + 1);
 
-    /* "game_encoder.pyx":267
+    /* "game_encoder.pyx":269
  *         # --- Hull and Shields (5 features) ---
- *         ship_view[offset] = ship.hull / global_max_hull; offset += 1
+ *         single_ship_view[offset] = ship.hull / global_max_hull; offset += 1
  *         for hull in range(c_hull_type):             # <<<<<<<<<<<<<<
- *             ship_view[offset + hull] = ship.shield[hull] / global_max_shields
+ *             single_ship_view[offset + hull] = ship.shield[hull] / global_max_shields
  *         offset += c_hull_type
 */
     __pyx_t_13 = __pyx_v_12game_encoder_c_hull_type;
-    __pyx_t_15 = __pyx_t_13;
-    for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
-      __pyx_v_hull = __pyx_t_16;
+    __pyx_t_16 = __pyx_t_13;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_hull = __pyx_t_17;
 
-      /* "game_encoder.pyx":268
- *         ship_view[offset] = ship.hull / global_max_hull; offset += 1
+      /* "game_encoder.pyx":270
+ *         single_ship_view[offset] = ship.hull / global_max_hull; offset += 1
  *         for hull in range(c_hull_type):
- *             ship_view[offset + hull] = ship.shield[hull] / global_max_shields             # <<<<<<<<<<<<<<
+ *             single_ship_view[offset + hull] = ship.shield[hull] / global_max_shields             # <<<<<<<<<<<<<<
  *         offset += c_hull_type
  * 
 */
       if (unlikely(__pyx_v_ship->shield == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 268, __pyx_L1_error)
+        __PYX_ERR(0, 270, __pyx_L1_error)
       }
-      __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_12game_encoder_global_max_shields); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 268, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_3 = __Pyx_PyNumber_Divide(__Pyx_PyTuple_GET_ITEM(__pyx_v_ship->shield, __pyx_v_hull), __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_11 = __Pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_11 == ((npy_float32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_10 = (__pyx_v_offset + __pyx_v_hull);
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = __pyx_t_11;
+      __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_12game_encoder_global_max_shields); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 270, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_9 = __Pyx_PyNumber_Divide(__Pyx_PyTuple_GET_ITEM(__pyx_v_ship->shield, __pyx_v_hull), __pyx_t_5); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 270, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_11 = __Pyx_PyFloat_AsFloat(__pyx_t_9); if (unlikely((__pyx_t_11 == ((npy_float32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 270, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __pyx_t_8 = (__pyx_v_offset + __pyx_v_hull);
+      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = __pyx_t_11;
     }
 
-    /* "game_encoder.pyx":269
+    /* "game_encoder.pyx":271
  *         for hull in range(c_hull_type):
- *             ship_view[offset + hull] = ship.shield[hull] / global_max_shields
+ *             single_ship_view[offset + hull] = ship.shield[hull] / global_max_shields
  *         offset += c_hull_type             # <<<<<<<<<<<<<<
  * 
  *         # --- Command Stack (12 features) ---
 */
     __pyx_v_offset = (__pyx_v_offset + __pyx_v_12game_encoder_c_hull_type);
 
-    /* "game_encoder.pyx":272
+    /* "game_encoder.pyx":274
  * 
  *         # --- Command Stack (12 features) ---
  *         if ship.team == game.simulation_player:             # <<<<<<<<<<<<<<
  *             for stack_idx, command in enumerate(ship.command_stack):
- *                 ship_view[offset + stack_idx * c_command_type + command] = 1.0
+ *                 single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
 */
-    __pyx_t_8 = (__pyx_v_ship->team == __pyx_v_game->simulation_player);
-    if (__pyx_t_8) {
+    __pyx_t_6 = (__pyx_v_ship->team == __pyx_v_game->simulation_player);
+    if (__pyx_t_6) {
 
-      /* "game_encoder.pyx":273
+      /* "game_encoder.pyx":275
  *         # --- Command Stack (12 features) ---
  *         if ship.team == game.simulation_player:
  *             for stack_idx, command in enumerate(ship.command_stack):             # <<<<<<<<<<<<<<
- *                 ship_view[offset + stack_idx * c_command_type + command] = 1.0
+ *                 single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
  *         offset += max_command_stack * c_command_type # Advance offset by the block size
 */
       __pyx_t_13 = 0;
-      __pyx_t_3 = __pyx_v_ship->command_stack; __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_9 = __pyx_v_ship->command_stack; __Pyx_INCREF(__pyx_t_9);
       __pyx_t_12 = 0;
       for (;;) {
         {
-          Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_3);
+          Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_9);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 273, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 275, __pyx_L1_error)
           #endif
           if (__pyx_t_12 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_12));
+        __pyx_t_5 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_12));
         #else
-        __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_12);
+        __pyx_t_5 = __Pyx_PySequence_ITEM(__pyx_t_9, __pyx_t_12);
         #endif
         ++__pyx_t_12;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 273, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_15 = __Pyx_PyLong_As_int(__pyx_t_4); if (unlikely((__pyx_t_15 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 273, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_v_command = __pyx_t_15;
+        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 275, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __pyx_t_16 = __Pyx_PyLong_As_int(__pyx_t_5); if (unlikely((__pyx_t_16 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 275, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __pyx_v_command = __pyx_t_16;
         __pyx_v_stack_idx = __pyx_t_13;
         __pyx_t_13 = (__pyx_t_13 + 1);
 
-        /* "game_encoder.pyx":274
+        /* "game_encoder.pyx":276
  *         if ship.team == game.simulation_player:
  *             for stack_idx, command in enumerate(ship.command_stack):
- *                 ship_view[offset + stack_idx * c_command_type + command] = 1.0             # <<<<<<<<<<<<<<
+ *                 single_ship_view[offset + stack_idx * c_command_type + command] = 1.0             # <<<<<<<<<<<<<<
  *         offset += max_command_stack * c_command_type # Advance offset by the block size
  * 
 */
-        __pyx_t_10 = ((__pyx_v_offset + (__pyx_v_stack_idx * __pyx_v_12game_encoder_c_command_type)) + __pyx_v_command);
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+        __pyx_t_8 = ((__pyx_v_offset + (__pyx_v_stack_idx * __pyx_v_12game_encoder_c_command_type)) + __pyx_v_command);
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-        /* "game_encoder.pyx":273
+        /* "game_encoder.pyx":275
  *         # --- Command Stack (12 features) ---
  *         if ship.team == game.simulation_player:
  *             for stack_idx, command in enumerate(ship.command_stack):             # <<<<<<<<<<<<<<
- *                 ship_view[offset + stack_idx * c_command_type + command] = 1.0
+ *                 single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
  *         offset += max_command_stack * c_command_type # Advance offset by the block size
 */
       }
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "game_encoder.pyx":272
+      /* "game_encoder.pyx":274
  * 
  *         # --- Command Stack (12 features) ---
  *         if ship.team == game.simulation_player:             # <<<<<<<<<<<<<<
  *             for stack_idx, command in enumerate(ship.command_stack):
- *                 ship_view[offset + stack_idx * c_command_type + command] = 1.0
+ *                 single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
 */
     }
 
-    /* "game_encoder.pyx":275
+    /* "game_encoder.pyx":277
  *             for stack_idx, command in enumerate(ship.command_stack):
- *                 ship_view[offset + stack_idx * c_command_type + command] = 1.0
+ *                 single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
  *         offset += max_command_stack * c_command_type # Advance offset by the block size             # <<<<<<<<<<<<<<
  * 
  *         # --- Command Dials (4 features) ---
 */
     __pyx_v_offset = (__pyx_v_offset + (__pyx_v_12game_encoder_max_command_stack * __pyx_v_12game_encoder_c_command_type));
 
-    /* "game_encoder.pyx":278
+    /* "game_encoder.pyx":280
  * 
  *         # --- Command Dials (4 features) ---
  *         for command in ship.command_dial:             # <<<<<<<<<<<<<<
- *             ship_view[offset + command] = 1.0
+ *             single_ship_view[offset + command] = 1.0
  *         offset += c_command_type # Advance offset by block size
 */
     if (unlikely(__pyx_v_ship->command_dial == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      __PYX_ERR(0, 278, __pyx_L1_error)
+      __PYX_ERR(0, 280, __pyx_L1_error)
     }
-    __pyx_t_3 = __pyx_v_ship->command_dial; __Pyx_INCREF(__pyx_t_3);
+    __pyx_t_9 = __pyx_v_ship->command_dial; __Pyx_INCREF(__pyx_t_9);
     __pyx_t_12 = 0;
     for (;;) {
       {
-        Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_3);
+        Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_9);
         #if !CYTHON_ASSUME_SAFE_SIZE
-        if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 278, __pyx_L1_error)
+        if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 280, __pyx_L1_error)
         #endif
         if (__pyx_t_12 >= __pyx_temp) break;
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-      __pyx_t_4 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_12));
+      __pyx_t_5 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_12));
       #else
-      __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_12);
+      __pyx_t_5 = __Pyx_PySequence_ITEM(__pyx_t_9, __pyx_t_12);
       #endif
       ++__pyx_t_12;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_t_4); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 278, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 280, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_t_5); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 280, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_v_command = __pyx_t_13;
 
-      /* "game_encoder.pyx":279
+      /* "game_encoder.pyx":281
  *         # --- Command Dials (4 features) ---
  *         for command in ship.command_dial:
- *             ship_view[offset + command] = 1.0             # <<<<<<<<<<<<<<
+ *             single_ship_view[offset + command] = 1.0             # <<<<<<<<<<<<<<
  *         offset += c_command_type # Advance offset by block size
  * 
 */
-      __pyx_t_10 = (__pyx_v_offset + __pyx_v_command);
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+      __pyx_t_8 = (__pyx_v_offset + __pyx_v_command);
+      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-      /* "game_encoder.pyx":278
+      /* "game_encoder.pyx":280
  * 
  *         # --- Command Dials (4 features) ---
  *         for command in ship.command_dial:             # <<<<<<<<<<<<<<
- *             ship_view[offset + command] = 1.0
+ *             single_ship_view[offset + command] = 1.0
  *         offset += c_command_type # Advance offset by block size
 */
     }
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-    /* "game_encoder.pyx":280
+    /* "game_encoder.pyx":282
  *         for command in ship.command_dial:
- *             ship_view[offset + command] = 1.0
+ *             single_ship_view[offset + command] = 1.0
  *         offset += c_command_type # Advance offset by block size             # <<<<<<<<<<<<<<
  * 
  *         # --- Command Tokens (4 features) ---
 */
     __pyx_v_offset = (__pyx_v_offset + __pyx_v_12game_encoder_c_command_type);
 
-    /* "game_encoder.pyx":283
+    /* "game_encoder.pyx":285
  * 
  *         # --- Command Tokens (4 features) ---
  *         for command in ship.command_token:             # <<<<<<<<<<<<<<
- *             ship_view[offset + command] = 1.0
+ *             single_ship_view[offset + command] = 1.0
  *         offset += c_command_type # Advance offset by block size
 */
     if (unlikely(__pyx_v_ship->command_token == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      __PYX_ERR(0, 283, __pyx_L1_error)
+      __PYX_ERR(0, 285, __pyx_L1_error)
     }
-    __pyx_t_3 = __pyx_v_ship->command_token; __Pyx_INCREF(__pyx_t_3);
+    __pyx_t_9 = __pyx_v_ship->command_token; __Pyx_INCREF(__pyx_t_9);
     __pyx_t_12 = 0;
     for (;;) {
       {
-        Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_3);
+        Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_9);
         #if !CYTHON_ASSUME_SAFE_SIZE
-        if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 283, __pyx_L1_error)
+        if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 285, __pyx_L1_error)
         #endif
         if (__pyx_t_12 >= __pyx_temp) break;
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-      __pyx_t_4 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_12));
+      __pyx_t_5 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_12));
       #else
-      __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_12);
+      __pyx_t_5 = __Pyx_PySequence_ITEM(__pyx_t_9, __pyx_t_12);
       #endif
       ++__pyx_t_12;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 283, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_t_4); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 283, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 285, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_t_5); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 285, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_v_command = __pyx_t_13;
 
-      /* "game_encoder.pyx":284
+      /* "game_encoder.pyx":286
  *         # --- Command Tokens (4 features) ---
  *         for command in ship.command_token:
- *             ship_view[offset + command] = 1.0             # <<<<<<<<<<<<<<
+ *             single_ship_view[offset + command] = 1.0             # <<<<<<<<<<<<<<
  *         offset += c_command_type # Advance offset by block size
  * 
 */
-      __pyx_t_10 = (__pyx_v_offset + __pyx_v_command);
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+      __pyx_t_8 = (__pyx_v_offset + __pyx_v_command);
+      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-      /* "game_encoder.pyx":283
+      /* "game_encoder.pyx":285
  * 
  *         # --- Command Tokens (4 features) ---
  *         for command in ship.command_token:             # <<<<<<<<<<<<<<
- *             ship_view[offset + command] = 1.0
+ *             single_ship_view[offset + command] = 1.0
  *         offset += c_command_type # Advance offset by block size
 */
     }
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-    /* "game_encoder.pyx":285
+    /* "game_encoder.pyx":287
  *         for command in ship.command_token:
- *             ship_view[offset + command] = 1.0
+ *             single_ship_view[offset + command] = 1.0
  *         offset += c_command_type # Advance offset by block size             # <<<<<<<<<<<<<<
  * 
  *         # --- Attack Role (8 features) ---
 */
     __pyx_v_offset = (__pyx_v_offset + __pyx_v_12game_encoder_c_command_type);
 
-    /* "game_encoder.pyx":288
+    /* "game_encoder.pyx":290
  * 
  *         # --- Attack Role (8 features) ---
  *         if is_attack:             # <<<<<<<<<<<<<<
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
 */
     if (__pyx_v_is_attack) {
 
-      /* "game_encoder.pyx":289
+      /* "game_encoder.pyx":291
  *         # --- Attack Role (8 features) ---
  *         if is_attack:
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:             # <<<<<<<<<<<<<<
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
 */
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 289, __pyx_L1_error) }
+      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 291, __pyx_L1_error) }
       if (__pyx_v_attack_info->is_attacker_ship) {
       } else {
-        __pyx_t_8 = __pyx_v_attack_info->is_attacker_ship;
+        __pyx_t_6 = __pyx_v_attack_info->is_attacker_ship;
         goto __pyx_L36_bool_binop_done;
       }
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 289, __pyx_L1_error) }
-      __pyx_t_6 = (__pyx_v_attack_info->attack_ship_id == __pyx_v_ship->id);
-      __pyx_t_8 = __pyx_t_6;
+      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 291, __pyx_L1_error) }
+      __pyx_t_2 = (__pyx_v_attack_info->attack_ship_id == __pyx_v_ship->id);
+      __pyx_t_6 = __pyx_t_2;
       __pyx_L36_bool_binop_done:;
-      if (__pyx_t_8) {
+      if (__pyx_t_6) {
 
-        /* "game_encoder.pyx":290
+        /* "game_encoder.pyx":292
  *         if is_attack:
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)             # <<<<<<<<<<<<<<
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)             # <<<<<<<<<<<<<<
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
 */
-        if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 290, __pyx_L1_error) }
-        __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_attack_info->attack_hull); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 290, __pyx_L1_error)
-        __pyx_t_10 = (__pyx_v_offset + ((int)__pyx_t_13));
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+        if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 292, __pyx_L1_error) }
+        __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_attack_info->attack_hull); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 292, __pyx_L1_error)
+        __pyx_t_8 = (__pyx_v_offset + ((int)__pyx_t_13));
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-        /* "game_encoder.pyx":289
+        /* "game_encoder.pyx":291
  *         # --- Attack Role (8 features) ---
  *         if is_attack:
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:             # <<<<<<<<<<<<<<
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
 */
       }
 
-      /* "game_encoder.pyx":291
+      /* "game_encoder.pyx":293
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:             # <<<<<<<<<<<<<<
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
  *                 if attack_info.redirect_hull is not None:
 */
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 291, __pyx_L1_error) }
+      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 293, __pyx_L1_error) }
       if (__pyx_v_attack_info->is_defender_ship) {
       } else {
-        __pyx_t_8 = __pyx_v_attack_info->is_defender_ship;
+        __pyx_t_6 = __pyx_v_attack_info->is_defender_ship;
         goto __pyx_L39_bool_binop_done;
       }
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 291, __pyx_L1_error) }
-      __pyx_t_6 = (__pyx_v_ship->id == __pyx_v_attack_info->defend_ship_id);
-      __pyx_t_8 = __pyx_t_6;
+      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 293, __pyx_L1_error) }
+      __pyx_t_2 = (__pyx_v_ship->id == __pyx_v_attack_info->defend_ship_id);
+      __pyx_t_6 = __pyx_t_2;
       __pyx_L39_bool_binop_done:;
-      if (__pyx_t_8) {
+      if (__pyx_t_6) {
 
-        /* "game_encoder.pyx":292
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+        /* "game_encoder.pyx":294
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)             # <<<<<<<<<<<<<<
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)             # <<<<<<<<<<<<<<
  *                 if attack_info.redirect_hull is not None:
- *                     ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+ *                     single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
 */
-        if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 292, __pyx_L1_error) }
-        __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_attack_info->defend_hull); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 292, __pyx_L1_error)
-        __pyx_t_10 = ((__pyx_v_offset + __pyx_v_12game_encoder_c_hull_type) + ((int)__pyx_t_13));
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+        if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 294, __pyx_L1_error) }
+        __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_attack_info->defend_hull); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 294, __pyx_L1_error)
+        __pyx_t_8 = ((__pyx_v_offset + __pyx_v_12game_encoder_c_hull_type) + ((int)__pyx_t_13));
+        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-        /* "game_encoder.pyx":293
+        /* "game_encoder.pyx":295
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
  *                 if attack_info.redirect_hull is not None:             # <<<<<<<<<<<<<<
- *                     ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+ *                     single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
  *         offset += 12 # Advance offset by block size
 */
-        if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 293, __pyx_L1_error) }
-        __pyx_t_8 = (__pyx_v_attack_info->redirect_hull != Py_None);
-        if (__pyx_t_8) {
+        if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 295, __pyx_L1_error) }
+        __pyx_t_6 = (__pyx_v_attack_info->redirect_hull != Py_None);
+        if (__pyx_t_6) {
 
-          /* "game_encoder.pyx":294
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+          /* "game_encoder.pyx":296
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
  *                 if attack_info.redirect_hull is not None:
- *                     ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)             # <<<<<<<<<<<<<<
+ *                     single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)             # <<<<<<<<<<<<<<
  *         offset += 12 # Advance offset by block size
  * 
 */
-          if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 294, __pyx_L1_error) }
-          __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_attack_info->redirect_hull); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 294, __pyx_L1_error)
-          __pyx_t_10 = ((__pyx_v_offset + (__pyx_v_12game_encoder_c_hull_type * 2)) + ((int)__pyx_t_13));
-          *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_ship_view.data + __pyx_t_10 * __pyx_v_ship_view.strides[0]) )) = 1.0;
+          if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 296, __pyx_L1_error) }
+          __pyx_t_13 = __Pyx_PyLong_As_int(__pyx_v_attack_info->redirect_hull); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 296, __pyx_L1_error)
+          __pyx_t_8 = ((__pyx_v_offset + (__pyx_v_12game_encoder_c_hull_type * 2)) + ((int)__pyx_t_13));
+          *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_single_ship_view.data + __pyx_t_8 * __pyx_v_single_ship_view.strides[0]) )) = 1.0;
 
-          /* "game_encoder.pyx":293
+          /* "game_encoder.pyx":295
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
  *                 if attack_info.redirect_hull is not None:             # <<<<<<<<<<<<<<
- *                     ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+ *                     single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
  *         offset += 12 # Advance offset by block size
 */
         }
 
-        /* "game_encoder.pyx":291
+        /* "game_encoder.pyx":293
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
  *             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:             # <<<<<<<<<<<<<<
- *                 ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+ *                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
  *                 if attack_info.redirect_hull is not None:
 */
       }
 
-      /* "game_encoder.pyx":288
+      /* "game_encoder.pyx":290
  * 
  *         # --- Attack Role (8 features) ---
  *         if is_attack:             # <<<<<<<<<<<<<<
  *             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:
- *                 ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+ *                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
 */
     }
 
-    /* "game_encoder.pyx":295
+    /* "game_encoder.pyx":297
  *                 if attack_info.redirect_hull is not None:
- *                     ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+ *                     single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
  *         offset += 12 # Advance offset by block size             # <<<<<<<<<<<<<<
  * 
  * 
 */
     __pyx_v_offset = (__pyx_v_offset + 12);
 
-    /* "game_encoder.pyx":223
+    /* "game_encoder.pyx":226
  *         is_attack = True
  * 
  *     for ship in game.ships:             # <<<<<<<<<<<<<<
@@ -23332,25 +23419,27 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
 */
     __pyx_L4_continue:;
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "game_encoder.pyx":185
  * 
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_ship_entity_features(Armada game):
+ * cdef void encode_ship_entity_features(Armada game,
 */
 
   /* function exit code */
   __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 185, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_t_1, 1);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_t_9, 1);
+  __Pyx_XDECREF(__pyx_t_5);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_t_7, 1);
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_XDECREF(__pyx_t_10);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_t_14, 1);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
@@ -23362,537 +23451,23 @@ static void __pyx_f_12game_encoder_encode_ship_entity_features(struct __pyx_obj_
   __Pyx_XDECREF((PyObject *)__pyx_v_ship);
   __Pyx_XDECREF((PyObject *)__pyx_v_token);
   __Pyx_XDECREF((PyObject *)__pyx_v_attack_info);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_view, 1);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_ship_coords_view, 1);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_def_token_view, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_single_ship_view, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_single_coords_view, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_single_def_token_view, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_static_stats_view, 1);
   __Pyx_PyMonitoring_ExitScope(0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "game_encoder.pyx":299
+/* "game_encoder.pyx":369
  * 
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_squad_entity_features(Armada game):
+ * cdef void encode_spatial_mask(Armada game, cnp.uint8_t[:, :, :, :] planes_view):
 */
 
-static void __pyx_f_12game_encoder_encode_squad_entity_features(struct __pyx_obj_6armada_Armada *__pyx_v_game) {
-  struct __pyx_obj_5squad_Squad *__pyx_v_squad = 0;
-  __Pyx_memviewslice __pyx_v_squad_view = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_v_offset;
-  int __pyx_v_overlap_start_idx;
-  struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_attack_info = 0;
-  int __pyx_v_is_attack;
-  __Pyx_TraceDeclarationsFunc
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  size_t __pyx_t_6;
-  int __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  int __pyx_t_9;
-  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  __pyx_t_5numpy_float32_t __pyx_t_13;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[39]))
-  __Pyx_RefNannySetupContext("encode_squad_entity_features", 0);
-  __Pyx_TraceStartFunc("encode_squad_entity_features", __pyx_f[0], 299, 0, 0, 0, __PYX_ERR(0, 299, __pyx_L1_error));
-
-  /* "game_encoder.pyx":312
- *     cdef DefenseToken token
- *     cdef AttackInfo attack_info
- *     cdef bint is_attack = False             # <<<<<<<<<<<<<<
- * 
- *     # Zero out the array to clear stale data
-*/
-  __pyx_v_is_attack = 0;
-
-  /* "game_encoder.pyx":315
- * 
- *     # Zero out the array to clear stale data
- *     game.squad_encode_array[:, SQUAD_STATS_FEATURES:].fill(0.0)             # <<<<<<<<<<<<<<
- * 
- *     if game.attack_info is not None:
-*/
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_game), __pyx_mstate_global->__pyx_n_u_squad_encode_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 315, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_SQUAD_STATS_FEATURES); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 315, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PySlice_New(__pyx_t_4, Py_None, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 315, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 315, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_INCREF(__pyx_mstate_global->__pyx_slice[0]);
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_slice[0]);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_mstate_global->__pyx_slice[0]) != (0)) __PYX_ERR(0, 315, __pyx_L1_error);
-  __Pyx_GIVEREF(__pyx_t_5);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5) != (0)) __PYX_ERR(0, 315, __pyx_L1_error);
-  __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 315, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_2 = __pyx_t_5;
-  __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_6 = 0;
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_float_0_0};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_fill, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 315, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "game_encoder.pyx":317
- *     game.squad_encode_array[:, SQUAD_STATS_FEATURES:].fill(0.0)
- * 
- *     if game.attack_info is not None:             # <<<<<<<<<<<<<<
- *         attack_info = game.attack_info
- *         is_attack = True
-*/
-  __pyx_t_7 = (__pyx_v_game->attack_info != Py_None);
-  if (__pyx_t_7) {
-
-    /* "game_encoder.pyx":318
- * 
- *     if game.attack_info is not None:
- *         attack_info = game.attack_info             # <<<<<<<<<<<<<<
- *         is_attack = True
- * 
-*/
-    __pyx_t_1 = __pyx_v_game->attack_info;
-    __Pyx_INCREF(__pyx_t_1);
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_11attack_info_AttackInfo))))) __PYX_ERR(0, 318, __pyx_L1_error)
-    __pyx_v_attack_info = ((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_t_1);
-    __pyx_t_1 = 0;
-
-    /* "game_encoder.pyx":319
- *     if game.attack_info is not None:
- *         attack_info = game.attack_info
- *         is_attack = True             # <<<<<<<<<<<<<<
- * 
- *     for squad in game.squads:
-*/
-    __pyx_v_is_attack = 1;
-
-    /* "game_encoder.pyx":317
- *     game.squad_encode_array[:, SQUAD_STATS_FEATURES:].fill(0.0)
- * 
- *     if game.attack_info is not None:             # <<<<<<<<<<<<<<
- *         attack_info = game.attack_info
- *         is_attack = True
-*/
-  }
-
-  /* "game_encoder.pyx":321
- *         is_attack = True
- * 
- *     for squad in game.squads:             # <<<<<<<<<<<<<<
- *         if squad.id >= max_squads or squad.destroyed:
- *             continue
-*/
-  if (unlikely(__pyx_v_game->squads == Py_None)) {
-    PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 321, __pyx_L1_error)
-  }
-  __pyx_t_1 = __pyx_v_game->squads; __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_8 = 0;
-  for (;;) {
-    {
-      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
-      #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 321, __pyx_L1_error)
-      #endif
-      if (__pyx_t_8 >= __pyx_temp) break;
-    }
-    __pyx_t_5 = __Pyx_PyList_GetItemRefFast(__pyx_t_1, __pyx_t_8, __Pyx_ReferenceSharing_OwnStrongReference);
-    ++__pyx_t_8;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 321, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_mstate_global->__pyx_ptype_5squad_Squad))))) __PYX_ERR(0, 321, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_squad, ((struct __pyx_obj_5squad_Squad *)__pyx_t_5));
-    __pyx_t_5 = 0;
-
-    /* "game_encoder.pyx":322
- * 
- *     for squad in game.squads:
- *         if squad.id >= max_squads or squad.destroyed:             # <<<<<<<<<<<<<<
- *             continue
- * 
-*/
-    __pyx_t_9 = (__pyx_v_squad->id >= __pyx_v_12game_encoder_max_squads);
-    if (!__pyx_t_9) {
-    } else {
-      __pyx_t_7 = __pyx_t_9;
-      goto __pyx_L7_bool_binop_done;
-    }
-    __pyx_t_7 = __pyx_v_squad->destroyed;
-    __pyx_L7_bool_binop_done:;
-    if (__pyx_t_7) {
-
-      /* "game_encoder.pyx":323
- *     for squad in game.squads:
- *         if squad.id >= max_squads or squad.destroyed:
- *             continue             # <<<<<<<<<<<<<<
- * 
- *         # Get a view to the specific row we will write to
-*/
-      goto __pyx_L4_continue;
-
-      /* "game_encoder.pyx":322
- * 
- *     for squad in game.squads:
- *         if squad.id >= max_squads or squad.destroyed:             # <<<<<<<<<<<<<<
- *             continue
- * 
-*/
-    }
-
-    /* "game_encoder.pyx":326
- * 
- *         # Get a view to the specific row we will write to
- *         squad_view = game.squad_encode_array[squad.id]             # <<<<<<<<<<<<<<
- *         offset = SQUAD_STATS_FEATURES
- * 
-*/
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_game), __pyx_mstate_global->__pyx_n_u_squad_encode_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 326, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_5, __pyx_v_squad->id, int, 1, __Pyx_PyLong_From_int, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 326, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 326, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_XCLEAR_MEMVIEW(&__pyx_v_squad_view, 1);
-    __pyx_v_squad_view = __pyx_t_10;
-    __pyx_t_10.memview = NULL;
-    __pyx_t_10.data = NULL;
-
-    /* "game_encoder.pyx":327
- *         # Get a view to the specific row we will write to
- *         squad_view = game.squad_encode_array[squad.id]
- *         offset = SQUAD_STATS_FEATURES             # <<<<<<<<<<<<<<
- * 
- *         # --- Status (6 features) ---
-*/
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_SQUAD_STATS_FEATURES); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 327, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_11 = __Pyx_PyLong_As_int(__pyx_t_2); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 327, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_v_offset = __pyx_t_11;
-
-    /* "game_encoder.pyx":330
- * 
- *         # --- Status (6 features) ---
- *         squad_view[offset] = squad.hull / global_max_hull; offset += 1             # <<<<<<<<<<<<<<
- *         squad_view[offset] = squad.activated; offset += 1
- *         squad_view[offset] = squad.can_attack; offset += 1
-*/
-    if (unlikely(__pyx_v_12game_encoder_global_max_hull == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 330, __pyx_L1_error)
-    }
-    __pyx_t_12 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = (((double)__pyx_v_squad->hull) / ((double)__pyx_v_12game_encoder_global_max_hull));
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":331
- *         # --- Status (6 features) ---
- *         squad_view[offset] = squad.hull / global_max_hull; offset += 1
- *         squad_view[offset] = squad.activated; offset += 1             # <<<<<<<<<<<<<<
- *         squad_view[offset] = squad.can_attack; offset += 1
- *         squad_view[offset] = squad.can_move; offset += 1
-*/
-    __pyx_t_7 = __pyx_v_squad->activated;
-    __pyx_t_12 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = __pyx_t_7;
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":332
- *         squad_view[offset] = squad.hull / global_max_hull; offset += 1
- *         squad_view[offset] = squad.activated; offset += 1
- *         squad_view[offset] = squad.can_attack; offset += 1             # <<<<<<<<<<<<<<
- *         squad_view[offset] = squad.can_move; offset += 1
- *         squad_view[offset] = squad.coords[0] / game.player_edge; offset += 1
-*/
-    __pyx_t_7 = __pyx_v_squad->can_attack;
-    __pyx_t_12 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = __pyx_t_7;
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":333
- *         squad_view[offset] = squad.activated; offset += 1
- *         squad_view[offset] = squad.can_attack; offset += 1
- *         squad_view[offset] = squad.can_move; offset += 1             # <<<<<<<<<<<<<<
- *         squad_view[offset] = squad.coords[0] / game.player_edge; offset += 1
- *         squad_view[offset] = squad.coords[1] / game.short_edge; offset += 1
-*/
-    __pyx_t_7 = __pyx_v_squad->can_move;
-    __pyx_t_12 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = __pyx_t_7;
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":334
- *         squad_view[offset] = squad.can_attack; offset += 1
- *         squad_view[offset] = squad.can_move; offset += 1
- *         squad_view[offset] = squad.coords[0] / game.player_edge; offset += 1             # <<<<<<<<<<<<<<
- *         squad_view[offset] = squad.coords[1] / game.short_edge; offset += 1
- * 
-*/
-    if (unlikely(__pyx_v_squad->coords == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 334, __pyx_L1_error)
-    }
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_game->player_edge); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = __Pyx_PyNumber_Divide(__Pyx_PyTuple_GET_ITEM(__pyx_v_squad->coords, 0), __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_13 = __Pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == ((npy_float32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 334, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_12 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = __pyx_t_13;
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":335
- *         squad_view[offset] = squad.can_move; offset += 1
- *         squad_view[offset] = squad.coords[0] / game.player_edge; offset += 1
- *         squad_view[offset] = squad.coords[1] / game.short_edge; offset += 1             # <<<<<<<<<<<<<<
- * 
- *         # --- Overlap (MAX_SHIPS=6 features) ---
-*/
-    if (unlikely(__pyx_v_squad->coords == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 335, __pyx_L1_error)
-    }
-    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_game->short_edge); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 335, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_2 = __Pyx_PyNumber_Divide(__Pyx_PyTuple_GET_ITEM(__pyx_v_squad->coords, 1), __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_13 = __Pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_13 == ((npy_float32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 335, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_12 = __pyx_v_offset;
-    *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = __pyx_t_13;
-    __pyx_v_offset = (__pyx_v_offset + 1);
-
-    /* "game_encoder.pyx":338
- * 
- *         # --- Overlap (MAX_SHIPS=6 features) ---
- *         overlap_start_idx = offset             # <<<<<<<<<<<<<<
- *         if squad.overlap_ship_id is not None:
- *             squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0
-*/
-    __pyx_v_overlap_start_idx = __pyx_v_offset;
-
-    /* "game_encoder.pyx":339
- *         # --- Overlap (MAX_SHIPS=6 features) ---
- *         overlap_start_idx = offset
- *         if squad.overlap_ship_id is not None:             # <<<<<<<<<<<<<<
- *             squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0
- *         offset += max_ships
-*/
-    __pyx_t_7 = (__pyx_v_squad->overlap_ship_id != Py_None);
-    if (__pyx_t_7) {
-
-      /* "game_encoder.pyx":340
- *         overlap_start_idx = offset
- *         if squad.overlap_ship_id is not None:
- *             squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0             # <<<<<<<<<<<<<<
- *         offset += max_ships
- * 
-*/
-      __pyx_t_11 = __Pyx_PyLong_As_int(__pyx_v_squad->overlap_ship_id); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L1_error)
-      __pyx_t_12 = (__pyx_v_overlap_start_idx + ((int)__pyx_t_11));
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = 1.0;
-
-      /* "game_encoder.pyx":339
- *         # --- Overlap (MAX_SHIPS=6 features) ---
- *         overlap_start_idx = offset
- *         if squad.overlap_ship_id is not None:             # <<<<<<<<<<<<<<
- *             squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0
- *         offset += max_ships
-*/
-    }
-
-    /* "game_encoder.pyx":341
- *         if squad.overlap_ship_id is not None:
- *             squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0
- *         offset += max_ships             # <<<<<<<<<<<<<<
- * 
- *         # --- Attack Role (2 features) ---
-*/
-    __pyx_v_offset = (__pyx_v_offset + __pyx_v_12game_encoder_max_ships);
-
-    /* "game_encoder.pyx":344
- * 
- *         # --- Attack Role (2 features) ---
- *         if is_attack:             # <<<<<<<<<<<<<<
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
- *                 squad_view[offset] = 1.0
-*/
-    if (__pyx_v_is_attack) {
-
-      /* "game_encoder.pyx":345
- *         # --- Attack Role (2 features) ---
- *         if is_attack:
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:             # <<<<<<<<<<<<<<
- *                 squad_view[offset] = 1.0
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
-*/
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 345, __pyx_L1_error) }
-      __pyx_t_9 = (!__pyx_v_attack_info->is_attacker_ship);
-      if (__pyx_t_9) {
-      } else {
-        __pyx_t_7 = __pyx_t_9;
-        goto __pyx_L12_bool_binop_done;
-      }
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 345, __pyx_L1_error) }
-      __pyx_t_9 = (__pyx_v_squad->id == __pyx_v_attack_info->attack_squad_id);
-      __pyx_t_7 = __pyx_t_9;
-      __pyx_L12_bool_binop_done:;
-      if (__pyx_t_7) {
-
-        /* "game_encoder.pyx":346
- *         if is_attack:
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
- *                 squad_view[offset] = 1.0             # <<<<<<<<<<<<<<
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
- *                 squad_view[offset + 1] = 1.0
-*/
-        __pyx_t_12 = __pyx_v_offset;
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = 1.0;
-
-        /* "game_encoder.pyx":345
- *         # --- Attack Role (2 features) ---
- *         if is_attack:
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:             # <<<<<<<<<<<<<<
- *                 squad_view[offset] = 1.0
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
-*/
-      }
-
-      /* "game_encoder.pyx":347
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
- *                 squad_view[offset] = 1.0
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:             # <<<<<<<<<<<<<<
- *                 squad_view[offset + 1] = 1.0
- *         offset += 2
-*/
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 347, __pyx_L1_error) }
-      __pyx_t_9 = (!__pyx_v_attack_info->is_defender_ship);
-      if (__pyx_t_9) {
-      } else {
-        __pyx_t_7 = __pyx_t_9;
-        goto __pyx_L15_bool_binop_done;
-      }
-      if (unlikely(!__pyx_v_attack_info)) { __Pyx_RaiseUnboundLocalError("attack_info"); __PYX_ERR(0, 347, __pyx_L1_error) }
-      __pyx_t_9 = (__pyx_v_squad->id == __pyx_v_attack_info->defend_squad_id);
-      __pyx_t_7 = __pyx_t_9;
-      __pyx_L15_bool_binop_done:;
-      if (__pyx_t_7) {
-
-        /* "game_encoder.pyx":348
- *                 squad_view[offset] = 1.0
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
- *                 squad_view[offset + 1] = 1.0             # <<<<<<<<<<<<<<
- *         offset += 2
- * 
-*/
-        __pyx_t_12 = (__pyx_v_offset + 1);
-        *((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_squad_view.data + __pyx_t_12 * __pyx_v_squad_view.strides[0]) )) = 1.0;
-
-        /* "game_encoder.pyx":347
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
- *                 squad_view[offset] = 1.0
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:             # <<<<<<<<<<<<<<
- *                 squad_view[offset + 1] = 1.0
- *         offset += 2
-*/
-      }
-
-      /* "game_encoder.pyx":344
- * 
- *         # --- Attack Role (2 features) ---
- *         if is_attack:             # <<<<<<<<<<<<<<
- *             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
- *                 squad_view[offset] = 1.0
-*/
-    }
-
-    /* "game_encoder.pyx":349
- *             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
- *                 squad_view[offset + 1] = 1.0
- *         offset += 2             # <<<<<<<<<<<<<<
- * 
- *         # # --- Defense Token (2*4 = 8 features) ---
-*/
-    __pyx_v_offset = (__pyx_v_offset + 2);
-
-    /* "game_encoder.pyx":321
- *         is_attack = True
- * 
- *     for squad in game.squads:             # <<<<<<<<<<<<<<
- *         if squad.id >= max_squads or squad.destroyed:
- *             continue
-*/
-    __pyx_L4_continue:;
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "game_encoder.pyx":299
- * 
- * 
- * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
- * @cython.wraparound(False)
- * cdef void encode_squad_entity_features(Armada game):
-*/
-
-  /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 299, __pyx_L1_error));
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_t_10, 1);
-  __Pyx_TraceException(__pyx_lineno, 0, 0);
-  #if CYTHON_USE_SYS_MONITORING
-  __Pyx_TraceExceptionUnwind(0, 0);
-  #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 299, __pyx_L1_error));
-  #endif
-  __Pyx_AddTraceback("game_encoder.encode_squad_entity_features", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_L0:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_squad);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_squad_view, 1);
-  __Pyx_XDECREF((PyObject *)__pyx_v_attack_info);
-  __Pyx_PyMonitoring_ExitScope(0);
-  __Pyx_RefNannyFinishContext();
-}
-
-/* "game_encoder.pyx":367
- * 
- * 
- * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
- * @cython.wraparound(False)
- * cdef void encode_spatial_mask(Armada game):
-*/
-
-static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_Armada *__pyx_v_game) {
-  __Pyx_memviewslice __pyx_v_planes_view = { 0, 0, { 0 }, { 0 }, { 0 } };
+static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_planes_view) {
   int __pyx_v_i;
   int __pyx_v_r;
   int __pyx_v_c;
@@ -23910,68 +23485,82 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
   PyObject *__pyx_v_coords = NULL;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
-  __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_1 = NULL;
+  Py_ssize_t __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
-  size_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  int __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
+  int __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
   PyObject *__pyx_t_8 = NULL;
-  int __pyx_t_9;
-  PyObject *__pyx_t_10 = NULL;
-  PyObject *(*__pyx_t_11)(PyObject *);
-  __Pyx_memviewslice __pyx_t_12 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  size_t __pyx_t_9;
+  PyObject *(*__pyx_t_10)(PyObject *);
+  __Pyx_memviewslice __pyx_t_11 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_12;
   Py_ssize_t __pyx_t_13;
-  Py_ssize_t __pyx_t_14;
-  int __pyx_t_15;
+  int __pyx_t_14;
+  Py_ssize_t __pyx_t_15;
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   Py_ssize_t __pyx_t_18;
-  Py_ssize_t __pyx_t_19;
-  int __pyx_t_20;
+  int __pyx_t_19;
+  Py_ssize_t __pyx_t_20;
   Py_ssize_t __pyx_t_21;
-  Py_ssize_t __pyx_t_22;
-  int __pyx_t_23;
+  int __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
   Py_ssize_t __pyx_t_24;
-  Py_ssize_t __pyx_t_25;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[40]))
+  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[39]))
   __Pyx_RefNannySetupContext("encode_spatial_mask", 0);
-  __Pyx_TraceStartFunc("encode_spatial_mask", __pyx_f[0], 367, 0, 0, 0, __PYX_ERR(0, 367, __pyx_L1_error));
-
-  /* "game_encoder.pyx":375
- *     """
- * 
- *     cdef cnp.uint8_t[:, :, :, ::1] planes_view = game.spatial_encode_array             # <<<<<<<<<<<<<<
- * 
- *     # Standard cleanup
-*/
-  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_5numpy_uint8_t(((PyObject *)__pyx_v_game->spatial_encode_array), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 375, __pyx_L1_error)
-  __pyx_v_planes_view = __pyx_t_1;
-  __pyx_t_1.memview = NULL;
-  __pyx_t_1.data = NULL;
+  __Pyx_TraceStartFunc("encode_spatial_mask", __pyx_f[0], 369, 0, 0, 0, __PYX_ERR(0, 369, __pyx_L1_error));
 
   /* "game_encoder.pyx":378
  * 
  *     # Standard cleanup
- *     game.spatial_encode_array.fill(0.0)             # <<<<<<<<<<<<<<
+ *     planes_view[:] = 0             # <<<<<<<<<<<<<<
  * 
  *     cdef int i, r, c
 */
-  __pyx_t_3 = ((PyObject *)__pyx_v_game->spatial_encode_array);
-  __Pyx_INCREF(__pyx_t_3);
-  __pyx_t_4 = 0;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_mstate_global->__pyx_float_0_0};
-    __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_fill, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 378, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_5numpy_uint8_t __pyx_temp_scalar = 0;
+      {
+          Py_ssize_t __pyx_temp_extent_0 = __pyx_v_planes_view.shape[0];
+          Py_ssize_t __pyx_temp_stride_0 = __pyx_v_planes_view.strides[0];
+          char *__pyx_temp_pointer_0;
+          Py_ssize_t __pyx_temp_idx_0;
+          Py_ssize_t __pyx_temp_extent_1 = __pyx_v_planes_view.shape[1];
+          Py_ssize_t __pyx_temp_stride_1 = __pyx_v_planes_view.strides[1];
+          char *__pyx_temp_pointer_1;
+          Py_ssize_t __pyx_temp_idx_1;
+          Py_ssize_t __pyx_temp_extent_2 = __pyx_v_planes_view.shape[2];
+          Py_ssize_t __pyx_temp_stride_2 = __pyx_v_planes_view.strides[2];
+          char *__pyx_temp_pointer_2;
+          Py_ssize_t __pyx_temp_idx_2;
+          Py_ssize_t __pyx_temp_extent_3 = __pyx_v_planes_view.shape[3];
+          Py_ssize_t __pyx_temp_stride_3 = __pyx_v_planes_view.strides[3];
+          char *__pyx_temp_pointer_3;
+          Py_ssize_t __pyx_temp_idx_3;
+          __pyx_temp_pointer_0 = __pyx_v_planes_view.data;
+          for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+            __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
+            for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
+              __pyx_temp_pointer_2 = __pyx_temp_pointer_1;
+              for (__pyx_temp_idx_2 = 0; __pyx_temp_idx_2 < __pyx_temp_extent_2; __pyx_temp_idx_2++) {
+                __pyx_temp_pointer_3 = __pyx_temp_pointer_2;
+                for (__pyx_temp_idx_3 = 0; __pyx_temp_idx_3 < __pyx_temp_extent_3; __pyx_temp_idx_3++) {
+                  *((__pyx_t_5numpy_uint8_t *) __pyx_temp_pointer_3) = __pyx_temp_scalar;
+                  __pyx_temp_pointer_3 += __pyx_temp_stride_3;
+                }
+                __pyx_temp_pointer_2 += __pyx_temp_stride_2;
+              }
+              __pyx_temp_pointer_1 += __pyx_temp_stride_1;
+            }
+            __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+          }
+      }
   }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "game_encoder.pyx":387
  *     cdef tuple ship_hash
@@ -23984,18 +23573,18 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
     __PYX_ERR(0, 387, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_v_game->ships; __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_5 = 0;
+  __pyx_t_1 = __pyx_v_game->ships; __Pyx_INCREF(__pyx_t_1);
+  __pyx_t_2 = 0;
   for (;;) {
     {
-      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
+      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
       #if !CYTHON_ASSUME_SAFE_SIZE
       if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 387, __pyx_L1_error)
       #endif
-      if (__pyx_t_5 >= __pyx_temp) break;
+      if (__pyx_t_2 >= __pyx_temp) break;
     }
-    __pyx_t_3 = __Pyx_PyList_GetItemRefFast(__pyx_t_2, __pyx_t_5, __Pyx_ReferenceSharing_OwnStrongReference);
-    ++__pyx_t_5;
+    __pyx_t_3 = __Pyx_PyList_GetItemRefFast(__pyx_t_1, __pyx_t_2, __Pyx_ReferenceSharing_OwnStrongReference);
+    ++__pyx_t_2;
     if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 387, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 387, __pyx_L1_error)
@@ -24011,24 +23600,24 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
 */
     __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_ship->id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 388, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_Config); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_MAX_SHIPS); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = PyObject_RichCompare(__pyx_t_3, __pyx_t_8, Py_GE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 388, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_Config); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 388, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_MAX_SHIPS); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 388, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_t_6, Py_GE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 388, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (!__pyx_t_9) {
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 388, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (!__pyx_t_7) {
     } else {
-      __pyx_t_6 = __pyx_t_9;
+      __pyx_t_4 = __pyx_t_7;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_6 = __pyx_v_ship->destroyed;
+    __pyx_t_4 = __pyx_v_ship->destroyed;
     __pyx_L6_bool_binop_done:;
-    if (__pyx_t_6) {
+    if (__pyx_t_4) {
 
       /* "game_encoder.pyx":389
  *     for ship in game.ships:
@@ -24055,11 +23644,11 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *         # --- 1. Ship Presence ---
 */
-    __pyx_t_7 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 391, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    if (!(likely(PyTuple_CheckExact(__pyx_t_7))||((__pyx_t_7) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_7))) __PYX_ERR(0, 391, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_ship_hash, ((PyObject*)__pyx_t_7));
-    __pyx_t_7 = 0;
+    __pyx_t_5 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_ship->__pyx_vtab)->get_ship_hash_state(__pyx_v_ship, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 391, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (!(likely(PyTuple_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_5))) __PYX_ERR(0, 391, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_ship_hash, ((PyObject*)__pyx_t_5));
+    __pyx_t_5 = 0;
 
     /* "game_encoder.pyx":395
  *         # --- 1. Ship Presence ---
@@ -24068,34 +23657,34 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *         # Cast to memoryviews for C-level access
 */
-    __pyx_t_8 = NULL;
+    __pyx_t_6 = NULL;
     __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 395, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ship_presence_indices); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 395, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_10);
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ship_presence_indices); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_4 = 1;
+    __pyx_t_9 = 1;
     #if CYTHON_UNPACK_METHODS
-    if (unlikely(PyMethod_Check(__pyx_t_10))) {
-      __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_10);
-      assert(__pyx_t_8);
-      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_10);
-      __Pyx_INCREF(__pyx_t_8);
+    if (unlikely(PyMethod_Check(__pyx_t_8))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_8);
+      assert(__pyx_t_6);
+      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
+      __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(__pyx__function);
-      __Pyx_DECREF_SET(__pyx_t_10, __pyx__function);
-      __pyx_t_4 = 0;
+      __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
+      __pyx_t_9 = 0;
     }
     #endif
     {
-      PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_v_ship_hash};
-      __pyx_t_7 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 395, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
+      PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_v_ship_hash};
+      __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_9, (2-__pyx_t_9) | (__pyx_t_9*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
     }
-    if ((likely(PyTuple_CheckExact(__pyx_t_7))) || (PyList_CheckExact(__pyx_t_7))) {
-      PyObject* sequence = __pyx_t_7;
+    if ((likely(PyTuple_CheckExact(__pyx_t_5))) || (PyList_CheckExact(__pyx_t_5))) {
+      PyObject* sequence = __pyx_t_5;
       Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
@@ -24104,50 +23693,50 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
       if (likely(PyTuple_CheckExact(sequence))) {
-        __pyx_t_10 = PyTuple_GET_ITEM(sequence, 0);
-        __Pyx_INCREF(__pyx_t_10);
-        __pyx_t_8 = PyTuple_GET_ITEM(sequence, 1);
+        __pyx_t_8 = PyTuple_GET_ITEM(sequence, 0);
         __Pyx_INCREF(__pyx_t_8);
+        __pyx_t_6 = PyTuple_GET_ITEM(sequence, 1);
+        __Pyx_INCREF(__pyx_t_6);
       } else {
-        __pyx_t_10 = __Pyx_PyList_GetItemRefFast(sequence, 0, __Pyx_ReferenceSharing_SharedReference);
-        if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 395, __pyx_L1_error)
-        __Pyx_XGOTREF(__pyx_t_10);
-        __pyx_t_8 = __Pyx_PyList_GetItemRefFast(sequence, 1, __Pyx_ReferenceSharing_SharedReference);
+        __pyx_t_8 = __Pyx_PyList_GetItemRefFast(sequence, 0, __Pyx_ReferenceSharing_SharedReference);
         if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
         __Pyx_XGOTREF(__pyx_t_8);
+        __pyx_t_6 = __Pyx_PyList_GetItemRefFast(sequence, 1, __Pyx_ReferenceSharing_SharedReference);
+        if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 395, __pyx_L1_error)
+        __Pyx_XGOTREF(__pyx_t_6);
       }
       #else
-      __pyx_t_10 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 395, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_8 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_6 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
       #endif
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_3 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __pyx_t_3 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 395, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_11 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_3);
-      index = 0; __pyx_t_10 = __pyx_t_11(__pyx_t_3); if (unlikely(!__pyx_t_10)) goto __pyx_L8_unpacking_failed;
-      __Pyx_GOTREF(__pyx_t_10);
-      index = 1; __pyx_t_8 = __pyx_t_11(__pyx_t_3); if (unlikely(!__pyx_t_8)) goto __pyx_L8_unpacking_failed;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_10 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_3);
+      index = 0; __pyx_t_8 = __pyx_t_10(__pyx_t_3); if (unlikely(!__pyx_t_8)) goto __pyx_L8_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_8);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_11(__pyx_t_3), 2) < (0)) __PYX_ERR(0, 395, __pyx_L1_error)
-      __pyx_t_11 = NULL;
+      index = 1; __pyx_t_6 = __pyx_t_10(__pyx_t_3); if (unlikely(!__pyx_t_6)) goto __pyx_L8_unpacking_failed;
+      __Pyx_GOTREF(__pyx_t_6);
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_3), 2) < (0)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __pyx_t_10 = NULL;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       goto __pyx_L9_unpacking_done;
       __pyx_L8_unpacking_failed:;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_11 = NULL;
+      __pyx_t_10 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
       __PYX_ERR(0, 395, __pyx_L1_error)
       __pyx_L9_unpacking_done:;
     }
-    __Pyx_XDECREF_SET(__pyx_v_rr, __pyx_t_10);
-    __pyx_t_10 = 0;
-    __Pyx_XDECREF_SET(__pyx_v_cc, __pyx_t_8);
+    __Pyx_XDECREF_SET(__pyx_v_rr, __pyx_t_8);
     __pyx_t_8 = 0;
+    __Pyx_XDECREF_SET(__pyx_v_cc, __pyx_t_6);
+    __pyx_t_6 = 0;
 
     /* "game_encoder.pyx":398
  * 
@@ -24156,11 +23745,11 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *         cc_view = cc
  * 
 */
-    __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_v_rr, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 398, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_v_rr, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 398, __pyx_L1_error)
     __PYX_XCLEAR_MEMVIEW(&__pyx_v_rr_view, 1);
-    __pyx_v_rr_view = __pyx_t_12;
-    __pyx_t_12.memview = NULL;
-    __pyx_t_12.data = NULL;
+    __pyx_v_rr_view = __pyx_t_11;
+    __pyx_t_11.memview = NULL;
+    __pyx_t_11.data = NULL;
 
     /* "game_encoder.pyx":399
  *         # Cast to memoryviews for C-level access
@@ -24169,11 +23758,11 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *         # C-Level Loop (No GIL, No Python Overhead)
 */
-    __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_v_cc, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_v_cc, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 399, __pyx_L1_error)
     __PYX_XCLEAR_MEMVIEW(&__pyx_v_cc_view, 1);
-    __pyx_v_cc_view = __pyx_t_12;
-    __pyx_t_12.memview = NULL;
-    __pyx_t_12.data = NULL;
+    __pyx_v_cc_view = __pyx_t_11;
+    __pyx_t_11.memview = NULL;
+    __pyx_t_11.data = NULL;
 
     /* "game_encoder.pyx":402
  * 
@@ -24182,10 +23771,10 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *             r = rr_view[i]
  *             c = cc_view[i]
 */
-    __pyx_t_13 = (__pyx_v_rr_view.shape[0]);
-    __pyx_t_14 = __pyx_t_13;
-    for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
-      __pyx_v_i = __pyx_t_15;
+    __pyx_t_12 = (__pyx_v_rr_view.shape[0]);
+    __pyx_t_13 = __pyx_t_12;
+    for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
+      __pyx_v_i = __pyx_t_14;
 
       /* "game_encoder.pyx":403
  *         # C-Level Loop (No GIL, No Python Overhead)
@@ -24194,8 +23783,8 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *             c = cc_view[i]
  * 
 */
-      __pyx_t_16 = __pyx_v_i;
-      __pyx_v_r = (*((long *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_16 * __pyx_v_rr_view.strides[0]) )));
+      __pyx_t_15 = __pyx_v_i;
+      __pyx_v_r = (*((long *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_15 * __pyx_v_rr_view.strides[0]) )));
 
       /* "game_encoder.pyx":404
  *         for i in range(rr_view.shape[0]):
@@ -24204,8 +23793,8 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *             # Bitwise Packing: Set bit (c % 8) in byte (c // 8)
 */
-      __pyx_t_16 = __pyx_v_i;
-      __pyx_v_c = (*((long *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_16 * __pyx_v_cc_view.strides[0]) )));
+      __pyx_t_15 = __pyx_v_i;
+      __pyx_v_c = (*((long *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_15 * __pyx_v_cc_view.strides[0]) )));
 
       /* "game_encoder.pyx":407
  * 
@@ -24214,11 +23803,11 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *         # --- 2. Ship Threat ---
 */
-      __pyx_t_16 = __pyx_v_ship->id;
-      __pyx_t_17 = 0;
-      __pyx_t_18 = __pyx_v_r;
-      __pyx_t_19 = (__pyx_v_c >> 3);
-      *((__pyx_t_5numpy_uint8_t *) ( /* dim=3 */ ((char *) (((__pyx_t_5numpy_uint8_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_planes_view.data + __pyx_t_16 * __pyx_v_planes_view.strides[0]) ) + __pyx_t_17 * __pyx_v_planes_view.strides[1]) ) + __pyx_t_18 * __pyx_v_planes_view.strides[2]) )) + __pyx_t_19)) )) |= (1 << (__pyx_v_c & 7));
+      __pyx_t_15 = __pyx_v_ship->id;
+      __pyx_t_16 = 0;
+      __pyx_t_17 = __pyx_v_r;
+      __pyx_t_18 = (__pyx_v_c >> 3);
+      *((__pyx_t_5numpy_uint8_t *) ( /* dim=3 */ (( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_planes_view.data + __pyx_t_15 * __pyx_v_planes_view.strides[0]) ) + __pyx_t_16 * __pyx_v_planes_view.strides[1]) ) + __pyx_t_17 * __pyx_v_planes_view.strides[2]) ) + __pyx_t_18 * __pyx_v_planes_view.strides[3]) )) |= (1 << (__pyx_v_c & 7));
     }
 
     /* "game_encoder.pyx":410
@@ -24228,35 +23817,35 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *         # Iterate Dictionary Items to avoid KeyError risks
 */
-    __pyx_t_8 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_10);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_ship_threat_indices); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __pyx_t_6 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ship_threat_indices); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 410, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __pyx_t_4 = 1;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __pyx_t_9 = 1;
     #if CYTHON_UNPACK_METHODS
     if (unlikely(PyMethod_Check(__pyx_t_3))) {
-      __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_3);
-      assert(__pyx_t_8);
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
+      assert(__pyx_t_6);
       PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_8);
+      __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(__pyx__function);
       __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
-      __pyx_t_4 = 0;
+      __pyx_t_9 = 0;
     }
     #endif
     {
-      PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_v_ship_hash};
-      __pyx_t_7 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+      PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_v_ship_hash};
+      __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_9, (2-__pyx_t_9) | (__pyx_t_9*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 410, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 410, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
     }
-    if (!(likely(PyDict_CheckExact(__pyx_t_7))||((__pyx_t_7) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_7))) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_threat_plane_dict, ((PyObject*)__pyx_t_7));
-    __pyx_t_7 = 0;
+    if (!(likely(PyDict_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_5))) __PYX_ERR(0, 410, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_threat_plane_dict, ((PyObject*)__pyx_t_5));
+    __pyx_t_5 = 0;
 
     /* "game_encoder.pyx":413
  * 
@@ -24265,28 +23854,28 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *             for attack_range, coords in ranges_dict.items():
  * 
 */
-    __pyx_t_13 = 0;
+    __pyx_t_12 = 0;
     if (unlikely(__pyx_v_threat_plane_dict == Py_None)) {
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "items");
       __PYX_ERR(0, 413, __pyx_L1_error)
     }
-    __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_threat_plane_dict, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_14), (&__pyx_t_15)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 413, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_threat_plane_dict, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_13), (&__pyx_t_14)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 413, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_XDECREF(__pyx_t_7);
-    __pyx_t_7 = __pyx_t_3;
+    __Pyx_XDECREF(__pyx_t_5);
+    __pyx_t_5 = __pyx_t_3;
     __pyx_t_3 = 0;
     while (1) {
-      __pyx_t_20 = __Pyx_dict_iter_next(__pyx_t_7, __pyx_t_14, &__pyx_t_13, &__pyx_t_3, &__pyx_t_8, NULL, __pyx_t_15);
-      if (unlikely(__pyx_t_20 == 0)) break;
-      if (unlikely(__pyx_t_20 == -1)) __PYX_ERR(0, 413, __pyx_L1_error)
+      __pyx_t_19 = __Pyx_dict_iter_next(__pyx_t_5, __pyx_t_13, &__pyx_t_12, &__pyx_t_3, &__pyx_t_6, NULL, __pyx_t_14);
+      if (unlikely(__pyx_t_19 == 0)) break;
+      if (unlikely(__pyx_t_19 == -1)) __PYX_ERR(0, 413, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_20 = __Pyx_PyLong_As_int(__pyx_t_3); if (unlikely((__pyx_t_20 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 413, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __pyx_t_19 = __Pyx_PyLong_As_int(__pyx_t_3); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 413, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (!(likely(PyDict_CheckExact(__pyx_t_8))||((__pyx_t_8) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_8))) __PYX_ERR(0, 413, __pyx_L1_error)
-      __pyx_v_hull = __pyx_t_20;
-      __Pyx_XDECREF_SET(__pyx_v_ranges_dict, ((PyObject*)__pyx_t_8));
-      __pyx_t_8 = 0;
+      if (!(likely(PyDict_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_6))) __PYX_ERR(0, 413, __pyx_L1_error)
+      __pyx_v_hull = __pyx_t_19;
+      __Pyx_XDECREF_SET(__pyx_v_ranges_dict, ((PyObject*)__pyx_t_6));
+      __pyx_t_6 = 0;
 
       /* "game_encoder.pyx":414
  *         # Iterate Dictionary Items to avoid KeyError risks
@@ -24295,27 +23884,27 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *                 # Calculate channel carefully
 */
-      __pyx_t_21 = 0;
+      __pyx_t_20 = 0;
       if (unlikely(__pyx_v_ranges_dict == Py_None)) {
         PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "items");
         __PYX_ERR(0, 414, __pyx_L1_error)
       }
-      __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_ranges_dict, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_22), (&__pyx_t_20)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 414, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_ranges_dict, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_21), (&__pyx_t_19)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 414, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_XDECREF(__pyx_t_8);
-      __pyx_t_8 = __pyx_t_3;
+      __Pyx_XDECREF(__pyx_t_6);
+      __pyx_t_6 = __pyx_t_3;
       __pyx_t_3 = 0;
       while (1) {
-        __pyx_t_23 = __Pyx_dict_iter_next(__pyx_t_8, __pyx_t_22, &__pyx_t_21, &__pyx_t_3, &__pyx_t_10, NULL, __pyx_t_20);
-        if (unlikely(__pyx_t_23 == 0)) break;
-        if (unlikely(__pyx_t_23 == -1)) __PYX_ERR(0, 414, __pyx_L1_error)
+        __pyx_t_22 = __Pyx_dict_iter_next(__pyx_t_6, __pyx_t_21, &__pyx_t_20, &__pyx_t_3, &__pyx_t_8, NULL, __pyx_t_19);
+        if (unlikely(__pyx_t_22 == 0)) break;
+        if (unlikely(__pyx_t_22 == -1)) __PYX_ERR(0, 414, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __Pyx_GOTREF(__pyx_t_10);
-        __pyx_t_23 = __Pyx_PyLong_As_int(__pyx_t_3); if (unlikely((__pyx_t_23 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 414, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __pyx_t_22 = __Pyx_PyLong_As_int(__pyx_t_3); if (unlikely((__pyx_t_22 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 414, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_v_attack_range = __pyx_t_23;
-        __Pyx_XDECREF_SET(__pyx_v_coords, __pyx_t_10);
-        __pyx_t_10 = 0;
+        __pyx_v_attack_range = __pyx_t_22;
+        __Pyx_XDECREF_SET(__pyx_v_coords, __pyx_t_8);
+        __pyx_t_8 = 0;
 
         /* "game_encoder.pyx":417
  * 
@@ -24333,14 +23922,14 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *                 cc_view = coords[1]
  * 
 */
-        __pyx_t_10 = __Pyx_GetItemInt(__pyx_v_coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 419, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_10);
-        __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_t_10, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 419, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 419, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 419, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __PYX_XCLEAR_MEMVIEW(&__pyx_v_rr_view, 1);
-        __pyx_v_rr_view = __pyx_t_12;
-        __pyx_t_12.memview = NULL;
-        __pyx_t_12.data = NULL;
+        __pyx_v_rr_view = __pyx_t_11;
+        __pyx_t_11.memview = NULL;
+        __pyx_t_11.data = NULL;
 
         /* "game_encoder.pyx":420
  * 
@@ -24349,14 +23938,14 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *                 for i in range(rr_view.shape[0]):
 */
-        __pyx_t_10 = __Pyx_GetItemInt(__pyx_v_coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 420, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_10);
-        __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_t_10, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 420, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 420, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 420, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __PYX_XCLEAR_MEMVIEW(&__pyx_v_cc_view, 1);
-        __pyx_v_cc_view = __pyx_t_12;
-        __pyx_t_12.memview = NULL;
-        __pyx_t_12.data = NULL;
+        __pyx_v_cc_view = __pyx_t_11;
+        __pyx_t_11.memview = NULL;
+        __pyx_t_11.data = NULL;
 
         /* "game_encoder.pyx":422
  *                 cc_view = coords[1]
@@ -24365,10 +23954,10 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *                     r = rr_view[i]
  *                     c = cc_view[i]
 */
-        __pyx_t_24 = (__pyx_v_rr_view.shape[0]);
-        __pyx_t_25 = __pyx_t_24;
-        for (__pyx_t_23 = 0; __pyx_t_23 < __pyx_t_25; __pyx_t_23+=1) {
-          __pyx_v_i = __pyx_t_23;
+        __pyx_t_23 = (__pyx_v_rr_view.shape[0]);
+        __pyx_t_24 = __pyx_t_23;
+        for (__pyx_t_22 = 0; __pyx_t_22 < __pyx_t_24; __pyx_t_22+=1) {
+          __pyx_v_i = __pyx_t_22;
 
           /* "game_encoder.pyx":423
  * 
@@ -24377,8 +23966,8 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *                     c = cc_view[i]
  * 
 */
-          __pyx_t_19 = __pyx_v_i;
-          __pyx_v_r = (*((long *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_19 * __pyx_v_rr_view.strides[0]) )));
+          __pyx_t_18 = __pyx_v_i;
+          __pyx_v_r = (*((long *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_18 * __pyx_v_rr_view.strides[0]) )));
 
           /* "game_encoder.pyx":424
  *                 for i in range(rr_view.shape[0]):
@@ -24387,8 +23976,8 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *                     # Bitwise Packing
 */
-          __pyx_t_19 = __pyx_v_i;
-          __pyx_v_c = (*((long *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_19 * __pyx_v_cc_view.strides[0]) )));
+          __pyx_t_18 = __pyx_v_i;
+          __pyx_v_c = (*((long *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_18 * __pyx_v_cc_view.strides[0]) )));
 
           /* "game_encoder.pyx":427
  * 
@@ -24397,16 +23986,16 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  * @cython.boundscheck(False)
 */
-          __pyx_t_19 = __pyx_v_ship->id;
-          __pyx_t_18 = __pyx_v_channel_idx;
-          __pyx_t_17 = __pyx_v_r;
-          __pyx_t_16 = (__pyx_v_c >> 3);
-          *((__pyx_t_5numpy_uint8_t *) ( /* dim=3 */ ((char *) (((__pyx_t_5numpy_uint8_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_planes_view.data + __pyx_t_19 * __pyx_v_planes_view.strides[0]) ) + __pyx_t_18 * __pyx_v_planes_view.strides[1]) ) + __pyx_t_17 * __pyx_v_planes_view.strides[2]) )) + __pyx_t_16)) )) |= (1 << (__pyx_v_c & 7));
+          __pyx_t_18 = __pyx_v_ship->id;
+          __pyx_t_17 = __pyx_v_channel_idx;
+          __pyx_t_16 = __pyx_v_r;
+          __pyx_t_15 = (__pyx_v_c >> 3);
+          *((__pyx_t_5numpy_uint8_t *) ( /* dim=3 */ (( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_planes_view.data + __pyx_t_18 * __pyx_v_planes_view.strides[0]) ) + __pyx_t_17 * __pyx_v_planes_view.strides[1]) ) + __pyx_t_16 * __pyx_v_planes_view.strides[2]) ) + __pyx_t_15 * __pyx_v_planes_view.strides[3]) )) |= (1 << (__pyx_v_c & 7));
         }
       }
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
     /* "game_encoder.pyx":387
  *     cdef tuple ship_hash
@@ -24417,36 +24006,34 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
 */
     __pyx_L3_continue:;
   }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "game_encoder.pyx":367
+  /* "game_encoder.pyx":369
  * 
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_spatial_mask(Armada game):
+ * cdef void encode_spatial_mask(Armada game, cnp.uint8_t[:, :, :, :] planes_view):
 */
 
   /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 367, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 369, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
-  __PYX_XCLEAR_MEMVIEW(&__pyx_t_1, 1);
-  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_XDECREF(__pyx_t_10);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_t_12, 1);
+  __PYX_XCLEAR_MEMVIEW(&__pyx_t_11, 1);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 367, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 369, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("game_encoder.encode_spatial_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_planes_view, 1);
   __PYX_XCLEAR_MEMVIEW(&__pyx_v_rr_view, 1);
   __PYX_XCLEAR_MEMVIEW(&__pyx_v_cc_view, 1);
   __Pyx_XDECREF(__pyx_v_threat_plane_dict);
@@ -24465,10 +24052,10 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_relation_matrix(Armada game):
+ * cdef void encode_relation_matrix(Armada game, float[:, :, :] rel_matrix):
 */
 
-static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6armada_Armada *__pyx_v_game) {
+static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6armada_Armada *__pyx_v_game, __Pyx_memviewslice __pyx_v_rel_matrix) {
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_attacker_id;
@@ -24485,7 +24072,6 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   int __pyx_v_n_ships;
   struct __pyx_obj_4ship_Ship *__pyx_v_attacker = 0;
   struct __pyx_obj_4ship_Ship *__pyx_v_defender = 0;
-  __Pyx_memviewslice __pyx_v_rel_matrix = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_v_range_list = 0;
   PyObject *__pyx_v_attack_range_list = 0;
   CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
@@ -24494,7 +24080,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
-  __Pyx_memviewslice __pyx_t_3 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_3;
   int __pyx_t_4;
   int __pyx_t_5;
   int __pyx_t_6;
@@ -24502,26 +24088,25 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   int __pyx_t_8;
   int __pyx_t_9;
   int __pyx_t_10;
-  int __pyx_t_11;
+  PyObject *__pyx_t_11 = NULL;
   PyObject *__pyx_t_12 = NULL;
   PyObject *__pyx_t_13 = NULL;
   PyObject *__pyx_t_14 = NULL;
-  PyObject *__pyx_t_15 = NULL;
-  size_t __pyx_t_16;
-  PyObject *(*__pyx_t_17)(PyObject *);
+  size_t __pyx_t_15;
+  PyObject *(*__pyx_t_16)(PyObject *);
+  int __pyx_t_17;
   int __pyx_t_18;
   int __pyx_t_19;
   int __pyx_t_20;
   int __pyx_t_21;
-  int __pyx_t_22;
-  float __pyx_t_23;
+  float __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
   Py_ssize_t __pyx_t_24;
   Py_ssize_t __pyx_t_25;
-  Py_ssize_t __pyx_t_26;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[41]))
+  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[40]))
   __Pyx_RefNannySetupContext("encode_relation_matrix", 0);
   __Pyx_TraceStartFunc("encode_relation_matrix", __pyx_f[0], 429, 0, 0, 0, __PYX_ERR(0, 429, __pyx_L1_error));
 
@@ -24554,48 +24139,54 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   /* "game_encoder.pyx":444
  *     cdef Ship attacker, defender
  * 
- *     cdef cnp.float32_t[:, :, ::1] rel_matrix = game.relation_encode_array             # <<<<<<<<<<<<<<
- *     rel_matrix[:] = 0
- * 
-*/
-  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float32_t(((PyObject *)__pyx_v_game->relation_encode_array), PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 444, __pyx_L1_error)
-  __pyx_v_rel_matrix = __pyx_t_3;
-  __pyx_t_3.memview = NULL;
-  __pyx_t_3.data = NULL;
-
-  /* "game_encoder.pyx":445
- * 
- *     cdef cnp.float32_t[:, :, ::1] rel_matrix = game.relation_encode_array
- *     rel_matrix[:] = 0             # <<<<<<<<<<<<<<
+ *     rel_matrix[:] = 0.0             # <<<<<<<<<<<<<<
  * 
  *     cdef list range_list, attack_range_list
 */
   {
-      __pyx_t_5numpy_float32_t __pyx_temp_scalar = 0.0;
+      float __pyx_temp_scalar = 0.0;
       {
-          Py_ssize_t __pyx_temp_extent = __pyx_v_rel_matrix.shape[0] * __pyx_v_rel_matrix.shape[1] * __pyx_v_rel_matrix.shape[2];
-          Py_ssize_t __pyx_temp_idx;
-          __pyx_t_5numpy_float32_t *__pyx_temp_pointer = (__pyx_t_5numpy_float32_t *) __pyx_v_rel_matrix.data;
-          for (__pyx_temp_idx = 0; __pyx_temp_idx < __pyx_temp_extent; __pyx_temp_idx++) {
-            *((__pyx_t_5numpy_float32_t *) __pyx_temp_pointer) = __pyx_temp_scalar;
-            __pyx_temp_pointer += 1;
+          Py_ssize_t __pyx_temp_extent_0 = __pyx_v_rel_matrix.shape[0];
+          Py_ssize_t __pyx_temp_stride_0 = __pyx_v_rel_matrix.strides[0];
+          char *__pyx_temp_pointer_0;
+          Py_ssize_t __pyx_temp_idx_0;
+          Py_ssize_t __pyx_temp_extent_1 = __pyx_v_rel_matrix.shape[1];
+          Py_ssize_t __pyx_temp_stride_1 = __pyx_v_rel_matrix.strides[1];
+          char *__pyx_temp_pointer_1;
+          Py_ssize_t __pyx_temp_idx_1;
+          Py_ssize_t __pyx_temp_extent_2 = __pyx_v_rel_matrix.shape[2];
+          Py_ssize_t __pyx_temp_stride_2 = __pyx_v_rel_matrix.strides[2];
+          char *__pyx_temp_pointer_2;
+          Py_ssize_t __pyx_temp_idx_2;
+          __pyx_temp_pointer_0 = __pyx_v_rel_matrix.data;
+          for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+            __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
+            for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
+              __pyx_temp_pointer_2 = __pyx_temp_pointer_1;
+              for (__pyx_temp_idx_2 = 0; __pyx_temp_idx_2 < __pyx_temp_extent_2; __pyx_temp_idx_2++) {
+                *((float *) __pyx_temp_pointer_2) = __pyx_temp_scalar;
+                __pyx_temp_pointer_2 += __pyx_temp_stride_2;
+              }
+              __pyx_temp_pointer_1 += __pyx_temp_stride_1;
+            }
+            __pyx_temp_pointer_0 += __pyx_temp_stride_0;
           }
       }
   }
 
-  /* "game_encoder.pyx":450
+  /* "game_encoder.pyx":449
  * 
  *     # --- MAIN LOOP ---
  *     for i in range(n_ships):             # <<<<<<<<<<<<<<
  *         attacker = ships[i]
  * 
 */
-  __pyx_t_4 = __pyx_v_n_ships;
-  __pyx_t_5 = __pyx_t_4;
-  for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
-    __pyx_v_i = __pyx_t_6;
+  __pyx_t_3 = __pyx_v_n_ships;
+  __pyx_t_4 = __pyx_t_3;
+  for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
+    __pyx_v_i = __pyx_t_5;
 
-    /* "game_encoder.pyx":451
+    /* "game_encoder.pyx":450
  *     # --- MAIN LOOP ---
  *     for i in range(n_ships):
  *         attacker = ships[i]             # <<<<<<<<<<<<<<
@@ -24604,15 +24195,15 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
     if (unlikely(__pyx_v_ships == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 451, __pyx_L1_error)
+      __PYX_ERR(0, 450, __pyx_L1_error)
     }
     __pyx_t_1 = __Pyx_PyList_GET_ITEM(__pyx_v_ships, __pyx_v_i);
     __Pyx_INCREF(__pyx_t_1);
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 451, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 450, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_attacker, ((struct __pyx_obj_4ship_Ship *)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "game_encoder.pyx":454
+    /* "game_encoder.pyx":453
  * 
  *         # Check destroyed status
  *         if attacker.destroyed:             # <<<<<<<<<<<<<<
@@ -24621,7 +24212,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
     if (__pyx_v_attacker->destroyed) {
 
-      /* "game_encoder.pyx":455
+      /* "game_encoder.pyx":454
  *         # Check destroyed status
  *         if attacker.destroyed:
  *             continue             # <<<<<<<<<<<<<<
@@ -24630,7 +24221,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       goto __pyx_L3_continue;
 
-      /* "game_encoder.pyx":454
+      /* "game_encoder.pyx":453
  * 
  *         # Check destroyed status
  *         if attacker.destroyed:             # <<<<<<<<<<<<<<
@@ -24639,39 +24230,39 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
     }
 
-    /* "game_encoder.pyx":457
+    /* "game_encoder.pyx":456
  *             continue
  * 
  *         attacker_id = attacker.id             # <<<<<<<<<<<<<<
  * 
  *         for j in range(n_ships):
 */
-    __pyx_t_7 = __pyx_v_attacker->id;
-    __pyx_v_attacker_id = __pyx_t_7;
+    __pyx_t_6 = __pyx_v_attacker->id;
+    __pyx_v_attacker_id = __pyx_t_6;
 
-    /* "game_encoder.pyx":459
+    /* "game_encoder.pyx":458
  *         attacker_id = attacker.id
  * 
  *         for j in range(n_ships):             # <<<<<<<<<<<<<<
  *             # Self-check optimization
  *             if i == j:
 */
-    __pyx_t_7 = __pyx_v_n_ships;
-    __pyx_t_8 = __pyx_t_7;
-    for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
-      __pyx_v_j = __pyx_t_9;
+    __pyx_t_6 = __pyx_v_n_ships;
+    __pyx_t_7 = __pyx_t_6;
+    for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+      __pyx_v_j = __pyx_t_8;
 
-      /* "game_encoder.pyx":461
+      /* "game_encoder.pyx":460
  *         for j in range(n_ships):
  *             # Self-check optimization
  *             if i == j:             # <<<<<<<<<<<<<<
  *                 continue
  * 
 */
-      __pyx_t_10 = (__pyx_v_i == __pyx_v_j);
-      if (__pyx_t_10) {
+      __pyx_t_9 = (__pyx_v_i == __pyx_v_j);
+      if (__pyx_t_9) {
 
-        /* "game_encoder.pyx":462
+        /* "game_encoder.pyx":461
  *             # Self-check optimization
  *             if i == j:
  *                 continue             # <<<<<<<<<<<<<<
@@ -24680,7 +24271,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
         goto __pyx_L6_continue;
 
-        /* "game_encoder.pyx":461
+        /* "game_encoder.pyx":460
  *         for j in range(n_ships):
  *             # Self-check optimization
  *             if i == j:             # <<<<<<<<<<<<<<
@@ -24689,7 +24280,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       }
 
-      /* "game_encoder.pyx":464
+      /* "game_encoder.pyx":463
  *                 continue
  * 
  *             defender = ships[j]             # <<<<<<<<<<<<<<
@@ -24698,15 +24289,15 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       if (unlikely(__pyx_v_ships == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 464, __pyx_L1_error)
+        __PYX_ERR(0, 463, __pyx_L1_error)
       }
       __pyx_t_1 = __Pyx_PyList_GET_ITEM(__pyx_v_ships, __pyx_v_j);
       __Pyx_INCREF(__pyx_t_1);
-      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 464, __pyx_L1_error)
+      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_4ship_Ship))))) __PYX_ERR(0, 463, __pyx_L1_error)
       __Pyx_XDECREF_SET(__pyx_v_defender, ((struct __pyx_obj_4ship_Ship *)__pyx_t_1));
       __pyx_t_1 = 0;
 
-      /* "game_encoder.pyx":466
+      /* "game_encoder.pyx":465
  *             defender = ships[j]
  * 
  *             if defender.destroyed:             # <<<<<<<<<<<<<<
@@ -24715,7 +24306,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       if (__pyx_v_defender->destroyed) {
 
-        /* "game_encoder.pyx":467
+        /* "game_encoder.pyx":466
  * 
  *             if defender.destroyed:
  *                 continue             # <<<<<<<<<<<<<<
@@ -24724,7 +24315,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
         goto __pyx_L6_continue;
 
-        /* "game_encoder.pyx":466
+        /* "game_encoder.pyx":465
  *             defender = ships[j]
  * 
  *             if defender.destroyed:             # <<<<<<<<<<<<<<
@@ -24733,69 +24324,69 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       }
 
-      /* "game_encoder.pyx":469
+      /* "game_encoder.pyx":468
  *                 continue
  * 
  *             defender_id = defender.id             # <<<<<<<<<<<<<<
  * 
  *             # Attack Range Ralation
 */
-      __pyx_t_11 = __pyx_v_defender->id;
-      __pyx_v_defender_id = __pyx_t_11;
+      __pyx_t_10 = __pyx_v_defender->id;
+      __pyx_v_defender_id = __pyx_t_10;
 
-      /* "game_encoder.pyx":472
+      /* "game_encoder.pyx":471
  * 
  *             # Attack Range Ralation
  *             _, range_list = cache.attack_range_s2s(             # <<<<<<<<<<<<<<
  *                 attacker.get_ship_hash_state(),
  *                 defender.get_ship_hash_state()
 */
-      __pyx_t_12 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 472, __pyx_L1_error)
+      __pyx_t_11 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_cache); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 471, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_12);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_attack_range_s2s); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 471, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_attack_range_s2s); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 472, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_14);
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-      /* "game_encoder.pyx":473
+      /* "game_encoder.pyx":472
  *             # Attack Range Ralation
  *             _, range_list = cache.attack_range_s2s(
  *                 attacker.get_ship_hash_state(),             # <<<<<<<<<<<<<<
  *                 defender.get_ship_hash_state()
  *             )
 */
-      __pyx_t_13 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_attacker->__pyx_vtab)->get_ship_hash_state(__pyx_v_attacker, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 473, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_13);
+      __pyx_t_12 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_attacker->__pyx_vtab)->get_ship_hash_state(__pyx_v_attacker, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 472, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_12);
 
-      /* "game_encoder.pyx":474
+      /* "game_encoder.pyx":473
  *             _, range_list = cache.attack_range_s2s(
  *                 attacker.get_ship_hash_state(),
  *                 defender.get_ship_hash_state()             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-      __pyx_t_15 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_defender->__pyx_vtab)->get_ship_hash_state(__pyx_v_defender, 0); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 474, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_16 = 1;
+      __pyx_t_14 = ((struct __pyx_vtabstruct_4ship_Ship *)__pyx_v_defender->__pyx_vtab)->get_ship_hash_state(__pyx_v_defender, 0); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 473, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_15 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_14))) {
-        __pyx_t_12 = PyMethod_GET_SELF(__pyx_t_14);
-        assert(__pyx_t_12);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
-        __Pyx_INCREF(__pyx_t_12);
+      if (unlikely(PyMethod_Check(__pyx_t_13))) {
+        __pyx_t_11 = PyMethod_GET_SELF(__pyx_t_13);
+        assert(__pyx_t_11);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+        __Pyx_INCREF(__pyx_t_11);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-        __pyx_t_16 = 0;
+        __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+        __pyx_t_15 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[3] = {__pyx_t_12, __pyx_t_13, __pyx_t_15};
-        __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_16, (3-__pyx_t_16) | (__pyx_t_16*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+        PyObject *__pyx_callargs[3] = {__pyx_t_11, __pyx_t_12, __pyx_t_14};
+        __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_15, (3-__pyx_t_15) | (__pyx_t_15*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 472, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       if ((likely(PyTuple_CheckExact(__pyx_t_1))) || (PyList_CheckExact(__pyx_t_1))) {
@@ -24804,77 +24395,77 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
         if (unlikely(size != 2)) {
           if (size > 2) __Pyx_RaiseTooManyValuesError(2);
           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-          __PYX_ERR(0, 472, __pyx_L1_error)
+          __PYX_ERR(0, 471, __pyx_L1_error)
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
         if (likely(PyTuple_CheckExact(sequence))) {
-          __pyx_t_14 = PyTuple_GET_ITEM(sequence, 0);
+          __pyx_t_13 = PyTuple_GET_ITEM(sequence, 0);
+          __Pyx_INCREF(__pyx_t_13);
+          __pyx_t_14 = PyTuple_GET_ITEM(sequence, 1);
           __Pyx_INCREF(__pyx_t_14);
-          __pyx_t_15 = PyTuple_GET_ITEM(sequence, 1);
-          __Pyx_INCREF(__pyx_t_15);
         } else {
-          __pyx_t_14 = __Pyx_PyList_GetItemRefFast(sequence, 0, __Pyx_ReferenceSharing_SharedReference);
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 472, __pyx_L1_error)
+          __pyx_t_13 = __Pyx_PyList_GetItemRefFast(sequence, 0, __Pyx_ReferenceSharing_SharedReference);
+          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 471, __pyx_L1_error)
+          __Pyx_XGOTREF(__pyx_t_13);
+          __pyx_t_14 = __Pyx_PyList_GetItemRefFast(sequence, 1, __Pyx_ReferenceSharing_SharedReference);
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 471, __pyx_L1_error)
           __Pyx_XGOTREF(__pyx_t_14);
-          __pyx_t_15 = __Pyx_PyList_GetItemRefFast(sequence, 1, __Pyx_ReferenceSharing_SharedReference);
-          if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 472, __pyx_L1_error)
-          __Pyx_XGOTREF(__pyx_t_15);
         }
         #else
-        __pyx_t_14 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 472, __pyx_L1_error)
+        __pyx_t_13 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_14 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 471, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_14);
-        __pyx_t_15 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 472, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_15);
         #endif
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else {
         Py_ssize_t index = -1;
-        __pyx_t_13 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 472, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_12 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_12);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_17 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_13);
-        index = 0; __pyx_t_14 = __pyx_t_17(__pyx_t_13); if (unlikely(!__pyx_t_14)) goto __pyx_L10_unpacking_failed;
+        __pyx_t_16 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_12);
+        index = 0; __pyx_t_13 = __pyx_t_16(__pyx_t_12); if (unlikely(!__pyx_t_13)) goto __pyx_L10_unpacking_failed;
+        __Pyx_GOTREF(__pyx_t_13);
+        index = 1; __pyx_t_14 = __pyx_t_16(__pyx_t_12); if (unlikely(!__pyx_t_14)) goto __pyx_L10_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_14);
-        index = 1; __pyx_t_15 = __pyx_t_17(__pyx_t_13); if (unlikely(!__pyx_t_15)) goto __pyx_L10_unpacking_failed;
-        __Pyx_GOTREF(__pyx_t_15);
-        if (__Pyx_IternextUnpackEndCheck(__pyx_t_17(__pyx_t_13), 2) < (0)) __PYX_ERR(0, 472, __pyx_L1_error)
-        __pyx_t_17 = NULL;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        if (__Pyx_IternextUnpackEndCheck(__pyx_t_16(__pyx_t_12), 2) < (0)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __pyx_t_16 = NULL;
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         goto __pyx_L11_unpacking_done;
         __pyx_L10_unpacking_failed:;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __pyx_t_17 = NULL;
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+        __pyx_t_16 = NULL;
         if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-        __PYX_ERR(0, 472, __pyx_L1_error)
+        __PYX_ERR(0, 471, __pyx_L1_error)
         __pyx_L11_unpacking_done:;
       }
 
-      /* "game_encoder.pyx":472
+      /* "game_encoder.pyx":471
  * 
  *             # Attack Range Ralation
  *             _, range_list = cache.attack_range_s2s(             # <<<<<<<<<<<<<<
  *                 attacker.get_ship_hash_state(),
  *                 defender.get_ship_hash_state()
 */
-      if (!(likely(PyList_CheckExact(__pyx_t_15))||((__pyx_t_15) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_15))) __PYX_ERR(0, 472, __pyx_L1_error)
-      __Pyx_XDECREF_SET(__pyx_v__, __pyx_t_14);
+      if (!(likely(PyList_CheckExact(__pyx_t_14))||((__pyx_t_14) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_14))) __PYX_ERR(0, 471, __pyx_L1_error)
+      __Pyx_XDECREF_SET(__pyx_v__, __pyx_t_13);
+      __pyx_t_13 = 0;
+      __Pyx_XDECREF_SET(__pyx_v_range_list, ((PyObject*)__pyx_t_14));
       __pyx_t_14 = 0;
-      __Pyx_XDECREF_SET(__pyx_v_range_list, ((PyObject*)__pyx_t_15));
-      __pyx_t_15 = 0;
 
-      /* "game_encoder.pyx":477
+      /* "game_encoder.pyx":476
  *             )
  * 
  *             for from_hull in range(c_hull_type):             # <<<<<<<<<<<<<<
  *                 attack_range_list = range_list[from_hull]
  * 
 */
-      __pyx_t_11 = __pyx_v_12game_encoder_c_hull_type;
-      __pyx_t_18 = __pyx_t_11;
-      for (__pyx_t_19 = 0; __pyx_t_19 < __pyx_t_18; __pyx_t_19+=1) {
-        __pyx_v_from_hull = __pyx_t_19;
+      __pyx_t_10 = __pyx_v_12game_encoder_c_hull_type;
+      __pyx_t_17 = __pyx_t_10;
+      for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+        __pyx_v_from_hull = __pyx_t_18;
 
-        /* "game_encoder.pyx":478
+        /* "game_encoder.pyx":477
  * 
  *             for from_hull in range(c_hull_type):
  *                 attack_range_list = range_list[from_hull]             # <<<<<<<<<<<<<<
@@ -24883,27 +24474,27 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
         if (unlikely(__pyx_v_range_list == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 478, __pyx_L1_error)
+          __PYX_ERR(0, 477, __pyx_L1_error)
         }
         __pyx_t_1 = __Pyx_PyList_GET_ITEM(__pyx_v_range_list, __pyx_v_from_hull);
         __Pyx_INCREF(__pyx_t_1);
-        if (!(likely(PyList_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_1))) __PYX_ERR(0, 478, __pyx_L1_error)
+        if (!(likely(PyList_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_1))) __PYX_ERR(0, 477, __pyx_L1_error)
         __Pyx_XDECREF_SET(__pyx_v_attack_range_list, ((PyObject*)__pyx_t_1));
         __pyx_t_1 = 0;
 
-        /* "game_encoder.pyx":480
+        /* "game_encoder.pyx":479
  *                 attack_range_list = range_list[from_hull]
  * 
  *                 for to_hull in range(c_hull_type):             # <<<<<<<<<<<<<<
  *                     attack_range = <float>attack_range_list[to_hull]
  * 
 */
-        __pyx_t_20 = __pyx_v_12game_encoder_c_hull_type;
-        __pyx_t_21 = __pyx_t_20;
-        for (__pyx_t_22 = 0; __pyx_t_22 < __pyx_t_21; __pyx_t_22+=1) {
-          __pyx_v_to_hull = __pyx_t_22;
+        __pyx_t_19 = __pyx_v_12game_encoder_c_hull_type;
+        __pyx_t_20 = __pyx_t_19;
+        for (__pyx_t_21 = 0; __pyx_t_21 < __pyx_t_20; __pyx_t_21+=1) {
+          __pyx_v_to_hull = __pyx_t_21;
 
-          /* "game_encoder.pyx":481
+          /* "game_encoder.pyx":480
  * 
  *                 for to_hull in range(c_hull_type):
  *                     attack_range = <float>attack_range_list[to_hull]             # <<<<<<<<<<<<<<
@@ -24912,12 +24503,12 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
           if (unlikely(__pyx_v_attack_range_list == Py_None)) {
             PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-            __PYX_ERR(0, 481, __pyx_L1_error)
+            __PYX_ERR(0, 480, __pyx_L1_error)
           }
-          __pyx_t_23 = __Pyx_PyFloat_AsFloat(__Pyx_PyList_GET_ITEM(__pyx_v_attack_range_list, __pyx_v_to_hull)); if (unlikely((__pyx_t_23 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 481, __pyx_L1_error)
-          __pyx_v_attack_range = ((float)__pyx_t_23);
+          __pyx_t_22 = __Pyx_PyFloat_AsFloat(__Pyx_PyList_GET_ITEM(__pyx_v_attack_range_list, __pyx_v_to_hull)); if (unlikely((__pyx_t_22 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 480, __pyx_L1_error)
+          __pyx_v_attack_range = ((float)__pyx_t_22);
 
-          /* "game_encoder.pyx":483
+          /* "game_encoder.pyx":482
  *                     attack_range = <float>attack_range_list[to_hull]
  * 
  *                     flat_idx = from_hull * c_hull_type + to_hull             # <<<<<<<<<<<<<<
@@ -24926,49 +24517,49 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
           __pyx_v_flat_idx = ((__pyx_v_from_hull * __pyx_v_12game_encoder_c_hull_type) + __pyx_v_to_hull);
 
-          /* "game_encoder.pyx":485
+          /* "game_encoder.pyx":484
  *                     flat_idx = from_hull * c_hull_type + to_hull
  * 
  *                     rel_matrix[attacker_id, defender_id, flat_idx] = attack_range             # <<<<<<<<<<<<<<
  * 
  *             # Standard Geometric Relation
 */
-          __pyx_t_24 = __pyx_v_attacker_id;
-          __pyx_t_25 = __pyx_v_defender_id;
-          __pyx_t_26 = __pyx_v_flat_idx;
-          *((__pyx_t_5numpy_float32_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float32_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_24 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_26)) )) = __pyx_v_attack_range;
+          __pyx_t_23 = __pyx_v_attacker_id;
+          __pyx_t_24 = __pyx_v_defender_id;
+          __pyx_t_25 = __pyx_v_flat_idx;
+          *((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_23 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_24 * __pyx_v_rel_matrix.strides[1]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[2]) )) = __pyx_v_attack_range;
         }
       }
 
-      /* "game_encoder.pyx":488
+      /* "game_encoder.pyx":487
  * 
  *             # Standard Geometric Relation
  *             dx = (defender.x - attacker.x) / game.player_edge             # <<<<<<<<<<<<<<
  *             dy = (defender.y - attacker.y) / game.short_edge
  *             dist = sqrt(dx*dx + dy*dy)
 */
-      __pyx_t_23 = (__pyx_v_defender->x - __pyx_v_attacker->x);
+      __pyx_t_22 = (__pyx_v_defender->x - __pyx_v_attacker->x);
       if (unlikely(__pyx_v_game->player_edge == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 488, __pyx_L1_error)
+        __PYX_ERR(0, 487, __pyx_L1_error)
       }
-      __pyx_v_dx = (__pyx_t_23 / __pyx_v_game->player_edge);
+      __pyx_v_dx = (__pyx_t_22 / __pyx_v_game->player_edge);
 
-      /* "game_encoder.pyx":489
+      /* "game_encoder.pyx":488
  *             # Standard Geometric Relation
  *             dx = (defender.x - attacker.x) / game.player_edge
  *             dy = (defender.y - attacker.y) / game.short_edge             # <<<<<<<<<<<<<<
  *             dist = sqrt(dx*dx + dy*dy)
  * 
 */
-      __pyx_t_23 = (__pyx_v_defender->y - __pyx_v_attacker->y);
+      __pyx_t_22 = (__pyx_v_defender->y - __pyx_v_attacker->y);
       if (unlikely(__pyx_v_game->short_edge == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 489, __pyx_L1_error)
+        __PYX_ERR(0, 488, __pyx_L1_error)
       }
-      __pyx_v_dy = (__pyx_t_23 / __pyx_v_game->short_edge);
+      __pyx_v_dy = (__pyx_t_22 / __pyx_v_game->short_edge);
 
-      /* "game_encoder.pyx":490
+      /* "game_encoder.pyx":489
  *             dx = (defender.x - attacker.x) / game.player_edge
  *             dy = (defender.y - attacker.y) / game.short_edge
  *             dist = sqrt(dx*dx + dy*dy)             # <<<<<<<<<<<<<<
@@ -24977,7 +24568,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       __pyx_v_dist = sqrt(((__pyx_v_dx * __pyx_v_dx) + (__pyx_v_dy * __pyx_v_dy)));
 
-      /* "game_encoder.pyx":493
+      /* "game_encoder.pyx":492
  * 
  *             # Angle relative to attacker's front (Bearing)
  *             angle_to_target = atan2(dy, dx)             # <<<<<<<<<<<<<<
@@ -24986,7 +24577,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       __pyx_v_angle_to_target = atan2(__pyx_v_dy, __pyx_v_dx);
 
-      /* "game_encoder.pyx":494
+      /* "game_encoder.pyx":493
  *             # Angle relative to attacker's front (Bearing)
  *             angle_to_target = atan2(dy, dx)
  *             relative_bearing = angle_to_target - attacker.orientation             # <<<<<<<<<<<<<<
@@ -24995,50 +24586,50 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
 */
       __pyx_v_relative_bearing = (__pyx_v_angle_to_target - __pyx_v_attacker->orientation);
 
-      /* "game_encoder.pyx":499
+      /* "game_encoder.pyx":498
  *             # Indices 0-15 are Hull Ranges
  *             # Indices 16-19 are Relative Physics
  *             rel_matrix[attacker_id, defender_id, 16] = dx             # <<<<<<<<<<<<<<
  *             rel_matrix[attacker_id, defender_id, 17] = dy
  *             rel_matrix[attacker_id, defender_id, 18] = dist
 */
-      __pyx_t_26 = __pyx_v_attacker_id;
-      __pyx_t_25 = __pyx_v_defender_id;
-      __pyx_t_24 = 16;
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float32_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_26 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_24)) )) = __pyx_v_dx;
+      __pyx_t_25 = __pyx_v_attacker_id;
+      __pyx_t_24 = __pyx_v_defender_id;
+      __pyx_t_23 = 16;
+      *((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_25 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_24 * __pyx_v_rel_matrix.strides[1]) ) + __pyx_t_23 * __pyx_v_rel_matrix.strides[2]) )) = __pyx_v_dx;
 
-      /* "game_encoder.pyx":500
+      /* "game_encoder.pyx":499
  *             # Indices 16-19 are Relative Physics
  *             rel_matrix[attacker_id, defender_id, 16] = dx
  *             rel_matrix[attacker_id, defender_id, 17] = dy             # <<<<<<<<<<<<<<
  *             rel_matrix[attacker_id, defender_id, 18] = dist
  *             rel_matrix[attacker_id, defender_id, 19] = relative_bearing
 */
-      __pyx_t_24 = __pyx_v_attacker_id;
-      __pyx_t_25 = __pyx_v_defender_id;
-      __pyx_t_26 = 17;
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float32_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_24 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_26)) )) = __pyx_v_dy;
+      __pyx_t_23 = __pyx_v_attacker_id;
+      __pyx_t_24 = __pyx_v_defender_id;
+      __pyx_t_25 = 17;
+      *((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_23 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_24 * __pyx_v_rel_matrix.strides[1]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[2]) )) = __pyx_v_dy;
 
-      /* "game_encoder.pyx":501
+      /* "game_encoder.pyx":500
  *             rel_matrix[attacker_id, defender_id, 16] = dx
  *             rel_matrix[attacker_id, defender_id, 17] = dy
  *             rel_matrix[attacker_id, defender_id, 18] = dist             # <<<<<<<<<<<<<<
  *             rel_matrix[attacker_id, defender_id, 19] = relative_bearing
 */
-      __pyx_t_26 = __pyx_v_attacker_id;
-      __pyx_t_25 = __pyx_v_defender_id;
-      __pyx_t_24 = 18;
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float32_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_26 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_24)) )) = __pyx_v_dist;
+      __pyx_t_25 = __pyx_v_attacker_id;
+      __pyx_t_24 = __pyx_v_defender_id;
+      __pyx_t_23 = 18;
+      *((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_25 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_24 * __pyx_v_rel_matrix.strides[1]) ) + __pyx_t_23 * __pyx_v_rel_matrix.strides[2]) )) = __pyx_v_dist;
 
-      /* "game_encoder.pyx":502
+      /* "game_encoder.pyx":501
  *             rel_matrix[attacker_id, defender_id, 17] = dy
  *             rel_matrix[attacker_id, defender_id, 18] = dist
  *             rel_matrix[attacker_id, defender_id, 19] = relative_bearing             # <<<<<<<<<<<<<<
 */
-      __pyx_t_24 = __pyx_v_attacker_id;
-      __pyx_t_25 = __pyx_v_defender_id;
-      __pyx_t_26 = 19;
-      *((__pyx_t_5numpy_float32_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float32_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_24 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[1]) )) + __pyx_t_26)) )) = __pyx_v_relative_bearing;
+      __pyx_t_23 = __pyx_v_attacker_id;
+      __pyx_t_24 = __pyx_v_defender_id;
+      __pyx_t_25 = 19;
+      *((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rel_matrix.data + __pyx_t_23 * __pyx_v_rel_matrix.strides[0]) ) + __pyx_t_24 * __pyx_v_rel_matrix.strides[1]) ) + __pyx_t_25 * __pyx_v_rel_matrix.strides[2]) )) = __pyx_v_relative_bearing;
       __pyx_L6_continue:;
     }
     __pyx_L3_continue:;
@@ -25049,7 +24640,7 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
  * 
  * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
  * @cython.wraparound(False)
- * cdef void encode_relation_matrix(Armada game):
+ * cdef void encode_relation_matrix(Armada game, float[:, :, :] rel_matrix):
 */
 
   /* function exit code */
@@ -25057,11 +24648,10 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_t_3, 1);
+  __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
-  __Pyx_XDECREF(__pyx_t_15);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
@@ -25073,7 +24663,6 @@ static void __pyx_f_12game_encoder_encode_relation_matrix(struct __pyx_obj_6arma
   __Pyx_XDECREF(__pyx_v_ships);
   __Pyx_XDECREF((PyObject *)__pyx_v_attacker);
   __Pyx_XDECREF((PyObject *)__pyx_v_defender);
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_rel_matrix, 1);
   __Pyx_XDECREF(__pyx_v_range_list);
   __Pyx_XDECREF(__pyx_v_attack_range_list);
   __Pyx_XDECREF(__pyx_v__);
@@ -25952,9 +25541,9 @@ static int __pyx_import_star_set(__pyx_mstatetype *__pyx_mstate,PyObject *o, PyO
     "__pyx_ctuple_Py_ssize_t_struct",
     "__pyx_ctuple_char__ptr",
     "__pyx_ctuple_char__ptr_struct",
-    "__pyx_ctuple_double",
-    "__pyx_ctuple_double_struct",
     "__pyx_ctuple_int",
+    "__pyx_ctuple_int__and_int__and_int",
+    "__pyx_ctuple_int__and_int__and_int_struct",
     "__pyx_ctuple_int_struct",
     "__pyx_ctuple_long",
     "__pyx_ctuple_long__and_long__and_long",
@@ -25986,9 +25575,6 @@ static int __pyx_import_star_set(__pyx_mstatetype *__pyx_mstate,PyObject *o, PyO
   else if (__Pyx_StrEq(name, "Py_None")) {
     PyErr_Format(PyExc_TypeError, "Cannot convert Python object Py_None to PyObject *");
     __PYX_ERR(1, 62, __pyx_L2_error)
-  }
-  else if (__Pyx_StrEq(name, "SHIP_STATS_FEATURES")) {
-    __pyx_v_12game_encoder_SHIP_STATS_FEATURES = __Pyx_PyLong_As_int(o); if (unlikely((__pyx_v_12game_encoder_SHIP_STATS_FEATURES == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L2_error)
   }
   else if (__Pyx_StrEq(name, "__pyx_collections_abc_Sequence")) {
     Py_INCREF(o);
@@ -26084,6 +25670,9 @@ static int __pyx_import_star_set(__pyx_mstatetype *__pyx_mstate,PyObject *o, PyO
   }
   else if (__Pyx_StrEq(name, "max_squads")) {
     __pyx_v_12game_encoder_max_squads = __Pyx_PyLong_As_int(o); if (unlikely((__pyx_v_12game_encoder_max_squads == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L2_error)
+  }
+  else if (__Pyx_StrEq(name, "ship_static_offset")) {
+    __pyx_v_12game_encoder_ship_static_offset = __Pyx_PyLong_As_int(o); if (unlikely((__pyx_v_12game_encoder_ship_static_offset == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L2_error)
   }
   else if (__Pyx_StrEq(name, "strided")) {
     Py_INCREF(o);
@@ -26263,8 +25852,8 @@ static int __Pyx_modinit_function_export_code(__pyx_mstatetype *__pyx_mstate) {
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (unlikely(!__pyx_export_signature)) __PYX_ERR(0, 1, __pyx_L1_error)
     #endif
-    const char * __pyx_export_name = __pyx_export_signature + 117;
-    void (*const __pyx_export_pointers[])(void) = {(void (*)(void))&__pyx_f_12game_encoder_encode_game_state, (void (*)(void))&__pyx_f_12game_encoder_get_terminal_value, (void (*)(void))&__pyx_f_12game_encoder_encode_relation_matrix, (void (*)(void))&__pyx_f_12game_encoder_encode_scalar_features, (void (*)(void))&__pyx_f_12game_encoder_encode_ship_entity_features, (void (*)(void))&__pyx_f_12game_encoder_encode_spatial_mask, (void (*)(void))&__pyx_f_12game_encoder_encode_squad_entity_features, (void (*)(void)) NULL};
+    const char * __pyx_export_name = __pyx_export_signature + 426;
+    void (*const __pyx_export_pointers[])(void) = {(void (*)(void))&__pyx_f_12game_encoder_encode_game_state, (void (*)(void))&__pyx_f_12game_encoder_get_terminal_value, (void (*)(void))&__pyx_f_12game_encoder_encode_relation_matrix, (void (*)(void))&__pyx_f_12game_encoder_encode_scalar_features, (void (*)(void))&__pyx_f_12game_encoder_encode_spatial_mask, (void (*)(void))&__pyx_f_12game_encoder_encode_ship_entity_features, (void (*)(void)) NULL};
     void (*const *__pyx_export_pointer)(void) = __pyx_export_pointers;
     const char *__pyx_export_current_signature = __pyx_export_signature;
     while (*__pyx_export_pointer) {
@@ -27950,7 +27539,7 @@ __Pyx_RefNannySetupContext("PyInit_game_encoder", 0);
  *     float width_step = LONG_RANGE * 6 / width_res
  *     float height_step = LONG_RANGE * 3 / height_res             # <<<<<<<<<<<<<<
  * 
- *     int SHIP_STATS_FEATURES = 36
+ *     int ship_static_offset = <int>Config.SHIP_STATIC_OFFSET
 */
   __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_LONG_RANGE); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
@@ -27970,11 +27559,18 @@ __Pyx_RefNannySetupContext("PyInit_game_encoder", 0);
   /* "game_encoder.pyx":50
  *     float height_step = LONG_RANGE * 3 / height_res
  * 
- *     int SHIP_STATS_FEATURES = 36             # <<<<<<<<<<<<<<
+ *     int ship_static_offset = <int>Config.SHIP_STATIC_OFFSET             # <<<<<<<<<<<<<<
  * 
  * 
 */
-  __pyx_v_12game_encoder_SHIP_STATS_FEATURES = 36;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Config); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_SHIP_STATIC_OFFSET); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_11);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_10 = __Pyx_PyLong_As_int(__pyx_t_11); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+  __pyx_v_12game_encoder_ship_static_offset = ((int)__pyx_t_10);
 
   /* "game_encoder.pyx":54
  * 
@@ -27983,38 +27579,38 @@ __Pyx_RefNannySetupContext("PyInit_game_encoder", 0);
  *     cdef cnp.ndarray[cnp.float32_t, ndim=1] ship_hulls, squad_hulls, game_length
  *     cdef Ship ship
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_12game_encoder_1get_terminal_value, 0, __pyx_mstate_global->__pyx_n_u_get_terminal_value, NULL, __pyx_mstate_global->__pyx_n_u_game_encoder, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[35])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_11 = __Pyx_CyFunction_New(&__pyx_mdef_12game_encoder_1get_terminal_value, 0, __pyx_mstate_global->__pyx_n_u_get_terminal_value, NULL, __pyx_mstate_global->__pyx_n_u_game_encoder, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[35])); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_11);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_11);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_get_terminal_value, __pyx_t_4) < (0)) __PYX_ERR(0, 54, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_get_terminal_value, __pyx_t_11) < (0)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
   /* "game_encoder.pyx":79
  * 
  * 
- * cpdef dict encode_game_state(Armada game):             # <<<<<<<<<<<<<<
- *     """Main function to encode the entire game state into numpy arrays for the NN."""
- *     encode_scalar_features(game)
+ * cpdef tuple encode_game_state(Armada game,             # <<<<<<<<<<<<<<
+ *                               float[:] scalar_buffer,
+ *                               float[:, :] ship_entity_buffer,
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_12game_encoder_3encode_game_state, 0, __pyx_mstate_global->__pyx_n_u_encode_game_state, NULL, __pyx_mstate_global->__pyx_n_u_game_encoder, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[36])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 79, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_11 = __Pyx_CyFunction_New(&__pyx_mdef_12game_encoder_3encode_game_state, 0, __pyx_mstate_global->__pyx_n_u_encode_game_state, NULL, __pyx_mstate_global->__pyx_n_u_game_encoder, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[36])); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 79, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_11);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_11);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_encode_game_state, __pyx_t_4) < (0)) __PYX_ERR(0, 79, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_encode_game_state, __pyx_t_11) < (0)) __PYX_ERR(0, 79, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
   /* "game_encoder.pyx":1
  * # cython: profile=True             # <<<<<<<<<<<<<<
  * 
  * from __future__ import annotations
 */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_4) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_11 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_11);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_11) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
   __Pyx_PyMonitoring_ExitScope(0);
 
@@ -28058,7 +27654,7 @@ __Pyx_RefNannySetupContext("PyInit_game_encoder", 0);
 
 static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
-  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 275, __pyx_L1_error)
   __pyx_builtin___import__ = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_import); if (!__pyx_builtin___import__) __PYX_ERR(1, 101, __pyx_L1_error)
   __pyx_builtin_Ellipsis = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_Ellipsis); if (!__pyx_builtin_Ellipsis) __PYX_ERR(1, 409, __pyx_L1_error)
   __pyx_builtin_id = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_id); if (!__pyx_builtin_id) __PYX_ERR(1, 619, __pyx_L1_error)
@@ -28154,31 +27750,31 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 10; } index[] = {{2},{68},{35},{54},{37},{60},{24},{52},{26},{34},{32},{29},{33},{45},{22},{15},{179},{37},{30},{32},{1},{1},{1},{1},{1},{8},{5},{6},{15},{23},{25},{31},{7},{6},{2},{6},{35},{85},{9},{30},{50},{39},{34},{8},{20},{32},{22},{30},{37},{5},{5},{4},{16},{6},{4},{8},{15},{25},{15},{18},{22},{10},{17},{18},{9},{10},{24},{21},{21},{21},{21},{21},{16},{22},{23},{20},{3},{19},{20},{8},{13},{15},{1},{1},{3},{12},{14},{9},{15},{3},{5},{18},{16},{1},{4},{16},{1},{14},{15},{11},{15},{12},{5},{14},{9},{17},{18},{12},{7},{5},{13},{1},{4},{5},{4},{8},{10},{5},{15},{1},{6},{17},{22},{22},{27},{19},{28},{10},{9},{5},{6},{4},{5},{7},{6},{7},{8},{4},{12},{11},{14},{19},{20},{18},{21},{12},{15},{25},{15},{18},{22},{10},{11},{9},{2},{10},{12},{12},{12},{5},{13},{20},{21},{5},{8},{5},{8},{17},{18},{18},{9},{24},{15},{10},{11},{7},{4},{10},{4},{8},{5},{2},{4},{7},{2},{7},{5},{3},{13},{4},{10},{2},{3},{12},{14},{11},{10},{19},{14},{12},{10},{17},{13},{8},{9},{6},{4},{14},{12},{10},{12},{19},{5},{11},{15},{13},{10},{22},{20},{4},{7},{18},{5},{4},{4},{7},{6},{8},{14},{8},{6},{6},{6},{6},{9},{10},{8},{1},{5},{276},{14},{14},{14},{13},{184},{310},{799},{339},{14},{15},{19},{14},{12},{14},{18},{28},{18},{14},{14},{13},{616},{12},{14},{367},{12},{13},{13},{16},{20},{28},{33},{24},{25},{25},{32},{190},{1}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (3710 bytes) */
-const char* const cstring = "BZh91AY&SYC\206\223\314\000\003,\377\377\377\377\377\377\377\377\377\377\277\377\377\377\277\377\377\376\300@@@@@@@@@@@@\000@\000`\016]\364\016\036\002\366\323\314\2557\272\\m\333\240\253RX\025\256\203C\275\335\336\262\360\000\034pJ\021(\247\350\321M\212z\232d\375SG\251\351<44\312\237\246M6!\023\t\036\2302S\031OL\236\251\352f\247\250\320\3656\021\243A=G\352\206A(\210i\202\010&\230\232\023S\315A\r\251\351\244\323F@3Q\202\0004\006\200\000\000d\032h\000\006\200\"\0054\005\036\3256\223\324\364\304\236S3Jl\243\365A\220\365\032=@h\001\246\203@\000\r\006\200\320\032\000H\210&\204\232\000L\232O\"z\236\223SjzCF\201\240\0004\r\000\032\000\000\031\000\000\000\365\020d\300\t\200LL\2310\000&\004\300LL\023\000\000\000\000&F\002`C\010\001\"\211\241\000\3222\247\344Q\277B$\374\246\247\345Cjz\200\r\006\200\000\000\000\320\001\352hx\243i\001\247\244\320<\266x\305\0165\32328v\311\315]\367j\n\031=\256\337\212\234\227\204]\244\330\017\016\231\246Qpa\376\026\303\341\177/K\204\337\214\322\023$\371:\243\344:\242\200\177I\035h\377\2524\234H\335\212\322\257\375\241\323\376\310^\225%61\264|\317\247\365\277\037\251\373\261\203@\375\370\3061\214c\000l\334\361\370\323i\214l\0200i\265\274\213\026\260o\211-\352\205<u\360/)\002)<\364V@`+6A\230\264bll\033\022\033\006\300\270\332\365\201U\242f\251\004\222\327\221\220\264\r\2300\225V\030\312\232\352q\344\252\210\334\314\315n&\233l\006\206\223\007\241\341\rCa\353M\320\n#Cn\266;\313UT\030Vp t\206\223\025(\212HP\025I-bn\270pKZ\371\271\316BSC\000\203\221\311y\213\013\021\252\202\2665\024\0253pe-\254a\202\353\360\226\010\226*\340\256\001a\004\252\260+.\275(z\212Y\010B\352Ri\204X \364x\373\240^\026\243\220\303l\222\003\301\340\017\262\020\247\005\360\200A)\205bV\351^`+}s\234\336\017ro\222\304^\"\344\002(\304\302\346\016\014\214%\303\nN\002F\005\212\034\220\262if[A\233 \257xR\355\363\2611\007\305f<c`k\205\375WX\372\255\373uE:KY\350\255wS\357\244u\230\n5\364\013t\231\230\364TO>\210,\t\202R\275x\264\"\263~TK\316\362?+\257\314\363\232\235k\263}*L\340\r\360\010""\224\314\274K\346,/\356\214w\007\037\315\253i1\255.0\242\230\227,9\377\024\233R\312g\242\265\003\350\342cVP\034\035R\256\331\2535\302\370\321>.\035\2005y#xn\242\000\024\020\332\334\004\300on\272\243+4\032\221\230P\310\300\270\025\231\225\342\2168\266\340\240\212C\275\326\304\001d\025\232\340!m\301:\212\263\006\327\333\367t\352\005H\253\300<~\014.C\253\200~\353\250\321\271\262O\245\004\211\257!)\347/\005\326\251Jk\312\307u:\217H\022/\353^\027.\272\355\333G.\373\357\240n\343\301\215'\252\254:\350\233B\342\332\206KN\256]\272\345F\237'\371\336\373\260445\223\301\364\013\001v\226\235r\021\240+rm?\034o\257)\335&\212%<J\032\210\020\222\211F\035h\340\307\027\025H/\364H$e\263\326\332\311l\302d\261\302\036\334+\366\220\304\204\022\027\221\200Qu&C\t\023\245\2125;33\344\n\324W@P31\0133\260v\341\270\004\\\316\237\326\244V=\265\022\357\274\031F\250\313\224\013\230Y\231\306\325\367\340\2420\326\343\201\210\3037\247\002\3377\356\343\016\231\276\217\307\217\206\356\315V\017l\240F<\246m\255\324`\302dk\000\033\314\311\211I8\316@\236S\021\251\034_\225]\355&IU\323\340\241\307w\026\243\237\307\217\227~\351\201v\366\226\335\333\246[P3\035\005\2771,\244\354:\036\357\\\341\356[o\\\353\323\254\275\215G\233'\001\222(\315\203Os^\204\302\231\003!\2500\244\211\256\347;\021\226\243D\3503\270\216zr*NG3W.ge\325\343Pv\370\366\370\372#\374\242\357\026\r\2357\264\214\234\226)\316\226}\375\334\2314cDf\354\213\255\026\367e\263XdN\215\374\315B\360\341S\035\225\203\032\300\340A\331\373\037\255\370\220\332.\317*7/\345\346\315u\230;P%\317\361\267\373\355{4\271y\023n\300\014q\206\246\316\260\033$\331\306\006\\\204\343iah \331\242\222\326\327\244\316)\"\356DP\222L&G{\263=\363~\304VrY6\320bV\212\232F\354j[n3\273\2511\274\2601\352\356Q\315\356\006M\t\314\310\335]@\342'+\020\316S5\352\004\204\022\021.\264\336\204\345\3144\243\\E\270u\305\n\204\024g\352L\371\317N\232\013\026*\251\007!\260W\32433\243\310#\235\034\250\353\372\372sc\031\"<\227\241C\236n\224\341\302]\377k+\321~T}\211\274\363\324s\233\314\2548\023""\341G\267a3\203L\365\0176 \013\240\r\306\002\206\227\322\314\242\366\241\031\225\276\217\004\315\212\022\244\2373V\325\245<\231\214\262RT\304R{\316}#a\020\206\254\315Ys?8\320\313G`=Fhg\237\247*\201\244\025z\022 3\006P\210m\006\"\262\2568,\245o\016\021\002\006\254\213\346\020\036*\031\2679\206!\3100\351b\341Q$U\265]tp\2257\316c\005\033z{\202j\207j\226\344\303\250U\255d\030I\006\r\025?\223\025\304\245\321}H\033o\016\230\213\255\316\306E\002\324cC\250\312B\334\007V\357<\252\026\347\331(V.7\326\310\242\226\031\251B\031\266\230\342\3125w\026\270\321x\340!\233J\253=U\326\245\234\235\030\0279 \275#q\350KB\366\336\341/n\267\367\371\201\225\321\331\037\205\021\222!\315L\225\320(\307~\211\016F<g\235\262\030g\nH\361\330\244\005\211\021\031K\205\343\271\252\255\274\327\266\353\266(\331\274_Wb\250\274J\027\3102\02393\017\236\206Vn\025\031gOf\364$\213\000y\276\031<\017/D\343$<\255\341\243l\252\341Q\013E\026Sh*\320\372\312\316\216\261\243)\317\305\314\234\254Pb\035\226\270!\312\223i\005\010\016\316\355\224\212\233k\265vW.t\225\323\255\370`\212\252\025-\021\200\316\360;\303D^IM3\224\245)Fv\030\276E\271\030_>\362\356\207W\0176\356\367\227\376\344\227\273\035=\223\266\255\370\245b\364\277$\027\340;\331\341\204d\346\0248\231\263\304eZ\223l\246\264\273\2225\241\3077\255\016\266\033\030I\2036\331\251-x\005\212`4u\210\364%66\021\0312^\314\327=N\\\353\226\252k8\013Z\367\r\027\226\324+\246w\225\301\204,#\206\240\314W\020\232<\246G\224*P\217;\355\274tzT\352o\201\325\276\374R\301\301\306h\225\223\242\036\271\017\201\266{\233\303/b\020\032\354\324\266\220\304-K\227\021\261\"O\316\271r\261\310Sc\033*\262\253e\222\242%\244\3309\202\020n\024\013\312C-\272Mvf$\362\206{\341\317\300He\")\215\013\2027L\267*\274\351\361\3606\231Aw\264\340M2K7o\271\350\312x\233m\266\255\246\216,\024\221\213/k\310\276v\320\267I\005R\250F\253\253\224\325\220\312\240\242\256M\021\266\221\255\004\025\225P\3133\"9\240\027\306oe\213R\2140\327\"\345\222as\212\366-H\347*\212\221\245\345\361k\222\314\203tWH\234\027\264L\367""\235\346F\240\350`\253JS\205Z([\220\254\216;\307J\265\300\216\021EQ`qT\007E\220\020\343\003\302\270cvgW+.\321L\344\361\275b\212\212J\022ju\233p\n<(r\3533o\027\354bO*p\213\225\362\373\336oo\231\210m\263\251\254\221\272\216\336\350u\367#\273c\025(\267\247'\327\033\332,\253\360s84\217yu\034\221\273\322\217?0\241cbb\304\240\317\270\253\337\230+e\320\033\375)\221$.&p2\361\016;\272\347\230B\n\302\212#\246R\331|\355\242\214,\272\264\272T\300\270n\024\\;\370\236\256\017\007\262\321m\324\206\334_\216f\2118\2041\352|K\024X\332\025\265H\357\300\004d\013\305\222;\"\003\222\244n\260\3172\026XP\255E\262\250\323.6\332lf.;\243\t\027\210\303\254\250K\205\231h\307\223b\242\234\370f\234.\261\\\315\204V\213\343Z\317j\304\202\263i\000\361\322\032\265U\355e\340\220\334W\223k\tcG\241Z\375\002\202\224rg^\261\361\324\322\220Y#\013Q(i\242h\252*\242r1\352\017\320\222y\224\343\032-\275\020\307\206\213\037@B{\t\241xX\243\267\330\3618\342\261L\251\255Q\304\364\322\332\350\\\306\346Q\327\001\325o%\244\326\221,g\354r\262\362\320\000[\204N@\234v;\201\003\303\006^\3644I\204$\203D\036\356m4\034\347h\203\251o8\243\032J\235\026\\gzNnQ\031\360\247fc\264\254\324\247\2154\325(\360\352J\361\025-dc\311\322hX\26044\2457(\"\352\022\3428\001r.\023\205dp\035\234\320o\214\322\"\257\310\213EmE/\205\305\266WvH}\373@\374\354\212\366S\0302\337\221\243<\354\031.^-\027kn\307UK\267r\006\320\364K\223\247\251Sp\266W\273\306\026\313\021H\332\3219*5h\231f\025\247I\266\310\343\030\252*\306TsQFrK]A\303Y\310\336c4\006\204\334\323\251\264\343D\034|\263\265\252\r\025\3509JP\330\342\255.\373\343w\214c\"\214\273\353m\251&\251\333\314\342\311Sg4\201\262\224\316\tcy1k\244C%\033<\374*\371\250\344\355\227\253\214\205\r\235\302\250\351\246\320-\276\211N\353un\205Jp\233.7\021\016\256\310c\335\320FKc\222e/3\"\025\257\222\274V\354]\315Bs\332\322mA\234H\346\001\312Zk\026\342\3345u\375`0+\201\254\261A\2453\320zn\247,\000\277\"C\006\347\256M\220\302Ut\304\352\020`+2K\302\220(\217K\205\254\245\354\251D\251Fk\313\000\341l\r]\203m,\335tk\021/6""\253\032\264L\234\307J\025\222U2\210\310 l\030|\347\255-P\200\350\327E\246\375\206>(\3513_\014\n\262HJ@\313\316W\346\360\020\300&;\255\nv\251V\"#\005\362\316\250UV\215\232\"Ls\013q\030\006\216\327\243\340\037s\364s\272\036|JDy\024s>\247P\214\032\212\343z\323Q\326\333Q)\365\013+\352?\004\330<\204\032\356\343\300\232a\360q\334i\037\231\321ci\014m\246\372\331\363\323I\261\262V\253\323\342\342j\203\0048\177\236\023k\263\177\343\234C\232\235\267\371Z\033@\335\321\377%}\037\277\034\320\273JIq\177VI\240\242\t\007\352\251\223\301\217\004~A\376\323f\3133\256\205\037R\036{\363\244\2721=h.\027\364\177\022\036y\022%\025\010\017\274\371\206\027\032\346Mx$\n\213\372\213\003\314e\r\311r\tj\250y\373\354\341\303\365\211g*\036=\002`\347\2611\025P\025\351\370\314\345)\376\023\\\203\366\321\230\346,\226\350\367\257\251F\006Fo\352\177\263)\030\362\n\\{U\263\224\026w9\225\304\202\373\234\354\306J:=%\224~\222\224\375h*\236\232K\227\301K\242\002\025\201\3149\354\365@\323\265\037\253\232\240\267\021\212\206\323\242yZ\254g2|\n4D?\331r\344\337\3646\376\177hg\t\233\346\031\243\252\212y\301\263\207Mzs\330++3T\247T\261\032@\345EP\221\301:\253$o\007UK\016d-\234\225\252k\230\320\325\025\235ak\346\301\003\314\320\253\n\227EX\347\272\326\304\010\031\304\3168\226\323\253EyC\233\025,\021CzS6FZ\203\262\212Tf\354\345\337\031\215S_\327zW\211\325\334F\372t\2635\002(\210\253\272\002\334+\271HR\226\3253\241EW\304\313\007Ia)\267\034w\256B\244P\223!`\205\"\344x\361^\345H\315Z&\2771\035\335x\017%\"\2149u\3728\334_\257\260\007%=\230\242yJ\027v\371\366\000\204T\354R\364r*+O\243\002\224\006\264N\367&\305\214\t\364=6\347\373aAS`$\247Z\317h\305\263_#t\377\2255\361\361\345\215*\n\351w\252ka\366{\2307\334\013\207\205\250k[\026\245\313\305\360X\356\351\342)\207)|\020d}\237^\346\224\274cD_~\331?\032\266\322\342E\036\364f\236\tS'gzw\277\255\325<<\026{\032\326a)\337O\375\027\207\"\363A1u{\270v\2737]3>\231\276./*\252\362\037\n\037i\241Fu\342(d\350\347\365\305\315\227\3427\367\023P\302\027\366\341\3134\266\326\347\022O""\217o\344\233\304\327Lxs;\2344\374\274&\344\223\227\247\275\355\335\221\220g\367\316\247M\030\310\262(t@\303\241\311ff@$\031\301\2011)\022pPl\250\373\202\022\002\t\302\264\014\217T\2070zf \324*\224Q\301\343\230i\210UTG@\264\264\330;\212\223\007M\367^'J\310\2464\233&Q\202\tyM\351C;w\201\243\301D['\016\203\235\301z:e\246!\265\206R\213'\207G$gZZ\361\234J)x\273\035m!\022E)\010\253\017\376.\344\212p\241 \207\r'\230";
-    PyObject *data = __Pyx_DecompressString(cstring, 3710, 2);
+    const struct { const unsigned int length: 10; } index[] = {{2},{68},{35},{54},{37},{60},{24},{52},{26},{34},{32},{29},{33},{45},{22},{15},{179},{37},{30},{32},{1},{1},{1},{1},{1},{8},{5},{6},{15},{23},{25},{31},{7},{6},{2},{6},{35},{85},{9},{30},{50},{39},{34},{8},{20},{32},{22},{30},{37},{5},{5},{4},{16},{6},{4},{8},{15},{25},{15},{18},{22},{10},{17},{18},{9},{10},{24},{21},{21},{21},{21},{21},{16},{22},{23},{20},{3},{18},{8},{13},{15},{1},{1},{3},{12},{9},{15},{3},{5},{18},{16},{1},{4},{16},{1},{14},{15},{11},{15},{12},{5},{14},{9},{17},{18},{12},{7},{18},{5},{13},{1},{4},{21},{5},{4},{8},{10},{5},{15},{1},{6},{17},{22},{22},{27},{19},{10},{9},{5},{6},{5},{7},{6},{7},{8},{4},{12},{11},{14},{19},{20},{18},{21},{12},{15},{25},{15},{18},{22},{10},{11},{9},{2},{10},{12},{12},{12},{5},{13},{20},{21},{5},{8},{5},{8},{17},{18},{18},{9},{24},{15},{10},{11},{7},{4},{10},{4},{8},{5},{2},{4},{7},{2},{7},{5},{3},{13},{4},{10},{2},{11},{3},{12},{14},{11},{10},{19},{14},{12},{10},{17},{13},{8},{10},{15},{13},{11},{4},{14},{12},{10},{12},{19},{5},{18},{21},{18},{10},{22},{18},{20},{16},{4},{14},{5},{4},{4},{7},{6},{8},{8},{6},{6},{6},{6},{9},{10},{8},{1},{5},{556},{14},{14},{14},{13},{173},{14},{15},{19},{14},{12},{14},{800},{18},{28},{18},{14},{14},{13},{600},{12},{14},{360},{12},{13},{13},{16},{20},{28},{33},{24},{25},{25},{32},{190},{296},{1}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (3636 bytes) */
+const char* const cstring = "BZh91AY&SY\207\265\224S\000\002\354\177\377\377\377\377\377\377\377\377\377\377\377\377\377\277\377\377\376@@@@@@@@@@@@@\000@\000`\r\374|\007[\303\236\332\251\2521\327\206\251Y\260\351U\323\221\321\220\252\016\307\200\001\2144\"$z\215CS\365M\350(\323\364\324a\342L\231<\204\364\024\375S)\352oS4\315AO)\372)\344&L\365CM\251\265\036&F\223\364\246\324\3654z\202RA\246LS\023&\246\231\241\017*5=&\32464\247\250\000\320\320h\000\000\000\000\000\323\322\0004\000\320\002D\321\251OS\311\250oQ6\247\244\323\322z\206\322`\217SM\000\332\215\001\240z\215\031\244\000\000=@h\000\000\221\020\201\"G\211\351O!\036\240\332\2314hhh\320\320\000\001\240\000\032\000\017Hd\365\030\232\r1\036\240\203&\000L\002bd\311\200\0010&\002b`\230\000\000\000\00120\023\002\030@\t\024\020h\231\032\023LSM\2222\032\022~\251\265\r\036\246 \000\036\241\2404\000\000\000\000h\320\000p\177\341C\315\226$jk\323I\326\255\016\263'W]b\334*\205\232\023\263\265h\245\303\r\303%\231\237\034}\034\355\255\271\265\205h9\335.\230\372GL\010JWQ#\373\247P\t\211\244\324\334\377\021\014-\027\022\233\030\332=\217\177\223\265\313\347\341\201\231-\314\324\350e\226Y]uw\001\217\375\027\376\033b\001\203\023k \2314d\252\324\ti\251e9\345\340:\222\002\223\2474\313P\023P\250\013\3033\023chM\215\201\326\0223,\022Q8\326\225\241\232\302\344\246\255\t\227\230\305\031\260\241i\202m\266\003CL`\312\036%pf<f \022E\306\031\252:K\324\300\265U8D@\347\006\2105z\274ciL\017:d\302\355\372\013\352\252\232\000\234\365\032M*-\022d\331\t\306\035\203\214s\301h5h\275+\314\365\337b\235`i\307%+\0330\267\ng\321R\300\3222\344P\241m\241\222&\214t\341f\214B\261\021\244\321\326WJ1\212\225\217\021\356\026M,\001\363T\367\244\357\016\021eeE\206\001`VA\2220\301)\230\230\251-\026\314\031\331\311\224\203\031\312>~\210\243\032\2642\346\354\033&\311?\324\377/b\207H\347\205\377\004\341w\2758r#\241}\271\002:5K\n\350\340N\205\031\230\334Q>= \274&d\253\177QxEf\374\3510<\010\372=\337'A\253\364\311\241\271S9A\276P\211Y\260\022\0372\302\376\350\307\2208\376o[\311\215k!\205\025\212""\355C\237\"\246\364\272\264QZ\203\351b\306\254\2408;%\235\264\026m\227\010\322=\276\334\016\031v|M\223\356M\002\200;M\200\030\224\366\025F\314\317\031\211\215\035\21022\313\310\263\215\275x!\0170-}\0300k\346!\314\010\205\307\002g\312\016\226XO\207;\335\331\200N\223\321\254\236Q:%d\324\333r\225\206\241\374s\211\223C\265\257\246\255\210lQ\342\310\304\252\241B\204\245Q5}$p\353x\244\013\365G\3617\363\357<<\216\260\343X\206\201X\002s\3152\364\324\315\331\035\205J\301@\252\021\376>]\255\271rd\344\010\345\277\277Nus\222 $\342k&ug\036+\005tu\335\254\275u\244E\026\340\265\374\216\016\356\334\034\016'\316\326\373\215g\266\2064'(\t\"\034\221\207\036\215JR\257\005\255\027]tJ\3041U^v\000z\355\237\247\345\240Z\335Yl8\321\302\034\316`\023#\262\323\367op\372\274\000^\202\206o\375|\275T\374\017\235\016\247W\356\331\304\311D2m\206\345\374(_\270i\005\005bk\024i\222\324=\374\242\272\204u\t\211\017\263\245\275\265\220\204\332\327\326?\206\365\306\255\307\337w\003\302\373\3655\261\0031s\375\307\245\364Pm:,\347\206\252\237jC6\033\216w\262u%\312\256\\|\246\243\244X\355\021\250\346s\331\235*L2XD8\303\026\2260f\305\246V\227S!\231\204\031.U%;\360;l\331\371\332\033u\322Hd\310\234\332\272HG\305su\321\206\337\253\013\034\030\277\014c49g\343\343\267\210AKt`\231\006\247\261\215(\r\244T\3349\343B\20172\255\373JtQ\304\036\022\014\273?\253\367\335wZ\335\224\033y\223M2\356\226\325\332\221\321\031\2636\254Y\361h\363`af\311yDA\242\300\037P\224\333a\024A\314\342\313P5\241\233\014\344L\271U=\276\244N)\342p\310NpG?\027\021\304\364TZ\342|r!~\252\254w\031i\016\203GY\226\371;}\362(\004 [\371\246\352r)\374\226j\236\340c\311\2505\342\225i\026$\027`\206'\376\262S\236& m\352\375\257\354\227\373\367\214\240u\210\035`\316\032)/Q\245Z\020\314\2077\241\3558\210g\265\254A5/\0145\232H\226\343\341\202\nE\305\346\261y\246\351\354\254\256\332\217\005\271\366\207\002|h\366\356\004\316\r4T<\351 \006\026\203l\\\216\336\235\014E\346\231\247\r\241sd\t\200y\304\354\024@P\204\231FP\352GF-2\241\305\221\227\204k\224`\016\032*\"""\025\231\231\222\030\361L\225\371;$r\331\221\216<\231T\014\240\312\322J\014\010D;4\230\225\225\345\210\027U\260\014\021\002\006\264\214&\020\0364gu\227BU\361?=a\310\\\210\007\233_D\257M\334\353\276\375EQ\372\020\200\310\344}\325\264\017\3518\362\352\330U\315\205 \257D\010\214?\321~%\367\3723A\323`y\204\371\273\332\212 \305h\214\203\344B\240\306a\365=P\235\272wj\342M\307T\256L\300\333z)\311\334\205f\022\355\365;\013\245\240p\0103\022j\247z\255N\364\342\271\255\r\344Az\346\016\342X.?\035/\004\342q;8\361\255[>5\013\242\224\227\035\375\252\345\253\255\004\357wZ\250\337\357\267\257W|\221\343\326[`y\206*\200\244\310\214\264C\206\203\r9e\344\362\371{\375Z\273\375\314\353M\252n\244\316\032R\256\323\250\206\3439\014\211\233\336\014\353\212\027\331\270Te\234\260w\021!R\027\223\330\304\363\235\237\034\332G;]|c\"X\326h\006\221\234c\315\204Q*XX|\315\341\277y\320j\276\354\303\010#\327\213\201\007\025\023\002\004\241\340\312\245\"4i\242\2704\277\\\026\t\326\227i\311\026U,c\021\210M\240v\206\210\264H\246\231\260\221)I\223<\005,*\344a];\247A\325\311\253n\214\274?\356$^xl\327\\\\\317eJ\322\323\252@v\006\242\264\302\335c\001(\325\t\r\025`\354\224\356\026)VM\002d\221\276Yv\032\306\t\005\013\031\235\340\325\013`\nj\002\343tN\370\224\330\330D^\311y\261[\332\232\330\326\374\312k8\006\214\341q#\343H\257\256\206r\312@\246\005\332jF\362\313\2032\264\235\347\313\032\222i\024\351,\317d;\321m\345\030\016<\003-e\022\264rN\350\327\014\233g\300\256\014\317\004P\215\234\260&\346\032GS\212[t\363\336_n\347\260u\004\263B7\362\250_\256e\n&4\344\020\203p\345\027\301C/`\026\032\231\304\233\340\034:zt\207\306\330\253\031@f\301,bAH\223c\240\250i\323\347\327\036\207A\312\340\335,K \224\357\343\251\251\024\273\330GM\361\013\032VF,\317\252fG\222\027XAb\203\226\365\3145hpPQW\312#m#D\020v\314kf\255SD\270\3002\032b=\227\01058\303g13\010\213\323;[\234w\252P\241\001\262LclpHe42A;\372c\022\353\016L\261\2413q\257\232\222\326\250\2141\345,.\327\234\256\373\007\222\255&6P\360\014\n\356\205\004u\205\2414\371\025:\302""\032\214S1b\343\241\263R0\230\024\013L\333\310\204\334\221a\244\333\245\226\246\240\202\205\214++\241\331\360\3737\355h\305\212\r\263\206\370\005\310\232#\240:y\241\306\005\2341h\323k&\211\020\274\251\366\356\032G\341\301!\346\340\220\345Qj\033\300\310F\013\025 \2472\237&\236\277kT\313-\\\300k\340\231\010\220\013Y\255\225\302\016\035\030R\201\004\023\202\204\221\302\261\022K\033)]\312\024V\361\266\264\245h\271+\t-VA#=k+\310m\3057s4I\304\024a\003\213\315\364\024[\274\301[T\215\374!E\340\270w\243\262\210\rJ\221\242\325\2368\220\247\005\n\324Z\025FW\351\266\323c-\254u\242\324\212\355!9(#C9\353\327\333\344\316Y\t\005\354Ws\351\025\241\210\326w\302\331\206\343\200\223\344\260+\360\027\205[-\357D0VD\305\204[m\036\224\347\364\311\"\"\327I\367\007\250\231t\240T\224\014\351J&\374\311\261\264\274\375|\203s\243\332o\034\027QP&J\344\304\331\020\236\032QH'^\241\"\331\301M\215\271\026H\366\313\205H\344w\337Vk\313Jcd;\260\0165t\261\022\364/\tW\257\257\305\261\200\274IH\024\227Y\331\002uH\224g%Q21\306\306\232\r\346\325\001\361Y\334d\306$\344\371\252\rgr&\335\202)\222uSlM\245l\202t\2732Ou\344C\306\030\205\254\214;\034\323B\305\201\241\212R%\004\\\216\332R\316g\005\326\006\256s\201\216s\201\274\203Pf\204E^\304Z+j)y\334[F\272W\320\227\213\233\241\367V\300}\351R\205\272b4r\322\245z\335\262\366\315\370\346sR\255\274\010\r\330\333w\245\267\217B\253\022\263\021\024\262\307u\313\021\326I\204,\023\033\324\343\324]\nk \332n\333\245\345L\207\2204W#\274\363^7\332\016\327\002F\350\006F\350\334\324\206\211\3504\222\221G\t\264\270\274\235p\266\333\t2\267\320\333Q#4\352\360\350\261K4\020f\222p\202X\335\314Yc\020\311Fn.\n\2744ij\227U\305\342\206\315b\250\346\227X\025d\210\246\3533\254\3412z\214\325\246\341\002n\244\336{\204X\032\016I\224\270X(E\256\275]\025\271\206\276e8\356\232M\250g\350\033\"\3275\327O\245\267\324FJ\340\316\215piI\361=F#\007>p\322{tt\335\312v[\001zq\353Y\311\363\270At\367m\030IQ\373\226e\273q\273\263~\374\214@\341\333\213\355\235\3055\213\030\217\021\013\3259\345D\006\223\215""\010\215\244W\211\215\270\230T`\331\274P\200\224\0060a\352\273\2459\204\0103\236\352\026\352\254c\331\r\005\027\272\002mD\200\023L\320\347\242^\212\030\007\241\324\246\325\212\330\214CH\325\240\267\303\014\371\367 \343\366\332\203\224\327\001:\375?T\371\177G5Y\375\030\216\2043\364~\255\3423\230l\361/\300u\276\364J\33319_\222l{\004\014\357\247m4\303\225\317\320it\032g1\215\2441\266\233\331g\264\232$\210\033!fZ\201\003\004=F\315\237<\323\034s7\217\226\322or\027\267\265\032\320\265T\313\213m\311.\0029\252g\303\177 \372<\333lu\265~\245}\025\350J%\026\267\031^\374\3268T\026\026f=\211\2658d{cT\236\300\004\243.\020\214\254\026\367\255\276\206\210\320\004\341\335PPS\033\001\301\030\256\330\314\013\314$2\001\205\222\210z'T\363N\344\034\306\030V\370R\202\374\241\373\342]\346B\004$N\237\351\341G\326\014\r\003#\315\370\225.z#\255?u\240\261\316<9\376\363YQ\370t\351\347\376\220^\253|\312\220)h\010Y\215[\222\260\252/\310n\032\325\337\257W\2202\225\004\027\203@+\317\356O>\216\200E\020\204\035\3600\220C2\025\031\302\210\007)sg\327CJ\207N\260F\2753j!SXQ@\014\215\014\203\026FK\331\350\207\362%\305\000Ca\205\010\000X}\323\024S\251^\302\002)|@\351RS\306&\361\313\003t\014\350\207dD\004\3010\275\332\311\332\236\003\023\350\332\275\255\021\225\214\342y\37343\231'\3426\000\266\204(\026V\255\036{eq}#`\236\271\331YR}\005:t\237\023h\241>\017m \271\306\310R\031a\261\362\254*T\2669F\276\275\177\177\005a\014K\257\320\000\343.\375Z\241-B\224\300\026\205`\205\374\016s23\254v\345\301\376\245l^\261\025\032\026\201\274d\217>\341L\301\235\276\261\243K\307\274\346\341\006\376\3674\227\021z-d\270\337V\305\234\243\221\370\272\343\nu\326\3679m\205m\351\226\246\255\314\266\317Q\327\034\207'\3004^\373\277\276\364\277\373Pc\312\016l}\030}t\242\376G\246\357\217[\026Ov,g\306\376\034\300\357\345\033\267\227jG{\251\220c\273\036\rM\333\274#\302CHP\322\354\021\2017\266+\345p\t2\341\365\\)c\021^hv\216C6#\343l\375\2738Y\227\362X\260o\006u\370.\376\037\345}\256*t.\374\332z\271\203\301\252<\212B,\335\000\302 a\347\252""\257A\000\220g\006\006\244I\237\025\322%J\241\037d2X\373\031\252\006}%\t\316\253\250`\227\007\204y[\0324\311\270\242\210\014\355\375\272\305\320\266\255\010\272\016\004\nt\336D\203\344\214\224\254\206A\305\310\216\016\330\202\366\032\244\350\310^(\334\324r:V/\234\021J\305\230\353\000\353.ih\th\377\305\334\221N\024$!\355e\024\300";
+    PyObject *data = __Pyx_DecompressString(cstring, 3636, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (3653 bytes) */
-const char* const cstring = "x\332\315W\313w\323\310\322O\2023q&\311L\234\027L\270\200\014\201\000\003\016y\001\027\002sLbB\206\220\304y\360\335;3|:m\251m\213\310\222\255\007\211\231\231\363\261\364RK-\265\324RK-\275\314RK/\375'\360'\334\252\226\374\010\3110\347\356>\016X\335\325\335\325\325U\277\372U\361\204K\3132'J%\252\350\222\252\350\\Y\243\002\025%\245\320\021r7E\256d\352\006\227\243\234\244\210\364\230\212\034QDNQ\rN\227%\330\376\302\314\347\251\306}\220\350\021'\252TgK\364\270\254\352\224\323\rM\022\251\276J\024NU\344*'h\224\030\224#\\.<d\024\211\301I:'\250\212!\025L\325\324\341\022\256DK\252VM\301)TEt]*(\234\241rpX\274\317\364\204;\360\312hS\244\370H\223\014\222\223i\264!4*\257\251\245\257\235e\317\342\216$\243\310\031\3252\345f#\271\241\021Eg\317\350\034\t\267\301\t\t\\et\371n\255\333aR\350\204pS\246T6\252\234^$\240\3320\313`\\^\3258\241j\024U%E4\215T\327I\211\266\316\300\363\tgP\255$)D\006\377\301\253R\033\314@\325485\317\345TS\021u\35669\206\0237\305;\033gm\t\203c\226\313\252fPqC\371@d\t\242\250\212\364\036\006\0066C\020g\205Y\016\354\230\005c\360\241\263\367\270\002\234jm\016\315Ec\360\232\2257\314\001o\321\001`\302\226\n\256f\241[e\257@\333E*K9\252\201\271\340b\014;\\\302\342\253p;\231\235\373K\217\227\030l4\372\036\256\327\301\272\234 Cd\001.\370&S\222\r\270\014\335\257\247\270\215<WUMN\241`&\204\275\014\373\272\017\030E\252p:5p\300\315\262X\021\003\336\315\303q\300\356l\344w\351\003\305\323/\211\254\323\324\366)\347\201\311\021\000\211 P\275\345\315=\203\226\271\022\2512\377\001\336?RM\3558\372@a\310\002\225\200\326\017T\203X\031\264\204s5\207\217J=\237\275\363\023\021E^A\367\340c9\360\320\203cA\225e4\007\002\223\"9a\245\013\353\270)4\366\371\227\342\026\304\236\207@\341\005\265T\226d:W\000\254\360T\021 \230Z\252\\=\026%\035\315\242\314\270\202\300\335\306(\026\030\370\360\201\230\313\364\330\240\212\3012\253\223\326\251\324\034\374-\252%:\207\272\3642\021\350\\JV\005\"\317A$\347\312\354\332\305\324\374\302\234\016\357\274\017\353\207\244@\3659\305,\225\253s</)\222\301\363\251""\320\274\373\213\017Re\264%\264CD\317\350\322G\312\255<\343\036\234\301\273\242\002\\\362\304\224\r\216\3475*\232\002\345yN4\231s\025\320\006\360\371 \001\374y^\010\257a\227\246\300\t\032M\225\340\234\304\364py\002.a\030\221J\010\366\356mf\211@\246~\271#\212\325\363\225\220\231\304S!8+\303\014iG\342\324z[j\266aAdt\037\306\236\031'\022\203\244\316Y\rS\013uD\354\230J\357\255nl\274\330L\257\276~\261y\220y\261\235\336]\343w3{\333\233\007\373\033\333[\253\252\222\227\nk@\265\031Y\226\312\272\244\257on\277Ho\362o\322\377\342\3276V3]\323\314\326\372\306V&\263\313\277M\203\246\256\205W\007\233\233]\323\275W\033\231\315\265\275nI\366 \275\026\036\333\334\336Z\347w\323[\353\031\\X\335~\363&\275\265\306\357\355\203}\354\312\314\313\314\326^\206\337\337~\r\337H\333\316^[Ig\364\305\326\235j\032\035\303\277\301\000n\000=l\321\243\371\363\204\013\347\t\027\317\023.\235'\\\336\251\256\201\357\367\201L\300\2644\320\017\316\251\001\330\207\315L\214?;\325}\220\000o\031\244[\314\363;\325c\370\007\0167\370-\310\235]\232\337\315\254\341\033\321\007\373{\374\313Lz\377\000\342\023\276\361\013\031\255\230\220\235t\377\337;\031~\365Uf\365\365\306\326:\362f\252C\241w\t\320\000a\214\300\227\213D\247\204\221\025\257\027\2452/\211\300\277\005\005\322\324h!\206\017\271\nQ\205o%zU\021$5\005(\207\222 )T'\206\001\331\311\003\213\027@\313\202\236\313\201\322\234J4\021\262KWe\023\257\022\004\344\220\022\340\016y\222\302\014j\245\004\351\036M\213\246\334\032\2529\250;\202L\243)\2631\034\023\241\030\376\360yS\t_\3003Z\346\371\326\240\000\216\206\354\307)\330\0064\301Cy\021h\016,<u?C\265.\000!\033\247,\0211o +\004M\224\220\027D\214\003\337)n\"\333\204?\274\244\363a:\323\220\020\303_\236Q$\253\234\221@\243rX \200\0224\3518\222\352p#\321\370<4\016&\270\251%\305 \200\363%\243zf\251\014Z\300\312\022\321\017[\242\212I\304\263\333\315R\350\014\034\261\232H5M\325\362\022\225E=/\311r^&\005=/\253\304X\\\000r\004\263\242*\3143\277\362\354\t\335L\317\3062U\nF\021\374\3133\034\360\030e\234\211\021\270\037.\361&\260""\345\027\"\250\347&\333\326j*\272$-\374\267\266\361\030=\3469\030\311j\216=\366\030C@\273\246`\006D\226j\221\242\316\002B\250k\n\256\304\007wK\230\273\330\261\"\225\nE\003\361\031\215t(\276m\014J\"\024\030F\330\355/{s46\321K\2551\362<k\341\020\017\355\244\200q\227\023B\230\200\254\373\311\221\220\225\252\250^\301W\003,\227\010\300\226Y\334\202,&\304!\363\005\315\003\020!\035T\300\200~\326\035\321\303\313z\347\275g\217t\371\241=\325K\224\350\000\037\314|\3507\261\331\304\216\r\314PE\023r\221W\020\003]\277\272\"B\r\202DS\350\021\374\224\001kh>\253\201\360\264SI\214\325\273\223\306e\251\254\226y\036\272\007^ e\ts\227\215!\267\017u\300.\233E0\300!K662\225\262$\034\202\322\214\322\332\367\2015\334\250\003^!\207\346u\252z{\024\2651\035\001\304\013\206\005\t\342\256\265\022T\017sR\247r^?\005s\236\307y\250\034FQ\367\300\306\221\235]\343\326U\254\320\262|\026TU\023u6\204\243Q :\231.\321p\202\360\323C\006(\207i\217\374\205\350\217\244F\021\377\233\321\222!`\"Nh\361\000#\005f6\230\242\031\210i\335P\313Q\241\207\217\t\315\257\231c;`\003&a\304\372<\344\247\016/\n{X\3603D\314,#\204\031L\364#I4\212\230.\341\0005\037\001H\313\232\232;\306>U\337\251n3<swo\207\367pa|\000\n\374C\002\034#\022>\315>\334\335{\320\276\264\326\365C\364\212\204\017\021\212wzz>\250\320\376\377\275\n\330\t\177\3160n\317Y\246\3519\237\205{\316\247\341\236\257\360p\3179D\334\3635&\256\365~\376\246gd\"\030\277\353&\335\371\366\354\2063\357\244a\026?\265\366-\314\254\237\234\2443\377\251\267\031\233\266\223\366|#v\315\2568\275\215\330E\253b\303\207\t\233\261\376F|\314\232\261H#\376\203=ag\033\361\213\226\001\233\343\227\355%\273\322\210\217[K\026|&\255};\321\210\343\231\207\316\204\363\316\273\355\317\004\317\267O\364`\367m\360V\016\344RP\322\003\375\350sO\317qo\246\017>\231\276M\374l\366\355\340g\247\357\035~\336\365\211\370\021\373\024\374(}j_\267\316Y\177\302\177w2\033d\177\r~\375\355S\357\347\321\236\376\005o\302\313\302K\373\007\203\370\025\373\000\037\364y\014f\265\270\025\263\322\215\370Pm\251fX\213V\336~""\355\350\356\214K\032\303#\315\370\204\265\026\\\272\347\246\301)\203#\265\2145\031L\335w\263.\001E\203\343V\022_\234\3041[\263\210ud\347\235\264\223m\014\217Z\003\3149\255\001\372\370\022\014bv\306\031wV\035\315\035w\327\275\005o\337\037\363\027|4l\360\212\235\t\222\017=\342UB\215/\255\271 \271\340\335\362\231\226\357\354\367\356\220\367\320O\300b\342\232\235s.8\313n\237{\303\335u+\315\321i\373\226\323\353$\032\255Ast\302\312\330\2236\261\217\234\274\233v\263\215\211K\366\000\213Zk\000z&9\030\304\234\214{\305\023\300\216E\277P\337\255\033'\013'\273'\025\360Z\252\247\377\262\235\374<\314|6m\317\004W\027\275e\277\327O4bq\024\334\014Q\020\3578\024\334\033\377d\324\236\341\r\215\370\224%\332\340\242\t+\335\214\305\277\364\363{x\300\222\363\207\207\207\006\377a/\005\327\346\275\2047\343\001|.\331\275`\272\350\334pv\035\303\235\377\013\301\224m8\317\274\013\340\303]O\363\247|\275~\275\376\242\236;\351\r}\tW\r\3276\030\330\206\277\257\231\326\246\323\333\034\276b\357\207.6\374%\277R\357\257g\233l\361g[\001'\035x\311\306\030\007\356\233t\010\312\rk\331\036r\236\203Y7\275J(x\002\017\275\t6,\272\207\301?\267N\204 \013\240\375-\370\215\017\370\367\301\373\303\306\350Up\271\351\244\233\303\010\306e\247\337y\353.\240b\004\320$\202\t\363j\tB\026OX\030\312\3011+a\335\005P$@/\342N\365\177\251\203\357\022\177'\236qJ\336\023?\333\022\2559\003\200\251I\367=\240\005\036\376\n\242\237\000\3473\2431{\037\272\027\275\336\306\350\017 \235u\306\234\307\350\305\010\273c\221\202o\234\\p\373\237\376t}\376\224\206I+k\025\354]\373\030\236\375\310K\002\004\307\374\316\341a\010\347\007k\017p\235F\224\016\331O\035\311\255x1/\335\271\354\t`\364\377\374\\}\350\004\317\005c3\316\013\207\204\030\177\315(\242}\307\357nwJ}eq\2706\217o\373=\230\276\347\256yC\301\323\327'\213'b\260\273\327\271u\331\035\n\026W\353\335\373b\336\232\177\301\177Z'\235]+\256\346Mz\207A:\033dw\033\243\343\326S[u\377\007\254\237\270bg\355\002\000\356\217\010a\223\376a\260\201|\302\214\200\364\230\016\323#\244\224\313\210\340e""\357\300O\372@\205\003\177\225\004\203\326\204\225\305$X\206lX\265~\007H\037\300\263\206G\360QS\326~\360\303\275\010\210-|\000\3130\324\335r\373\202\273O\375'\365,\273\237\311\356\205\341nM\357\273\037!7\333\323\037\335_\274Jg:\353&\030[\030\336\363\372\364\311\374y\013\317\352\337\236$\333\351\003F\006\243I\347\242\013\3743e\221\340\342\035w\314]\366\372\203\345\215\223\304\227\2210\254\247\301\325\007\340\341\014P\357\036\013\365(\246\300\023$\303\277^~\344\\\007\372\t\265\325 A\307\255G\301t\253\364`!\262\036\331\367\235\212\333\373\t\247\375\303\301\320\325\340\352#H\337G\365h\377\343\3402\272,\313f\301\370\014\322o\273\244\261\225O\300Q#\265l\2154b\030u`-\224\014\004\003\030a\240\233\357kG\300\334U\340\007\030\"\357]b\027\341*\305\222\010\222\357z\372G\202\341\233\316\276\233h\353\276\003n\003\033`\r\254|\206\244\033n\274h\021(\232\375+\3100\215\330m\027\367\367'\254~@1[\030\255U`\262o_t\372\234d#\366}4\235\206\253\260,$\272E\013\316\036p|\222\331\217j\360\354\200\245\3333\000\322=\357\033\2172<\260\003L\034\\M\271\2027\345\231\376\317u\3229\2401\366\274\353\246\033\261\357j\344\224\242\326\211J\270\024o\021\370\005\254\334\203\315\030\253\350\255\023\3372\312\037\002\356\210\256D\305\350\243\327n\345\\Q\244r\334\3721\270\362\300\353\305\022\034\356\373\026\222\3572\253K]\307\n\316\257\260'q\256(\262\373\377\225\246\377\352\276\370\247\337\201e\327\235y\354\204\346\255u{\201\245\350;?y*(CP4\206\334\237\374\353~\372\013m\301\203t=T\027A\375\226C\234J\230\027\000\316[\216\350\"+M!\002\221r\240;\323\2611C\315\017 \271\347\361l\336J#\006\007k\375\265\003H\177f\3142\024\323D\230\312\217A\202m\317\224U\264I\023\252@\330\325\260\342\247Y\343P\277G\023\315\341\213\226i\247mV:\217\241\245C\321\264}\333A:\030\031\255\375\211m\314\0020\330\350%\326:\265\276\270\232\260F\302N\2411:\343\374\354\022l]&\254\327X1\201'&n8\217\220\343\346\375ts\342\232\375\021\350f\005\2107\321\234\300\252\372\247\373\306\377G\035\323`d\334\272m\337\210J\322\202\273\017^\036\036;+b\r\247\335""\007>X\204v\251/jPF\2561x\256!\253]\013\256\315\001\377_\202\246\n\332\\H\\\353O\347\rK\006$\274\277\237D\201\230E\202j\361\325\n6E0\031nO\220m\206\202!\354\231/8\2170H\247\3467\260\334\234#[\365\216|\241~\351$\361\225\265\361\223W\301\376\301\271\033\216\375J\320\003\2265\260/\207\022\332\030\032n\304\277\253\035bQ\357,\000\007w/0M\265\225\260\255\037\370d\326Vk\025$\310\n\212\001\034\237\360\377\003\214!\036C\013G\360\334{DO3\226\260\306\254\207\240\342G\326\360@\n\375u\303\027V\236%\350\225E\254j\330k#\317\\\267^\262P\345\261;\010\261\037\213\322$\331\214!\376\246\320.H\206\274\363\322\275\216d6\300\014Y\300\212:j\365\"T\233\355A\014\357\375h_sG\274\377\255\257\234\374\001\205{\373?J\226\241\251";
-    PyObject *data = __Pyx_DecompressString(cstring, 3653, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (3532 bytes) */
+const char* const cstring = "x\332\315WKW\033G\026\026X\304J\0206\002\014\304\211\355V\214\215Mla\036\306\216\3558#@`\014\346\215\363\2603}J\335%\251M\253[\352\007\240<\316\361R\313^\366\262\227\275\354\245\226Z\262\354\245\226\374\004\377\204\271\267\272\365\300\220L2s\316\2349\307VW\335\252\272u_\337w\213'\\Z\2269Q*RE\227TE\347J\032\025\250()\371\266\220\273%rES7\270,\345$E\244GT\344\210\"r\212jp\272,\301\366y3\227\243\032w \321CNT\251\316\226\350QI\325)\247\033\232$R}\201(\234\252\310\025N\320(1(G\270lp\310(\020\203\223tNP\025C\312\233\252\251\303%\\\221\026U\255\222\202S\250\212\350\272\224W8C\345\340\260x\237\351\tv\340\225\341\246P\361\241&\031$+\323pC`TNS\213\177v\226\271\305\035JF\2013*%\312\215\207rC#\212\316\334h\037\t\266\301\t\tBet\304n\2613`R\020\204`S\246X2*\234^ \240\3320K`\\N\3258\241b\024T%E4\215T\226I\2216\317\200\373\2043\250V\224\024\"C\374\300\253\324\n3P5\rN\315qY\325TD\235\273C\216\340\304-\361\356\312Y[\202\344\230\245\222\252\031T\\Q\016\210,A\026U\221\336\303\304\300fH\342\2700\316\201\035\343`\014::~\217\313\303\251\346\346\300\\4\006\257y\366\212\005\3405\006\000LXW!\324,u\013\314\013\264]\244\262\224\245\032\230\013!\306\264\303%,\277\n\267\231\331\274?\373x\226\225\215F\337\301\365:X\227\025d\310,\224\013\372dJ\262\001\227a\370\365\024\267\222\343*\252\311)\024\314\204\264\227`_\347\001\243@\025N\247\006\016\270q\226+b\200\337<\034\207\332\035\017\343.\035P<\275Dd\235\2466N\005\017L\016\013\220\010\002\325\233\321\3341h\211+\222\n\213\037\324\373/TS\333\201\336SXe\201J\250\326\003\252A\256\014Z\304\271\232E\247R\317\307\357~GD\221W0<\350,\007\021zp$\250\262\214\346@bR$+<\353\250u\334\024\030\373\374cq\263\304\236\007\205\302\013j\261$\311t2\017\265\302SE\200dj\251R\345H\224t4\2132\343\362\002w\007\263\230g\305\207\016\"\226\351\221A\025\203!\253\r\353Tj\022\376\025\324\"\235D]z\211\010t2%\253\002\221'!\223\223%v\355LjjzR\007?\357\303\372>\311S}R1\213\245\312$\317K\212d\360|*0\357\376\314\203T\tm\t\354\02012\272\364\013\345\236}\313=8S\357\212\n\345\222#\246lp<\257Q""\321\024(\317s\242\311\202\253\2006(\237\003\t\312\237\347\205\340\032vi\n\202\240\321T\021\316IL\017\227#\020\022V#R\021\213\275s\233Y$\200\324\217w\204\271z\376,`&\361T\n\316\312\020!\255L\234ZoI\315VY\020\031\303\207\271g\306\211\304 \251sV\003h\241\216\220\035S\351\235\205\225\225\371\265\364\302\352\374\332^f~#\275\275\310ogv6\326\366vW6\326\027T%'\345\027\201j3\262,\225tI_^\333\230O\257\361\257\322?\360\213+\013\231\216if}ye=\223\331\346_\247AS\307\302\213\275\265\265\216\351\316\213\225\314\332\342N\247dk/\275\030\034[\333X_\346\267\323\353\313\031\\X\330x\365*\275\276\310\357\354\202}\354\312\314Rf}'\303\357n\254\3027\324\266\271\323R\322\036}\264u\263\222\306\300\360\2570\201+@\017\353\364p\352<\341\364y\302\231\363\204\263\347\t\037nV\026!\366\273@&`Z\032\350\007\347\324\200\332\207\315L\214?\233\225]\220\000o\031\244S\314\363\233\225#\370\017\0017\370u\300\3166\315mg\026\321G\214\301\356\312\002\277\261\264\264\223\331\335\241e\023\200Hw\177\334\314\360\013/2\013\253+\353\313H\221\2516[N\020@<a\340\347K\005\242S \327\274\002\0304\232\345\300\007D\204%\203\216\020\275\242\010\222\232\202\022\006\276\227\024\252\023\303\000\350\361@\321y\312\353\323z6\013j\262*\321D\200\216\256\312&*\027\004$\210\"\024\025\222 \205\0314B\t\260\034N\013\246\334\034\252Yh*\202L\303)\263*\030\023\241\020\374\3609S\tl\346\031\347\362|s\220\207(\002\264q\n\266\001\007\360\320;\004\232\005\013O\335\317JV\027TU\023u\036\373f\350\246\000\374k\234\262MD\230\000\033\360\206\272O\225\316\275\200\014A\023%\344\006\021s\301\267\033\234\310N\342\017/\351|\000i\032\220b\360\3133\232d\3353\024hT\016\232\004\320\202&\035\205R\035\314 \032\237\203\307\203\t\321lJ\013R\t8\026\\\255\234Y*\201\0260\275Ht0\327,\006q\301\021\353}T\323T-'QY\324s2\311\303\217J\214\231i @\2706\354\264<\013/\317L\354ds6\226\251\2227\n\020f\236\225\003\217\311\306\231\030\026\360\334,o\002#~$\202\236m\262m\315\207C\207\244Y\343\315m<&\221E\006F\262\232e\316\034a\210i\307\024\314\200\004S-T\324^\300J\352\230B\250\320""\331NI\331$bp\254@\245|\301\3002\rG:4\330V)J\"4\021F\312\255/\3639\034\233\030\245\346\030\271\234=\3230\337-l\300\270#\010A\031\200\254\323\345P\310\332Q\330\223\340\253AI\027\tT/\263\270Y\271\210\213}\026\013\232\203B\243AI\352g\303\021:^\322\333\376\236=\322\021\207\326T/R\242C5!\001\300\233\022\213\035_e`\206*\232\000I^\301\032\350\370\325\025\021\372\014\340M\001X\360J\t\352\014\315g}\016\\;\205e\354\320m4\227\244\222L\200>\030\242Jj\211\347\341\261\300\013\244$!\232\331\030\320\276\257C\t\263YX\0218d\270b#S)I\302>\350\317(\315}\007\354}\215:\300!9\260\264\335\304[\243\360\325\322\026@\352`\230\227\240\0044\300b\010\303\026*\003\310\207p<5A\373u*\347\364S\230\340y\234\007\327\303(|N\260q\350I\307\270i\014\353\274\014\334!3\205\027\241\244MA\035\302\220\003:$X\275z@\020\245\200\025\220\005\021<:\023\342\205\022\220l\216\331\313DF\001\37769\265\253\203\345\260\"\233\244\022J\014\242\031\210\024\335PK\341\023\001>&<\233\315l\020\001\300\271\016\316\006\357]H\022d\336,!\024X\271\351\207\222h\024\020v\301\000u\035B\261\22745{\204oZ}\263\262\301p\301M\334\t4sAr\241\244\3709\002\\%\022>\315>\334\304=.\350\210a\275\262\277\371\37672Ii\332\245\357c\206$\214\223P\270\033\371{\346\377\241\232\003\025\376\320\371\317\002p7\022\371o\216\377U\331\335\310\231v\0269K\363\221\363[\\\344\374\036\0279\247\223E\376\244\361U\273>|\022\351\033\362\007'\334\244;\325\232\335t\246\2344\314b\247\326>\203\231\365\235\223t\246\336w}\030\216\364|a'\3559'\321\210\336\260\313\316'\376\355'\376\223\365c\322\210\216Xe\373\023\033\006W\203\r'\321\317\355\204}\333\211:\257\274\321\332\220\377\355\372\261\340o\355\371{\373\376\276\354\313\232\257\035|\210D\016\273\026\273\341\263\330\275\212\237\325\356\r\374lt\277\305\317\333n\001?Bw\021?\305n\245\273\321\241s\244\026\255\275:\036\3617\177\362\177z\323\210^\261\366\3541\233\234D{\253O\255}'Q\355:\211\017Z\217\374\253M?\320+\353\221}\337)\273]\357q\332\023\367{\257\373\327\037yF\355Q=\031\354\177\354\177q\317M\273[l\346\017\2169ig\253\025\037""\266\002G'\"=\023\356\220\273\005\241\301h|\210Gz\256XKv\262\021\035\266rv\032\215\034\266\313p\250'\366\336\250~k_\264\313\215\330\260%\302\216\330\220\225>\211\306\2521+j\245\033\261\336\352l\325\260f\254w\316\005g\326\371\315\233\202C\237^\367\257M\272e/\352\301\006\214\345Cpw\301\321\360\306?\020\3149C\316\317\336Mo\333\323j\003\265\271\372`}\276\236=\356>N\242\272k`Q,^]\261v\355D#~\271jZk\016x7\346\217}SK\324\306j\264\376\360\030\346\270\360\322\277>\343My\231Z\24210\016q\352q\267p\301\260\036\332\275\376\315\307\265\256\332\225\032\t$O\354=\347\226c\2703\356\276\377\r\313\354k\377\365[\377-\357\363\357\374w\373\215\376[\316\226C\335\251\223x\322I\300N\323]\362\276B\315h\322\227\376\027_\273S\356\242\327\325\210\215\332\335\376\325\007\376\203t=Q\037\253\223F,a\261=\237\333]\366U\347\241\333\345^q\005o\310\343\353/\241\312`\373\277\021\017\271?\327&\352\351\246h\3269t\263^\217\367S\255\214Qxae\240\200\222\r\346\003\026\365\234;\002V\364sN\2273\342v\273w<\310\321\200\225l[0\353\034\270\333\376\344?\352\237\035'Oi\370\322N\333\337;\363N\301\025\275q\210\344\355zw\275}8\016\231=\260v\354(D?\336o\365\332O\035)Lj\353\262\to\336S\353\333\365_\375\355\0358\350\017\214\201:\202\247\373\252\253\226aO\265/\331\367\022-\325\177\272\030\257N\241s\277\372W\357A|{\375\247\253\3073\307\"^\320\272\366\226\373\253\377\344\345q\262c_\324[\254]\250=\205\360\267v\335\363\262\265\236\332\033\377\305\017\376\017?6\372\007\255\247\266\352~\017\346\017!(\276w\347]\271\366Um\276\226\255\367\324\337\370\233Y?+0#\336w5\242}\325\255*\t\260z\313.\243\344\242\177\361\232\275\005\354\020\273\\=\264\210U\201\022\204!\254}\030e@\304U\212\374\003\222K\221\236>?~\313\331u\023-\354\335u\023.`\024\326\000\305\337\202\215\211`\343\210E\020\206\375\020\354\255`P\266z\240\324G\234n\007\000y9\234^\005\325\010\231D\247h\332\331\001G\223\314^D+\236\275h\351@#\252\273\343}\342\321\332\223\372Vp\200\211\375\353)\250\271a\317\254\275\254\223\366\001\315\276b\213\316\204\013\300\277T%\247\0245O\224\203\245X""\223\021.@\372b\237\236D\007\2541\253u\3423\014\226\323\353N5\257D\305\030\223U\267|\256(T9h}\355_{\340u\001\032Bk?\263\307\235/\220\254:\217\345\2357\260'q\256(\264\373\377J\323\337\272/\366\376Wk\302^v \254\203\326\224\265lO\003?}\rT\220<\225\224^\340\316^\367;(\334\364G\332\030\001\261\275!\365\337v\210S\016\372\004\024\343mGt\223A\377\033aD\016\355N\007\346E\302\356\271\\\315Yi,\276O\253=\325=+i1+\036\002}$\002H>\006I\274\357\004z@\001:\024\220H\306\272\002 (#\225j\326 t\202\376\304I|\3042\001\320\214q\217\2542\023]\265\3578\010\353\276\376\352\357v\306ON\003=\365\217\372\243\320\211\232_\\MX}\340.t\350F\377\230\363\322%n\371\244\177\310Z\265Ml_\215\241\233\316#\177\342im\252\226>\031\272a\377\342\016\270\317\240Q$N\206\256\333\304\376\335}U\373\262\216\365\3377h\335\261o\332\333\366\021\360\372\264\273\013\341\215\017\234\025\rZ\263\320\351\273\301\371\031;\213(s0\010}7X].\272]\215\370\r\377\306\244\253A\323O\340\343\001\020j\375\016\375\032Q\020\037\376+\2230\003\330\201\272\232\215\373\031@\003'\361\326\004i\245\327\357\305W\310\005\347\221\233\374h~\023\311\352\034\331\202wX\023\352\243\307\211?Y\033<~\341\357\356\235\273\341\250V\366#`Y#\332\323\210]\261\266\032\275\361F\354Ru\037{B{\001\232r\347\002\323T}\006aC*|oV\027\252ed\3022\212\2418\336\343+\213Q\303cx\014\020<\367\016\253\347$\232\260\006\2549P\361\265\363\032\342\017\330\371\343\247\003c_\310\315!\220\321m\340\2651\227 \301|\205/\023HU\016{KP\364\321\020\037\311\223(\326\3370\332\005(\3109K\356W\310b\027\231!\323\340\\\254\337\352\302R=i\r\242x\357/\366\r\267\317\373g\375\331\361o\376\233\267`\375@\223\201\007\020\004\037Y\230\263W\035\035\315a\030\030\262\026\203\272\215a'\003 \370\303\367\335-\227\265\275A+\331\321\345\002\220\034\202]X\305\320D/\262\0006\007Xt\2430\210\332\031g\220\221\373\240\273\354M{\273\360\004\232\256m\005O\037\300\314\234G\274r\240q\311\232D\014\335\2561-\227\354wn\2577\307\236$\211\033P\313\027\340\001\321\ry\336F\374\\\205g&t\231Fs\200\210\312@\224\210}\350\344\030\217""\r\215\342\313\316\351j\r@\317\025\016\006Q'\343^\363\004\260c\246\226\207\376n\034O\037o\037\2277\376\005\373M\215y";
+    PyObject *data = __Pyx_DecompressString(cstring, 3532, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (7130 bytes) */
-const char* const bytes = ": All dimensions preceding dimension %d must be indexed and not slicedBuffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayGame is not in a terminal state.Index out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Step may not be zero (axis %d)Unable to convert item to object.>')?add_note and  at 0xcollections.abc<contiguous and direct><contiguous and indirect>cython_compile/game_encoder.pyxdisableenablegc (got got differing extents in dimension ../../home/codespace/.local/lib/python3.12/site-packages/numpy/__init__.cython-30.pxdisenableditemsize <= 0 for cython.arrayno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect>unable to allocate array data.unable to allocate shape and strides.ASCIIBLACKBLUEBOARD_RESOLUTIONConfigDiceEllipsisGLOBAL_MAX_DICEGLOBAL_MAX_ENGINEER_VALUEGLOBAL_MAX_HULLGLOBAL_MAX_SHIELDSGLOBAL_MAX_SQUAD_VALUELONG_RANGEMAX_COMMAND_STACKMAX_DEFENSE_TOKENSMAX_SHIPSMAX_SQUADSMAX_SQUAD_DEFENSE_TOKENSPyArray_MultiIterNew1PyArray_MultiIterNew2PyArray_MultiIterNew3PyArray_MultiIterNew4PyArray_MultiIterNew5PyDataType_SHAPEPyDatetimeArrType_TypePyTimedeltaArrType_Type__Pyx_PyDict_NextRefREDSHIP_STATS_FEATURESSQUAD_STATS_FEATURESSequenceTYPE_CHECKINGView.MemoryView*aabcaction_phaseactive_ship_idalignmentallocate_bufferarrarrayasyncio.coroutinesattack_r""ange_s2sbbaseboard_resolutioncc_command_typec_critical_typec_hull_typec_obstacle_typec_phase_typecachecache_function__class____class_getitem__cline_in_tracebackcommand_typeconfigscountcritical_typeddatadescrdice__dict__dimensionsdtypedtype_is_objecteencodeencode_game_stateencode_relation_matrixencode_scalar_featuresencode_ship_entity_featuresencode_spatial_maskencode_squad_entity_featuresenum_classenumerateerrorfieldsfillflagsfloat32formatfortran__func__gamegame_encodergame_lengthget_array_baseget_datetime64_unitget_datetime64_valueget_terminal_valueget_timedelta64_value__getstate__global_max_diceglobal_max_engineer_valueglobal_max_hullglobal_max_shieldsglobal_max_squad_valueheight_resheight_stephull_typeid__import__import_arrayimport_ufuncimport_umathindex_is_coroutineis_datetime64_objectis_timedelta64_objectitemsitemsizeiters__main__max_command_stackmax_defense_tokensmax_engineer_valuemax_shipsmax_squad_defense_tokensmax_squad_valuemax_squadsmeasurementmemviewmode__module__name__name__namesndndim__new__npnumiternumpyobjobstacle_typepackphase_typepipop__pyx_capi____pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerrelationsscalarselfset_array_base__set_name__setdefault__setstate____setstate_cython__shapeship_coordsship_def_tokensship_entitiesship_hulls_ship_presence_indices_ship_threat_indicessizespatialsquad_encode_arraystartstepstopstridesstructsubarraytarget_ship_id__test__typingunpackupdatevalueswidth_reswidth_stepwin_probxzerosPyObject *(struct __pyx_obj_6armada_Armada *, int __pyx_skip_dispatch)\000\000void (struct __pyx_obj_6armada_Armada *)\000\000\000\000\000encode_game_state\000get_terminal_value\000encode_relation_matrix\000encode_scalar_features\000encode_ship_entity_features\000encode_spatial_mask\000encode_squad_entity_features\210\001\360\006\000\r\024\320\023*\250!\2501\210\001\360\006\000\r\024\320\023#\2401\240A\210\001\360\010\000\r\024\320\023*\250!\2501\210\001\360\n""\000\r\024\220?\240!\2401\200\001\340\004\032\230!\2301\330\004\037\230q\240\001\330\004\027\220q\230\001\330\004\032\230!\2301\340\004\005\330\010\022\220$\220a\330\010\031\230\024\230Q\330\010\027\220t\2301\330\010\033\2304\230q\330\010\023\2204\220q\330\010\025\220T\230\021\330\010\032\230!\2306\240\024\240]\260(\270$\320>O\310s\320RV\320Vl\320lm\320ms\320sw\360\000\000x\001E\002\360\000\000E\002L\002\360\000\000L\002P\002\360\000\000P\002]\002\360\000\000]\002d\002\360\000\000d\002n\002\360\000\000n\002o\002\330\010\032\230!\2306\240\024\240]\260'\270\024\270]\310'\320Q[\320[\\\200\001\360\020\000\0052\260\024\260Q\360\006\000\005\t\320\010\035\230U\240!\2401\360\022\000\005\t\210\010\220\004\220A\330\010\013\2104\210t\2203\220f\230K\240s\250$\250a\330\014\r\340\010\024\220D\320\030,\250A\360\010\000\t\r\210E\220\025\320\026-\250Q\250a\360\006\000\t\023\220!\330\010\022\220!\360\006\000\t\r\210E\220\025\220a\220w\230f\240A\240Q\330\014\020\220\007\220q\230\001\330\014\020\220\007\220q\230\001\360\006\000\r\030\220q\230\004\230E\240\023\240C\240r\250\023\250G\2602\260T\270\022\2702\270Q\360\006\000\t\035\230E\320!6\260a\260q\360\006\000\t\r\210F\220/\320!2\260&\270\001\330\014\020\220\016\230j\250\013\2606\270\021\360\006\000\021\037\230b\240\003\2405\250\002\250#\250R\250q\340\020\032\230&\240\001\240\021\330\020\032\230&\240\001\240\021\340\020\024\220E\230\025\230a\230w\240f\250A\250Q\330\024\030\230\007\230q\240\001\330\024\030\230\007\230q\240\001\360\006\000\025 \230q\240\004\240E\250\035\260c\270\022\2703\270g\300R\300t\3102\310R\310q\200\001\360.\000\005\033\230!\360\014\000\005\t\320\010\032\230$\320\0363\2605\270\001\270\021\330\004\010\320\010\032\230%\230q\240\001\330\004\010\320\010\035\230U\240!\2401\360\006\000\005\010\200t\210=\230\007\230q\330\010\026\220d\230!\330\010\024\220A\340\004\010\210\010\220\004\220A\330\010\013\2104\210t\2203\220j\240\003\2404\240|\2601\360\006\000\t\034\2304\320\0371\260\021\260$\260a\330\010\030\230\001\230\025\230d""\240#\240R\240t\2501\330\010\030\230\001\230\025\230d\240#\240R\240t\2501\330\010\030\230\001\230\026\230t\240=\260\003\2602\260R\260r\270\026\270s\300\"\300B\300b\310\001\360\006\000\t\035\230A\330\010\014\210I\220T\230\021\330\014\017\210u\220L\240\001\340\014\035\230T\320!6\260a\260t\2704\270q\300\005\300Q\340\014\017\210u\220J\230n\250A\250U\260!\330\022 \240\001\240\025\240a\340\014\017\210t\2205\230\013\240>\260\021\260%\260q\340\014\017\210t\220:\230U\240%\240t\2503\250k\3209N\310c\320QV\320V\\\320\\_\320_j\320jk\330\020\036\230a\230u\240A\340\014\032\230!\2305\240\005\240V\2502\250U\260!\360\010\000\t\025\220D\320\030*\250!\2504\250q\340\010\021\220\021\360\006\000\t\022\220\021\220*\230E\240\021\240%\240s\250$\250o\270Z\300q\330\010\021\220\021\220*\230E\240\021\240%\240s\250$\250o\270Z\300q\330\010\021\220\021\220*\230E\240\021\240$\240m\260:\270Q\330\010\021\220\021\220*\230D\240\007\240r\250\025\250j\270\001\330\010\014\210H\220E\230\021\230!\330\014\017\210t\220?\240!\2406\250\027\260\001\330\020\031\230\021\230'\240\022\2408\2501\330\010\022\220!\360\006\000\t\022\220\021\220*\230D\240\006\240b\320(9\270\032\3001\330\010\014\210H\220E\230\021\230!\330\014\025\220Q\220g\230R\230x\240t\2507\260!\2606\270\022\2701\330\010\022\220!\360\006\000\t\014\2104\210v\220S\230\004\230A\330\014\020\220\013\230;\240i\250q\260\004\260A\330\020\031\230\021\230'\240\022\240:\250R\250\177\270b\300\013\3101\330\010\022\320\022$\240B\240a\360\006\000\t\r\210K\220t\2301\330\014\025\220Q\220g\230R\230{\250!\330\010\022\220!\360\006\000\t\r\210K\220t\2301\330\014\025\220Q\220g\230R\230{\250!\330\010\022\220!\360\006\000\t\014\2101\330\014\017\210{\320\032,\250D\260\013\320;K\3103\310d\320RS\330\020\031\230\021\230'\240\022\2405\250\013\3203C\3001\330\014\017\210{\320\032,\250D\260\004\260D\270\003\270;\300a\330\020\031\230\021\230'\240\022\240<\250r\260\025\260k\320AQ\320QR\330\020\023\220;\230o\250W\260A\330\024\035\230Q\230g\240R\240|\2602\260R\260r\270\025\270k\320I[\320[""\\\330\010\022\220!\200\001\360\032\000\005\033\230!\360\006\000\005\t\320\010\033\2304\320\0375\260U\270!\2701\340\004\007\200t\210=\230\007\230q\330\010\026\220d\230!\330\010\024\220A\340\004\010\210\t\220\024\220Q\330\010\013\2105\220\004\220C\220{\240#\240U\250!\330\014\r\360\006\000\t\026\220T\320\031,\250A\250U\260!\330\010\021\220\021\360\006\000\t\023\220!\220:\230U\240&\250\002\320*;\270:\300Q\330\010\022\220!\220:\230U\240,\250j\270\001\330\010\022\220!\220:\230U\240-\250z\270\021\330\010\022\220!\220:\230U\240+\250Z\260q\330\010\022\220!\220:\230U\240'\250\021\250#\250R\250t\260>\300\032\3101\330\010\022\220!\220:\230U\240'\250\021\250#\250R\250t\260=\300\n\310!\360\006\000\t\035\230A\330\010\013\2105\320\020!\240\027\250\001\330\014\026\220a\320\027)\250\022\2505\260\005\3205I\310\021\330\010\022\220!\360\006\000\t\014\2101\330\014\017\210t\220;\320\0360\260\004\260E\270\024\270S\300\013\3101\330\020\032\230!\230:\240Q\330\014\017\210t\220;\320\0360\260\004\260E\270\024\270S\300\013\3101\330\020\032\230!\2307\240\"\240E\250\021\330\010\022\220!\210\001\340\014\023\2207\320\032*\250!\2501\210\001\360\010\000\r\024\2207\230-\240q\250\001\200\001\360\010\000\005\014\320\013\036\320\0367\260t\2707\300!\210\001\340\014\023\2208\320\033,\250A\250Q\210\001\340\014\023\320\023$\240A\240Q\210\001\360\006\000\r\024\320\023,\250A\250Q\200\001\330\004\r\210Q\210a\330\004\031\230\021\230%\230q\200\001\330\004\007\320\007\035\230Q\230a\330\010\017\210w\220a\220y\240\001\340\010\017\210q\200\001\360\030\000\005\014\320\013\035\230Q\230e\2401\240A\200\001\360\016\000\005\r\320\014%\240T\250\021\210\001\360\006\000\r\024\320\023)\250\021\250!\210\001\360\016\000\r\024\220=\240\001\240\021\200\001\360\016\000\005\027\220a\360\n\000\005<\2704\270q\330\004(\250\001\360\006\000\005\021\220\005\220Q\220a\360\n\000\005\020\210q\220\005\220T\230\027\240\002\240!\330\004\017\210q\220\005\220T\230\032\2401\240C\240r\250\021\330\004\017\210q\220\005\220T\230\032\2402\240S\250\002""\250!\330\004\r\210Q\360\006\000\005\020\210q\220\007\220s\230$\230o\250S\260\006\260e\270:\300Q\330\004\017\210q\220\007\220s\230$\320\036.\250c\260\026\260u\270J\300a\360\006\000\005\020\210q\220\007\220r\230\025\230d\240*\250A\330\004\016\210a\360\006\000\005\020\210q\220\007\220s\230$\320\036.\250c\260\026\260q\330\004\016\210a\360\010\000\005\010\200t\210=\230\003\2301\330\010\t\340\004\022\220$\220a\360\006\000\005\020\210q\220\n\230%\230q\240\013\2501\330\004\017\210q\220\007\220r\230\025\230e\2401\240K\250q\330\004\017\210q\220\007\220r\230\025\230e\2401\240K\250q\330\004\016\210a\360\010\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\010\200{\220*\230G\2401\330\010\023\2201\220G\2302\230U\240+\250]\270!\330\004\016\210a\360\006\000\005\020\210q\220\013\2305\240\013\250?\270\"\270A\330\004\017\210q\220\007\220r\230\025\230g\240[\3200A\300\021\330\004\016\210a\210\001\340\014\023\320\023&\240a\240q\200\001\360\010\000\005\r\320\014&\240d\250!\200\001\360\026\000\005\027\220d\230!\330\004\027\220s\230!\2301\360\006\000\0050\250t\2601\330\004\016\210f\220A\360\n\000\005\t\210\005\210U\220!\2201\330\010\023\2205\230\001\230\021\360\006\000\t\014\2108""\2201\330\014\r\340\010\026\220h\230a\340\010\014\210E\220\025\220a\220q\340\014\017\210r\220\023\220A\330\020\021\340\014\027\220u\230A\230Q\340\014\017\210x\220q\330\020\021\340\014\032\230(\240!\360\006\000\r\020\210}\230E\320!2\260!\330\020\030\320\030,\250A\330\020\030\320\030,\250A\360\006\000\r\021\220\r\230U\240!\2401\330\020$\240J\250a\250q\340\020\024\220K\230u\240A\240Q\330\024#\2407\320*;\2701\270A\340\024\037\230z\250\022\250<\260r\270\021\340\024\036\230a\230}\250M\270\034\300Q\360\006\000\r\023\220(\230#\230R\230x\240t\2502\250T\260\021\330\014\022\220(\230#\230R\230x\240t\2502\250T\260\021\330\014\023\2204\220q\230\002\230!\2303\230b\240\002\240!\2401\360\006\000\r\037\230e\2401\240D\250\001\330\014\037\320\037/\250r\260\030\270\021\360\n\000\r\027\220a\220}\240M\260\026\260q\330\014\026\220a\220}\240M\260\026\260q\330\014\026\220a\220}\240M\260\026\260q\330\014\026\220a\220}\240M\260\026\260q\210\001\340\014\023\320\023'\240q\250\001\210\001\360\010\000\r\024\220<\230q\240\001\210\001\360\014\000\r\024\220<\230q\240\001\200\001\330\004\013\320\013\037\230q\240\003\2407\250!\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260A\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\021\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\023\310H\320TU\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260x\270q\320\000'\240q\330\004\005\330\010\025\220Q\330\013\014\330\010\016\210k\230\021\230!\320\000'\240q\330\004\005\330\010\032\230!\330\013\014\330\010\016\210k\230\021\230!\200\001\330\004\013\210<\220q\230\001\330\004\007\200u\210C\210q\330\010\017\210q\330\004\013\2108\2201\200\001\360\n\000\005\010\200t\2108\2203\220a\330\010\016\210j\230\001\230\021\340\004\021\220\022\2206\230\021\230+\240V\2502\250Q\330\004\010\210\010\220\004\220A\330\010\013\2104\210t\2203\220j\240\003\2404\240|\2601\330\010\022\220!\2204\220w\230d\240&\250\002\250$\250a\340\004""\022\220\"\220F\230!\2303\230f\240B\240a\330\004\017\210q\220\004\220G\2302\230U\240!\340\004\017\210r\220\026\220q\230\001\230\025\230f\240F\250\"\250A\330\004\007\200t\2108\2202\220Q\330\010\020\220\001\220\025\220a\340\010\020\220\001\220\025\220a\340\004\013\2104\210z\230\037\250\r\260^\300<\310|\320[\\O";
+    #else /* compression: none (7068 bytes) */
+const char* const bytes = ": All dimensions preceding dimension %d must be indexed and not slicedBuffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayGame is not in a terminal state.Index out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Step may not be zero (axis %d)Unable to convert item to object.>')?add_note and  at 0xcollections.abc<contiguous and direct><contiguous and indirect>cython_compile/game_encoder.pyxdisableenablegc (got got differing extents in dimension ../../home/codespace/.local/lib/python3.12/site-packages/numpy/__init__.cython-30.pxdisenableditemsize <= 0 for cython.arrayno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect>unable to allocate array data.unable to allocate shape and strides.ASCIIBLACKBLUEBOARD_RESOLUTIONConfigDiceEllipsisGLOBAL_MAX_DICEGLOBAL_MAX_ENGINEER_VALUEGLOBAL_MAX_HULLGLOBAL_MAX_SHIELDSGLOBAL_MAX_SQUAD_VALUELONG_RANGEMAX_COMMAND_STACKMAX_DEFENSE_TOKENSMAX_SHIPSMAX_SQUADSMAX_SQUAD_DEFENSE_TOKENSPyArray_MultiIterNew1PyArray_MultiIterNew2PyArray_MultiIterNew3PyArray_MultiIterNew4PyArray_MultiIterNew5PyDataType_SHAPEPyDatetimeArrType_TypePyTimedeltaArrType_Type__Pyx_PyDict_NextRefREDSHIP_STATIC_OFFSETSequenceTYPE_CHECKINGView.MemoryView*aabcaction_phasealignmentallocate_bufferarrarrayasyncio.coroutinesattack_range_s2sbbaseboard_resolutioncc_com""mand_typec_critical_typec_hull_typec_obstacle_typec_phase_typecachecache_function__class____class_getitem__cline_in_tracebackcommand_typeconfigscoords_view_buffercountcritical_typeddatadef_token_view_bufferdescrdice__dict__dimensionsdtypedtype_is_objecteencodeencode_game_stateencode_relation_matrixencode_scalar_featuresencode_ship_entity_featuresencode_spatial_maskenum_classenumerateerrorfieldsflagsfloat32formatfortran__func__gamegame_encodergame_lengthget_array_baseget_datetime64_unitget_datetime64_valueget_terminal_valueget_timedelta64_value__getstate__global_max_diceglobal_max_engineer_valueglobal_max_hullglobal_max_shieldsglobal_max_squad_valueheight_resheight_stephull_typeid__import__import_arrayimport_ufuncimport_umathindex_is_coroutineis_datetime64_objectis_timedelta64_objectitemsitemsizeiters__main__max_command_stackmax_defense_tokensmax_engineer_valuemax_shipsmax_squad_defense_tokensmax_squad_valuemax_squadsmeasurementmemviewmode__module__name__name__namesndndim__new__npnumiternumpyobjobstacle_typepackphase_typepiplanes_viewpop__pyx_capi____pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerrel_matrixrelation_bufferscalar_bufferscalar_viewselfset_array_base__set_name__setdefault__setstate____setstate_cython__shapeship_coords_buffership_def_token_buffership_entity_buffership_hulls_ship_presence_indicesship_static_offset_ship_threat_indicesship_view_buffersizespatial_bufferstartstepstopstridesstructsubarray__test__typingunpackupdatevalueswidth_reswidth_stepwin_probxzerosPyObject *(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, int __pyx_skip_dispatch)\000PyObject *(struct __pyx_obj_6armada_Armada *, int __pyx_skip_dispatch)\000void (struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice)\000\000\000void (struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice, __Pyx_memviewslice, __""Pyx_memviewslice)\000encode_game_state\000get_terminal_value\000encode_relation_matrix\000encode_scalar_features\000encode_spatial_mask\000encode_ship_entity_features\210\001\360\006\000\r\024\320\023*\250!\2501\210\001\360\006\000\r\024\320\023#\2401\240A\210\001\360\010\000\r\024\320\023*\250!\2501\210\001\360\n\000\r\024\220?\240!\2401\200\001\360\026\000\005\033\230!\2306\240\021\330\004\037\230q\240\006\320&:\320:N\310a\330\004\027\220q\230\006\230a\330\004\032\230!\2306\240\021\340\004\031\230\021\230&\240\004\240M\260\030\270\024\320=N\310c\320QU\320Uk\320kl\320lr\320rv\360\000\000w\001D\002\360\000\000D\002K\002\360\000\000K\002O\002\360\000\000O\002\\\002\360\000\000\\\002c\002\360\000\000c\002m\002\360\000\000m\002n\002\330\004\031\230\021\230&\240\004\240M\260\027\270\004\270M\310\027\320PZ\320Z[\330\004\025\220U\230$\230a\340\004\013\210;\220k\240\021\210\001\340\014\023\2207\320\032*\250!\2501\210\001\360\010\000\r\024\2207\230-\240q\250\001\200\001\360\010\000\005\014\320\013\036\320\0367\260t\2707\300!\210\001\340\014\023\2208\320\033,\250A\250Q\210\001\340\014\023\320\023$\240A\240Q\210\001\360\006\000\r\024\320\023,\250A\250Q\200\001\360*\000\005*\250\024\250Q\360\n\000\005\033\230!\360\014\000\005\025\220F\230!\330\004\026\220f\230A\330\004\031\230\026\230q\360\006\000\005\010\200t\210=\230\007\230q\330\010\026\220d\230!\330\010\024\220A\340\004\010\210\010\220\004\220A\330\010\013\2104\210t\2203\220j\240\003\2404\240|\2601\360\006\000\t\036\320\035/\250q\260\004\260A\330\010\032\230!\2305\240\004\240C\240r\250\024\250Q\330\010\032\230!\2305\240\004\240C\240r\250\024\250Q\330\010\032\230!\2306\240\024\240]\260#\260R\260r\270\022\2706\300\023\300B\300b\310\002\310!\360\006\000\t\035\230A\330\010\014\210I\220T\230\021\330\014\017\210u\220L\240\001\340\014$\320$9\270\021\270$\270e\3005\310\001\340\014\017\210u\220J\320\0363\2601\260E\270\021\330\022'\240q\250\005\250Q\340\014\017\210t\2205\230\013\320#8\270\001\270\025\270a\340\014\017\210t\220:\230U""\240%\240t\2503\250k\3209N\310c\320QV\320V\\\320\\_\320_j\320jk\330\020%\240Q\240e\2501\340\014!\240\021\240%\240u\250F\260\"\260E\270\021\360\006\000\t\034\320\033+\2501\250D\260\001\330\010\030\230\002\320\0320\3200A\300\021\300$\300a\330\010\021\220\021\360\006\000\t\031\230\001\230\032\2405\250\001\250\025\250c\260\024\260_\300J\310a\330\010\030\230\001\230\032\2405\250\001\250\025\250c\260\024\260_\300J\310a\330\010\030\230\001\230\032\2405\250\001\250\024\250]\270*\300A\330\010\030\230\001\230\032\2404\240w\250b\260\005\260Z\270q\330\010\014\210H\220E\230\021\230!\330\014\017\210t\220?\240!\2406\250\027\260\001\330\020 \240\001\240\027\250\002\250(\260!\330\010\022\220!\360\006\000\t\031\230\001\230\032\2404\240v\250R\320/@\300\n\310!\330\010\014\210H\220E\230\021\230!\330\014\034\230A\230W\240B\240h\250d\260'\270\021\270&\300\002\300!\330\010\022\220!\360\006\000\t\014\2104\210v\220S\230\004\230A\330\014\020\220\013\230;\240i\250q\260\004\260A\330\020 \240\001\240\027\250\002\250*\260B\260o\300R\300{\320RS\330\010\022\320\022$\240B\240a\360\006\000\t\r\210K\220t\2301\330\014\034\230A\230W\240B\240k\260\021\330\010\022\220!\360\006\000\t\r\210K\220t\2301\330\014\034\230A\230W\240B\240k\260\021\330\010\022\220!\360\006\000\t\014\2101\330\014\017\210{\320\032,\250D\260\013\320;K\3103\310d\320RS\330\020 \240\001\240\027\250\002\250%\250{\320:J\310!\330\014\017\210{\320\032,\250D\260\004\260D\270\003\270;\300a\330\020 \240\001\240\027\250\002\250,\260b\270\005\270[\320HX\320XY\330\020\023\220;\230o\250W\260A\330\024$\240A\240W\250B\250l\270\"\270B\270b\300\005\300[\320Pb\320bc\330\010\022\220!\200\001\330\004\r\210Q\210a\330\004\031\230\021\230%\230q\200\001\330\004\007\320\007\035\230Q\230a\330\010\017\210w\220a\220y\240\001\340\010\017\210q\200\001\360\030\000\005\014\320\013\035\230Q\230e\2401\240A\200\001\360\016\000\005\r\320\014%\240T\250\021\210\001\360\006\000\r\024\320\023)\250\021\250!\210\001\360\016\000\r\024\220=\240\001\240\021\200\001\360\016\000""\005\027\220a\360\n\000\005\020\210v\220Q\360\n\000\005\020\210q\220\005\220T\230\027\240\002\240!\330\004\017\210q\220\005\220T\230\032\2401\240C\240r\250\021\330\004\017\210q\220\005\220T\230\032\2402\240S\250\002\250!\330\004\r\210Q\360\006\000\005\020\210q\220\007\220s\230$\230o\250S\260\006\260e\270:\300Q\330\004\017\210q\220\007\220s\230$\320\036.\250c\260\026\260u\270J\300a\360\006\000\005\020\210q\220\007\220r\230\025\230d\240*\250A\330\004\016\210a\360\006\000\005\020\210q\220\007\220s\230$\320\036.\250c\260\026\260q\330\004\016\210a\360\010\000\005\010\200t\210=\230\003\2301\330\010\t\340\004\022\220$\220a\360\006\000\005\020\210q\220\n\230%\230q\240\013\2501\330\004\017\210q\220\007\220r\230\025\230e\2401\240K\250q\330\004\017\210q\220\007\220r\230\025\230e\2401\240K\250q\330\004\016\210a\360\010\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\023\220+\320\0350\260\001\260\024\260Q\330\004\017\210q\220\n\230'\240\033\250A\250Q\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\017\210q\220\007\220r\230\025\230g\240[\260\001\260\021\330\004\016\210a\360\006\000\005\010\200{\220*\230G\2401\330\010\023\2201\220G\2302\230U\240+\250]\270!\330\004\016\210a\360\006\000\005\020\210q\220\013\2305\240\013\250?\270\"\270A\330\004\017\210q\220\007\220r\230\025\230g\240[\3200A\300\021\330\004\016\210a\210\001\340\014\023\320\023&\240a\240q\200\001\360\010\000\005\r\320\014&\240d""\250!\200\001\360\026\000\005\027\220d\230!\330\004\027\220s\230!\2301\360\006\000\005\017\210f\220A\360\n\000\005\t\210\005\210U\220!\2201\330\010\023\2205\230\001\230\021\360\006\000\t\014\2108\2201\330\014\r\340\010\026\220h\230a\340\010\014\210E\220\025\220a\220q\340\014\017\210r\220\023\220A\330\020\021\340\014\027\220u\230A\230Q\340\014\017\210x\220q\330\020\021\340\014\032\230(\240!\360\006\000\r\020\210}\230E\320!2\260!\330\020\030\320\030,\250A\330\020\030\320\030,\250A\360\006\000\r\021\220\r\230U\240!\2401\330\020$\240J\250a\250q\340\020\024\220K\230u\240A\240Q\330\024#\2407\320*;\2701\270A\340\024\037\230z\250\022\250<\260r\270\021\340\024\036\230a\230}\250M\270\034\300Q\360\006\000\r\023\220(\230#\230R\230x\240t\2502\250T\260\021\330\014\022\220(\230#\230R\230x\240t\2502\250T\260\021\330\014\023\2204\220q\230\002\230!\2303\230b\240\002\240!\2401\360\006\000\r\037\230e\2401\240D\250\001\330\014\037\320\037/\250r\260\030\270\021\360\n\000\r\027\220a\220}\240M\260\026\260q\330\014\026\220a\220}\240M\260\026\260q\330\014\026\220a\220}\240M\260\026\260q\330\014\026\220a\220}\240M\260\026\260q\210\001\340\014\023\320\023'\240q\250\001\210\001\360\010\000\r\024\220<\230q\240\001\210\001\360\014\000\r\024\220<\230q\240\001\200\001\330\004\013\320\013\037\230q\240\003\2407\250!\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260A\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\021\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\023\310H\320TU\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260x\270q\320\000'\240q\330\004\005\330\010\025\220Q\330\013\014\330\010\016\210k\230\021\230!\320\000'\240q\330\004\005\330\010\032\230!\330\013\014\330\010\016\210k\230\021\230!\200\001\330\004\013\210<\220q\230\001\330\004\007\200u\210C\210q\330\010\017\210q\330\004\013\2108\2201\200\001\360\n\000\005\010\200t\2108\2203\220a\330\010\016\210j\230\001\230\021\340\004""\021\220\022\2206\230\021\230+\240V\2502\250Q\330\004\010\210\010\220\004\220A\330\010\013\2104\210t\2203\220j\240\003\2404\240|\2601\330\010\022\220!\2204\220w\230d\240&\250\002\250$\250a\340\004\022\220\"\220F\230!\2303\230f\240B\240a\330\004\017\210q\220\004\220G\2302\230U\240!\340\004\017\210r\220\026\220q\230\001\230\025\230f\240F\250\"\250A\330\004\007\200t\2108\2202\220Q\330\010\020\220\001\220\025\220a\340\010\020\220\001\220\025\220a\340\004\013\2104\210z\230\037\250\r\260^\300<\310|\320[\\\200\001\360\022\000\005\020\210v\220Q\360\022\000\005\t\210\010\220\004\220A\330\010\013\2104\210t\2203\220f\230K\240s\250$\250a\330\014\r\340\010\024\220D\320\030,\250A\360\010\000\t\r\210E\220\025\320\026-\250Q\250a\360\006\000\t\023\220!\330\010\022\220!\360\006\000\t\r\210E\220\025\220a\220w\230f\240A\240Q\330\014\020\220\007\220q\230\001\330\014\020\220\007\220q\230\001\360\006\000\r\030\220q\230\004\230E\240\023\240C\240r\250\023\250G\2602\260T\270\022\2702\270Q\360\006\000\t\035\230E\320!6\260a\260q\360\006\000\t\r\210F\220/\320!2\260&\270\001\330\014\020\220\016\230j\250\013\2606\270\021\360\006\000\021\037\230b\240\003\2405\250\002\250#\250R\250q\340\020\032\230&\240\001\240\021\330\020\032\230&\240\001\240\021\340\020\024\220E\230\025\230a\230w\240f\250A\250Q\330\024\030\230\007\230q\240\001\330\024\030\230\007\230q\240\001\360\006\000\025 \230q\240\004\240E\250\035\260c\270\022\2703\270g\300R\300t\3102\310R\310qO";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 239; i++) {
+    for (int i = 0; i < 240; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 49) PyUnicode_InternInPlace(&string);
@@ -28189,7 +27785,7 @@ const char* const bytes = ": All dimensions preceding dimension %d must be index
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 239; i < 277; i++) {
+    for (int i = 240; i < 277; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -28207,8 +27803,8 @@ const char* const bytes = ": All dimensions preceding dimension %d must be index
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 239;
-      for (Py_ssize_t i=0; i<38; ++i) {
+      PyObject **table = stringtab + 240;
+      for (Py_ssize_t i=0; i<37; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
         if (_Py_IsOwnedByCurrentThread(table[i]) && Py_REFCNT(table[i]) == 1)
@@ -28469,34 +28065,29 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[35] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_get_terminal_value, __pyx_mstate->__pyx_kp_b_iso88591_t83a_j_6_V2Q_A_4t3j_4_1_4wd_a_F, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[35])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 79};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game};
-    __pyx_mstate_global->__pyx_codeobj_tab[36] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_game_state, __pyx_mstate->__pyx_kp_b_iso88591_1_q_q_1_a_Q_t1_4q_4q_T_6_OsRVVl, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[36])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {7, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 79};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_scalar_buffer, __pyx_mstate->__pyx_n_u_ship_entity_buffer, __pyx_mstate->__pyx_n_u_ship_coords_buffer, __pyx_mstate->__pyx_n_u_ship_def_token_buffer, __pyx_mstate->__pyx_n_u_spatial_buffer, __pyx_mstate->__pyx_n_u_relation_buffer};
+    __pyx_mstate_global->__pyx_codeobj_tab[36] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_game_state, __pyx_mstate->__pyx_kp_b_iso88591_6_q_Na_q_a_6_M_NcQUUkkllrrv_w_D, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[36])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 97};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_SHIP_STATS_FEATURES};
-    __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_scalar_features, __pyx_mstate->__pyx_kp_b_iso88591_a_4q_Qa_q_T_q_T_1Cr_q_T_2S_Q_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 25, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 101};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_scalar_view, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_ship_static_offset};
+    __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_scalar_features, __pyx_mstate->__pyx_kp_b_iso88591_a_vQ_q_T_q_T_1Cr_q_T_2S_Q_q_s_o, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 185};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_SHIP_STATS_FEATURES};
-    __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_ship_entity_features, __pyx_mstate->__pyx_kp_b_iso88591_35_q_U_1_t_q_d_A_A_4t3j_4_1_4_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 27, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 185};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_ship_view_buffer, __pyx_mstate->__pyx_n_u_coords_view_buffer, __pyx_mstate->__pyx_n_u_def_token_view_buffer, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_ship_static_offset};
+    __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_ship_entity_features, __pyx_mstate->__pyx_kp_b_iso88591_Q_F_fA_q_t_q_d_A_A_4t3j_4_1_q_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 299};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_SHIP_STATS_FEATURES};
-    __pyx_mstate_global->__pyx_codeobj_tab[39] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_squad_entity_features, __pyx_mstate->__pyx_kp_b_iso88591_4_5U_1_t_q_d_A_Q_5_C_U_T_AU_U_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[39])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 25, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 369};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_planes_view, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_ship_static_offset};
+    __pyx_mstate_global->__pyx_codeobj_tab[39] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_spatial_mask, __pyx_mstate->__pyx_kp_b_iso88591_vQ_A_4t3fKs_a_D_A_E_Qa_E_awfAQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[39])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 367};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_SHIP_STATS_FEATURES};
-    __pyx_mstate_global->__pyx_codeobj_tab[40] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_spatial_mask, __pyx_mstate->__pyx_kp_b_iso88591_2_Q_U_1_A_4t3fKs_a_D_A_E_Qa_E_a, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[40])) goto bad;
-  }
-  {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 24, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 429};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_SHIP_STATS_FEATURES};
-    __pyx_mstate_global->__pyx_codeobj_tab[41] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_relation_matrix, __pyx_mstate->__pyx_kp_b_iso88591_d_s_1_0t1_fA_U_1_5_81_ha_E_aq_r, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[41])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 25, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 429};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_game, __pyx_mstate->__pyx_n_u_rel_matrix, __pyx_mstate->__pyx_n_u_c_command_type, __pyx_mstate->__pyx_n_u_c_phase_type, __pyx_mstate->__pyx_n_u_c_critical_type, __pyx_mstate->__pyx_n_u_c_hull_type, __pyx_mstate->__pyx_n_u_c_obstacle_type, __pyx_mstate->__pyx_n_u_max_ships, __pyx_mstate->__pyx_n_u_max_squads, __pyx_mstate->__pyx_n_u_max_command_stack, __pyx_mstate->__pyx_n_u_max_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_defense_tokens, __pyx_mstate->__pyx_n_u_max_squad_value, __pyx_mstate->__pyx_n_u_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_hull, __pyx_mstate->__pyx_n_u_global_max_shields, __pyx_mstate->__pyx_n_u_global_max_squad_value, __pyx_mstate->__pyx_n_u_global_max_engineer_value, __pyx_mstate->__pyx_n_u_global_max_dice, __pyx_mstate->__pyx_n_u_board_resolution, __pyx_mstate->__pyx_n_u_height_res, __pyx_mstate->__pyx_n_u_width_res, __pyx_mstate->__pyx_n_u_width_step, __pyx_mstate->__pyx_n_u_height_step, __pyx_mstate->__pyx_n_u_ship_static_offset};
+    __pyx_mstate_global->__pyx_codeobj_tab[40] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_cython_compile_game_encoder_pyx, __pyx_mstate->__pyx_n_u_encode_relation_matrix, __pyx_mstate->__pyx_kp_b_iso88591_d_s_1_fA_U_1_5_81_ha_E_aq_r_A_u, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[40])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;
@@ -35666,7 +35257,7 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   }
   
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float32_t(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *obj, int writable_flag) {
       __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
       __Pyx_BufFmt_StackElem stack[1];
       int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
@@ -35677,7 +35268,7 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
       }
       retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
                                                    PyBUF_RECORDS_RO | writable_flag, 1,
-                                                   &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, stack,
+                                                   &__Pyx_TypeInfo_float, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))
           goto __pyx_fail;
@@ -35689,17 +35280,63 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   }
   
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_5numpy_uint8_t(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_float(PyObject *obj, int writable_flag) {
       __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
       __Pyx_BufFmt_StackElem stack[1];
-      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
+      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
       int retcode;
       if (obj == Py_None) {
           result.memview = (struct __pyx_memoryview_obj *) Py_None;
           return result;
       }
-      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                   (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 4,
+      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                   PyBUF_RECORDS_RO | writable_flag, 2,
+                                                   &__Pyx_TypeInfo_float, stack,
+                                                   &result, obj);
+      if (unlikely(retcode == -1))
+          goto __pyx_fail;
+      return result;
+  __pyx_fail:
+      result.memview = NULL;
+      result.data = NULL;
+      return result;
+  }
+  
+/* ObjectToMemviewSlice */
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsds_float(PyObject *obj, int writable_flag) {
+      __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
+      __Pyx_BufFmt_StackElem stack[1];
+      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
+      int retcode;
+      if (obj == Py_None) {
+          result.memview = (struct __pyx_memoryview_obj *) Py_None;
+          return result;
+      }
+      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                   PyBUF_RECORDS_RO | writable_flag, 3,
+                                                   &__Pyx_TypeInfo_float, stack,
+                                                   &result, obj);
+      if (unlikely(retcode == -1))
+          goto __pyx_fail;
+      return result;
+  __pyx_fail:
+      result.memview = NULL;
+      result.data = NULL;
+      return result;
+  }
+  
+/* ObjectToMemviewSlice */
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsdsds_nn___pyx_t_5numpy_uint8_t(PyObject *obj, int writable_flag) {
+      __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
+      __Pyx_BufFmt_StackElem stack[1];
+      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
+      int retcode;
+      if (obj == Py_None) {
+          result.memview = (struct __pyx_memoryview_obj *) Py_None;
+          return result;
+      }
+      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                   PyBUF_RECORDS_RO | writable_flag, 4,
                                                    &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))
@@ -35724,29 +35361,6 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
       retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
                                                    PyBUF_RECORDS_RO | writable_flag, 1,
                                                    &__Pyx_TypeInfo_long, stack,
-                                                   &result, obj);
-      if (unlikely(retcode == -1))
-          goto __pyx_fail;
-      return result;
-  __pyx_fail:
-      result.memview = NULL;
-      result.data = NULL;
-      return result;
-  }
-  
-/* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float32_t(PyObject *obj, int writable_flag) {
-      __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
-      __Pyx_BufFmt_StackElem stack[1];
-      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
-      int retcode;
-      if (obj == Py_None) {
-          result.memview = (struct __pyx_memoryview_obj *) Py_None;
-          return result;
-      }
-      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                   (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 3,
-                                                   &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))
           goto __pyx_fail;

@@ -1937,12 +1937,7 @@ struct __pyx_obj_6armada_Armada {
   PyObject *active_squad;
   PyObject *attack_info;
   int debuging_visual;
-  PyArrayObject *scalar_encode_array;
-  PyArrayObject *relation_encode_array;
-  PyArrayObject *ship_encode_array;
-  PyArrayObject *ship_coords_array;
-  PyArrayObject *ship_def_token_array;
-  PyArrayObject *spatial_encode_array;
+  PyArrayObject *ship_static_encode_array;
 };
 
 

@@ -46,7 +46,7 @@ def download_replay_result(worker_id : int, local_path: str="output") -> None:
     print(f"[DOWNLOAD] worker-{worker_id:02d} data ({time})\n")
 
 
-def upload_replay_result(worker_id : int) -> None:
+def upload_replay_result(worker_id : int, upload_replay : bool=True) -> None:
     """for worker"""
 
     start_time = datetime.datetime.now()
@@ -55,11 +55,12 @@ def upload_replay_result(worker_id : int) -> None:
     volume_name = f"alpharmada-volume-worker-{worker_id:02d}"
     path = Config.REPLAY_BUFFER_DIR
     
-    vessl.storage.upload_volume_file(
-        source_path=path,
-        dest_storage_name="vessl-storage",
-        dest_volume_name=volume_name
-    )
+    if upload_replay:
+        vessl.storage.upload_volume_file(
+            source_path=path,
+            dest_storage_name="vessl-storage",
+            dest_volume_name=volume_name
+        )
 
     # Upload Sub Outputs
     vessl.storage.upload_volume_file(
@@ -78,12 +79,13 @@ def upload_replay_result(worker_id : int) -> None:
     with open(flag_filename, 'w') as f:
         pass 
         
-    vessl.storage.upload_volume_file(
-        source_path=flag_filename,
-        dest_storage_name="vessl-storage",
-        dest_volume_name="alpharmada-volume-worker-common",
-        dest_path=os.path.join(f"output_{worker_id:02d}","timestamp")
-    )
+    if upload_replay:
+        vessl.storage.upload_volume_file(
+            source_path=flag_filename,
+            dest_storage_name="vessl-storage",
+            dest_volume_name="alpharmada-volume-worker-common",
+            dest_path=os.path.join(f"output_{worker_id:02d}","timestamp")
+        )
     
     end_time = datetime.datetime.now()
     time = _format_time(start_time, end_time)

@@ -47,7 +47,7 @@ cdef:
     float width_step = LONG_RANGE * 6 / width_res
     float height_step = LONG_RANGE * 3 / height_res
 
-    int SHIP_STATS_FEATURES = 36
+    int ship_static_offset = <int>Config.SHIP_STATIC_OFFSET
 
 
 
@@ -76,27 +76,31 @@ cpdef tuple get_terminal_value(Armada game):
     return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls, 'win_prob': win_prob}
 
 
-cpdef dict encode_game_state(Armada game):
-    """Main function to encode the entire game state into numpy arrays for the NN."""
-    encode_scalar_features(game)
-    encode_ship_entity_features(game)
-    encode_spatial_mask(game)
-    encode_relation_matrix(game)
+cpdef tuple encode_game_state(Armada game, 
+                              float[:] scalar_buffer, 
+                              float[:, :] ship_entity_buffer, 
+                              float[:, :] ship_coords_buffer, 
+                              float[:, :, :] ship_def_token_buffer, 
+                              cnp.uint8_t[:, :, :, :] spatial_buffer, 
+                              float[:, :, :] relation_buffer):
+    """
+    Writes encoding directly into the provided memory views.
+    Returns (active_ship_id, target_ship_id).
+    """
+    encode_scalar_features(game, scalar_buffer)
+    encode_ship_entity_features(game, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer)
+    encode_spatial_mask(game, spatial_buffer)
+    encode_relation_matrix(game, relation_buffer)
 
-    return {
-        'scalar': game.scalar_encode_array,
-        'ship_entities': game.ship_encode_array,
-        'ship_coords': game.ship_coords_array,
-        'ship_def_tokens': game.ship_def_token_array,
-        'spatial': game.spatial_encode_array,
-        'relations': game.relation_encode_array,
-        'active_ship_id': (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships,
-        'target_ship_id': (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships,
-    }
+    cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
+    cdef int target_id = (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships
+    cdef int phase = <int>game.phase
+
+    return active_id, target_id, phase
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void encode_scalar_features(Armada game):
+cdef void encode_scalar_features(Armada game, float[:] scalar_view):
     """
     Encodes high-level, non-spatial game state information, including crucial
     context about an ongoing attack from game.attack_info.
@@ -106,11 +110,7 @@ cdef void encode_scalar_features(Armada game):
 
     cdef tuple pool_result 
 
-    cdef cnp.ndarray[cnp.float32_t, ndim=1] scalar_array = game.scalar_encode_array
-    cdef cnp.float32_t[:] scalar_view = scalar_array
-
-    # Reset the pre-allocated array
-    scalar_array.fill(0.0)
+    scalar_view[:] = 0.0
 
     # --- Base Game State Features ---
     
@@ -135,7 +135,7 @@ cdef void encode_scalar_features(Armada game):
     # --- Attack Context Features (17 features) ---
     
     if game.attack_info is None:
-        return  # No attack in progress, return early
+        return # No attack in progress, return early
         
     attack_info = game.attack_info
     
@@ -184,7 +184,10 @@ cdef void encode_scalar_features(Armada game):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void encode_ship_entity_features(Armada game):
+cdef void encode_ship_entity_features(Armada game, 
+                                      float[:, :] ship_view_buffer, 
+                                      float[:, :] coords_view_buffer, 
+                                      float[:, :, :] def_token_view_buffer):
     """
     Encodes a detailed vector for each ship, now including its role in an active attack.
     
@@ -197,10 +200,10 @@ cdef void encode_ship_entity_features(Armada game):
     cdef AttackInfo attack_info
     
     # Memory view for the target row
-    cdef cnp.float32_t[:] ship_view
-    cdef cnp.float32_t[:] ship_coords_view
-    cdef cnp.float32_t[:] def_token_view
-    
+    cdef cnp.float32_t[:] single_ship_view
+    cdef cnp.float32_t[:] single_coords_view
+    cdef cnp.float32_t[:] single_def_token_view
+    cdef float[:, :] static_stats_view = game.ship_static_encode_array
     # Indices and iterators
     cdef int offset, stack_idx, defense_start_idx, hull, command
     
@@ -211,9 +214,9 @@ cdef void encode_ship_entity_features(Armada game):
 
     # Zero out the entire array at the beginning.
     # This is crucial so we only have to write non-zero values.
-    game.ship_encode_array[:, SHIP_STATS_FEATURES:].fill(0.0)
-    game.ship_coords_array.fill(0.0)
-    game.ship_def_token_array.fill(0.0)
+    ship_view_buffer[:] = 0.0
+    coords_view_buffer[:] = 0.0
+    def_token_view_buffer[:] = 0.0
 
     # Get attack_info once outside the loop
     if game.attack_info is not None:
@@ -224,158 +227,155 @@ cdef void encode_ship_entity_features(Armada game):
         if ship.id >= max_ships or ship.destroyed: continue
 
         # coords
-        ship_coords_view = game.ship_coords_array[ship.id]
-        ship_coords_view[0] = ship.x / game.player_edge
-        ship_coords_view[1] = ship.y / game.short_edge
-        ship_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
+        single_coords_view = coords_view_buffer[ship.id]
+        single_coords_view[0] = ship.x / game.player_edge
+        single_coords_view[1] = ship.y / game.short_edge
+        single_coords_view[2] = (ship.orientation % (2 * np.pi)) / (2 * np.pi)
 
         # defense tokens
         defense_start_idx = offset
         for token in ship.defense_tokens:
             if token.discarded: continue
 
-            def_token_view = game.ship_def_token_array[ship.id][token.id]
+            single_def_token_view = def_token_view_buffer[ship.id, token.id]
 
-            if token.readied: def_token_view[0] = 1.0
-            else: def_token_view[1] = 1.0
+            if token.readied: single_def_token_view[0] = 1.0
+            else: single_def_token_view[1] = 1.0
 
-            if not token.accuracy: def_token_view[2] = 1.0
+            if not token.accuracy: single_def_token_view[2] = 1.0
 
             if not(is_attack and (token.id in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
-                def_token_view[3] = 1.0
+                single_def_token_view[3] = 1.0
             
-            def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type
+            single_def_token_view[<int>token.type + 4] = 1.0  # One-hot encoding of token type
 
 
-
-        ship_view = game.ship_encode_array[ship.id]
-
-        offset = SHIP_STATS_FEATURES
+        single_ship_view = ship_view_buffer[ship.id]
+        single_ship_view[:ship_static_offset] = static_stats_view[ship.id,:]
+        offset = ship_static_offset
 
         # --- Status (8 features) ---
-        ship_view[offset] = float(ship == game.active_ship); offset += 1
-        ship_view[offset] = float(ship == game.defend_ship); offset += 1
-        ship_view[offset] = float(ship.activated); offset += 1
-        ship_view[offset] = ship.speed / 4.0; offset += 1
+        single_ship_view[offset] = float(ship == game.active_ship); offset += 1
+        single_ship_view[offset] = float(ship == game.defend_ship); offset += 1
+        single_ship_view[offset] = float(ship.activated); offset += 1
+        single_ship_view[offset] = ship.speed / 4.0; offset += 1
         for hull in range(c_hull_type):
             if ship.attack_history[hull] is not None:
-                ship_view[offset + hull] = 1.0
+                single_ship_view[offset + hull] = 1.0
         offset += c_hull_type
 
         # --- Hull and Shields (5 features) ---
-        ship_view[offset] = ship.hull / global_max_hull; offset += 1
+        single_ship_view[offset] = ship.hull / global_max_hull; offset += 1
         for hull in range(c_hull_type):
-            ship_view[offset + hull] = ship.shield[hull] / global_max_shields
+            single_ship_view[offset + hull] = ship.shield[hull] / global_max_shields
         offset += c_hull_type
         
         # --- Command Stack (12 features) ---
         if ship.team == game.simulation_player:
             for stack_idx, command in enumerate(ship.command_stack):
-                ship_view[offset + stack_idx * c_command_type + command] = 1.0
+                single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
         offset += max_command_stack * c_command_type # Advance offset by the block size
         
         # --- Command Dials (4 features) ---
         for command in ship.command_dial:
-            ship_view[offset + command] = 1.0
+            single_ship_view[offset + command] = 1.0
         offset += c_command_type # Advance offset by block size
 
         # --- Command Tokens (4 features) ---
         for command in ship.command_token:
-            ship_view[offset + command] = 1.0
+            single_ship_view[offset + command] = 1.0
         offset += c_command_type # Advance offset by block size
 
         # --- Attack Role (8 features) ---
         if is_attack:
             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:
-                ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
+                single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
-                ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
+                single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
                 if attack_info.redirect_hull is not None:
-                    ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+                    single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
         offset += 12 # Advance offset by block size
 
 
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef void encode_squad_entity_features(Armada game):
-    """
-    Encodes a detailed vector for each squad in-place in game.squad_encode_array
-    to avoid all memory allocations, then returns a reference to the array.
-    """
+# @cython.boundscheck(False)
+# @cython.wraparound(False)
+# cdef void encode_squad_entity_features(Armada game):
+#     """
+#     Encodes a detailed vector for each squad in-place in game.squad_encode_array
+#     to avoid all memory allocations, then returns a reference to the array.
+#     """
     
-    cdef Squad squad
-    cdef cnp.float32_t[:] squad_view
-    cdef int defense_idx, offset, overlap_start_idx, defense_start_idx
-    cdef DefenseToken token
-    cdef AttackInfo attack_info
-    cdef bint is_attack = False
+#     cdef Squad squad
+#     cdef cnp.float32_t[:] squad_view
+#     cdef int defense_idx, offset, overlap_start_idx, defense_start_idx
+#     cdef DefenseToken token
+#     cdef AttackInfo attack_info
+#     cdef bint is_attack = False
 
-    # Zero out the array to clear stale data
-    game.squad_encode_array[:, SQUAD_STATS_FEATURES:].fill(0.0)
+#     # Zero out the array to clear stale data
+#     game.squad_encode_array[:, SQUAD_STATS_FEATURES:].fill(0.0)
 
-    if game.attack_info is not None:
-        attack_info = game.attack_info
-        is_attack = True
+#     if game.attack_info is not None:
+#         attack_info = game.attack_info
+#         is_attack = True
 
-    for squad in game.squads:
-        if squad.id >= max_squads or squad.destroyed:
-            continue
+#     for squad in game.squads:
+#         if squad.id >= max_squads or squad.destroyed:
+#             continue
             
-        # Get a view to the specific row we will write to
-        squad_view = game.squad_encode_array[squad.id]
-        offset = SQUAD_STATS_FEATURES
+#         # Get a view to the specific row we will write to
+#         squad_view = game.squad_encode_array[squad.id]
+#         offset = SQUAD_STATS_FEATURES
 
-        # --- Status (6 features) ---
-        squad_view[offset] = squad.hull / global_max_hull; offset += 1
-        squad_view[offset] = squad.activated; offset += 1
-        squad_view[offset] = squad.can_attack; offset += 1
-        squad_view[offset] = squad.can_move; offset += 1
-        squad_view[offset] = squad.coords[0] / game.player_edge; offset += 1
-        squad_view[offset] = squad.coords[1] / game.short_edge; offset += 1
+#         # --- Status (6 features) ---
+#         squad_view[offset] = squad.hull / global_max_hull; offset += 1
+#         squad_view[offset] = squad.activated; offset += 1
+#         squad_view[offset] = squad.can_attack; offset += 1
+#         squad_view[offset] = squad.can_move; offset += 1
+#         squad_view[offset] = squad.coords[0] / game.player_edge; offset += 1
+#         squad_view[offset] = squad.coords[1] / game.short_edge; offset += 1
         
-        # --- Overlap (MAX_SHIPS=6 features) ---
-        overlap_start_idx = offset
-        if squad.overlap_ship_id is not None:
-            squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0
-        offset += max_ships
+#         # --- Overlap (MAX_SHIPS=6 features) ---
+#         overlap_start_idx = offset
+#         if squad.overlap_ship_id is not None:
+#             squad_view[overlap_start_idx + <int>squad.overlap_ship_id] = 1.0
+#         offset += max_ships
 
-        # --- Attack Role (2 features) ---
-        if is_attack:
-            if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
-                squad_view[offset] = 1.0
-            if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
-                squad_view[offset + 1] = 1.0
-        offset += 2
+#         # --- Attack Role (2 features) ---
+#         if is_attack:
+#             if not attack_info.is_attacker_ship and squad.id == attack_info.attack_squad_id:
+#                 squad_view[offset] = 1.0
+#             if not attack_info.is_defender_ship and squad.id == attack_info.defend_squad_id:
+#                 squad_view[offset + 1] = 1.0
+#         offset += 2
         
-        # # --- Defense Token (2*4 = 8 features) ---
-        # defense_start_idx = offset
-        # for defense_idx, token in squad.defense_tokens.items():
-        #     if token.discarded: continue
+#         # # --- Defense Token (2*4 = 8 features) ---
+#         # defense_start_idx = offset
+#         # for defense_idx, token in squad.defense_tokens.items():
+#         #     if token.discarded: continue
 
-        #     if token.readied :squad_view[defense_start_idx + defense_idx * 4] = 1.0
-        #     else: squad_view[defense_start_idx + defense_idx * 4 + 1] = 1.0
+#         #     if token.readied :squad_view[defense_start_idx + defense_idx * 4] = 1.0
+#         #     else: squad_view[defense_start_idx + defense_idx * 4 + 1] = 1.0
 
-        #     if not token.accuracy: squad_view[defense_start_idx + defense_idx * 4 + 2] = 1.0
+#         #     if not token.accuracy: squad_view[defense_start_idx + defense_idx * 4 + 2] = 1.0
 
-        #     if not(is_attack and (defense_idx in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
-        #         squad_view[defense_start_idx + defense_idx * 4 + 3] = 1.0
-        # offset += max_squad_defense_tokens * 4
+#         #     if not(is_attack and (defense_idx in attack_info.spent_token_indices or token.type in attack_info.spent_token_types)):
+#         #         squad_view[defense_start_idx + defense_idx * 4 + 3] = 1.0
+#         # offset += max_squad_defense_tokens * 4
 
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void encode_spatial_mask(Armada game):
+cdef void encode_spatial_mask(Armada game, cnp.uint8_t[:, :, :, :] planes_view):
     """
     Fills the game.spatial_planes 2D grid representations of the game board
     in-place and returns a reference to it.
     """
-
-    cdef cnp.uint8_t[:, :, :, ::1] planes_view = game.spatial_encode_array
     
     # Standard cleanup
-    game.spatial_encode_array.fill(0.0)
+    planes_view[:] = 0
 
     cdef int i, r, c
     cdef long[:] rr_view, cc_view 
@@ -428,7 +428,7 @@ cdef void encode_spatial_mask(Armada game):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void encode_relation_matrix(Armada game):
+cdef void encode_relation_matrix(Armada game, float[:, :, :] rel_matrix):
     """
     Optimized pairwise range encoding.
     """
@@ -441,8 +441,7 @@ cdef void encode_relation_matrix(Armada game):
     cdef int n_ships = len(ships)
     cdef Ship attacker, defender 
     
-    cdef cnp.float32_t[:, :, ::1] rel_matrix = game.relation_encode_array
-    rel_matrix[:] = 0
+    rel_matrix[:] = 0.0
 
     cdef list range_list, attack_range_list
 

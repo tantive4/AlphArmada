@@ -10,8 +10,7 @@ cdef class Armada:
         public list ships, squads, obstacles
         public object phase, active_ship, defend_ship, active_squad, attack_info
         public bint debuging_visual
-        public cnp.ndarray scalar_encode_array, relation_encode_array, ship_encode_array, ship_coords_array, ship_def_token_array, spatial_encode_array
-
+        public cnp.ndarray ship_static_encode_array
     
     # Declare the C-level methods
     cpdef object get_snapshot(self)

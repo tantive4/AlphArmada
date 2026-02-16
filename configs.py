@@ -18,6 +18,7 @@ class Config:
     # Encoding
     BOARD_RESOLUTION = (64, 128)  # (short_edge height resolution, player_edge width resolution)
     SHIP_ENTITY_FEATURE_SIZE = 128
+    SHIP_STATIC_OFFSET = 36
     DEF_TOKEN_FEATURE_SIZE = 8
     SQUAD_ENTITY_FEATURE_SIZE = 30
     SCALAR_FEATURE_SIZE = 48

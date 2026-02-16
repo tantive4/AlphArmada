@@ -2,6 +2,7 @@ import argparse
 import shutil
 import time
 
+import vessl
 import torch.optim as optim
 
 from storage_manager import *
@@ -23,11 +24,16 @@ def work(worker_id: int) -> None:
     worker = AlphArmadaWorker(model, worker_id)
     try:
         worker.self_play()
+        upload_replay_result(worker_id)
     except Exception as e:
         print(f"[WORKER] Unknown Error occured!!!! {e}")
-        raise e
+        upload_replay_result(worker_id, upload_replay=False)
 
-    upload_replay_result(worker_id)
+        vessl.log(payload={'error':worker_id})
+        time.sleep(1)
+        vessl.log(payload={'error':0})
+
+    
 
 def train() -> None:
     """
