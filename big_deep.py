@@ -294,7 +294,7 @@ class BigDeep(nn.Module):
             d_model=self.embed_dim, 
             nhead=self.nhead, 
             dim_feedforward=512, 
-            batch_first=True,
+            batch_first=False,
             norm_first=True
         )
         self.transformer_block1 = nn.TransformerEncoder(encoder_layer, num_layers=2, enable_nested_tensor=False)
@@ -641,7 +641,12 @@ class BigDeep(nn.Module):
         # === 3. Transformer Block 1 (Geometric Reasoning) ===
         # Input: [B, N+1, 256]
         # Output: [B, N+1, 256]
+
+        # [N+1, B, 256]
+        tokens = tokens.permute(1, 0, 2) 
         tokens_l1 = self.transformer_block1(tokens, mask=attn_bias, src_key_padding_mask=src_key_padding_mask)
+        # back to [B, N+1, 256]
+        tokens_l1 = tokens_l1.permute(1, 0, 2) 
         tokens_l1 = self.norm1(tokens_l1)
 
 
@@ -726,7 +731,9 @@ class BigDeep(nn.Module):
 
         # === 5. Transformer Block 2 (Tactical Reasoning) ===
         # Reuse the same attention bias (or you could have a separate one)
+        tokens_l2_input = tokens_l2_input.permute(1, 0, 2)
         final_tokens = self.transformer_block2(tokens_l2_input, mask=attn_bias, src_key_padding_mask=src_key_padding_mask)
+        final_tokens = final_tokens.permute(1, 0, 2)
         final_tokens = self.norm2(final_tokens)
 
         # === 6. Head Preparation ===

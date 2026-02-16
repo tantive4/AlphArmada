@@ -149,7 +149,7 @@ def main():
     parser.add_argument("--num_worker", type=int, required=False, help="Total number of workers in multi-machine setup")
     args = parser.parse_args()
 
-    print(f"[{args.mode}.upper()] Running on {Config.DEVICE}")
+    print(f"[{str(args.mode).upper()} Running on {Config.DEVICE}")
     
     if args.mode == "worker":
         while True:
