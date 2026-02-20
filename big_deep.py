@@ -1007,9 +1007,12 @@ def load_recent_model()-> tuple[BigDeep, int]:
         
     return model, current_iter
 
-def load_model() -> BigDeep:
+def load_model(version:int=None) -> BigDeep:
     model = BigDeep(ActionManager()).to(Config.DEVICE)
-    model_path = os.path.join(Config.CHECKPOINT_DIR, "model_best.pth")
+    if version is not None:
+        model_path = os.path.join(Config.CHECKPOINT_DIR, f"model_iter_{version:03d}.pth")
+    else:
+        model_path = os.path.join(Config.CHECKPOINT_DIR, "model_best.pth")
     print(f"[LOAD MODEL] {model_path}")
     model.load_state_dict(torch.load(model_path, map_location=Config.DEVICE))
     return model

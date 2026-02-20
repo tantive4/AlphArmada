@@ -209,7 +209,7 @@ cdef class MCTS:
         self.phase_buffer = np.zeros(Config.GPU_INPUT_BATCH_SIZE, dtype=np.int32)   # type: ignore
 
 
-    cpdef dict para_search(self, list para_indices, bint deep_search, int manual_iteration = 0):
+    cpdef dict para_search(self, list para_indices, bint deep_search, int manual_iteration = 0, bint add_noise=True):
         cdef:
             Armada game
             list leaf_root_indices, expandable_indices, valid_actions
@@ -251,9 +251,10 @@ cdef class MCTS:
                 policy_arr = self._mask_policy(policy_arr, <int>game.phase, valid_actions)
                 self._expand(root_node, para_index, <int>game.phase, valid_actions, value, policy_arr)
 
-        for para_index in para_indices:
-            root_node = self.root_nodes[para_index]
-            root_node._add_root_noise()
+        if add_noise:
+            for para_index in para_indices:
+                root_node = self.root_nodes[para_index]
+                root_node._add_root_noise()
         
 
         # ===== MCTS Iterations =====
