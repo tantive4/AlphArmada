@@ -2,6 +2,7 @@ import copy
 from tqdm import tqdm
 import argparse
 
+from storage_manager import download_model_version
 from big_deep import BigDeep, load_model
 from action_manager import ActionManager
 from para_mcts import MCTS
@@ -85,6 +86,7 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
     print(f"Player 1 Average Score = {p1_win_sum/game_count:.4f}")
 
 def ready_model(version:int):
+    download_model_version(version)
     model = load_model(version=version)
     model.eval()
     model.compile_fast_policy()
@@ -98,6 +100,8 @@ def main():
 
     model1 = ready_model(versions[0])
     model2 = ready_model(versions[1])
+
+    print(f"Starting evaluation between version_{versions[0]}(P1) and version_{versions[1]}(P2)...\n")
 
     evaluation(model1, model2)
 

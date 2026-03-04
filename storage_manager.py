@@ -91,7 +91,7 @@ def upload_replay_result(worker_id : int, upload_replay : bool=True) -> None:
     time = _format_time(start_time, end_time)
     print(f"[UPLOAD] worker-{worker_id:02d} replay ({time})\n")
 
-def download_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True) -> None:
+def download_recent_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True) -> None:
     """for worker"""
     model_list = vessl.list_model_volume_files(
         repository_name="BigDeep",
@@ -101,6 +101,18 @@ def download_model(local_path:str = Config.CHECKPOINT_DIR, save_best:bool = True
     model_path = str(model_list[-1].path)
 
     dest_path = os.path.join(local_path, "model_best.pth" if save_best else model_path)
+    vessl.download_model_volume_file(
+        repository_name="BigDeep",
+        model_number=1,
+        source_path=model_path,
+        dest_path=dest_path
+    )
+    print(f"[DOWNLOAD] {model_path}")
+
+def download_model_version(version:int, local_path:str = Config.CHECKPOINT_DIR) -> None:
+    """for evaluator"""
+    model_path = f"model_iter_{version:03d}.pth"
+    dest_path = os.path.join(local_path, model_path)
     vessl.download_model_volume_file(
         repository_name="BigDeep",
         model_number=1,
@@ -124,4 +136,4 @@ def upload_model(local_path:str = Config.CHECKPOINT_DIR) -> None:
         source_path=checkpoint_path,
         dest_path=latest_checkpoint_file
     )
-    print(f"[UPLOAD] {latest_checkpoint_file}") 
+    print(f"[UPLOAD] {latest_checkpoint_file}\n") 

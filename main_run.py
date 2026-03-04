@@ -18,7 +18,7 @@ def work(worker_id: int) -> None:
     2. Run self-play to generate replay buffer data
     3. Upload replay buffer to Vessl
     """
-    download_model()
+    download_recent_model()
 
     model = load_model()
     worker = AlphArmadaWorker(model, worker_id)
