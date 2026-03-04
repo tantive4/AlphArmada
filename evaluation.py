@@ -24,7 +24,7 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
     mcts2 = MCTS(copy.deepcopy(para_games), action_manager, model2)
 
     p1_first = list(range(game_count//2))
-    para_games[0].debuging_visual = True
+    # para_games[0].debuging_visual = True
 
     with tqdm(total=game_count, desc=f"[EVALUATION]", unit="game") as pbar:
         while any(game.winner == 0.0 for game in para_games) :
