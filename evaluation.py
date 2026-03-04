@@ -1,5 +1,6 @@
 import copy
 from tqdm import tqdm
+import argparse
 
 from big_deep import BigDeep, load_model
 from action_manager import ActionManager
@@ -8,9 +9,14 @@ from setup_game import setup_game
 from action_phase import Phase
 from dice import roll_dice
 
-def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=100, game_count=128):
+def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
 
-    para_games = [setup_game(para_index=i) for i in range(game_count)]
+    games_half = [setup_game() for _ in range(game_count//2)]
+    games_half2 = copy.deepcopy(games_half)
+    para_games = [*games_half, *games_half2]
+    for para_index, para_game in enumerate(para_games):
+        para_game.para_index = para_index
+
 
     action_manager = ActionManager()
     mcts1 = MCTS(copy.deepcopy(para_games), action_manager, model1)
@@ -64,7 +70,7 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=100, game_count=128):
                     pbar.set_postfix(last_winner=win_player)
 
 
-    raw_win_list = [game.winner for game in para_games]
+    raw_win_list = [round(game.winner,1) for game in para_games]
     p1_win_count = sum(
         1 for para_index, winner in enumerate(raw_win_list) 
         if (winner > 0) == (para_index in p1_first)
@@ -78,14 +84,20 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=100, game_count=128):
     print(f"Player 1 Win Rate = {p1_win_count/game_count:.2%}")
     print(f"Player 1 Average Score = {p1_win_sum/game_count:.4f}")
 
-def main():
-    model1 = load_model(version=256)
-    model2 = load_model(version=64)
+def ready_model(version:int):
+    model = load_model(version=version)
+    model.eval()
+    model.compile_fast_policy()
+    return model
 
-    model1.eval()
-    model2.eval()
-    model1.compile_fast_policy()
-    model2.compile_fast_policy()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--versions", nargs=2, type=int, required=True, help="Two model versions to compare (e.g., --versions 256 64)")    
+    args = parser.parse_args()
+    versions = args.versions
+
+    model1 = ready_model(versions[0])
+    model2 = ready_model(versions[1])
 
     evaluation(model1, model2)
 
