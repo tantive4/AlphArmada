@@ -1,8 +1,7 @@
-# cython: profile=True
-
 from __future__ import annotations
 import random
 from collections import deque
+import copy
 
 import torch
 import numpy as np
@@ -36,7 +35,7 @@ cdef class Node:
         public tuple action
         public list children
         public float wins
-        public int visits
+        public int visits, virtual_loss_count
     
         public float policy
         public float value
@@ -63,6 +62,7 @@ cdef class Node:
         self.children = []
         self.wins = 0
         self.visits = 0
+        self.virtual_loss_count = 0
 
         self.policy = policy # policy value from parent node state
         self.value = value # value from the perspective of the decision player at this node
@@ -78,28 +78,6 @@ cdef class Node:
         cdef Node node = Node(game=game, action=action, policy=policy, value=value, action_index=action_index)
         self.children.append(node)
         return node
-
-    cdef void _add_root_noise(self):
-        if not self.children:
-            return
-        
-        cdef:
-            int num_children = len(self.children)
-            cnp.ndarray[cnp.float32_t, ndim=1] noise
-            int i
-            Node child
-            float epsilon = Config.DIRICHLET_EPSILON
-            float alpha = Config.DIRICHLET_ALPHA_SCALE / <float>num_children
-
-        # Generate Dirichlet noise
-        noise = np.random.dirichlet(np.full(num_children, alpha)).astype(np.float32)
-
-        # Mix noise into the existing children's policies
-        for i in range(num_children):
-            child = self.children[i]
-            # Note: This permanently alters the prior for this node, 
-            child.policy = (1 - epsilon) * child.policy + epsilon * noise[i]
-
 
     cdef Node select_child(self):
         """
@@ -126,53 +104,50 @@ cdef class Node:
 
         return best_child
     
+    cdef void add_virtual_loss(self) :
+        self.virtual_loss_count += 1
+
     cdef void update(self, float result) :
         """
         Updates the node's statistics from a simulation result.
         """
         self.visits += 1
         self.wins += result
-
-    cdef void reset_node(self):
-        """
-        Resets the node's statistics and children.
-        """
-        cdef Node child
-        
-        self.wins = 0
-        self.visits = 0
-        for child in self.children:
-            child.reset_node()
-
+        self.virtual_loss_count -= 1
 
     cdef float _get_ucb(self, Node child):
         cdef float q_value
-        if child.visits == 0:
+        if child.visits + child.virtual_loss_count == 0:
             return float('inf')
-        q_value = child.wins / child.visits
-        return q_value + Config.EXPLORATION_CONSTANT * <float>sqrt(log(<double>self.visits) / child.visits)
+        q_value = (child.wins - child.virtual_loss_count) / (child.visits + child.virtual_loss_count)
+        return q_value + Config.EXPLORATION_CONSTANT * <float>sqrt(log(<double>(self.visits + self.virtual_loss_count)) / (child.visits + child.virtual_loss_count))
 
     cdef float _get_pucb(self, Node child):
-        cdef float q_value = child.wins / child.visits if child.visits else 0.0
-        return q_value + Config.EXPLORATION_CONSTANT * child.policy * <float>sqrt(<double>self.visits) / (1 + child.visits)
+        cdef int child_visit = child.visits + child.virtual_loss_count
+        cdef float q_value = (child.wins - child.virtual_loss_count) / child_visit if child_visit else 0.0
+        return q_value + Config.EXPLORATION_CONSTANT * child.policy * <float>sqrt(<double>(self.visits + self.virtual_loss_count)) / (1 + child_visit)
 
 
 cdef class MCTS:
     """
-    Parallel Monte Carlo Tree Search for multiple Armada games.
+    Parallel Monte Carlo Tree Search for single Armada games.
     """
     cdef :
-        public list para_games, root_snapshots, root_nodes
+        public list para_games
+        public object root_snapshot
         public ActionManager action_manager
         public object model
         public object action_mask
+        public Node root_node
+        public range shared_range
         cnp.ndarray phase_buffer, scalar_buffer, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer, target_ship_indices_buffer
 
-    def __init__(self, list para_games, ActionManager action_manager, object model) -> None:
-        self.para_games = para_games
-        self.root_snapshots = [(<Armada>game).get_snapshot() for game in para_games]
-        self.root_nodes = [Node(game = game, action = ('initialize_game', None))
-                              for game in para_games]
+    def __init__(self, Armada game, ActionManager action_manager, object model) -> None:
+        self.shared_range = range(Config.GPU_INPUT_BATCH_SIZE)
+        self.para_games = [copy.deepcopy(game) for _ in self.shared_range]
+        self.root_snapshot = game.get_snapshot()
+        self.root_node = Node(game = game, action = ('initialize_game', None))
+        
         
         self.model : BigDeep = model
 
@@ -209,11 +184,11 @@ cdef class MCTS:
         self.phase_buffer = np.zeros(Config.GPU_INPUT_BATCH_SIZE, dtype=np.int32)   # type: ignore
 
 
-    cpdef dict para_search(self, list para_indices, bint deep_search, int manual_iteration = 0, bint add_noise=True):
+    cpdef cnp.ndarray shared_search(self, int iteration = 0):
         cdef:
             Armada game
             list leaf_root_indices, expandable_indices, valid_actions
-            int para_index, sim_player, mcts_iteration, output_index, max_size, action_exp_len
+            int para_index, sim_player, output_index, max_size, action_exp_len
             Node root_node, node
             dict para_path, para_action_probs
             object path
@@ -225,50 +200,19 @@ cdef class MCTS:
         # ===== Initialize Root Nodes and Add Noise =====
         
         leaf_root_indices = []
-        for para_index in para_indices:
-            root_node = self.root_nodes[para_index]
+        for para_index in self.shared_range :
             game = self.para_games[para_index]
-            game.revert_snapshot(root_node.snapshot)
-
-            if root_node.chance_node or root_node.information_set:
-                raise ValueError("Don't use MCTS for chance node and information set")
-            if not root_node.children : 
-                leaf_root_indices.append(para_index)
-        
-        # Expansion
-        if leaf_root_indices:
-            batch_value, batch_policy = self._get_value_policy(leaf_root_indices)
-
-            for output_index, para_index in enumerate(leaf_root_indices):
-                root_node = self.root_nodes[para_index]
-                game = self.para_games[para_index]
-                
-                value = <float>(batch_value[output_index])
-                policy_arr = batch_policy[output_index]
-
-                valid_actions = game.get_valid_actions()
-
-                policy_arr = self._mask_policy(policy_arr, <int>game.phase, valid_actions)
-                self._expand(root_node, para_index, <int>game.phase, valid_actions, value, policy_arr)
-
-        if add_noise:
-            for para_index in para_indices:
-                root_node = self.root_nodes[para_index]
-                root_node._add_root_noise()
+            game.revert_snapshot(self.root_node.snapshot)
         
 
         # ===== MCTS Iterations =====
-
-        mcts_iteration = Config.MCTS_ITERATION if deep_search else Config.MCTS_ITERATION_FAST
-        if manual_iteration : mcts_iteration = manual_iteration
-        for _ in range(mcts_iteration):
+        for _ in range(iteration):
             para_path = {}
             expandable_indices = []
-            for para_index in para_indices:
-                root_node = self.root_nodes[para_index]
+            for para_index in self.shared_range:
             
                 # 1. Selection
-                path : deque[Node] = self._select(root_node, para_index)
+                path : deque[Node] = self._select(self.root_node, para_index)
                 para_path[para_index] = path
                 node = path[-1]
                 game = self.para_games[para_index]
@@ -279,7 +223,7 @@ cdef class MCTS:
                 if (winner := game.winner) != 0.0 or node.children:
                     value = winner if winner != 0.0 else node.value
                     self._backpropagate(path, value)
-                    game.revert_snapshot(self.root_snapshots[para_index])
+                    game.revert_snapshot(self.root_snapshot)
                 else :
                     expandable_indices.append(para_index)
 
@@ -304,48 +248,23 @@ cdef class MCTS:
                     # 3. Backpropagation (Updated for -1 to 1 scoring)
                     self._backpropagate(path, value)
 
-        # ===== End of Search Iteration =====
-        para_action_probs = {}
-        for para_index in para_indices:
-            para_action_probs[para_index] = self._get_final_action_probs(para_index)
-        return para_action_probs
+                    game.revert_snapshot(self.root_snapshot)
 
-    cpdef object get_best_action(self, int para_index):
-        cdef Node root_node, best_child, child
+        # ===== End of Search Iteration =====
+        return  self._get_final_action_probs()
+
+    cpdef object get_best_action(self):
+        cdef Node best_child, child
         cdef int max_visits = -1
 
-        root_node = self.root_nodes[para_index]
-        for child in root_node.children:
+        for child in self.root_node.children:
             if child.visits > max_visits:
                 max_visits = child.visits
                 best_child = child
                 
         return best_child.action
 
-    cpdef object get_random_best_action(self, int para_index, int game_round):
-        cdef:
-            Node root_node, child, chosen_child
-            float temperature
-            list children
-            int num_children, i
-            cnp.ndarray[cnp.float32_t, ndim=1] visit_counts, visit_weights 
-
-        root_node = self.root_nodes[para_index]
-        children = root_node.children
-        num_children = len(children)
-        visit_counts = np.empty(num_children, dtype=np.float32)
-        for i in range(num_children):
-            child = children[i]
-            visit_counts[i] = child.visits
-
-        temperature = Config.TEMPERATURE / <float>game_round
-        # apply the temperature weighting
-        visit_weights = visit_counts ** (1.0 / temperature)
-        
-        chosen_child = random.choices(population=children, weights=list(visit_weights), k=1)[0]
-        return chosen_child.action
-
-    cpdef void advance_tree(self, int para_index, tuple action, tuple snapshot):
+    cpdef void advance_tree(self, tuple action, tuple snapshot):
         """
         Advances the tree to the next state by selecting the child
         corresponding to the given action as the new root.
@@ -355,27 +274,26 @@ cdef class MCTS:
             snapshot: The game snapshot after applying the action.
         """
         cdef:
-            Node root, matching_child
+            Node matching_child
             bint found
 
-        (<Armada>self.para_games[para_index]).revert_snapshot(snapshot)
-        self.root_snapshots[para_index] = snapshot
+        for para_index in self.shared_range:
+            (<Armada>self.para_games[para_index]).revert_snapshot(snapshot)
+        self.root_snapshot = snapshot
         
         # Find the child node that matches the action taken.
-        root = self.root_nodes[para_index]
         found = <bint>False
-        for child in root.children:
+        for child in self.root_node.children:
             if child.action == action:
                 matching_child = child
                 found = <bint>True
                 break
         if not found:
-            matching_child = root.add_child(action, self.para_games[para_index])
+            matching_child = self.root_node.add_child(action, self.para_games[0])
 
         # The found child becomes the new root.
-        self.root_nodes[para_index] = matching_child
+        self.root_node = matching_child
 
-    # cdef void _expand_root(self,)
 
     cdef object _select(self, Node root_node, int para_index):
         """
@@ -389,7 +307,7 @@ cdef class MCTS:
             Node matching_child, child
             tuple action, dice_roll
             bint found
-        
+        node.add_virtual_loss()
         game = self.para_games[para_index]
         while (node.visits > 0 and node.children) or node.chance_node or node.information_set:
 
@@ -429,6 +347,8 @@ cdef class MCTS:
             
             else:
                 node = node.select_child()
+            
+            node.add_virtual_loss()
             path.append(node)
         return path
 
@@ -551,6 +471,8 @@ cdef class MCTS:
         return policy
 
     cdef void _expand(self, Node node, int para_index, int phase, list valid_actions, float value, cnp.ndarray[cnp.float32_t, ndim=1] policy) :
+        if node.children: 
+            return
         cdef: 
             tuple action
             int action_index
@@ -568,7 +490,6 @@ cdef class MCTS:
             game.apply_action(action)
             node.add_child(action, game, policy=action_policy, value=node_value, action_index=action_index)
             game.revert_snapshot(node_snapshot)
-        game.revert_snapshot(self.root_snapshots[para_index])
 
     cdef void _backpropagate(self, object path, float value):
         """
@@ -594,14 +515,13 @@ cdef class MCTS:
             
             node.update(result_for_node)
 
-    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self, int para_index):
+    cdef cnp.ndarray[cnp.float32_t, ndim=1] _get_final_action_probs(self):
         cdef:
             cnp.ndarray[cnp.float32_t, ndim=1] action_probs = np.zeros(self.action_manager.max_action_space, dtype=np.float32)
-            Node root_node = self.root_nodes[para_index]
             Node child
             float total_visits
 
-        for child in root_node.children:
+        for child in self.root_node.children:
             action_probs[child.action_index] = child.visits
 
         total_visits = np.sum(action_probs, dtype=float)

@@ -6,6 +6,7 @@ import numpy  # We need this because you cimport numpy
 # Define the C extension
 extensions = [
     Extension("para_mcts", ["cython_compile/para_mcts.pyx"], include_dirs=[numpy.get_include()]),
+    Extension("shared_mcts", ["cython_compile/shared_mcts.pyx"], include_dirs=[numpy.get_include()]),
     Extension("armada", ["cython_compile/armada.pyx"], include_dirs=[numpy.get_include()]),
     Extension("attack_info", ["cython_compile/attack_info.pyx"], include_dirs=[numpy.get_include()]),
     Extension("ship", ["cython_compile/ship.pyx"], include_dirs=[numpy.get_include()]),
