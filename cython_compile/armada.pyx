@@ -211,7 +211,7 @@ cdef class Armada:
         # Attack Sequence
         elif phase == Phase.SHIP_CHOOSE_TARGET_SHIP :
             for attack_hull in active_ship.get_valid_attack_hull():
-                for defend_ship, defend_hull in active_ship.get_valid_ship_target(attack_hull):
+                for defend_ship in active_ship.get_valid_ship_target(attack_hull):
                     actions.append(('choose_target_ship_action', defend_ship.id))
             if not actions : actions = [('pass_attack', None)]
 
@@ -1007,7 +1007,7 @@ cdef class Armada:
         if not self.debuging_visual : return
 
         action_str = get_action_str(self, action)
-        if action_str is None : return
+        if action_str is None or 'pass' in action_str: return
 
         maneuver_tool = None
         if action[0] == 'determine_course_action':

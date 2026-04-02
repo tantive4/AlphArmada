@@ -477,7 +477,8 @@ cdef class Ship:
                 if dice_count == 0 : continue
                 elif dice_count == 1:
                     if self.is_obstruct_s2s(attack_hull, ship, target_hull) : continue
-                valid_ship_targets.append((ship, target_hull))
+                valid_ship_targets.append(ship)
+                break
 
         return valid_ship_targets
 

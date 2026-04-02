@@ -2,6 +2,7 @@ from __future__ import annotations
 import random
 from collections import deque
 import copy
+from tqdm import trange
 
 import torch
 import numpy as np
@@ -206,7 +207,7 @@ cdef class MCTS:
         
 
         # ===== MCTS Iterations =====
-        for _ in range(iteration):
+        for _ in trange(iteration):
             para_path = {}
             expandable_indices = []
             for para_index in self.shared_range:

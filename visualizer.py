@@ -71,7 +71,7 @@ def _draw_ship_template(ship: ship_module.Ship, font: ImageFont.FreeTypeFont) ->
         token_text = token.type.name
         # Stack upwards from the starting position
         pos_y = start_y - i * 12
-        bg_color = 'green' if token.readied else 'red'
+        bg_color = 'black' if token.discarded else 'green' if token.readied else 'red'
         
         bbox = draw.textbbox((start_x, pos_y), token_text, font=font, anchor="ls")
         draw.rectangle(bbox, fill=bg_color)
@@ -175,7 +175,7 @@ def visualize(game : "Armada", title : str,  maneuver_tool : list[tuple[float, f
                 ]
                 draw.ellipse(bounding_box, fill='darkgrey')
 
-    output_dir = os.path.join("output", "game_visuals")
+    output_dir = os.path.join("game_visuals")
     os.makedirs(output_dir, exist_ok=True)
     img.save(os.path.join(output_dir, f'game_state_{game.image_counter:03d}.png'))
     game.image_counter += 1
