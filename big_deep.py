@@ -276,9 +276,9 @@ class BigDeep(nn.Module):
         self.bias_scale = 10.0
         
         # Shape: [Heads, 1, 1]
-        self.scalar_bias_row = nn.Parameter(torch.zeros(self.nhead, 1, 1))
-        self.scalar_bias_col = nn.Parameter(torch.zeros(self.nhead, 1, 1))
-        self.scalar_self_bias = nn.Parameter(torch.zeros(self.nhead, 1, 1))
+        self.scalar_bias_row = nn.Parameter(torch.randn(self.nhead, 1, 1) * 0.1)
+        self.scalar_bias_col = nn.Parameter(torch.randn(self.nhead, 1, 1) * 0.1)
+        self.scalar_self_bias = nn.Parameter(torch.randn(self.nhead, 1, 1) * 0.1)
 
         # --- DEFINE NORMS ---
         # Add these new layers
@@ -293,11 +293,12 @@ class BigDeep(nn.Module):
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=self.embed_dim, 
             nhead=self.nhead, 
-            dim_feedforward=512, 
+            dim_feedforward=1024, 
             batch_first=False,
-            norm_first=True
+            norm_first=True,
+            activation='gelu'
         )
-        self.transformer_block1 = nn.TransformerEncoder(encoder_layer, num_layers=2, enable_nested_tensor=False)
+        self.transformer_block1 = nn.TransformerEncoder(encoder_layer, num_layers=3, enable_nested_tensor=False)
 
 
         # --- 4. Spatial Sandwich Components ---
@@ -353,7 +354,7 @@ class BigDeep(nn.Module):
 
         # --- 5. Transformer Block 2 (Tactical Aware) ---
         # "Reasoning about tactical situations using spatial data"
-        self.transformer_block2 = nn.TransformerEncoder(encoder_layer, num_layers=2, enable_nested_tensor=False)
+        self.transformer_block2 = nn.TransformerEncoder(encoder_layer, num_layers=3, enable_nested_tensor=False)
 
 
         # --- 6. Output Heads ---
@@ -442,7 +443,7 @@ class BigDeep(nn.Module):
 
         # Auxiliary: Win Rate
         # Input: Scalar Token (256)
-        self.win_prob_head = nn.Sequential(
+        self.raw_point_head = nn.Sequential(
             nn.Linear(self.embed_dim, 64),
             nn.GELU(),
             nn.Linear(64, 2)
@@ -622,17 +623,20 @@ class BigDeep(nn.Module):
         full_bias = torch.zeros(batch_size, self.nhead, N + 1, N + 1, device=device)
         full_bias[:, :, 1:, 1:] = geom_bias
 
-        # Bias 2: Structural Scalar Bias (Broadcasted)
+        # Bias 2: Structural Scalar Bias (Broadcasted and Scaled!)
+        # Scale the raw parameters so they can compete with geom_bias's [-10, 10] range
+        scaled_row_bias = self.scalar_bias_row * self.bias_scale
+        scaled_col_bias = self.scalar_bias_col * self.bias_scale
+        scaled_self_bias = self.scalar_self_bias * self.bias_scale
+
         # Scalar -> Ships (Row 0, Cols 1..N)
-        # Use single param [Heads, 1, 1] expanded to [B, Heads, 1, N]
-        full_bias[:, :, 0:1, 1:] = self.scalar_bias_row.unsqueeze(0).expand(batch_size, -1, -1, N)
+        full_bias[:, :, 0:1, 1:] = scaled_row_bias.unsqueeze(0).expand(batch_size, -1, -1, N)
         
         # Ships -> Scalar (Rows 1..N, Col 0)
-        # Use single param [Heads, 1, 1] expanded to [B, Heads, N, 1]
-        full_bias[:, :, 1:, 0:1] = self.scalar_bias_col.unsqueeze(0).expand(batch_size, -1, N, -1)
+        full_bias[:, :, 1:, 0:1] = scaled_col_bias.unsqueeze(0).expand(batch_size, -1, N, -1)
         
         # Scalar -> Scalar (0, 0)
-        full_bias[:, :, 0, 0] = self.scalar_self_bias.squeeze().unsqueeze(0).expand(batch_size, -1)
+        full_bias[:, :, 0, 0] = scaled_self_bias.squeeze().unsqueeze(0).expand(batch_size, -1)
 
         # 4. Reshape for Transformer [B*Heads, N+1, N+1]
         attn_bias = full_bias.reshape(batch_size * self.nhead, N + 1, N + 1)
@@ -964,14 +968,14 @@ class BigDeep(nn.Module):
         predicted_game_length = self.game_length_head(scalar_final_state)
 
         # --- Auxiliary Win Rate Head ---
-        win_prob = self.win_prob_head(scalar_final_state)
+        raw_point = self.raw_point_head(scalar_final_state)
 
 
         # --- 5. Return all outputs ---
         outputs = {
             "policy_logits": policy_logits,
             "value": value,
-            "predicted_win_prob": win_prob,
+            "predicted_raw_point": raw_point,
             "predicted_hull": predicted_hull,
             "predicted_game_length": predicted_game_length
         }

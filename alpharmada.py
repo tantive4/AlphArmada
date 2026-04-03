@@ -183,7 +183,7 @@ class AlphArmadaWorker:
             'target_values': np.array(winner_list, dtype=np.float32).reshape(-1, 1),
             'target_ship_hulls': np.stack([t['ship_hulls'] for t in aux_list]),
             'target_game_length': np.stack([t['game_length'] for t in aux_list]),
-            'target_win_probs': np.stack([t['win_prob'] for t in aux_list])
+            'target_raw_points': np.stack([t['raw_point'] for t in aux_list])
         }
 
         self.replay_buffer.add_batch(collated_data)
@@ -294,7 +294,7 @@ class AlphArmadaTrainer:
         # B. Aux Heads Loss
         hull_loss = F.mse_loss(outputs["predicted_hull"], b['target_ship_hulls'], reduction='mean')
         game_len_loss = F.cross_entropy(outputs["predicted_game_length"], b['target_game_length'], reduction='mean')
-        win_prob_loss = F.binary_cross_entropy_with_logits(outputs["predicted_win_prob"], b['target_win_probs'], reduction='mean')
+        raw_point_loss = F.binary_cross_entropy_with_logits(outputs["predicted_raw_point"], b['target_raw_points'], reduction='mean')
         
         # C. Policy Loss
         logits = outputs["policy_logits"]
@@ -307,7 +307,7 @@ class AlphArmadaTrainer:
         total_loss = (
             policy_loss + 
             value_loss + 
-            win_prob_loss +
+            Config.RAW_POINT_LOSS_WIEGHT * raw_point_loss +
             Config.HULL_LOSS_WEIGHT * hull_loss +
             Config.GAME_LENGTH_LOSS_WEIGHT * game_len_loss
         )

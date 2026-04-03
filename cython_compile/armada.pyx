@@ -27,7 +27,7 @@ cdef class Armada:
     The main class representing the Armada game.
     """
     def __init__(self, faction: tuple[Faction, Faction], para_index:int = 0) -> None:
-        self.player_edge = LONG_RANGE * 6
+        self.player_edge = LONG_RANGE * 3
         self.short_edge = LONG_RANGE * 3
         self.ships : list[Ship] = []
         self.squads : list[Squad] = []
@@ -1186,10 +1186,8 @@ cdef class Armada:
                 margin_of_victory = 0
             else :
                 winner = self.first_player if p1_points > p2_points else self.second_player
-                margin_of_victory = abs(p1_points - p2_points)
             
-            tournament_point : int = margin_of_victory // 20 + 1
-            self.winner = winner * tournament_point / 10
+            self.winner = winner
 
         # 4. If the game is not over, advance to the next round
         else:

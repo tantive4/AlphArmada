@@ -67,13 +67,10 @@ cpdef tuple get_terminal_value(Armada game):
     game_length = np.zeros(6, dtype=np.float32)
     game_length[game.round - 1] = 1.0
 
-    win_prob = np.array([0.0, 0.0], dtype=np.float32)
-    if game.winner > 0:
-        win_prob[0] = 1.0
-    else:
-        win_prob[1] = 1.0
+    raw_point = np.array([game.get_point(1), game.get_point(-1)], dtype=np.float32) / 200.0
+    
 
-    return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls, 'win_prob': win_prob}
+    return game.winner, {'game_length': game_length, 'ship_hulls': ship_hulls, 'raw_point': raw_point}
 
 
 cpdef tuple encode_game_state(Armada game, 

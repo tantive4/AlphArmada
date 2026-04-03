@@ -42,7 +42,7 @@ class DiskReplayBuffer:
             
             'target_policies':   {'shape': (max_size, Config.MAX_ACTION_SPACE), 'dtype': np.float32},
             'target_values':     {'shape': (max_size, 1), 'dtype': np.float32},
-            'target_win_probs':  {'shape': (max_size, 2), 'dtype': np.float32},
+            'target_raw_points':  {'shape': (max_size, 2), 'dtype': np.float32},
             'target_ship_hulls': {'shape': (max_size, Config.MAX_SHIPS), 'dtype': np.float32},
             'target_game_length':{'shape': (max_size, 6), 'dtype': np.float32},
         }

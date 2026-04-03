@@ -16,7 +16,7 @@ class Config:
     GLOBAL_MAX_ENGINEER_VALUE = 4
 
     # Encoding
-    BOARD_RESOLUTION = (64, 128)  # (short_edge height resolution, player_edge width resolution)
+    BOARD_RESOLUTION = (64, 64)  # (short_edge height resolution, player_edge width resolution)
     SHIP_ENTITY_FEATURE_SIZE = 128
     SHIP_STATIC_OFFSET = 36
     DEF_TOKEN_FEATURE_SIZE = 8
@@ -56,6 +56,7 @@ class Config:
     # Optimization
     LEARNING_RATE = 5e-5
     L2_LAMBDA = 1e-4
+    RAW_POINT_LOSS_WIEGHT = 0.1
     HULL_LOSS_WEIGHT = 0.05
     SQUAD_LOSS_WEIGHT = 0.05
     GAME_LENGTH_LOSS_WEIGHT = 0.05

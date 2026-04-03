@@ -38,8 +38,8 @@ except FileNotFoundError:
 
 
 # --- Constants ---
-# Board dimensions (approx 6ft x 3ft in mm, based on coordinates in original file)
-BOARD_WIDTH = measurement.LONG_RANGE * 6
+# Board dimensions (approx 3ft x 3ft in mm, based on coordinates in original file)
+BOARD_WIDTH = measurement.LONG_RANGE * 3
 BOARD_HEIGHT = measurement.LONG_RANGE * 3
 
 DIST_1 = measurement.DISTANCE[1] # 76.5
@@ -199,9 +199,9 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
 
 
 
-    first_ship_rect = (DIST_5, 0, BOARD_WIDTH - DIST_5, DIST_3)
+    first_ship_rect = (DIST_3, 0, BOARD_WIDTH - DIST_3, DIST_3)
     first_ship_zone = box(*first_ship_rect)
-    second_ship_rect = (DIST_5, BOARD_HEIGHT - DIST_3, BOARD_WIDTH - DIST_5, BOARD_HEIGHT)
+    second_ship_rect = (DIST_3, BOARD_HEIGHT - DIST_3, BOARD_WIDTH - DIST_3, BOARD_HEIGHT)
     second_ship_zone = box(*second_ship_rect)
     # 3. Place Ships
     ships = first_ships + second_ships
