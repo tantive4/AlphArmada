@@ -140,7 +140,7 @@ cdef class MCTS:
         public object model
         public object action_mask
         public Node root_node
-        public range shared_range
+        public object shared_range
         cnp.ndarray phase_buffer, scalar_buffer, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer, spatial_buffer, relation_buffer, active_ship_indices_buffer, target_ship_indices_buffer
 
     def __init__(self, Armada game, ActionManager action_manager, object model) -> None:
