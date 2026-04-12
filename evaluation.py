@@ -71,19 +71,17 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
                     pbar.set_postfix(last_winner=win_player)
 
 
-    raw_win_list = [round(game.winner,1) for game in para_games]
+    raw_win_list = [game.winner for game in para_games]
+    draw = [game.get_point(1) == 0 and game.get_point(-1) == 0 for game in para_games]
     p1_win_count = sum(
         1 for para_index, winner in enumerate(raw_win_list) 
         if (winner > 0) == (para_index in p1_first)
         )
-    p1_win_sum = sum(
-        winner if para_index in p1_first else -winner 
-        for para_index, winner in enumerate(raw_win_list)
-        )
     print("RAW END DATA")
     print(raw_win_list,"\n\n")
+    print(draw, "\n\n")
     print(f"Player 1 Win Rate = {p1_win_count/game_count:.2%}")
-    print(f"Player 1 Average Score = {p1_win_sum/game_count:.4f}")
+    print(f"Draw Rate = {sum(draw)/game_count:.4f}")
 
 def ready_model(version:int):
     download_model_version(version)
