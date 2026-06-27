@@ -1,0 +1,92 @@
+import json
+from enum import IntEnum, auto
+
+from armada_game.helpers.paths import data_path
+
+with data_path("ship_dict.json").open("r", encoding="utf-8") as f:
+    SHIP_DATA: dict = json.load(f)
+
+with data_path("squad_dict.json").open("r", encoding="utf-8") as f:
+    SQUAD_DATA: dict = json.load(f)
+
+
+
+
+class Faction(IntEnum):
+    REBEL = 1
+    EMPIRE = -1
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+
+class Dice(IntEnum) :
+    BLACK = 0
+    BLUE = 1
+    RED = 2
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+DICE = tuple(dice.value for dice in Dice)
+dice_type = len(DICE)
+
+class HullSection(IntEnum):
+    FRONT = 0
+    RIGHT = 1
+    REAR = 2
+    LEFT = 3
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+HULL_SECTIONS = tuple(hull.value for hull in HullSection)
+hull_type = len(HULL_SECTIONS)
+
+class SizeClass(IntEnum) :
+    SMALL = 1
+    MEDIUM = 2
+    LARGE = 3
+    HUGE = 4
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+
+class Command(IntEnum) :
+    NAV = 0
+    REPAIR = 1
+    CONFIRE = 2
+    # SQUAD = 3
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+COMMANDS = tuple(command for command in Command)
+command_type = len(COMMANDS)
+
+class AttackRange(IntEnum) :
+    INVALID = -1
+    CLOSE = 0
+    MEDIUM = 1
+    LONG = 2
+    EXTREME = 3
+    def __str__(self) -> str:
+        return self.name
+    __repr__ = __str__
+ATTACK_RANGES = (AttackRange.CLOSE.value, AttackRange.MEDIUM.value, AttackRange.LONG.value)
+
+class Critical(IntEnum) :
+    STANDARD = 0
+    def __str__(self) :
+        return self.name
+    __repr__ = __str__
+critical_type = len(Critical)
+
+class ObstacleType(IntEnum) :
+    STATION = 0
+    DEBRIS = auto()
+    ASTEROID = auto()
+obstacle_type = len(ObstacleType)
+
+class TokenType(IntEnum):
+    BRACE = 0
+    REDIRECT = 1
+    EVADE = 2
+    SCATTER = 3
+
