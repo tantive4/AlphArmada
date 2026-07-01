@@ -50,6 +50,8 @@ codebase.
 The main neural network is `BigDeep` in `learning/model/big_deep.py`.
 It receives a structured encoding of the current game state:
 
+![BigDeep model structure](result/model%20structure.png)
+
 - `scalar`: 48 global features including round, score, factions, player,
   phase, attack range, obstruction, and dice-pool context.
 - `ship_entities`: up to 10 ships, each with 128 static and dynamic features.
@@ -181,6 +183,7 @@ evaluation/
 
 result/
   Elo_score.png
+  model structure.png
   game_visual.mp4
 ```
 
