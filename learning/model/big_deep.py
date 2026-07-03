@@ -795,20 +795,20 @@ class BigDeep(nn.Module):
             # We need to construct a [B, N, Candidate_Dim] tensor.
             # Only N candidates are allowed. Tokens (size T) are padded to N.
             
-            # A. Token Candidates (Gathered from Active Ship)
+            # A. Token Candidates (Gathered from Target/Defender Ship)
             # gather indices: [B, 1, 1, 1] -> expand to [B, 1, T, 16]
             # using 'token_encoded' from step 1A
             # padding Input: [B, N, T, 16] -> Output: [B, N+1, T, 16]
             token_encoded_padded = F.pad(token_encoded, (0, 0, 0, 0, 0, 1))
             token_gather_idx = target_ship_indices.view(batch_size, 1, 1, 1).expand(-1, 1, T, self.token_embed_dim)
-            active_tokens_raw = torch.gather(token_encoded_padded, 1, token_gather_idx).squeeze(1) # [B, T, 16]
+            target_tokens_raw = torch.gather(token_encoded_padded, 1, token_gather_idx).squeeze(1) # [B, T, 16]
             
             # B. Project Candidates to Attention Space (Keys)
             # Ship Keys: [B, N, 256] -> [B, N, 64]
             # Token Keys: [B, T, 16] -> [B, T, 64]
             # Note: We call the projection layers manually to avoid the 'candidate_type' check in forward
             keys_ship = self.unified_pointer_head.ship_proj(all_ship_final_states)
-            keys_token_raw = self.unified_pointer_head.token_proj(active_tokens_raw)
+            keys_token_raw = self.unified_pointer_head.token_proj(target_tokens_raw)
             keys_token = F.pad(keys_token_raw, (0, 0, 0, N - T)) # Pad T -> N [B, N, 64]
 
             # C. Mix Keys based on Phase
@@ -829,17 +829,17 @@ class BigDeep(nn.Module):
             # 3. Everything (if Standard Phase)
             
             valid_ship_mask = (ship_entity_input.abs().sum(dim=2) > 0) # [B, N]
-            valid_token_mask_raw = (active_tokens_raw.abs().sum(dim=2) > 0) # [B, T]
+            valid_token_mask_raw = (target_tokens_raw.abs().sum(dim=2) > 0) # [B, T]
             valid_token_mask = F.pad(valid_token_mask_raw, (0, N-T)) # [B, N]
 
             seq_indices = torch.arange(N, device=device).unsqueeze(0).expand(batch_size, -1)
             is_active_ship_mask = (seq_indices == active_ship_indices.unsqueeze(1))
             
-            # Combine validity with phase type
-            final_pointer_mask = (valid_ship_mask & is_ship_ptr.squeeze(2)) | \
+            # Combine validity with phase type. The active-ship exclusion only
+            # applies when pointer indices are ship ids; token pointer indices
+            # are defense-token slots.
+            final_pointer_mask = (valid_ship_mask & is_ship_ptr.squeeze(2) & (~is_active_ship_mask)) | \
                                  (valid_token_mask & is_token_ptr.squeeze(2))
-            
-            final_pointer_mask = final_pointer_mask & (~is_active_ship_mask)
             
             # Apply -inf mask
             pointer_logits = pointer_logits.masked_fill(~final_pointer_mask, -1e9)
@@ -931,17 +931,18 @@ class BigDeep(nn.Module):
                     # Type 2: Token Pointer
                     # Gather tokens for this group
                     # indices_tensor -> [Sub_B]
-                    # active_ship_indices -> [B] -> [Sub_B]
-                    group_active_ships = active_ship_indices[indices_tensor]
+                    # target_ship_indices points at the defender whose tokens
+                    # are selectable in both accuracy and defense-token phases.
+                    group_target_ships = target_ship_indices[indices_tensor]
                     
                     # Gather tokens
                     sub_b = len(indices)
-                    gather_idx = group_active_ships.view(sub_b, 1, 1, 1).expand(-1, 1, T, self.token_embed_dim)
-                    group_tokens_encoded = token_encoded[indices_tensor] # [Sub_B, N, T, 16]
-                    group_active_tokens = torch.gather(group_tokens_encoded, 1, gather_idx).squeeze(1)
+                    gather_idx = group_target_ships.view(sub_b, 1, 1, 1).expand(-1, 1, T, self.token_embed_dim)
+                    group_tokens_encoded = F.pad(token_encoded[indices_tensor], (0, 0, 0, 0, 0, 1)) # [Sub_B, N+1, T, 16]
+                    group_target_tokens = torch.gather(group_tokens_encoded, 1, gather_idx).squeeze(1)
                     
                     ptr_logits = self.unified_pointer_head(
-                        group_context, group_active_tokens, candidate_type='token'
+                        group_context, group_target_tokens, candidate_type='token'
                     )
                     
                     # Apply Mask (Pad T to N logic handled by putting it in 0..T slice)
@@ -950,7 +951,7 @@ class BigDeep(nn.Module):
                          ptr_logits = F.pad(ptr_logits, (0, N-T), value=-1e9)
 
                     # Validity Mask
-                    group_token_mask = (group_active_tokens.abs().sum(dim=2) > 0)
+                    group_token_mask = (group_target_tokens.abs().sum(dim=2) > 0)
                     # Pad mask to N
                     group_token_mask = F.pad(group_token_mask, (0, N-T))
                     
