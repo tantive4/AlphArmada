@@ -4093,7 +4093,7 @@ static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsds
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsdsds_nn___pyx_t_5numpy_uint8_t(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_long(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_PY_LONG_LONG(PyObject *, int writable_flag);
 
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
@@ -4506,7 +4506,7 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, 
 static const __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t = { "float32_t", NULL, sizeof(__pyx_t_5numpy_float32_t), { 0 }, 0, 'R', 0, 0 };
 static const __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
 static const __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t = { "uint8_t", NULL, sizeof(__pyx_t_5numpy_uint8_t), { 0 }, 0, __PYX_IS_UNSIGNED(__pyx_t_5numpy_uint8_t) ? 'U' : 'I', __PYX_IS_UNSIGNED(__pyx_t_5numpy_uint8_t), 0 };
-static const __Pyx_TypeInfo __Pyx_TypeInfo_long = { "long", NULL, sizeof(long), { 0 }, 0, __PYX_IS_UNSIGNED(long) ? 'U' : 'I', __PYX_IS_UNSIGNED(long), 0 };
+static const __Pyx_TypeInfo __Pyx_TypeInfo_PY_LONG_LONG = { "long long", NULL, sizeof(PY_LONG_LONG), { 0 }, 0, __PYX_IS_UNSIGNED(PY_LONG_LONG) ? 'U' : 'I', __PYX_IS_UNSIGNED(PY_LONG_LONG), 0 };
 /* #### Code section: before_global_var ### */
 #define __Pyx_MODULE_NAME "game_encoder"
 extern int __pyx_module_is_main_game_encoder;
@@ -23721,7 +23721,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *         cc_view = cc
  * 
 */
-    __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_v_rr, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 395, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_PY_LONG_LONG(__pyx_v_rr, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 395, __pyx_L1_error)
     __PYX_XCLEAR_MEMVIEW(&__pyx_v_rr_view, 1);
     __pyx_v_rr_view = __pyx_t_11;
     __pyx_t_11.memview = NULL;
@@ -23734,7 +23734,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
  *         # C-Level Loop (No GIL, No Python Overhead)
 */
-    __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_v_cc, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 396, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_PY_LONG_LONG(__pyx_v_cc, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 396, __pyx_L1_error)
     __PYX_XCLEAR_MEMVIEW(&__pyx_v_cc_view, 1);
     __pyx_v_cc_view = __pyx_t_11;
     __pyx_t_11.memview = NULL;
@@ -23760,7 +23760,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
 */
       __pyx_t_15 = __pyx_v_i;
-      __pyx_v_r = (*((long *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_15 * __pyx_v_rr_view.strides[0]) )));
+      __pyx_v_r = (*((PY_LONG_LONG *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_15 * __pyx_v_rr_view.strides[0]) )));
 
       /* "game_encoder.pyx":401
  *         for i in range(rr_view.shape[0]):
@@ -23770,7 +23770,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *             # Bitwise Packing: Set bit (c % 8) in byte (c // 8)
 */
       __pyx_t_15 = __pyx_v_i;
-      __pyx_v_c = (*((long *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_15 * __pyx_v_cc_view.strides[0]) )));
+      __pyx_v_c = (*((PY_LONG_LONG *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_15 * __pyx_v_cc_view.strides[0]) )));
 
       /* "game_encoder.pyx":404
  * 
@@ -23900,7 +23900,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
 */
         __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_coords, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 416, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 416, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_PY_LONG_LONG(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 416, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __PYX_XCLEAR_MEMVIEW(&__pyx_v_rr_view, 1);
         __pyx_v_rr_view = __pyx_t_11;
@@ -23916,7 +23916,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
 */
         __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_coords, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 417, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 417, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_PY_LONG_LONG(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 417, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __PYX_XCLEAR_MEMVIEW(&__pyx_v_cc_view, 1);
         __pyx_v_cc_view = __pyx_t_11;
@@ -23943,7 +23943,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  * 
 */
           __pyx_t_18 = __pyx_v_i;
-          __pyx_v_r = (*((long *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_18 * __pyx_v_rr_view.strides[0]) )));
+          __pyx_v_r = (*((PY_LONG_LONG *) ( /* dim=0 */ (__pyx_v_rr_view.data + __pyx_t_18 * __pyx_v_rr_view.strides[0]) )));
 
           /* "game_encoder.pyx":421
  *                 for i in range(rr_view.shape[0]):
@@ -23953,7 +23953,7 @@ static void __pyx_f_12game_encoder_encode_spatial_mask(struct __pyx_obj_6armada_
  *                     # Bitwise Packing
 */
           __pyx_t_18 = __pyx_v_i;
-          __pyx_v_c = (*((long *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_18 * __pyx_v_cc_view.strides[0]) )));
+          __pyx_v_c = (*((PY_LONG_LONG *) ( /* dim=0 */ (__pyx_v_cc_view.data + __pyx_t_18 * __pyx_v_cc_view.strides[0]) )));
 
           /* "game_encoder.pyx":424
  * 
@@ -35412,7 +35412,7 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   }
   
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_long(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_PY_LONG_LONG(PyObject *obj, int writable_flag) {
       __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
       __Pyx_BufFmt_StackElem stack[1];
       int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
@@ -35423,7 +35423,7 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
       }
       retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
                                                    PyBUF_RECORDS_RO | writable_flag, 1,
-                                                   &__Pyx_TypeInfo_long, stack,
+                                                   &__Pyx_TypeInfo_PY_LONG_LONG, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))
           goto __pyx_fail;

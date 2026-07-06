@@ -22,7 +22,7 @@ class Config:
     DEF_TOKEN_FEATURE_SIZE = 8
     SQUAD_ENTITY_FEATURE_SIZE = 30
     SCALAR_FEATURE_SIZE = 48
-    MAX_ACTION_SPACE = 947
+    MAX_ACTION_SPACE = MAX_SHIPS + MAX_DEFENSE_TOKENS + 937
 
     # Hardware
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
@@ -46,7 +46,7 @@ class Config:
 
     # Replay Buffer
     REPLAY_BUFFER_SIZE = 16000 # safe buffer for ONE batch games
-    
+
 
     # Neural Network Training
     TRAINING_STEPS = 1000
@@ -60,7 +60,7 @@ class Config:
     HULL_LOSS_WEIGHT = 0.05
     SQUAD_LOSS_WEIGHT = 0.05
     GAME_LENGTH_LOSS_WEIGHT = 0.05
-    
+
 
     # Model Paths
     CHECKPOINT_DIR = f"model_checkpoints"

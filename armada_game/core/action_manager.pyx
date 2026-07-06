@@ -16,12 +16,16 @@ cdef class ActionManager:
     def __init__(self, filepath=None):
         self.action_maps = []
 
-        pointer_action_names = {
+        ship_pointer_action_names = {
             "activate_ship_action",
             "choose_target_ship_action",
+        }
+        token_pointer_action_names = {
             "spend_accuracy_action",
             "spend_defense_token_action"
         }
+        token_action_offset = Config.MAX_SHIPS
+        static_action_offset = Config.MAX_SHIPS + Config.MAX_DEFENSE_TOKENS
 
         if filepath is None:
             filepath = data_path("action_space.json")
@@ -40,22 +44,18 @@ cdef class ActionManager:
             for i, (action_name, action_value) in enumerate(total_actions_list):
                 # Convert value to hashable
                 action_key = (action_name, _make_hashable(action_value))
-                
-                # Check if this is a pointer action
-                is_pointer = action_name in pointer_action_names
 
-                if is_pointer:
-                    # Pointer actions keep their original index 'i'
-                    # (User assumes these are encoded at the front of the list 0..K)
-                    action_to_index_dict[action_key] = i
+                if action_name in ship_pointer_action_names:
+                    action_to_index_dict[action_key] = action_value
+                elif action_name in token_pointer_action_names:
+                    action_to_index_dict[action_key] = token_action_offset + action_value
                 else:
-                    # Static actions start from N (MAX_SHIPS) + counter
-                    action_to_index_dict[action_key] = Config.MAX_SHIPS + static_count
+                    action_to_index_dict[action_key] = static_action_offset + static_count
                     static_count += 1
 
 
             self.action_maps.append(action_to_index_dict)
-        self.max_action_space = max(len(amap) for amap in self.action_maps) + Config.MAX_SHIPS
+        self.max_action_space = max(max(amap.values()) + 1 for amap in self.action_maps if amap)
 
     cpdef dict get_action_map(self, int phase):
         """Returns the action map for a given game phase."""

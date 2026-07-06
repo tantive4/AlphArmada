@@ -50,7 +50,7 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
                 game = para_games[para_index]
                 if game.winner != 0.0:
                     continue
-                
+
 
                 if para_index in p1_indices:
                     action = mcts1.get_best_action(para_index)
@@ -74,7 +74,7 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
     raw_win_list = [game.winner for game in para_games]
     draw = [game.get_point(1) == 0 and game.get_point(-1) == 0 for game in para_games]
     p1_win_count = sum(
-        1 for para_index, winner in enumerate(raw_win_list) 
+        1 for para_index, winner in enumerate(raw_win_list)
         if (winner > 0) == (para_index in p1_first)
         )
     print("RAW END DATA")
@@ -87,12 +87,11 @@ def ready_model(version:int):
     download_model_version(version)
     model = load_model(version=version)
     model.eval()
-    model.compile_fast_policy()
     return model
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--versions", nargs=2, type=int, required=True, help="Two model versions to compare (e.g., --versions 256 64)")    
+    parser.add_argument("--versions", nargs=2, type=int, required=True, help="Two model versions to compare (e.g., --versions 256 64)")
     args = parser.parse_args()
     versions = args.versions
 

@@ -30,7 +30,6 @@ class AlphArmadaWorker:
         self.worker_id = worker_id
         self.model = model
         self.model.eval()
-        self.model.compile_fast_policy()
 
         replay_buffer_dir = Config.REPLAY_BUFFER_DIR
         if os.path.exists(replay_buffer_dir):
@@ -39,8 +38,8 @@ class AlphArmadaWorker:
 
 
         self.replay_buffer = DiskReplayBuffer(
-            replay_buffer_dir, 
-            Config.REPLAY_BUFFER_SIZE, 
+            replay_buffer_dir,
+            Config.REPLAY_BUFFER_SIZE,
         )
 
     def self_play(self) -> None:
@@ -49,14 +48,14 @@ class AlphArmadaWorker:
         action_manager = ActionManager()
         initial_games = [setup_game() for _ in range(Config.PARALLEL_DIVERSE_FACTOR)]
         para_games: list[Armada] = [
-            copy.deepcopy(game) 
-            for game in initial_games 
+            copy.deepcopy(game)
+            for game in initial_games
             for _ in range(Config.PARALLEL_SAME_GAME)
         ]
         for para_index, para_game in enumerate(para_games):
             para_game.para_index = para_index
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
-        
+
         # if self.worker_id == 1 :
         #     shutil.rmtree("game_visuals", ignore_errors=True)
         #     para_games[0].debuging_visual = True
@@ -78,7 +77,7 @@ class AlphArmadaWorker:
                         game : Armada = para_games[para_index]
                         snapshot = game.get_snapshot()
                         memory[para_index].append((snapshot, para_action_probs[para_index]))
-            
+
             # --- Process all games (decision and non-decision) for one step ---
             for para_index in range(Config.PARALLEL_PLAY) :
                 game : Armada = para_games[para_index]
@@ -97,12 +96,12 @@ class AlphArmadaWorker:
 
                 game.apply_action(action)
                 mcts.advance_tree(para_index, action, game.get_snapshot())
-                
+
                 # --- Check for terminal states ---
                 if game.winner != 0.0:
                     # pbar.update(1)
                     # pbar.set_postfix(last_winner=game.winner)
-                    
+
                     saved_states += self.save_game_data(game, memory[para_index],action_counter)
                     memory[para_index].clear()
             if action_counter % 10 == 0:
@@ -119,7 +118,7 @@ class AlphArmadaWorker:
         del para_games
         del mcts
         del initial_games
-        
+
         # Force collection
         gc.collect()
         return
@@ -131,24 +130,24 @@ class AlphArmadaWorker:
         end_snapshop = game.get_snapshot()
 
         num_steps = len(game_memory)
-        
+
         scalar_store = np.zeros((num_steps, Config.SCALAR_FEATURE_SIZE), dtype=np.float32)
         ship_entity_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
         ship_coords_store = np.zeros((num_steps, Config.MAX_SHIPS, 3), dtype=np.float32)
         ship_def_token_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), dtype=np.float32)
         spatial_store = np.zeros((num_steps, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), dtype=np.uint8)
         relation_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), dtype=np.float32)
-        
+
         active_id_store = np.zeros(num_steps, dtype=np.int8)
         target_id_store = np.zeros(num_steps, dtype=np.int8)
         phase_store = np.zeros(num_steps, dtype=np.int32)
         policy_list, winner_list, aux_list = [], [], []
-        
+
 
         # 'Rewind' the game using snapshots to generate encoded states
         for i, (snapshot, action_probs) in enumerate(game_memory):
             game.revert_snapshot(snapshot)
-            
+
             act_id, tgt_id, phase_val = encode_game_state(
                 game,
                 scalar_store[i],
@@ -165,7 +164,7 @@ class AlphArmadaWorker:
             policy_list.append(action_probs)
             winner_list.append(winner)
             aux_list.append(aux_target)
-        
+
         game.revert_snapshot(end_snapshop)
 
         collated_data = {
@@ -191,7 +190,7 @@ class AlphArmadaWorker:
         with open(f'output/replay_stats.txt', 'a') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {action_count}, {num_steps}, {round(winner,1)}\n")
         return num_steps
-    
+
 class AlphArmadaTrainer:
     def __init__(self, model : BigDeep, optimizer : optim.AdamW) -> None:
         self.model = model
@@ -206,14 +205,14 @@ class AlphArmadaTrainer:
         # Sequential block size = 128 (Config.BATCH_SIZE)
         # We will pick 2 chunks per step -> Total Batch 256
         dataset = ArmadaChunkDataset(data_root=Config.REPLAY_BUFFER_DIR, seq_len=Config.BATCH_SIZE)
-        
+
         # This is the magic sauce:
         # batch_size=2: Grab 2 chunks (Total 256 samples)
         # num_workers=2: Use 2 CPU cores to load them in parallel
         dataloader = DataLoader(
-            dataset, 
-            batch_size=2,          
-            num_workers=2,         
+            dataset,
+            batch_size=2,
+            num_workers=2,
             # pin_memory=True,       # Fast GPU transfer (no support on mps)
             persistent_workers=True, # Keep workers alive (avoids re-spawn overhead)
             prefetch_factor=2      # Buffer 2 batches per worker (smoother pipeline)
@@ -223,7 +222,7 @@ class AlphArmadaTrainer:
 
         # --- TRAINING LOOP ---
         total_loss_accum = 0.0
-        
+
         for step in trange(Config.TRAINING_STEPS, desc="[TRAINER]"):
             # 1. Sample (2 * 128 = 256)
             try:
@@ -232,7 +231,7 @@ class AlphArmadaTrainer:
                 # Should not happen with infinite dataset, but safety first
                 iterator = iter(dataloader)
                 raw_batch = next(iterator)
-            
+
             # --- FLATTEN BATCH ---
             # DataLoader returns: [Batch_Chunks, Seq_Len, Features] -> [2, 128, ...]
             # We need: [Total_Batch, Features] -> [256, ...]
@@ -240,11 +239,11 @@ class AlphArmadaTrainer:
             for k, v in raw_batch.items():
                 # Flatten first two dimensions (2 * 128 -> 256)
                 training_batch[k] = v.flatten(0, 1)
-                
+
             # 2. Train
             loss = self.train(training_batch)
             total_loss_accum += loss
-            if step % 100 == 99: 
+            if step % 100 == 99:
                 avg_loss = total_loss_accum / step
                 with open(f'loss.txt', 'a') as f:f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {avg_loss:.4f}\n")
             # vessl.log(step=step, payload={"training_loss": loss})
@@ -266,10 +265,10 @@ class AlphArmadaTrainer:
         """
         if not training_batch:
             return 0.0
-        
+
         # 1. Prepare Inputs
         b = {
-            k: v.to(Config.DEVICE, non_blocking=True) 
+            k: v.to(Config.DEVICE, non_blocking=True)
             for k, v in training_batch.items()
         }
 
@@ -285,7 +284,7 @@ class AlphArmadaTrainer:
             target_ship_indices=b['target_ship_id'],
             phases=b['phases']
         )
-        
+
         # 3. Calculate Losses
 
         # A. Value Loss
@@ -295,7 +294,7 @@ class AlphArmadaTrainer:
         hull_loss = F.mse_loss(outputs["predicted_hull"], b['target_ship_hulls'], reduction='mean')
         game_len_loss = F.cross_entropy(outputs["predicted_game_length"], b['target_game_length'], reduction='mean')
         raw_point_loss = F.binary_cross_entropy_with_logits(outputs["predicted_raw_point"], b['target_raw_points'], reduction='mean')
-        
+
         # C. Policy Loss
         logits = outputs["policy_logits"]
         targets = b['target_policies']
@@ -305,8 +304,8 @@ class AlphArmadaTrainer:
 
         # 4. Backpropagation
         total_loss = (
-            policy_loss + 
-            value_loss + 
+            policy_loss +
+            value_loss +
             Config.RAW_POINT_LOSS_WIEGHT * raw_point_loss +
             Config.HULL_LOSS_WEIGHT * hull_loss +
             Config.GAME_LENGTH_LOSS_WEIGHT * game_len_loss
@@ -318,4 +317,4 @@ class AlphArmadaTrainer:
         self.optimizer.step()
 
         return total_loss.item()
-    
+
