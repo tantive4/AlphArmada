@@ -19,5 +19,5 @@ run:
 
 
       # Run the worker
-      python -u -m orchestration.main_run --mode worker --worker_id 01
+      python -u worker.py --worker_id 01
     workdir: /root/alpharmada

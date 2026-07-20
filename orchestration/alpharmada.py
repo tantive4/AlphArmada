@@ -26,10 +26,30 @@ from armada_game.helpers.action_phase import Phase
 from armada_game.helpers.dice import roll_dice
 
 class AlphArmadaWorker:
-    def __init__(self, model : BigDeep, worker_id : int) :
+    def __init__(
+        self,
+        model : BigDeep,
+        worker_id : int,
+        deep_mcts_iteration: int = Config.MCTS_ITERATION,
+        standard_mcts_iteration: int = Config.MCTS_ITERATION_FAST,
+        batched_game_size: int = Config.PARALLEL_PLAY,
+    ) :
         self.worker_id = worker_id
         self.model = model
         self.model.eval()
+        if deep_mcts_iteration <= 0:
+            raise ValueError("deep_mcts_iteration must be positive.")
+        if standard_mcts_iteration <= 0:
+            raise ValueError("standard_mcts_iteration must be positive.")
+        if batched_game_size <= 0:
+            raise ValueError("batched_game_size must be positive.")
+
+        self.deep_mcts_iteration = deep_mcts_iteration
+        self.standard_mcts_iteration = standard_mcts_iteration
+        self.batched_game_size = batched_game_size
+
+        if self.batched_game_size > Config.GPU_INPUT_BATCH_SIZE:
+            Config.GPU_INPUT_BATCH_SIZE = self.batched_game_size
 
         replay_buffer_dir = Config.REPLAY_BUFFER_DIR
         if os.path.exists(replay_buffer_dir):
@@ -43,15 +63,18 @@ class AlphArmadaWorker:
         )
 
     def self_play(self) -> None:
-        memory : dict[int, list[tuple[tuple, np.ndarray]]] = {para_index : list() for para_index in range(Config.PARALLEL_PLAY)}
+        memory : dict[int, list[tuple[tuple, np.ndarray]]] = {para_index : list() for para_index in range(self.batched_game_size)}
 
         action_manager = ActionManager()
-        initial_games = [setup_game() for _ in range(Config.PARALLEL_DIVERSE_FACTOR)]
+        same_game_count = max(1, Config.PARALLEL_SAME_GAME)
+        diverse_game_count = (self.batched_game_size + same_game_count - 1) // same_game_count
+        initial_games = [setup_game() for _ in range(diverse_game_count)]
         para_games: list[Armada] = [
             copy.deepcopy(game)
             for game in initial_games
-            for _ in range(Config.PARALLEL_SAME_GAME)
-        ]
+            for _ in range(same_game_count)
+        ][:self.batched_game_size]
+        parallel_play = len(para_games)
         for para_index, para_game in enumerate(para_games):
             para_game.para_index = para_index
         mcts : MCTS = MCTS(copy.deepcopy(para_games), action_manager, self.model)
@@ -63,7 +86,7 @@ class AlphArmadaWorker:
 
         action_counter : int = 0
         saved_states : int = 0
-        # with tqdm(total=Config.PARALLEL_PLAY, desc=f"[SELF-PLAY]", unit="game") as pbar:
+        # with tqdm(total=parallel_play, desc=f"[SELF-PLAY]", unit="game") as pbar:
 
         while any(game.winner == 0.0 for game in para_games) and action_counter < Config.MAX_GAME_STEP:
             para_indices: list[int] = [i for i, game in enumerate(para_games) if game.decision_player and game.winner == 0.0]
@@ -71,7 +94,12 @@ class AlphArmadaWorker:
             if para_indices :
                 # --- Perform MCTS search in parallel for decision nodes ---
                 deep_search = random.random() < Config.DEEP_SEARCH_RATIO
-                para_action_probs : dict[int, np.ndarray] = mcts.para_search(para_indices, deep_search=deep_search)
+                mcts_iteration = self.deep_mcts_iteration if deep_search else self.standard_mcts_iteration
+                para_action_probs : dict[int, np.ndarray] = mcts.para_search(
+                    para_indices,
+                    deep_search=deep_search,
+                    manual_iteration=mcts_iteration,
+                )
                 if deep_search :
                     for para_index in para_action_probs:
                         game : Armada = para_games[para_index]
@@ -79,7 +107,7 @@ class AlphArmadaWorker:
                         memory[para_index].append((snapshot, para_action_probs[para_index]))
 
             # --- Process all games (decision and non-decision) for one step ---
-            for para_index in range(Config.PARALLEL_PLAY) :
+            for para_index in range(parallel_play) :
                 game : Armada = para_games[para_index]
                 if game.winner != 0.0:
                     continue
@@ -105,7 +133,7 @@ class AlphArmadaWorker:
                     saved_states += self.save_game_data(game, memory[para_index],action_counter)
                     memory[para_index].clear()
             if action_counter % 10 == 0:
-                vessl.log(payload={"action_count": action_counter, "saved_states": saved_states, "ended_games" : Config.PARALLEL_PLAY - sum(1 for g in para_games if g.winner == 0.0)})
+                vessl.log(payload={"action_count": action_counter, "saved_states": saved_states, "ended_games" : parallel_play - sum(1 for g in para_games if g.winner == 0.0)})
             action_counter += 1
 
         for game in [game for game in para_games if game.winner == 0.0]:
@@ -317,4 +345,3 @@ class AlphArmadaTrainer:
         self.optimizer.step()
 
         return total_loss.item()
-

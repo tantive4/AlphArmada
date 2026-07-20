@@ -120,18 +120,21 @@ The distributed workflow has three long-running roles.
 ### Worker
 
 ```bash
-python -m orchestration.main_run --mode worker --worker_id 01
+python worker.py --worker_id 01
 ```
 
 A worker downloads the latest model from the Vessl `BigDeep` model repository,
 runs 128 parallel self-play games per batch (`16` diverse setups x `8` copies),
 saves replay arrays to disk-backed `.npy` memmaps, trims them to the exact
 number of generated states, and uploads the result plus a timestamp commit flag.
+Worker MCTS and batch-size defaults can be overridden with
+`--deep_mcts_iteration`, `--standard_mcts_iteration`, and
+`--batched_game_size`.
 
 ### Downloader
 
 ```bash
-python -m orchestration.main_run --mode downloader --num_worker 20
+python downloader.py --num_worker 20
 ```
 
 The downloader polls worker timestamp flags, downloads new worker buffers into
@@ -141,7 +144,7 @@ writes chunk folders under `replay_buffers/`.
 ### Trainer
 
 ```bash
-python -m orchestration.main_run --mode trainer
+python trainer.py
 ```
 
 The trainer waits for at least 4 replay chunks, keeps a sliding window of up to
@@ -171,10 +174,13 @@ learning/
   params/       training, model, action-space, and hardware config
 
 orchestration/
-  main_run.py   worker, trainer, and downloader entrypoint
   alpharmada.py self-play worker and trainer classes
   storage_*     Vessl model and replay transfer helpers
   vessl/        worker launch YAML
+
+worker.py       self-play worker entrypoint
+downloader.py   replay downloader entrypoint
+trainer.py      trainer entrypoint
 
 evaluation/
   evaluation.py model-vs-model evaluation

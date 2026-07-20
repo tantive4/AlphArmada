@@ -5,13 +5,14 @@ This repository is now organized around four active package areas:
 - `armada_game/`: Star Wars: Armada rules, data, geometry helpers, visualization assets, and Cython game-core sources.
 - `learning/`: neural network, MCTS sources, encoder, replay storage, and training parameters.
 - `evaluation/`: evaluation scripts, debug/verification helpers, notebooks, and sample result artifacts.
-- `orchestration/`: worker, trainer, downloader, storage, and Vessl launch helpers.
+- `orchestration/`: shared worker/trainer classes, storage helpers, downloader state helpers, and Vessl launch helpers.
 
-The root `main_run.py` is intentionally kept as a tiny compatibility wrapper. The real implementation lives in `orchestration/main_run.py`, so both of these remain valid:
+The distributed runtime roles are split into root entrypoints:
 
 ```bash
-python main_run.py --mode worker --worker_id 01
-python -m orchestration.main_run --mode worker --worker_id 01
+python worker.py --worker_id 01
+python downloader.py --num_worker 20
+python trainer.py
 ```
 
 The active Cython extension modules are still built as top-level imports named `armada`, `ship`, `squad`, `obstacle`, `defense_token`, `attack_info`, `action_manager`, `game_encoder`, `para_mcts`, and `shared_mcts`. Their source files moved into the package folders, but the extension names stayed top-level to preserve the existing Cython `cimport` relationships.
@@ -20,7 +21,9 @@ The active Cython extension modules are still built as top-level imports named `
 
 ```text
 .
-├── main_run.py                         # root compatibility launcher
+├── worker.py                           # self-play worker entrypoint
+├── downloader.py                       # replay downloader entrypoint
+├── trainer.py                          # training entrypoint
 ├── tools/
 │   └── cython_setup.py                 # builds all Cython extensions in-place
 ├── armada_game/
@@ -35,7 +38,6 @@ The active Cython extension modules are still built as top-level imports named `
 │   ├── encoding/                       # Cython state encoder
 │   └── replay/                         # disk replay buffer and dataset
 ├── orchestration/
-│   ├── main_run.py                     # actual worker/trainer/downloader entrypoint
 │   ├── alpharmada.py                   # worker/trainer classes
 │   ├── storage_manager.py              # Vessl model/replay transfer
 │   ├── downloader.py                   # downloader state JSON helper
@@ -58,12 +60,16 @@ The active Cython extension modules are still built as top-level imports named `
 Command:
 
 ```bash
-python -m orchestration.main_run --mode worker --worker_id 01
+python worker.py --worker_id 01
 ```
+
+Optional worker controls default to the values in `learning.params.configs.Config`:
+`--deep_mcts_iteration 200`, `--standard_mcts_iteration 50`, and
+`--batched_game_size 128`.
 
 Flow:
 
-1. `orchestration.main_run.main()` parses CLI args.
+1. `worker.py` parses CLI args.
 2. `work(worker_id)` downloads the latest remote model with `orchestration.storage_manager.download_recent_model()`.
 3. `learning.model.big_deep.load_model()` loads `model_checkpoints/model_best.pth`.
 4. `orchestration.alpharmada.AlphArmadaWorker`:
@@ -89,7 +95,7 @@ If worker self-play raises, `work()` uploads only `output/` with `upload_replay=
 Command:
 
 ```bash
-python -m orchestration.main_run --mode downloader --num_worker 20
+python downloader.py --num_worker 20
 ```
 
 Flow:
@@ -109,7 +115,7 @@ The timestamp file in `alpharmada-worker-common/output_XX/timestamp` is the comm
 Command:
 
 ```bash
-python -m orchestration.main_run --mode trainer
+python trainer.py
 ```
 
 Flow:
@@ -194,7 +200,7 @@ and builds top-level modules used by runtime imports:
 Local verification performed after the restructure:
 
 ```bash
-python -m compileall -q armada_game learning orchestration evaluation tools main_run.py
+python -m compileall -q armada_game learning orchestration evaluation tools worker.py downloader.py trainer.py
 python -c "from armada_game.helpers.enum_class import SHIP_DATA, SQUAD_DATA; from learning.params.configs import Config; from orchestration.downloader import load_state; print(len(SHIP_DATA), len(SQUAD_DATA), Config.DEVICE, load_state())"
 ```
 
@@ -429,14 +435,6 @@ Replay storage and loading:
 
 ### `orchestration/`
 
-`main_run.py`
-
-Actual CLI entrypoint. Modes:
-
-- `worker`
-- `trainer`
-- `downloader`
-
 `alpharmada.py`
 
 High-level self-play and training orchestration:
@@ -464,12 +462,12 @@ Generates Vessl runs for workers `01` through `20`. The launch template now uses
 
 ```bash
 python tools/cython_setup.py build_ext --inplace
-python -u -m orchestration.main_run --mode worker --worker_id XX
+python -u worker.py --worker_id XX
 ```
 
 `vessl/alpharmada-worker-xx.yaml`
 
-Checked-in example worker YAML using the new build and module-run commands.
+Checked-in example worker YAML using the build and root worker commands.
 
 ### `evaluation/`
 
