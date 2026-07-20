@@ -289,8 +289,8 @@ cdef void encode_ship_entity_features(Armada game,
                 single_ship_view[offset + <int>attack_info.attack_hull] = 1.0 # is_attacking_hull (one-hot)
             if attack_info.is_defender_ship and ship.id == attack_info.defend_ship_id:
                 single_ship_view[offset + c_hull_type + <int>attack_info.defend_hull] = 1.0 # is_defending_hull (one-hot)
-                if attack_info.redirect_hull is not None:
-                    single_ship_view[offset + c_hull_type * 2 + <int>attack_info.redirect_hull] = 1.0 # is_redirecting_hull (one-hot)
+                # offset + c_hull_type * 2 .. + c_hull_type * 3 previously encoded is_redirecting_hull;
+                # redirect hull is no longer pre-chosen at token-spend time, so that slot stays zero.
         offset += 12 # Advance offset by block size
 
 

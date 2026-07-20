@@ -120,7 +120,6 @@ cdef class AttackInfo :
 
         self.spent_token_indices : tuple[int,...] = ()
         self.spent_token_types : tuple[TokenType,...] = ()
-        self.redirect_hull : HullSection | None = None
         self.critical : Critical | None = None
         self.total_damage : int = 0
 
@@ -190,7 +189,6 @@ cdef class AttackInfo :
             'attack_pool_result': self.attack_pool_result,
             'spent_token_indices': self.spent_token_indices,
             'spent_token_types': self.spent_token_types,
-            'redirect_hull': self.redirect_hull,
             'critical': self.critical,
         }
 
@@ -221,7 +219,6 @@ cdef class AttackInfo :
         instance.attack_pool_result = snapshot['attack_pool_result']
         instance.spent_token_indices = snapshot['spent_token_indices']
         instance.spent_token_types = snapshot['spent_token_types']
-        instance.redirect_hull = snapshot['redirect_hull']
         instance.critical = snapshot['critical']
         
         return instance

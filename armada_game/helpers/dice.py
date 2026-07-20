@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 
 from armada_game.helpers.enum_class import *
@@ -53,137 +55,55 @@ def roll_dice(dice_pool: tuple[int, ...]) -> tuple[tuple[int, ...], ...]:
 
     return (black_roll, blue_roll, red_roll)
 
-def fast_dice_choice(attack_pool_result: tuple[tuple[int, ...], ...]) -> tuple[tuple[int, ...], ...]:
+def dice_single_choice(attack_pool_result: tuple[tuple[int, ...], ...]) -> list[tuple[tuple[int, ...], ...]]:
     """
-    Checks input tuple (3, 3, 5) structure for value > 0 in specific order:
-    9, 2, 8, 7, 4, 3, 1, 10, 5, 6, 0.
-    
-    Returns a matching structure with 1 at the found index and 0 elsewhere.
+    Generates all possible outcomes of selecting exactly one die from the pool,
+    working directly with the counts of each die face rather than flattening the list.
     """
-    # Unpack for cleaner access (minor optimization over repeated indexing)
-    g0 = attack_pool_result[0]
-    g1 = attack_pool_result[1]
-    g2 = attack_pool_result[2]
-
-    # Check 9 -> Group 2, Index 3
-    if g2[3] > 0:
-        return ((0, 0, 0), (0, 0, 0), (0, 0, 0, 1, 0))
-
-    # Check 2 -> Group 0, Index 2
-    if g0[2] > 0:
-        return ((0, 0, 1), (0, 0, 0), (0, 0, 0, 0, 0))
-
-    # Check 8 -> Group 2, Index 2
-    if g2[2] > 0:
-        return ((0, 0, 0), (0, 0, 0), (0, 0, 1, 0, 0))
-
-    # Check 7 -> Group 2, Index 1
-    if g2[1] > 0:
-        return ((0, 0, 0), (0, 0, 0), (0, 1, 0, 0, 0))
-
-    # Check 4 -> Group 1, Index 1
-    if g1[1] > 0:
-        return ((0, 0, 0), (0, 1, 0), (0, 0, 0, 0, 0))
-
-    # Check 3 -> Group 1, Index 0
-    if g1[0] > 0:
-        return ((0, 0, 0), (1, 0, 0), (0, 0, 0, 0, 0))
-
-    # Check 1 -> Group 0, Index 1
-    if g0[1] > 0:
-        return ((0, 1, 0), (0, 0, 0), (0, 0, 0, 0, 0))
-
-    # Check 10 -> Group 2, Index 4
-    if g2[4] > 0:
-        return ((0, 0, 0), (0, 0, 0), (0, 0, 0, 0, 1))
-
-    # Check 5 -> Group 1, Index 2
-    if g1[2] > 0:
-        return ((0, 0, 0), (0, 0, 1), (0, 0, 0, 0, 0))
-
-    # Check 6 -> Group 2, Index 0
-    if g2[0] > 0:
-        return ((0, 0, 0), (0, 0, 0), (1, 0, 0, 0, 0))
-
-    # Check 0 -> Group 0, Index 0
-    if g0[0] > 0:
-        return ((1, 0, 0), (0, 0, 0), (0, 0, 0, 0, 0))
-
-    # Default Fallback (if no dice > 0 found)
-    return ((0, 0, 0), (0, 0, 0), (0, 0, 0, 0, 0))
-
-def dice_choices(attack_pool_result: tuple[tuple[int, ...], ...], dice_to_modify: int) -> list[tuple[tuple[int, ...], ...]]:
-    """
-    Generates all possible outcomes of selecting a specific number of dice
-    from a larger pool by working directly with the counts of each die face.
-    This is more efficient than flattening the list.
-    """
-    # for 1 dice case
-    if dice_to_modify == 1:
-        combinations : list[tuple[tuple[int, ...], ...]] = []
-        # Iterate through each die color and its face counts
-        for color, face_counts in zip(Dice, attack_pool_result):
-            # Iterate through each face index and its count
-            for face_idx, count in enumerate(face_counts):
-                # If there's at least one die of this face, it's a valid choice
-                if count > 0:
-                    # Create a new, zeroed-out combination dictionary
-                    new_combo = (
-                        [0] * len(ICON_INDICES[Dice.BLACK]),
-                        [0] * len(ICON_INDICES[Dice.BLUE]),
-                        [0] * len(ICON_INDICES[Dice.RED])
-                    )
-                    # Mark the single chosen die in the new combination
-                    new_combo[color][face_idx] = 1
-                    new_combo_tuple = tuple(tuple(face_list) for face_list in new_combo)
-                    combinations.append(new_combo_tuple)
-        return combinations
-    
-    else : raise NotImplementedError("Currently only supports choosing 1 die.")
-    # We'll build the combinations using a recursive helper function
-    combinations = []
-    
-    # We use a list of colors to iterate more robustly than relying on enum values.
-    colors_to_check = sorted(attack_pool_result.keys(), key=lambda d: d.value)
-    
-    def find_combos_recursive(current_combo: dict[Dice, list[int]], dice_left: int, color_idx: int, face_idx: int):
-        # Base case: A valid combination of the required size has been found.
-        if dice_left == 0:
-            combinations.append({k: v[:] for k, v in current_combo.items()})
-            return
-
-        # Base case: We have run out of dice faces to check.
-        if color_idx >= len(colors_to_check):
-            return
-
-        # Determine the current color and details for this recursive step.
-        current_color = colors_to_check[color_idx]
-        num_faces = len(attack_pool_result[current_color])
-
-        # Determine the next position to check for the recursive calls.
-        next_face_idx = face_idx + 1
-        next_color_idx = color_idx
-        if next_face_idx >= num_faces:
-            next_face_idx = 0
-            next_color_idx += 1
-
-        # Option 1: Skip the current die face and move to the next.
-        find_combos_recursive(current_combo, dice_left, next_color_idx, next_face_idx)
-        
-        # Option 2: Take one or more dice of the current face type.
-        available_count = attack_pool_result[current_color][face_idx]
-        if available_count > 0:
-            for i in range(1, min(dice_left, available_count) + 1):
-                current_combo[current_color][face_idx] += i
-                find_combos_recursive(current_combo, dice_left - i, next_color_idx, next_face_idx)
-                # Backtrack: undo the change for the next iteration.
-                current_combo[current_color][face_idx] -= i
-    
-    # Kick off the recursion with an empty starting combination.
-    initial_combo = {color: [0] * len(counts) for color, counts in attack_pool_result.items()}
-    find_combos_recursive(initial_combo, dice_to_modify, 0, 0)
-    
+    combinations : list[tuple[tuple[int, ...], ...]] = []
+    # Iterate through each die color and its face counts
+    for color, face_counts in zip(Dice, attack_pool_result):
+        # Iterate through each face index and its count
+        for face_idx, count in enumerate(face_counts):
+            # If there's at least one die of this face, it's a valid choice
+            if count > 0:
+                # Create a new, zeroed-out combination dictionary
+                new_combo = (
+                    [0] * len(ICON_INDICES[Dice.BLACK]),
+                    [0] * len(ICON_INDICES[Dice.BLUE]),
+                    [0] * len(ICON_INDICES[Dice.RED])
+                )
+                # Mark the single chosen die in the new combination
+                new_combo[color][face_idx] = 1
+                new_combo_tuple = tuple(tuple(face_list) for face_list in new_combo)
+                combinations.append(new_combo_tuple)
     return combinations
+
+
+def sum_dice_pools(a: tuple[tuple[int, ...], ...], b: tuple[tuple[int, ...], ...]) -> tuple[tuple[int, ...], ...]:
+    """
+    Elementwise sum of two dice-pool-shaped tuples ((black), (blue), (red)).
+    Used to merge two single-die picks (e.g. from dice_pair_choices) into one removal.
+    """
+    return tuple(tuple(x + y for x, y in zip(face_a, face_b)) for face_a, face_b in zip(a, b))
+
+
+def dice_pair_choices(attack_pool_result: tuple[tuple[int, ...], ...]) -> list[tuple[tuple[tuple[int, ...], ...], tuple[tuple[int, ...], ...]]]:
+    """
+    All unordered pairs of 2 dice (by color/face) selectable together from the
+    current attack pool, honoring available counts: a face can be picked twice
+    only if at least 2 such dice remain in the pool.
+
+    Each element of a returned pair is a one-hot dice-pool tuple in the same
+    shape produced by dice_single_choice(pool).
+    """
+    canonical = dice_single_choice(FULL_DICE_POOL)
+    pairs = []
+    for dice_a, dice_b in itertools.combinations_with_replacement(canonical, 2):
+        combined = sum_dice_pools(dice_a, dice_b)
+        if all(need <= have for need_face, have_face in zip(combined, attack_pool_result) for need, have in zip(need_face, have_face)):
+            pairs.append((dice_a, dice_b))
+    return pairs
 
 
 if __name__ == "__main__":
@@ -204,7 +124,7 @@ if __name__ == "__main__":
     dice_roll_result = roll_dice(dice_pool)
     print(dice_icon(dice_roll_result))
     # print(f'result : {dice_icon(dice_roll_result)}')
-    # for dice_choice in dice_choices(dice_roll_result, 1) :
+    # for dice_choice in dice_single_choice(dice_roll_result) :
     #     print(dice_choice)
 
 

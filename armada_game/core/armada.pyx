@@ -118,7 +118,7 @@ cdef class Armada:
         # Simplified
         if self.phase in (Phase.ATTACK_ROLL_DICE,) :
             self.decision_player = 0
-        elif self.phase in (Phase.ATTACK_SPEND_DEFENSE_TOKENS, Phase.ATTACK_RESOLVE_DAMAGE): #, Phase.SHIP_PLACE_SQUAD):
+        elif self.phase in (Phase.ATTACK_SPEND_DEFENSE_TOKENS, Phase.CHOOSE_DEFEND_DICE, Phase.ATTACK_RESOLVE_DAMAGE): #, Phase.SHIP_PLACE_SQUAD):
             self.decision_player = -self.current_player
         else :
             self.decision_player = self.current_player
@@ -281,11 +281,11 @@ cdef class Armada:
             #         actions.append(('resolve_con-fire_command_action', (False, True)))
 
             # if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
-            #     actions.extend([('use_confire_token_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
+            #     actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(attack_info.attack_pool_result)])
 
             # # swarm reroll
             # if attack_info.swarm:
-            #     actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(attack_info.attack_pool_result, 1)])
+            #     actions.extend([('swarm_reroll_action', dice) for dice in dice_single_choice(attack_info.attack_pool_result)])
 
         elif phase == Phase.ATTACK_SPEND_DEFENSE_TOKENS :
             if attack_info.is_defender_ship:
@@ -293,16 +293,33 @@ cdef class Armada:
             else :
                 defender = <Squad>self.squads[attack_info.defend_squad_id]
 
+            pool_has_dice = False
+            for color in attack_info.attack_pool_result :
+                if sum(color) :
+                    pool_has_dice = True
+                    break
+
             if defender.speed > 0 :
                 for defense_token in defender.defense_tokens:
                     index = defense_token.id
                     if (not defense_token.discarded and not defense_token.accuracy
                             and defense_token.id not in attack_info.spent_token_indices
-                            and defense_token.type not in attack_info.spent_token_types):
+                            and defense_token.type not in attack_info.spent_token_types
+                            and (defense_token.type != TokenType.EVADE or pool_has_dice)):
 
                         actions.append(('spend_defense_token_action', index))
 
             actions.append(('pass_defense_token', None))
+
+        elif phase == Phase.CHOOSE_DEFEND_DICE :
+            for dice in dice_single_choice(attack_info.attack_pool_result) :
+                actions.append(('spend_evade_dice_action', dice))
+
+            if attack_info.is_attacker_ship :
+                attack_ship = self.ships[attack_info.attack_ship_id]
+                if defend_ship.size_class < attack_ship.size_class :
+                    for dice_pair in dice_pair_choices(attack_info.attack_pool_result) :
+                        actions.append(('discard_evade_dice_action', dice_pair))
 
         # elif phase == Phase.ATTACK_USE_CRITICAL_EFFECT :
         #     if (attack_info.is_attacker_ship or attack_info.bomber) and attack_info.is_defender_ship:
@@ -323,10 +340,13 @@ cdef class Armada:
 
         elif phase == Phase.ATTACK_RESOLVE_DAMAGE:
             total_damage = attack_info.total_damage
-            redirect_hull = attack_info.redirect_hull
-            if redirect_hull is not None :
-                for damage in range(min(total_damage, defend_ship.shield[redirect_hull]) + 1):
-                    actions.append(('resolve_damage_action', (redirect_hull, damage)))
+            if TokenType.REDIRECT in attack_info.spent_token_types :
+                defend_hull = attack_info.defend_hull
+                idx_left = (defend_hull - 1) & 3
+                idx_right = (defend_hull + 1) & 3
+                for hull in (idx_left, idx_right) :
+                    for damage in range(1, min(total_damage, defend_ship.shield[hull]) + 1):
+                        actions.append(('resolve_damage_action', (hull, damage)))
 
             actions.append(('resolve_damage_action', None))
 
@@ -645,54 +665,38 @@ cdef class Armada:
             defense_token.spend()
             attack_info.calculate_total_damage()
 
-            if defense_token.type == TokenType.REDIRECT:
-                hull = attack_info.defend_hull
-                idx_left = (hull - 1) & 3
-                idx_right = (hull + 1) & 3
-                if defend_ship.shield[idx_left] > defend_ship.shield[idx_right] :
-                    attack_info.redirect_hull = idx_left
-                else:
-                    attack_info.redirect_hull = idx_right
+            if defense_token.type == TokenType.EVADE:
+                self.phase = Phase.CHOOSE_DEFEND_DICE
 
-            elif defense_token.type == TokenType.EVADE:
-                evade_dice = fast_dice_choice(attack_info.attack_pool_result)
-
-                attack_info.remove_dice(evade_dice)
-
-                if attack_info.attack_range in [AttackRange.CLOSE, AttackRange.MEDIUM]:
-                    # Reroll Evade Dice
-                    for dice_type in DICE:
-                        dice_pool.append(sum(evade_dice[dice_type]))
-                    attack_info.dice_to_roll = tuple(dice_pool)
-                    self.phase = Phase.ATTACK_ROLL_DICE
-
-        elif action_type == 'spend_redirect_token_action':
-            raise NotImplementedError(f"simplified {action_type}")
-            (index, hull) = action_data
-            defense_token = defend_ship.defense_tokens[index]
-
-            attack_info.spent_token_indices += (index,)
-            attack_info.spent_token_types += (defense_token.type,)
-            defense_token.spend()
-            attack_info.redirect_hull = hull
-            attack_info.calculate_total_damage()
-
-        elif action_type == 'spend_evade_token_action':
-            raise NotImplementedError(f"simplified {action_type}")
-            (index, evade_dice) = action_data
-            defense_token = defend_ship.defense_tokens[index]
-
-            attack_info.spent_token_indices += (index,)
-            attack_info.spent_token_types += (defense_token.type,)
-            defense_token.spend()
+        elif action_type == 'spend_evade_dice_action':
+            evade_dice = action_data
             attack_info.remove_dice(evade_dice)
 
-            if attack_info.attack_range in [AttackRange.CLOSE, AttackRange.MEDIUM]:
+            if AttackRange.CLOSE <= attack_info.attack_range <= AttackRange.MEDIUM:
                 # Reroll Evade Dice
                 for dice_type in DICE:
                     dice_pool.append(sum(evade_dice[dice_type]))
                 attack_info.dice_to_roll = tuple(dice_pool)
                 self.phase = Phase.ATTACK_ROLL_DICE
+            else:
+                self.phase = Phase.ATTACK_SPEND_DEFENSE_TOKENS
+
+        elif action_type == 'discard_evade_dice_action':
+            (dice_a, dice_b) = action_data
+            defense_token = defend_ship.defense_tokens[attack_info.spent_token_indices[-1]]
+            defense_token.discard()
+
+            combined_dice = sum_dice_pools(dice_a, dice_b)
+            attack_info.remove_dice(combined_dice)
+
+            if AttackRange.CLOSE <= attack_info.attack_range <= AttackRange.MEDIUM:
+                # Reroll both Evade Dice
+                for dice_type in DICE:
+                    dice_pool.append(sum(combined_dice[dice_type]))
+                attack_info.dice_to_roll = tuple(dice_pool)
+                self.phase = Phase.ATTACK_ROLL_DICE
+            else:
+                self.phase = Phase.ATTACK_SPEND_DEFENSE_TOKENS
 
         elif action_type == 'pass_defense_token':
             _ = action_data

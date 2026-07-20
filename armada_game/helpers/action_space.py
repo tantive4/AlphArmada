@@ -3,7 +3,7 @@ import itertools
 
 from armada_game.helpers.action_phase import Phase, ActionType
 from armada_game.helpers.enum_class import *
-from armada_game.helpers.dice import dice_choices, FULL_DICE_POOL
+from armada_game.helpers.dice import dice_single_choice, FULL_DICE_POOL
 from learning.params.configs import Config
 from armada_game.helpers.paths import data_path
 
@@ -139,8 +139,8 @@ def generate_all_maps():
                 actions = [('spend_accuracy_action', index) for index in range(Config.MAX_DEFENSE_TOKENS)]
                 # actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
                 actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE])
-                # actions.extend([('use_confire_token_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
-                # actions.extend([('swarm_reroll_action', dice) for dice in dice_choices(FULL_DICE_POOL, 1)])
+                # actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
+                # actions.extend([('swarm_reroll_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
                 actions.append(('pass_attack_effect', None))
 
             case Phase.ATTACK_SPEND_DEFENSE_TOKENS :
@@ -149,13 +149,23 @@ def generate_all_maps():
 
                 actions.append(('pass_defense_token', None))
 
+            case Phase.CHOOSE_DEFEND_DICE :
+                # canonical single-die picks (11: 3 black + 3 blue + 5 red faces)
+                single_choices = dice_single_choice(FULL_DICE_POOL)
+                actions = [('spend_evade_dice_action', dice) for dice in single_choices]
+                # discard-for-double: unordered pairs with replacement (66 combos)
+                actions.extend([
+                    ('discard_evade_dice_action', pair)
+                    for pair in itertools.combinations_with_replacement(single_choices, 2)
+                ])
+
             # case Phase.ATTACK_USE_CRITICAL_EFFECT :
             #     actions = [('use_critical_action', critical) for critical in Critical]
             #     actions.append(('pass_critical', None))
 
             case Phase.ATTACK_RESOLVE_DAMAGE:
-                # consider standard redirect with max damage 4
-                actions = [('resolve_damage_action', (hull, damage)) for hull in HullSection for damage in range(5)]
+                # redirect: choose a hull and how much of the damage (1 to max shield 4) to send there
+                actions = [('resolve_damage_action', (hull, damage)) for hull in HullSection for damage in range(1, 5)]
                 actions.append(('resolve_damage_action', None))
 
             # case Phase.ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET :

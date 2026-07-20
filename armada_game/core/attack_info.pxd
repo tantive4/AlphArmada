@@ -27,7 +27,6 @@ cdef class AttackInfo:
     cdef public tuple attack_pool_result
     cdef public tuple spent_token_indices
     cdef public tuple spent_token_types
-    cdef public object redirect_hull
     cdef public object critical
 
 

@@ -2127,7 +2127,6 @@ struct __pyx_obj_11attack_info_AttackInfo {
   PyObject *attack_pool_result;
   PyObject *spent_token_indices;
   PyObject *spent_token_types;
-  PyObject *redirect_hull;
   PyObject *critical;
 };
 
