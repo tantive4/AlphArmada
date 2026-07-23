@@ -4,17 +4,17 @@
 {
     "distutils": {
         "depends": [
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayobject.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayscalars.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarrayobject.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayobject.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayscalars.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarrayobject.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
         ],
         "extra_link_args": [
             "/MANIFEST:NO"
         ],
         "include_dirs": [
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
         ],
         "name": "attack_info",
         "sources": [
@@ -1394,7 +1394,7 @@ static const char* const __pyx_f[] = {
   ".venv/Lib/site-packages/numpy/__init__.cython-30.pxd",
   "armada_game/core/attack_info.pxd",
   "<stringsource>",
-  ".venv/Lib/site-packages/Cython/Includes/cpython/type.pxd",
+  "cpython/type.pxd",
   "armada_game/core/obstacle.pxd",
   "armada_game/core/ship.pxd",
   "armada_game/core/armada.pxd",
@@ -2070,8 +2070,10 @@ struct __pyx_vtabstruct_4ship_Ship {
   int (*is_standard_course)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_all_possible_courses)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   PyObject *(*get_valid_placement)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
-  void (*spend_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
-  void (*spend_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*discard_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*discard_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*gain_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*gain_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   int (*check_overlap)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   void (*overlap_obstacle)(struct __pyx_obj_4ship_Ship *, struct __pyx_obj_8obstacle_Obstacle *, int __pyx_skip_dispatch);
 };

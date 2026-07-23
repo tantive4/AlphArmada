@@ -111,9 +111,9 @@ cdef class Ship:
         if len(self.command_stack) >= self.command_value : raise ValueError("Cannot asigne more command then Command Value")
         self.command_stack += (command,)
 
-    cpdef void spend_command_dial(self, int command) :
+    cpdef void discard_command_dial(self, int command) :
         if command not in self.command_dial : raise ValueError("Cannot spend command not in command dial")
-        cdef: 
+        cdef:
             list new_dial = []
             int dial
         for dial in self.command_dial:
@@ -121,15 +121,21 @@ cdef class Ship:
                 new_dial.append(dial)
         self.command_dial = tuple(new_dial)
 
-    cpdef void spend_command_token(self, int command) :
+    cpdef void discard_command_token(self, int command) :
         if command not in self.command_token : raise ValueError("Cannot spend command not in command token")
-        cdef: 
+        cdef:
             list new_token = []
             int token
         for token in self.command_token:
             if token != command:
                 new_token.append(token)
         self.command_token = tuple(new_token)
+
+    cpdef void gain_command_dial(self, int command) :
+        self.command_dial += (command,)
+
+    cpdef void gain_command_token(self, int command) :
+        self.command_token += (command,)
 
     cpdef void destroy(self) :
         cdef DefenseToken token

@@ -157,15 +157,16 @@ cdef class Armada:
             # no hidden information
             actions = [('reveal_command_action', active_ship.command_stack[0])]
 
-        # elif phase == Phase.SHIP_GAIN_COMMAND_TOKEN :
-        #     for command in active_ship.command_dial:
-        #         if command not in active_ship.command_token:
-        #             actions.append(('gain_command_token_action', command))
-        #     actions.append(('pass_command_token', None))
-
-        # elif phase == Phase.SHIP_DISCARD_COMMAND_TOKEN :
-        #     for command in active_ship.command_token:
-        #         actions.append(('discard_command_token_action', command))
+        elif phase == Phase.SHIP_GAIN_COMMAND_TOKEN :
+            revealed = active_ship.command_dial[0]
+            if revealed not in active_ship.command_token :
+                if len(active_ship.command_token) < active_ship.command_value :
+                    actions.append(('gain_command_token_action', revealed))
+                else :
+                    for command in active_ship.command_token :
+                        if command != revealed :
+                            actions.append(('gain_and_discard_command_token_action', (revealed, command)))
+            actions.append(('pass_command_token', None))
 
 
         # Squad Command
@@ -454,41 +455,37 @@ cdef class Armada:
 
         elif action_type == 'reveal_command_action':
             command = action_data
-            active_ship.command_dial += (command,)
+            active_ship.gain_command_dial(command)
             active_ship.command_stack = active_ship.command_stack[1:]
             # simplified
             if command == Command.REPAIR :
                 active_ship.engineer_point = active_ship.engineer_value
-            # self.phase = Phase.SHIP_GAIN_COMMAND_TOKEN
-            self.phase = Phase.SHIP_USE_ENGINEER_POINT
+            self.phase = Phase.SHIP_GAIN_COMMAND_TOKEN
 
         elif action_type == 'gain_command_token_action':
-            raise NotImplementedError(f"simplified {action_type}")
             command = action_data
 
-            active_ship.spend_command_dial(command)
-            active_ship.command_token += (command,)
+            active_ship.discard_command_dial(command)
+            active_ship.gain_command_token(command)
+            self.phase = Phase.SHIP_USE_ENGINEER_POINT
 
-            if len(active_ship.command_token) > active_ship.command_value :
-                self.phase = Phase.SHIP_DISCARD_COMMAND_TOKEN
-            else :self.phase = Phase.SHIP_RESOLVE_SQUAD
+        elif action_type == 'gain_and_discard_command_token_action':
+            (gain_command, discard_command) = action_data
+
+            active_ship.discard_command_dial(gain_command)
+            active_ship.discard_command_token(discard_command)
+            active_ship.gain_command_token(gain_command)
+            self.phase = Phase.SHIP_USE_ENGINEER_POINT
 
         elif action_type == 'pass_command_token':
-            raise NotImplementedError(f"simplified {action_type}")
             _ = action_data
-            self.phase = Phase.SHIP_RESOLVE_SQUAD
-
-        elif action_type == 'discard_command_token_action':
-            raise NotImplementedError(f"simplified {action_type}")
-            command = action_data
-            active_ship.spend_command_token(command)
-            self.phase = Phase.SHIP_RESOLVE_SQUAD
+            self.phase = Phase.SHIP_USE_ENGINEER_POINT
 
         elif action_type == 'resolve_squad_command_action':
             raise NotImplementedError(f"simplified {action_type}")
             (dial, token) = action_data
-            if dial : active_ship.spend_command_dial(Command.SQUAD)
-            if token : active_ship.spend_command_token(Command.SQUAD)
+            if dial : active_ship.discard_command_dial(Command.SQUAD)
+            if token : active_ship.discard_command_token(Command.SQUAD)
             if dial or token :
                 active_ship.resolved_command += (Command.SQUAD,)
                 self.squad_activation_count = dial * active_ship.squad_value + token * 1
@@ -500,8 +497,8 @@ cdef class Armada:
         elif action_type == 'resolve_repair_command_action':
             raise NotImplementedError(f"simplified {action_type}")
             (dial, token) = action_data
-            if dial : active_ship.spend_command_dial(Command.REPAIR)
-            if token : active_ship.spend_command_token(Command.REPAIR)
+            if dial : active_ship.discard_command_dial(Command.REPAIR)
+            if token : active_ship.discard_command_token(Command.REPAIR)
             if dial or token :
                 active_ship.resolved_command += (Command.REPAIR,)
                 active_ship.engineer_point = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
@@ -598,15 +595,15 @@ cdef class Armada:
         elif action_type == 'resolve_con-fire_command_action':
             raise NotImplementedError(f"simplified {action_type}")
             (dial, token) = action_data
-            if dial : active_ship.spend_command_dial(Command.CONFIRE)
-            if token : active_ship.spend_command_token(Command.CONFIRE)
+            if dial : active_ship.discard_command_dial(Command.CONFIRE)
+            if token : active_ship.discard_command_token(Command.CONFIRE)
             active_ship.resolved_command += (Command.CONFIRE,)
             attack_info.con_fire_dial, attack_info.con_fire_token = dial, token
             attack_info.calculate_total_damage()
         
         elif action_type == 'use_confire_dial_action':
             # simplified
-            active_ship.spend_command_dial(Command.CONFIRE)
+            active_ship.discard_command_dial(Command.CONFIRE)
             active_ship.resolved_command += (Command.CONFIRE,)
 
             dice_to_add = action_data
@@ -806,9 +803,9 @@ cdef class Armada:
             (course, placement)= action_data
             dial, token = active_ship.nav_command_used(course)
             if dial:
-                active_ship.spend_command_dial(Command.NAV)
+                active_ship.discard_command_dial(Command.NAV)
             if token:
-                active_ship.spend_command_token(Command.NAV)
+                active_ship.discard_command_token(Command.NAV)
 
             active_ship.speed = len(course)
             active_ship.execute_maneuver(course, placement)

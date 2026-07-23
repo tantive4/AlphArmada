@@ -4,17 +4,17 @@
 {
     "distutils": {
         "depends": [
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayobject.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayscalars.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarrayobject.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayobject.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\arrayscalars.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarrayobject.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
         ],
         "extra_link_args": [
             "/MANIFEST:NO"
         ],
         "include_dirs": [
-            "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
+            "c:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
         ],
         "name": "obstacle",
         "sources": [
@@ -1395,7 +1395,7 @@ static const char* const __pyx_f[] = {
   ".venv/Lib/site-packages/numpy/__init__.cython-30.pxd",
   "armada_game/core/obstacle.pxd",
   "<stringsource>",
-  ".venv/Lib/site-packages/Cython/Includes/cpython/type.pxd",
+  "cpython/type.pxd",
   "armada_game/core/squad.pxd",
   "armada_game/core/ship.pxd",
   "armada_game/core/attack_info.pxd",
@@ -2090,8 +2090,10 @@ struct __pyx_vtabstruct_4ship_Ship {
   int (*is_standard_course)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_all_possible_courses)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   PyObject *(*get_valid_placement)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
-  void (*spend_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
-  void (*spend_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*discard_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*discard_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*gain_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
+  void (*gain_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   int (*check_overlap)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   void (*overlap_obstacle)(struct __pyx_obj_4ship_Ship *, struct __pyx_obj_8obstacle_Obstacle *, int __pyx_skip_dispatch);
 };
@@ -10433,7 +10435,7 @@ __Pyx_RefNannySetupContext("PyInit_obstacle", 0);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
   /*--- Execution code ---*/
-  __Pyx_TraceStartFunc("PyInit_obstacle", __pyx_f[0], 1, 0, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceStartFunc("PyInit_obstacle", __pyx_f[0], 1, 2, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
   /* "obstacle.pyx":1
  * import numpy as np             # <<<<<<<<<<<<<<
@@ -10586,7 +10588,7 @@ __Pyx_RefNannySetupContext("PyInit_obstacle", 0);
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 2, 0, __PYX_ERR(0, 1, __pyx_L1_error));
   __Pyx_PyMonitoring_ExitScope(0);
 
   /*--- Wrapped vars code ---*/
@@ -10596,7 +10598,7 @@ __Pyx_RefNannySetupContext("PyInit_obstacle", 0);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
-  __Pyx_TraceExceptionUnwind(0, 0);
+  __Pyx_TraceExceptionUnwind(2, 0);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init obstacle", __pyx_clineno, __pyx_lineno, __pyx_filename);

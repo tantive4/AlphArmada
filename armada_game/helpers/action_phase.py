@@ -17,8 +17,7 @@ class Phase(IntEnum):
 
     # Ship Phase -> Reveal Dial
     SHIP_REVEAL_COMMAND_DIAL = auto()
-    # SHIP_GAIN_COMMAND_TOKEN = auto()
-    # SHIP_DISCARD_COMMAND_TOKEN = auto()
+    SHIP_GAIN_COMMAND_TOKEN = auto()
     # SHIP_RESOLVE_SQUAD = auto()
     # SHIP_RESOLVE_REPAIR = auto()
     SHIP_USE_ENGINEER_POINT = auto()
@@ -59,10 +58,10 @@ ActionType: TypeAlias = (
     tuple[Literal['activate_ship_action'], int] | 
 
     # Reveal Command Step
-    tuple[Literal['gain_command_token_action'], Command] |
     tuple[Literal['reveal_command_action'], Command] |
-    tuple[Literal['discard_command_token_action'], Command] |
-    tuple[Literal['resolve_con-fire_command_action', 
+    tuple[Literal['gain_command_token_action'], Command] |
+    tuple[Literal['gain_and_discard_command_token_action'], tuple[Command, Command]] |
+    tuple[Literal['resolve_con-fire_command_action',
                   'resolve_nav_command_action', 
                   'resolve_repair_command_action', 
                   'resolve_squad_command_action'], tuple[bool, bool]] |
@@ -134,8 +133,8 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
         case 'gain_command_token_action', command :
             action_str = f'{game.active_ship} gains {Command(command)} Token'
 
-        case 'discard_command_token_action', command :
-            action_str = f'{game.active_ship} discards {Command(command)} Token'
+        case 'gain_and_discard_command_token_action', (gain_command, discard_command) :
+            action_str = f'{game.active_ship} discards {Command(discard_command)} Token to gain {Command(gain_command)} Token'
 
         case 'resolve_repair_command_action', (use_dial, use_token) :
             if use_dial or use_token :

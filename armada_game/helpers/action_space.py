@@ -49,12 +49,11 @@ def generate_all_maps():
                 # simplified
                 actions = [('reveal_command_action', command) for command in Command]
 
-            # case Phase.SHIP_GAIN_COMMAND_TOKEN :
-            #     actions = [('gain_command_token_action', command) for command in Command]
-            #     actions.append(('pass_command_token', None))
-                
-            # case Phase.SHIP_DISCARD_COMMAND_TOKEN :
-            #     actions = [('discard_command_token_action', command) for command in Command]
+            case Phase.SHIP_GAIN_COMMAND_TOKEN :
+                actions = [('gain_command_token_action', command) for command in Command]
+                actions.extend([('gain_and_discard_command_token_action', (gain, discard))
+                                 for gain in Command for discard in Command if gain != discard])
+                actions.append(('pass_command_token', None))
 
             # case Phase.SHIP_RESOLVE_SQUAD:
             #     actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]

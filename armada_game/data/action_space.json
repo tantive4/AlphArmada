@@ -120,6 +120,66 @@
       2
     ]
   ],
+  "SHIP_GAIN_COMMAND_TOKEN": [
+    [
+      "gain_command_token_action",
+      0
+    ],
+    [
+      "gain_command_token_action",
+      1
+    ],
+    [
+      "gain_command_token_action",
+      2
+    ],
+    [
+      "gain_and_discard_command_token_action",
+      [
+        0,
+        1
+      ]
+    ],
+    [
+      "gain_and_discard_command_token_action",
+      [
+        0,
+        2
+      ]
+    ],
+    [
+      "gain_and_discard_command_token_action",
+      [
+        1,
+        0
+      ]
+    ],
+    [
+      "gain_and_discard_command_token_action",
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      "gain_and_discard_command_token_action",
+      [
+        2,
+        0
+      ]
+    ],
+    [
+      "gain_and_discard_command_token_action",
+      [
+        2,
+        1
+      ]
+    ],
+    [
+      "pass_command_token",
+      null
+    ]
+  ],
   "SHIP_USE_ENGINEER_POINT": [
     [
       "repair_hull_action",
