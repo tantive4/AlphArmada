@@ -10,6 +10,9 @@
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
         ],
+        "extra_link_args": [
+            "/MANIFEST:NO"
+        ],
         "include_dirs": [
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
         ],
@@ -1394,6 +1397,7 @@ static const char* const __pyx_f[] = {
   "<stringsource>",
   ".venv/Lib/site-packages/Cython/Includes/cpython/type.pxd",
   "armada_game/core/squad.pxd",
+  "armada_game/core/attack_info.pxd",
   "armada_game/core/armada.pxd",
   "armada_game/core/obstacle.pxd",
   "armada_game/core/defense_token.pxd",
@@ -1859,6 +1863,7 @@ static CYTHON_INLINE __pyx_t_long_double_complex __pyx_t_long_double_complex_fro
 
 /*--- Type declarations ---*/
 struct __pyx_obj_5squad_Squad;
+struct __pyx_obj_11attack_info_AttackInfo;
 struct __pyx_obj_6armada_Armada;
 struct __pyx_obj_8obstacle_Obstacle;
 struct __pyx_obj_13defense_token_DefenseToken;
@@ -1920,8 +1925,43 @@ struct __pyx_obj_5squad_Squad {
 };
 
 
-/* "armada.pxd":5
+/* "attack_info.pxd":4
  * from squad cimport Squad
+ * 
+ * cdef class AttackInfo:             # <<<<<<<<<<<<<<
+ * 
+ *     # --- Declare ALL public C-level attributes ---
+*/
+struct __pyx_obj_11attack_info_AttackInfo {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_11attack_info_AttackInfo *__pyx_vtab;
+  int is_attacker_ship;
+  int is_defender_ship;
+  int obstructed;
+  int con_fire_dial;
+  int con_fire_token;
+  int bomber;
+  int swarm;
+  int attack_ship_id;
+  int attack_squad_id;
+  int defend_ship_id;
+  int defend_squad_id;
+  int total_damage;
+  PyObject *attack_hull;
+  PyObject *defend_hull;
+  PyObject *attack_range;
+  PyObject *dice_to_roll;
+  PyObject *squadron_target;
+  PyObject *phase;
+  PyObject *attack_pool_result;
+  PyObject *spent_token_indices;
+  PyObject *spent_token_types;
+  PyObject *critical;
+};
+
+
+/* "armada.pxd":6
+ * from attack_info cimport AttackInfo
  * 
  * cdef class Armada:             # <<<<<<<<<<<<<<
  *     cdef :
@@ -1941,17 +1981,17 @@ struct __pyx_obj_6armada_Armada {
   int squad_activation_count;
   int image_counter;
   int para_index;
+  int phase;
   float player_edge;
   float short_edge;
   float winner;
   PyObject *ships;
   PyObject *squads;
   PyObject *obstacles;
-  PyObject *phase;
-  PyObject *active_ship;
-  PyObject *defend_ship;
+  struct __pyx_obj_4ship_Ship *active_ship;
+  struct __pyx_obj_4ship_Ship *defend_ship;
   PyObject *active_squad;
-  PyObject *attack_info;
+  struct __pyx_obj_11attack_info_AttackInfo *attack_info;
   int debuging_visual;
   PyArrayObject *ship_static_encode_array;
 };
@@ -2186,8 +2226,25 @@ struct __pyx_vtabstruct_5squad_Squad {
 static struct __pyx_vtabstruct_5squad_Squad *__pyx_vtabptr_5squad_Squad;
 
 
-/* "armada.pxd":5
+/* "attack_info.pxd":4
  * from squad cimport Squad
+ * 
+ * cdef class AttackInfo:             # <<<<<<<<<<<<<<
+ * 
+ *     # --- Declare ALL public C-level attributes ---
+*/
+
+struct __pyx_vtabstruct_11attack_info_AttackInfo {
+  PyObject *(*get_snapshot)(struct __pyx_obj_11attack_info_AttackInfo *, int __pyx_skip_dispatch);
+  int (*calculate_total_damage)(struct __pyx_obj_11attack_info_AttackInfo *, int __pyx_skip_dispatch);
+  void (*declare_additional_squad_target)(struct __pyx_obj_11attack_info_AttackInfo *, PyObject *, struct __pyx_obj_5squad_Squad *, int __pyx_skip_dispatch);
+  void (*remove_dice)(struct __pyx_obj_11attack_info_AttackInfo *, PyObject *, int __pyx_skip_dispatch);
+};
+static struct __pyx_vtabstruct_11attack_info_AttackInfo *__pyx_vtabptr_11attack_info_AttackInfo;
+
+
+/* "armada.pxd":6
+ * from attack_info cimport AttackInfo
  * 
  * cdef class Armada:             # <<<<<<<<<<<<<<
  *     cdef :
@@ -2208,6 +2265,7 @@ struct __pyx_vtabstruct_6armada_Armada {
   PyObject *(*get_valid_ship_activation)(struct __pyx_obj_6armada_Armada *, int);
   PyObject *(*get_valid_squad_activation)(struct __pyx_obj_6armada_Armada *, int);
   void (*status_phase)(struct __pyx_obj_6armada_Armada *);
+  struct __pyx_obj_4ship_Ship *(*get_next_command_ship)(struct __pyx_obj_6armada_Armada *, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6armada_Armada *__pyx_vtabptr_6armada_Armada;
 
@@ -4445,6 +4503,8 @@ static PyObject *__pyx_f_4ship_4Ship_get_ship_hash_state(struct __pyx_obj_4ship_
 
 /* Module declarations from "squad" */
 
+/* Module declarations from "attack_info" */
+
 /* Module declarations from "armada" */
 
 /* Module declarations from "obstacle" */
@@ -4669,6 +4729,7 @@ typedef struct {
   PyTypeObject *__pyx_ptype_5numpy_character;
   PyTypeObject *__pyx_ptype_5numpy_ufunc;
   PyTypeObject *__pyx_ptype_5squad_Squad;
+  PyTypeObject *__pyx_ptype_11attack_info_AttackInfo;
   PyTypeObject *__pyx_ptype_6armada_Armada;
   PyTypeObject *__pyx_ptype_8obstacle_Obstacle;
   PyTypeObject *__pyx_ptype_13defense_token_DefenseToken;
@@ -5330,6 +5391,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_character);
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_ufunc);
   Py_CLEAR(clear_module_state->__pyx_ptype_5squad_Squad);
+  Py_CLEAR(clear_module_state->__pyx_ptype_11attack_info_AttackInfo);
   Py_CLEAR(clear_module_state->__pyx_ptype_6armada_Armada);
   Py_CLEAR(clear_module_state->__pyx_ptype_8obstacle_Obstacle);
   Py_CLEAR(clear_module_state->__pyx_ptype_13defense_token_DefenseToken);
@@ -5394,6 +5456,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_character);
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_ufunc);
   Py_VISIT(traverse_module_state->__pyx_ptype_5squad_Squad);
+  Py_VISIT(traverse_module_state->__pyx_ptype_11attack_info_AttackInfo);
   Py_VISIT(traverse_module_state->__pyx_ptype_6armada_Armada);
   Py_VISIT(traverse_module_state->__pyx_ptype_8obstacle_Obstacle);
   Py_VISIT(traverse_module_state->__pyx_ptype_13defense_token_DefenseToken);
@@ -12212,9 +12275,9 @@ static void __pyx_f_4ship_4Ship_end_activation(struct __pyx_obj_4ship_Ship *__py
 */
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
-  __Pyx_GOTREF(__pyx_v_self->game->active_ship);
-  __Pyx_DECREF(__pyx_v_self->game->active_ship);
-  __pyx_v_self->game->active_ship = Py_None;
+  __Pyx_GOTREF((PyObject *)__pyx_v_self->game->active_ship);
+  __Pyx_DECREF((PyObject *)__pyx_v_self->game->active_ship);
+  __pyx_v_self->game->active_ship = ((struct __pyx_obj_4ship_Ship *)Py_None);
 
   /* "ship.pyx":161
  *         self.activated = True
@@ -37747,7 +37810,20 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_5squad_Squad) __PYX_ERR(5, 3, __pyx_L1_error)
   __pyx_vtabptr_5squad_Squad = (struct __pyx_vtabstruct_5squad_Squad*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_5squad_Squad); if (unlikely(!__pyx_vtabptr_5squad_Squad)) __PYX_ERR(5, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("armada"); if (unlikely(!__pyx_t_1)) __PYX_ERR(6, 5, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("attack_info"); if (unlikely(!__pyx_t_1)) __PYX_ERR(6, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_mstate->__pyx_ptype_11attack_info_AttackInfo = __Pyx_ImportType_3_2_4(__pyx_t_1, "attack_info", "AttackInfo",
+  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
+  sizeof(struct __pyx_obj_11attack_info_AttackInfo), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_11attack_info_AttackInfo),
+  #elif CYTHON_COMPILING_IN_LIMITED_API
+  sizeof(struct __pyx_obj_11attack_info_AttackInfo), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_11attack_info_AttackInfo),
+  #else
+  sizeof(struct __pyx_obj_11attack_info_AttackInfo), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_11attack_info_AttackInfo),
+  #endif
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_11attack_info_AttackInfo) __PYX_ERR(6, 4, __pyx_L1_error)
+  __pyx_vtabptr_11attack_info_AttackInfo = (struct __pyx_vtabstruct_11attack_info_AttackInfo*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_11attack_info_AttackInfo); if (unlikely(!__pyx_vtabptr_11attack_info_AttackInfo)) __PYX_ERR(6, 4, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyImport_ImportModule("armada"); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_6armada_Armada = __Pyx_ImportType_3_2_4(__pyx_t_1, "armada", "Armada",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -37757,10 +37833,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_6armada_Armada) __PYX_ERR(6, 5, __pyx_L1_error)
-  __pyx_vtabptr_6armada_Armada = (struct __pyx_vtabstruct_6armada_Armada*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_6armada_Armada); if (unlikely(!__pyx_vtabptr_6armada_Armada)) __PYX_ERR(6, 5, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_6armada_Armada) __PYX_ERR(7, 6, __pyx_L1_error)
+  __pyx_vtabptr_6armada_Armada = (struct __pyx_vtabstruct_6armada_Armada*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_6armada_Armada); if (unlikely(!__pyx_vtabptr_6armada_Armada)) __PYX_ERR(7, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("obstacle"); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 3, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("obstacle"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8obstacle_Obstacle = __Pyx_ImportType_3_2_4(__pyx_t_1, "obstacle", "Obstacle",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -37770,10 +37846,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8obstacle_Obstacle), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8obstacle_Obstacle),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8obstacle_Obstacle) __PYX_ERR(7, 3, __pyx_L1_error)
-  __pyx_vtabptr_8obstacle_Obstacle = (struct __pyx_vtabstruct_8obstacle_Obstacle*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8obstacle_Obstacle); if (unlikely(!__pyx_vtabptr_8obstacle_Obstacle)) __PYX_ERR(7, 3, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8obstacle_Obstacle) __PYX_ERR(8, 3, __pyx_L1_error)
+  __pyx_vtabptr_8obstacle_Obstacle = (struct __pyx_vtabstruct_8obstacle_Obstacle*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8obstacle_Obstacle); if (unlikely(!__pyx_vtabptr_8obstacle_Obstacle)) __PYX_ERR(8, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("defense_token"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 1, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("defense_token"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_13defense_token_DefenseToken = __Pyx_ImportType_3_2_4(__pyx_t_1, "defense_token", "DefenseToken",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -37783,8 +37859,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_13defense_token_DefenseToken), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_13defense_token_DefenseToken),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_13defense_token_DefenseToken) __PYX_ERR(8, 1, __pyx_L1_error)
-  __pyx_vtabptr_13defense_token_DefenseToken = (struct __pyx_vtabstruct_13defense_token_DefenseToken*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_13defense_token_DefenseToken); if (unlikely(!__pyx_vtabptr_13defense_token_DefenseToken)) __PYX_ERR(8, 1, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_13defense_token_DefenseToken) __PYX_ERR(9, 1, __pyx_L1_error)
+  __pyx_vtabptr_13defense_token_DefenseToken = (struct __pyx_vtabstruct_13defense_token_DefenseToken*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_13defense_token_DefenseToken); if (unlikely(!__pyx_vtabptr_13defense_token_DefenseToken)) __PYX_ERR(9, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;

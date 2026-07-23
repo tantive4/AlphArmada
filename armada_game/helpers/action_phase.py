@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 class Phase(IntEnum):
     # === COMMAND PHASE ===
-    # COMMAND_PHASE = 0
+    COMMAND_PHASE = 0
 
     # === SHIP PHASE ===
-    SHIP_ACTIVATE = 0 
+    SHIP_ACTIVATE = auto()
 
     # Ship Phase -> Reveal Dial
     SHIP_REVEAL_COMMAND_DIAL = auto()
@@ -53,7 +53,7 @@ phase_type = len(Phase)
 POINTER_PHASE = (Phase.SHIP_ACTIVATE, Phase.SHIP_CHOOSE_TARGET_SHIP)
 
 ActionType: TypeAlias = (
-    tuple[Literal['set_command_action'], tuple[int, Command]] |
+    tuple[Literal['assign_command_action'], tuple[Command, int]] |
 
     # === Ship Phase ===
     tuple[Literal['activate_ship_action'], int] | 
@@ -121,8 +121,8 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
     action_str = None
 
     match action:
-        case 'set_command_action', (ship_id, command) :
-            action_str = f'Set {Command(command)} Command on {game.ships[ship_id]}'
+        case 'assign_command_action', (command, round) :
+            action_str = f'{game.active_ship} assigns {Command(command)} Command (dial #{round})'
 
         case 'activate_ship_action', ship_id:
             action_str = f'Activate Ship: {game.ships[ship_id]}'

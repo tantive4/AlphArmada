@@ -10,6 +10,9 @@
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
         ],
+        "extra_link_args": [
+            "/MANIFEST:NO"
+        ],
         "include_dirs": [
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
         ],
@@ -1398,8 +1401,8 @@ static const char* const __pyx_f[] = {
   "armada_game/core/squad.pxd",
   "armada_game/core/obstacle.pxd",
   "armada_game/core/ship.pxd",
-  "armada_game/core/armada.pxd",
   "armada_game/core/attack_info.pxd",
+  "armada_game/core/armada.pxd",
 };
 /* #### Code section: utility_code_proto_before_types ### */
 /* Atomics.proto (used by UnpackUnboundCMethod) */
@@ -1896,8 +1899,8 @@ struct __pyx_obj_14action_manager_ActionManager;
 struct __pyx_obj_5squad_Squad;
 struct __pyx_obj_8obstacle_Obstacle;
 struct __pyx_obj_4ship_Ship;
-struct __pyx_obj_6armada_Armada;
 struct __pyx_obj_11attack_info_AttackInfo;
+struct __pyx_obj_6armada_Armada;
 struct __pyx_obj_11shared_mcts_Node;
 struct __pyx_obj_11shared_mcts_MCTS;
 struct __pyx_array_obj;
@@ -2058,43 +2061,6 @@ struct __pyx_obj_4ship_Ship {
 };
 
 
-/* "armada.pxd":5
- * from squad cimport Squad
- * 
- * cdef class Armada:             # <<<<<<<<<<<<<<
- *     cdef :
- *         public int first_player, second_player, current_player, decision_player, simulation_player, first_faction, second_faction
-*/
-struct __pyx_obj_6armada_Armada {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_6armada_Armada *__pyx_vtab;
-  int first_player;
-  int second_player;
-  int current_player;
-  int decision_player;
-  int simulation_player;
-  int first_faction;
-  int second_faction;
-  int round;
-  int squad_activation_count;
-  int image_counter;
-  int para_index;
-  float player_edge;
-  float short_edge;
-  float winner;
-  PyObject *ships;
-  PyObject *squads;
-  PyObject *obstacles;
-  PyObject *phase;
-  PyObject *active_ship;
-  PyObject *defend_ship;
-  PyObject *active_squad;
-  PyObject *attack_info;
-  int debuging_visual;
-  PyArrayObject *ship_static_encode_array;
-};
-
-
 /* "attack_info.pxd":4
  * from squad cimport Squad
  * 
@@ -2127,6 +2093,43 @@ struct __pyx_obj_11attack_info_AttackInfo {
   PyObject *spent_token_indices;
   PyObject *spent_token_types;
   PyObject *critical;
+};
+
+
+/* "armada.pxd":6
+ * from attack_info cimport AttackInfo
+ * 
+ * cdef class Armada:             # <<<<<<<<<<<<<<
+ *     cdef :
+ *         public int first_player, second_player, current_player, decision_player, simulation_player, first_faction, second_faction
+*/
+struct __pyx_obj_6armada_Armada {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_6armada_Armada *__pyx_vtab;
+  int first_player;
+  int second_player;
+  int current_player;
+  int decision_player;
+  int simulation_player;
+  int first_faction;
+  int second_faction;
+  int round;
+  int squad_activation_count;
+  int image_counter;
+  int para_index;
+  int phase;
+  float player_edge;
+  float short_edge;
+  float winner;
+  PyObject *ships;
+  PyObject *squads;
+  PyObject *obstacles;
+  struct __pyx_obj_4ship_Ship *active_ship;
+  struct __pyx_obj_4ship_Ship *defend_ship;
+  PyObject *active_squad;
+  struct __pyx_obj_11attack_info_AttackInfo *attack_info;
+  int debuging_visual;
+  PyArrayObject *ship_static_encode_array;
 };
 
 
@@ -2370,8 +2373,25 @@ struct __pyx_vtabstruct_4ship_Ship {
 static struct __pyx_vtabstruct_4ship_Ship *__pyx_vtabptr_4ship_Ship;
 
 
-/* "armada.pxd":5
+/* "attack_info.pxd":4
  * from squad cimport Squad
+ * 
+ * cdef class AttackInfo:             # <<<<<<<<<<<<<<
+ * 
+ *     # --- Declare ALL public C-level attributes ---
+*/
+
+struct __pyx_vtabstruct_11attack_info_AttackInfo {
+  PyObject *(*get_snapshot)(struct __pyx_obj_11attack_info_AttackInfo *, int __pyx_skip_dispatch);
+  int (*calculate_total_damage)(struct __pyx_obj_11attack_info_AttackInfo *, int __pyx_skip_dispatch);
+  void (*declare_additional_squad_target)(struct __pyx_obj_11attack_info_AttackInfo *, PyObject *, struct __pyx_obj_5squad_Squad *, int __pyx_skip_dispatch);
+  void (*remove_dice)(struct __pyx_obj_11attack_info_AttackInfo *, PyObject *, int __pyx_skip_dispatch);
+};
+static struct __pyx_vtabstruct_11attack_info_AttackInfo *__pyx_vtabptr_11attack_info_AttackInfo;
+
+
+/* "armada.pxd":6
+ * from attack_info cimport AttackInfo
  * 
  * cdef class Armada:             # <<<<<<<<<<<<<<
  *     cdef :
@@ -2392,25 +2412,9 @@ struct __pyx_vtabstruct_6armada_Armada {
   PyObject *(*get_valid_ship_activation)(struct __pyx_obj_6armada_Armada *, int);
   PyObject *(*get_valid_squad_activation)(struct __pyx_obj_6armada_Armada *, int);
   void (*status_phase)(struct __pyx_obj_6armada_Armada *);
+  struct __pyx_obj_4ship_Ship *(*get_next_command_ship)(struct __pyx_obj_6armada_Armada *, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6armada_Armada *__pyx_vtabptr_6armada_Armada;
-
-
-/* "attack_info.pxd":4
- * from squad cimport Squad
- * 
- * cdef class AttackInfo:             # <<<<<<<<<<<<<<
- * 
- *     # --- Declare ALL public C-level attributes ---
-*/
-
-struct __pyx_vtabstruct_11attack_info_AttackInfo {
-  PyObject *(*get_snapshot)(struct __pyx_obj_11attack_info_AttackInfo *, int __pyx_skip_dispatch);
-  int (*calculate_total_damage)(struct __pyx_obj_11attack_info_AttackInfo *, int __pyx_skip_dispatch);
-  void (*declare_additional_squad_target)(struct __pyx_obj_11attack_info_AttackInfo *, PyObject *, struct __pyx_obj_5squad_Squad *, int __pyx_skip_dispatch);
-  void (*remove_dice)(struct __pyx_obj_11attack_info_AttackInfo *, PyObject *, int __pyx_skip_dispatch);
-};
-static struct __pyx_vtabstruct_11attack_info_AttackInfo *__pyx_vtabptr_11attack_info_AttackInfo;
 
 
 /* "shared_mcts.pyx":25
@@ -4567,12 +4571,12 @@ static PyArrayObject *__pyx_f_11shared_mcts_4MCTS__get_final_action_probs(struct
 
 /* Module declarations from "ship" */
 
+/* Module declarations from "attack_info" */
+
 /* Module declarations from "armada" */
 
 /* Module declarations from "game_encoder" */
 static PyObject *(*__pyx_f_12game_encoder_encode_game_state)(struct __pyx_obj_6armada_Armada *, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, int __pyx_skip_dispatch); /*proto*/
-
-/* Module declarations from "attack_info" */
 
 /* Module declarations from "shared_mcts" */
 static int __pyx_v_11shared_mcts_max_ships;
@@ -4790,8 +4794,8 @@ typedef struct {
   PyTypeObject *__pyx_ptype_5squad_Squad;
   PyTypeObject *__pyx_ptype_8obstacle_Obstacle;
   PyTypeObject *__pyx_ptype_4ship_Ship;
-  PyTypeObject *__pyx_ptype_6armada_Armada;
   PyTypeObject *__pyx_ptype_11attack_info_AttackInfo;
+  PyTypeObject *__pyx_ptype_6armada_Armada;
   PyObject *__pyx_type_11shared_mcts_Node;
   PyObject *__pyx_type_11shared_mcts_MCTS;
   PyObject *__pyx_type___pyx_array;
@@ -5250,8 +5254,8 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_ptype_5squad_Squad);
   Py_CLEAR(clear_module_state->__pyx_ptype_8obstacle_Obstacle);
   Py_CLEAR(clear_module_state->__pyx_ptype_4ship_Ship);
-  Py_CLEAR(clear_module_state->__pyx_ptype_6armada_Armada);
   Py_CLEAR(clear_module_state->__pyx_ptype_11attack_info_AttackInfo);
+  Py_CLEAR(clear_module_state->__pyx_ptype_6armada_Armada);
   Py_CLEAR(clear_module_state->__pyx_ptype_11shared_mcts_Node);
   Py_CLEAR(clear_module_state->__pyx_type_11shared_mcts_Node);
   Py_CLEAR(clear_module_state->__pyx_ptype_11shared_mcts_MCTS);
@@ -5311,8 +5315,8 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_ptype_5squad_Squad);
   Py_VISIT(traverse_module_state->__pyx_ptype_8obstacle_Obstacle);
   Py_VISIT(traverse_module_state->__pyx_ptype_4ship_Ship);
-  Py_VISIT(traverse_module_state->__pyx_ptype_6armada_Armada);
   Py_VISIT(traverse_module_state->__pyx_ptype_11attack_info_AttackInfo);
+  Py_VISIT(traverse_module_state->__pyx_ptype_6armada_Armada);
   Py_VISIT(traverse_module_state->__pyx_ptype_11shared_mcts_Node);
   Py_VISIT(traverse_module_state->__pyx_type_11shared_mcts_Node);
   Py_VISIT(traverse_module_state->__pyx_ptype_11shared_mcts_MCTS);
@@ -21085,7 +21089,8 @@ static int __pyx_pf_11shared_mcts_4Node___init__(struct __pyx_obj_11shared_mcts_
   PyObject *__pyx_t_1 = NULL;
   int __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
-  int __pyx_t_4;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -21126,16 +21131,19 @@ static int __pyx_pf_11shared_mcts_4Node___init__(struct __pyx_obj_11shared_mcts_
  *         # simplified
  *         # self.information_set = <bint>(game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL)
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_Phase); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_game->phase); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_ATTACK_ROLL_DICE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_Phase); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_game->phase, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ATTACK_ROLL_DICE); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_self->chance_node = __pyx_t_4;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_v_self->chance_node = __pyx_t_5;
 
   /* "shared_mcts.pyx":60
  *         # simplified
@@ -21153,14 +21161,14 @@ static int __pyx_pf_11shared_mcts_4Node___init__(struct __pyx_obj_11shared_mcts_
  *         self.children = []
  *         self.wins = 0
 */
-  __pyx_t_1 = __pyx_v_action;
-  __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(PyTuple_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_1))) __PYX_ERR(0, 62, __pyx_L1_error)
-  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_t_3 = __pyx_v_action;
+  __Pyx_INCREF(__pyx_t_3);
+  if (!(likely(PyTuple_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_3))) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->action);
   __Pyx_DECREF(__pyx_v_self->action);
-  __pyx_v_self->action = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
+  __pyx_v_self->action = ((PyObject*)__pyx_t_3);
+  __pyx_t_3 = 0;
 
   /* "shared_mcts.pyx":63
  * 
@@ -21169,13 +21177,13 @@ static int __pyx_pf_11shared_mcts_4Node___init__(struct __pyx_obj_11shared_mcts_
  *         self.wins = 0
  *         self.visits = 0
 */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->children);
   __Pyx_DECREF(__pyx_v_self->children);
-  __pyx_v_self->children = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
+  __pyx_v_self->children = ((PyObject*)__pyx_t_3);
+  __pyx_t_3 = 0;
 
   /* "shared_mcts.pyx":64
  *         self.action = action
@@ -21247,6 +21255,7 @@ static int __pyx_pf_11shared_mcts_4Node___init__(struct __pyx_obj_11shared_mcts_
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
@@ -26300,8 +26309,7 @@ static PyArrayObject *__pyx_f_11shared_mcts_4MCTS_shared_search(struct __pyx_obj
  * 
  *                     self._expand(node, para_index, <int>game.phase, valid_actions, value, policy_arr)
 */
-        __pyx_t_20 = __Pyx_PyLong_As_int(__pyx_v_game->phase); if (unlikely((__pyx_t_20 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
-        __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_11shared_mcts_MCTS *)__pyx_v_self->__pyx_vtab)->_mask_policy(__pyx_v_self, ((PyArrayObject *)__pyx_v_policy_arr), ((int)__pyx_t_20), __pyx_v_valid_actions)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
+        __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_11shared_mcts_MCTS *)__pyx_v_self->__pyx_vtab)->_mask_policy(__pyx_v_self, ((PyArrayObject *)__pyx_v_policy_arr), ((int)__pyx_v_game->phase), __pyx_v_valid_actions)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         {
           __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -26330,8 +26338,7 @@ static PyArrayObject *__pyx_f_11shared_mcts_4MCTS_shared_search(struct __pyx_obj
  * 
  *                     # 3. Backpropagation (Updated for -1 to 1 scoring)
 */
-        __pyx_t_20 = __Pyx_PyLong_As_int(__pyx_v_game->phase); if (unlikely((__pyx_t_20 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 247, __pyx_L1_error)
-        ((struct __pyx_vtabstruct_11shared_mcts_MCTS *)__pyx_v_self->__pyx_vtab)->_expand(__pyx_v_self, __pyx_v_node, __pyx_v_para_index, ((int)__pyx_t_20), __pyx_v_valid_actions, __pyx_v_value, ((PyArrayObject *)__pyx_v_policy_arr)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 247, __pyx_L1_error)
+        ((struct __pyx_vtabstruct_11shared_mcts_MCTS *)__pyx_v_self->__pyx_vtab)->_expand(__pyx_v_self, __pyx_v_node, __pyx_v_para_index, ((int)__pyx_v_game->phase), __pyx_v_valid_actions, __pyx_v_value, ((PyArrayObject *)__pyx_v_policy_arr)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 247, __pyx_L1_error)
 
         /* "shared_mcts.pyx":250
  * 
@@ -27592,9 +27599,8 @@ static PyObject *__pyx_f_11shared_mcts_4MCTS__select(struct __pyx_obj_11shared_m
  *                     raise ValueError("Invalid game for chance node: missing attack/defend info.")
  *                 dice_roll = dice.roll_dice(attack_info.dice_to_roll)
 */
-      __pyx_t_1 = __pyx_v_game->attack_info;
+      __pyx_t_1 = ((PyObject *)__pyx_v_game->attack_info);
       __Pyx_INCREF(__pyx_t_1);
-      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_11attack_info_AttackInfo))))) __PYX_ERR(0, 320, __pyx_L1_error)
       __Pyx_INCREF(__pyx_t_1);
       __Pyx_XDECREF_SET(__pyx_v_attack_info, ((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_t_1));
       __pyx_t_6 = (((PyObject *)__pyx_t_1) == Py_None);
@@ -35356,20 +35362,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_4ship_Ship) __PYX_ERR(7, 6, __pyx_L1_error)
   __pyx_vtabptr_4ship_Ship = (struct __pyx_vtabstruct_4ship_Ship*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_4ship_Ship); if (unlikely(!__pyx_vtabptr_4ship_Ship)) __PYX_ERR(7, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("armada"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 5, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_mstate->__pyx_ptype_6armada_Armada = __Pyx_ImportType_3_2_4(__pyx_t_1, "armada", "Armada",
-  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
-  #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
-  #else
-  sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
-  #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_6armada_Armada) __PYX_ERR(8, 5, __pyx_L1_error)
-  __pyx_vtabptr_6armada_Armada = (struct __pyx_vtabstruct_6armada_Armada*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_6armada_Armada); if (unlikely(!__pyx_vtabptr_6armada_Armada)) __PYX_ERR(8, 5, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("attack_info"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 4, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("attack_info"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_11attack_info_AttackInfo = __Pyx_ImportType_3_2_4(__pyx_t_1, "attack_info", "AttackInfo",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -35379,8 +35372,21 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_11attack_info_AttackInfo), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_11attack_info_AttackInfo),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_11attack_info_AttackInfo) __PYX_ERR(9, 4, __pyx_L1_error)
-  __pyx_vtabptr_11attack_info_AttackInfo = (struct __pyx_vtabstruct_11attack_info_AttackInfo*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_11attack_info_AttackInfo); if (unlikely(!__pyx_vtabptr_11attack_info_AttackInfo)) __PYX_ERR(9, 4, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_11attack_info_AttackInfo) __PYX_ERR(8, 4, __pyx_L1_error)
+  __pyx_vtabptr_11attack_info_AttackInfo = (struct __pyx_vtabstruct_11attack_info_AttackInfo*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_11attack_info_AttackInfo); if (unlikely(!__pyx_vtabptr_11attack_info_AttackInfo)) __PYX_ERR(8, 4, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyImport_ImportModule("armada"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 6, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_mstate->__pyx_ptype_6armada_Armada = __Pyx_ImportType_3_2_4(__pyx_t_1, "armada", "Armada",
+  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
+  sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
+  #elif CYTHON_COMPILING_IN_LIMITED_API
+  sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
+  #else
+  sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
+  #endif
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_6armada_Armada) __PYX_ERR(9, 6, __pyx_L1_error)
+  __pyx_vtabptr_6armada_Armada = (struct __pyx_vtabstruct_6armada_Armada*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_6armada_Armada); if (unlikely(!__pyx_vtabptr_6armada_Armada)) __PYX_ERR(9, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -35710,7 +35716,7 @@ __Pyx_RefNannySetupContext("PyInit_shared_mcts", 0);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   if (unlikely((__Pyx_modinit_function_import_code(__pyx_mstate) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
   /*--- Execution code ---*/
-  __Pyx_TraceStartFunc("PyInit_shared_mcts", __pyx_f[0], 1, 3, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceStartFunc("PyInit_shared_mcts", __pyx_f[0], 1, 0, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
   /* "View.MemoryView":100
  * 
@@ -36588,7 +36594,7 @@ __Pyx_RefNannySetupContext("PyInit_shared_mcts", 0);
   __Pyx_GOTREF(__pyx_t_5);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_5) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_TraceReturnValue(Py_None, 3, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
   __Pyx_PyMonitoring_ExitScope(0);
 
   /*--- Wrapped vars code ---*/
@@ -36598,7 +36604,7 @@ __Pyx_RefNannySetupContext("PyInit_shared_mcts", 0);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
-  __Pyx_TraceExceptionUnwind(3, 0);
+  __Pyx_TraceExceptionUnwind(0, 0);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init shared_mcts", __pyx_clineno, __pyx_lineno, __pyx_filename);

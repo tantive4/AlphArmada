@@ -39,7 +39,7 @@ cdef class Armada:
         self.first_faction = faction[0].value
         self.second_faction = faction[1].value
 
-        self.phase : Phase = Phase.SHIP_ACTIVATE    
+        self.phase : Phase = Phase.COMMAND_PHASE
         self.current_player : int = self.first_player
         self.decision_player : int = self.first_player
         self.active_ship : Ship | None = None
@@ -87,7 +87,7 @@ cdef class Armada:
 
             simulation_counter += 1
             if simulation_counter >= max_simulation_step:
-                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}\n{self.phase}\n{self.get_snapshot()}')
+                raise RuntimeError(f'Maximum simulation steps reached: {max_simulation_step}\n{Phase(self.phase)}\n{self.get_snapshot()}')
         return self.winner
 
     def random_decision(self) -> ActionType:
@@ -143,27 +143,19 @@ cdef class Armada:
         if self.active_squad is not None : active_squad = self.active_squad
         if self.attack_info is not None : attack_info = self.attack_info
 
-        # if phase == Phase.COMMAND_PHASE :
-        #     for ship in self.ships:
-        #         if ship.team == self.current_player and len(ship.command_stack) < ship.command_value :
-        #             for command in COMMANDS :
-        #                 actions.append(('set_command_action', (ship.id, command)))
-        
-        if phase == Phase.SHIP_ACTIVATE :
+        if phase == Phase.COMMAND_PHASE :
+            # assign command to 'active_ship' (fixed ordering), no ship pointer
+            for command in COMMANDS :
+                actions.append(('assign_command_action', (command, len(active_ship.command_stack) + 1)))
+
+        elif phase == Phase.SHIP_ACTIVATE :
             for ship in self.get_valid_ship_activation(self.current_player) :
                 actions.append(('activate_ship_action', ship.id))
         
         # Reveal Command Sequence
         elif phase == Phase.SHIP_REVEAL_COMMAND_DIAL :
-            for command in COMMANDS:
-                actions.append(('reveal_command_action', command))
-
-            # simplified
-            # if active_ship.team == self.simulation_player or self.simulation_player == 0 :  # player's simulation
-            #     actions = [('reveal_command_action', active_ship.command_stack[0])]
-            # else : 
-            #     for command in COMMANDS:                                                      # secret information
-            #         actions.append(('reveal_command_action', command))
+            # no hidden information
+            actions = [('reveal_command_action', active_ship.command_stack[0])]
 
         # elif phase == Phase.SHIP_GAIN_COMMAND_TOKEN :
         #     for command in active_ship.command_dial:
@@ -415,7 +407,7 @@ cdef class Armada:
         Applies the given action to the game state.
         """
         cdef:
-            Ship active_ship, command_ship, attack_ship, defend_ship, ship
+            Ship active_ship, command_ship, attack_ship, defend_ship, ship, next_ship, other_ship
             Squad active_squad, defend_squad, squad
             AttackInfo attack_info
             DefenseToken defense_token
@@ -435,26 +427,20 @@ cdef class Armada:
         action_type = action[0]
         action_data = action[1]
 
-        if action_type == 'set_command_action':
-            raise NotImplementedError(f"simplified {action_type}")
-            (ship_id, command) = action_data
-            command_ship = self.ships[ship_id]
-            command_ship.command_stack += (command,)
+        if action_type == 'assign_command_action':
+            (command, round) = action_data
+            active_ship.asign_command(command)
 
-            needs_commands = False
-            for ship in self.ships:
-                    if ship.team == self.current_player and len(ship.command_stack) < ship.command_value:
-                        needs_commands = True
-                        break 
-
-            if needs_commands:
-                self.phase = Phase.COMMAND_PHASE
+            next_ship = self.get_next_command_ship(self.current_player)
+            if next_ship is not None:
+                self.active_ship = next_ship
             else:
-                # No ships needed commands, so move to the next player or phase
-                if self.current_player == self.first_player: 
+                other_ship = self.get_next_command_ship(-self.current_player)
+                if other_ship is not None:
                     self.current_player *= -1
-                    self.phase = Phase.COMMAND_PHASE  # Set phase for the *other* player
+                    self.active_ship = other_ship
                 else:
+                    self.active_ship = None
                     self.current_player = self.first_player
                     self.phase = Phase.SHIP_ACTIVATE
 
@@ -469,10 +455,10 @@ cdef class Armada:
         elif action_type == 'reveal_command_action':
             command = action_data
             active_ship.command_dial += (command,)
+            active_ship.command_stack = active_ship.command_stack[1:]
             # simplified
             if command == Command.REPAIR :
                 active_ship.engineer_point = active_ship.engineer_value
-            # active_ship.command_stack = active_ship.command_stack[1:]
             # self.phase = Phase.SHIP_GAIN_COMMAND_TOKEN
             self.phase = Phase.SHIP_USE_ENGINEER_POINT
 
@@ -1019,12 +1005,13 @@ cdef class Armada:
             if self.active_ship is None : raise ValueError('Need active ship to perform maneuver')
             maneuver_tool, _ = self.active_ship._tool_coordination(course, placement)
         turn = 'First' if self.current_player == self.first_player else 'Second'
-        self.visualize(f"Round {self.round} | {self.phase.name.replace('_',' ').title()} | {turn} Player\n{action_str}", maneuver_tool)
+        self.visualize(f"Round {self.round} | {Phase(self.phase).name.replace('_',' ').title()} | {turn} Player\n{action_str}", maneuver_tool)
 
     cpdef void deploy_ship(self, Ship ship, float x, float y, float orientation, int speed) :
         self.ships.append(ship)
         ship.deploy(self, x, y, orientation, speed, len(self.ships) - 1)
         self.visualize(f'\n{ship.name} is deployed.')
+        self.active_ship = self.get_next_command_ship(self.current_player)
 
         ship_view = self.ship_static_encode_array[ship.id]
 
@@ -1142,6 +1129,25 @@ cdef class Armada:
                 valid_ships.append(ship)
         return valid_ships
 
+    cpdef Ship get_next_command_ship(self, int player) :
+        """
+        Returns the ship of `player` that still needs a command dial assigned
+        this round (len(command_stack) < command_value), preferring highest
+        point cost, then highest current hull, then lowest ship id. None if
+        every ship of `player` already has a full command stack.
+        """
+        cdef:
+            Ship ship
+            Ship best = None
+        for ship in self.ships:
+            if ship.team != player or ship.destroyed:
+                continue
+            if len(ship.command_stack) >= ship.command_value:
+                continue
+            if best is None or (ship.point, ship.hull, -ship.id) > (best.point, best.hull, -best.id):
+                best = ship
+        return best
+
     cdef list get_valid_squad_activation(self, int player) :
         """
         Returns a list of squadrons that can be activated by the given player.
@@ -1197,7 +1203,8 @@ cdef class Armada:
         else:
             self.round += 1
             self.current_player = self.first_player
-            self.phase = Phase.SHIP_ACTIVATE
+            self.active_ship = self.get_next_command_ship(self.first_player)
+            self.phase = Phase.COMMAND_PHASE
 
     cpdef int get_point(self, int player) :
         cdef Ship ship

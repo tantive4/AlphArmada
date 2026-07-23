@@ -40,10 +40,9 @@ AlphArmada models a ship-focused version of Armada:
   speed.
 
 The current training setup intentionally simplifies parts of the full tabletop
-game. Squadrons are disabled (`MAX_SQUADS = 0`), command stacks are disabled
-(`MAX_COMMAND_STACK = 0`), and randomized setup currently places no obstacles,
-although squadron, obstacle, and fuller command logic remains present in the
-codebase.
+game. Squadrons are disabled (`MAX_SQUADS = 0`), and randomized setup currently
+places no obstacles, although squadron, obstacle, and command-token-based
+command resolution remain present in the codebase but unimplemented/stubbed.
 
 ## Model Structure
 

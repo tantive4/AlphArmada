@@ -13,11 +13,15 @@ breadth. This file focuses on the parts that aren't obvious from either: the
 cross-file contract you must maintain when touching the game's phase/action-space
 machinery, since that's where the sharp edges are.
 
-Squadrons, command stacks, and obstacles are present in the code but disabled in the
-active config (`Config.MAX_SQUADS = 0`, `MAX_COMMAND_STACK = 0`). Many of their
-handlers in `armada.pyx` are stubbed with `raise NotImplementedError(f"simplified ...")`
-guarding otherwise-dead code — see the Cython gotcha below before touching anything
-near those.
+Squadrons and obstacles are present in the code but disabled in the active config
+(`Config.MAX_SQUADS = 0`). Many of their handlers in `armada.pyx` are stubbed with
+`raise NotImplementedError(f"simplified ...")` guarding otherwise-dead code — see the
+Cython gotcha below before touching anything near those. Command stacks
+(`Config.MAX_COMMAND_STACK = 3`) are live: ships assign a command dial per round in
+`COMMAND_PHASE` (FIFO queue sized to `command_value`, fixed assignment order —
+highest point cost first, tie-break by hull then id) and reveal the top of the stack
+at the start of their own activation. Using command tokens to resolve command
+effects (spend a token instead of/alongside the dial) is still stubbed out.
 
 ## Commands
 
@@ -46,14 +50,67 @@ python trainer.py
 There is no formal test suite (the scripts under `evaluation/debug/` are stale
 one-off helpers, not tests — see `STRUCTURE.md`'s Active File Guide for which ones).
 The de facto verification method for a rules/action change is a scripted random
-rollout: build a game with `armada_game.helpers.setup_game.setup_game()`, then loop
-`get_valid_actions()` → pick one (random, or filtered to the branch you're testing) →
-`apply_action()`, handling `Phase.ATTACK_ROLL_DICE` specially by calling
-`armada_game.helpers.dice.roll_dice()` directly (it's a chance node, not a player
-action). Run it over 50-150 fresh random games with assertions on the specific new
-action's legality/effects — this catches phase-transition bugs and illegal-action
-crashes cheaply, in seconds, without needing MCTS or the model at all. Both must be
-run with the repo root on `PYTHONPATH` if invoked from outside the repo directory.
+rollout, run with the repo root on `PYTHONPATH` (`$env:PYTHONPATH = "<repo root>"` on
+Windows) since it isn't a package script itself:
+
+```python
+import random
+from armada_game.helpers.setup_game import setup_game
+from armada_game.helpers.action_phase import Phase
+from armada_game.helpers.dice import roll_dice
+
+N_GAMES = 100
+counters = {"my_new_phase_visits": 0, "branch_a_chosen": 0, "branch_b_chosen": 0}
+errors = 0
+
+for i in range(N_GAMES):
+    game = setup_game(debuging_visual=False)
+    step = 0
+    try:
+        while game.winner == 0.0:
+            if game.phase == Phase.ATTACK_ROLL_DICE:
+                # chance node, not a player decision — sample it directly
+                action = ('roll_dice_action', roll_dice(game.attack_info.dice_to_roll))
+            else:
+                actions = game.get_valid_actions()
+
+                # hook in here, before the random pick, to inspect what's on offer
+                if game.phase == Phase.MY_NEW_PHASE:
+                    counters["my_new_phase_visits"] += 1
+                    for a in actions:
+                        assert <a's payload is legal against current state>
+
+                action = random.choice(actions)
+                if action[0] == 'branch_a_action': counters["branch_a_chosen"] += 1
+                if action[0] == 'branch_b_action': counters["branch_b_chosen"] += 1
+
+            game.apply_action(action)
+            step += 1
+            if step > 3000: raise RuntimeError("step limit")
+    except Exception as e:
+        errors += 1
+        print(f"[game {i}] {type(e).__name__}: {e}")
+
+print(f"errors: {errors}", counters)
+```
+
+Run this over 60-150 fresh random games. The two things it checks are different and
+both matter:
+
+- **No exceptions** — catches phase-transition bugs and illegal-action crashes
+  (a wrong `self.phase` assignment or a malformed payload usually surfaces within a
+  handful of games, not all 100).
+- **Non-zero, plausible counters** — a clean run with `branch_a_chosen: 0` doesn't
+  mean branch A is correct, it means it was never exercised, which random legal
+  play can easily fail to hit (e.g. a size-class-gated option, or a rare empty-pool
+  edge case). Print a count for every new action name and every new phase visited,
+  and add inline `assert`s on the specific invariant you're changing (e.g. "every
+  offered dice-pick payload must fit within the live pool", "this action should
+  only appear when `defend_ship.size_class < attack_ship.size_class`") — that turns
+  a silent wrong-but-legal-looking action into a hard crash you'll actually see.
+
+This is cheap — seconds for 100+ games — and needs no MCTS or trained model at all,
+since it only exercises `get_valid_actions()`/`apply_action()` directly.
 
 ## The action-space pipeline
 

@@ -34,11 +34,11 @@ def generate_all_maps():
         actions : list[ActionType] = []
         # Use simple loops to generate every possible action combination
         match phase:
-            
-            # # === Command Phase ===
-            # case Phase.COMMAND_PHASE :
-            #     actions = [('set_command_action', (ship_id, command)) for command in Command for ship_id in range(MAX_SHIPS)]
-            
+
+            # === Command Phase ===
+            case Phase.COMMAND_PHASE :
+                actions = [('assign_command_action', (command, round)) for command in Command for round in range(1, Config.MAX_COMMAND_STACK + 1)]
+
 
             # === Ship Phase ===
             case Phase.SHIP_ACTIVATE :

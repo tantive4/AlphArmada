@@ -267,10 +267,9 @@ cdef void encode_ship_entity_features(Armada game,
             single_ship_view[offset + hull] = ship.shield[hull] / global_max_shields
         offset += c_hull_type
 
-        # --- Command Stack (12 features) ---
-        if ship.team == game.simulation_player:
-            for stack_idx, command in enumerate(ship.command_stack):
-                single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
+        # --- Command Stack (9 features) ---
+        for stack_idx, command in enumerate(ship.command_stack):
+            single_ship_view[offset + stack_idx * c_command_type + command] = 1.0
         offset += max_command_stack * c_command_type # Advance offset by the block size
 
         # --- Command Dials (4 features) ---

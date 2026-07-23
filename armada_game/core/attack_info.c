@@ -10,6 +10,9 @@
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ndarraytypes.h",
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include\\numpy\\ufuncobject.h"
         ],
+        "extra_link_args": [
+            "/MANIFEST:NO"
+        ],
         "include_dirs": [
             "C:\\\uae40\uc131\uc218\\\ucde8\ubbf8,\ud504\ub85c\uc81d\ud2b8\\AlphArmada\\.venv\\Lib\\site-packages\\numpy\\_core\\include"
         ],
@@ -1904,8 +1907,8 @@ struct __pyx_obj_4ship_Ship {
 };
 
 
-/* "armada.pxd":5
- * from squad cimport Squad
+/* "armada.pxd":6
+ * from attack_info cimport AttackInfo
  * 
  * cdef class Armada:             # <<<<<<<<<<<<<<
  *     cdef :
@@ -1925,17 +1928,17 @@ struct __pyx_obj_6armada_Armada {
   int squad_activation_count;
   int image_counter;
   int para_index;
+  int phase;
   float player_edge;
   float short_edge;
   float winner;
   PyObject *ships;
   PyObject *squads;
   PyObject *obstacles;
-  PyObject *phase;
-  PyObject *active_ship;
-  PyObject *defend_ship;
+  struct __pyx_obj_4ship_Ship *active_ship;
+  struct __pyx_obj_4ship_Ship *defend_ship;
   PyObject *active_squad;
-  PyObject *attack_info;
+  struct __pyx_obj_11attack_info_AttackInfo *attack_info;
   int debuging_visual;
   PyArrayObject *ship_static_encode_array;
 };
@@ -2075,8 +2078,8 @@ struct __pyx_vtabstruct_4ship_Ship {
 static struct __pyx_vtabstruct_4ship_Ship *__pyx_vtabptr_4ship_Ship;
 
 
-/* "armada.pxd":5
- * from squad cimport Squad
+/* "armada.pxd":6
+ * from attack_info cimport AttackInfo
  * 
  * cdef class Armada:             # <<<<<<<<<<<<<<
  *     cdef :
@@ -2097,6 +2100,7 @@ struct __pyx_vtabstruct_6armada_Armada {
   PyObject *(*get_valid_ship_activation)(struct __pyx_obj_6armada_Armada *, int);
   PyObject *(*get_valid_squad_activation)(struct __pyx_obj_6armada_Armada *, int);
   void (*status_phase)(struct __pyx_obj_6armada_Armada *);
+  struct __pyx_obj_4ship_Ship *(*get_next_command_ship)(struct __pyx_obj_6armada_Armada *, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6armada_Armada *__pyx_vtabptr_6armada_Armada;
 
@@ -15452,7 +15456,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_4ship_Ship) __PYX_ERR(6, 6, __pyx_L1_error)
   __pyx_vtabptr_4ship_Ship = (struct __pyx_vtabstruct_4ship_Ship*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_4ship_Ship); if (unlikely(!__pyx_vtabptr_4ship_Ship)) __PYX_ERR(6, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("armada"); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 5, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("armada"); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_6armada_Armada = __Pyx_ImportType_3_2_4(__pyx_t_1, "armada", "Armada",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -15462,8 +15466,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_6armada_Armada), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_6armada_Armada),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_6armada_Armada) __PYX_ERR(7, 5, __pyx_L1_error)
-  __pyx_vtabptr_6armada_Armada = (struct __pyx_vtabstruct_6armada_Armada*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_6armada_Armada); if (unlikely(!__pyx_vtabptr_6armada_Armada)) __PYX_ERR(7, 5, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_6armada_Armada) __PYX_ERR(7, 6, __pyx_L1_error)
+  __pyx_vtabptr_6armada_Armada = (struct __pyx_vtabstruct_6armada_Armada*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_6armada_Armada); if (unlikely(!__pyx_vtabptr_6armada_Armada)) __PYX_ERR(7, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("squad"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

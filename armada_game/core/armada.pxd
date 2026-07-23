@@ -1,14 +1,18 @@
 cimport numpy as cnp
 from ship cimport Ship
 from squad cimport Squad
+from attack_info cimport AttackInfo
 
 cdef class Armada:
     cdef :
         public int first_player, second_player, current_player, decision_player, simulation_player, first_faction, second_faction
         public int round, squad_activation_count, image_counter, para_index
-        public float player_edge, short_edge, winner 
+        public int phase
+        public float player_edge, short_edge, winner
         public list ships, squads, obstacles
-        public object phase, active_ship, defend_ship, active_squad, attack_info
+        public Ship active_ship, defend_ship
+        public object active_squad
+        public AttackInfo attack_info
         public bint debuging_visual
         public cnp.ndarray ship_static_encode_array
     
@@ -26,3 +30,4 @@ cdef class Armada:
     cdef list get_valid_ship_activation(self, int player)
     cdef list get_valid_squad_activation(self, int player)
     cdef void status_phase(self)
+    cpdef Ship get_next_command_ship(self, int player)
