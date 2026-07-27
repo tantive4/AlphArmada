@@ -101,10 +101,12 @@ cdef class Ship:
         self.command_dial: tuple[Command, ...] = ()
         self.command_token: tuple[Command, ...] = ()
         self.resolved_command: tuple[Command, ...] = ()
-        self.engineer_point: int = 0
+        self.engineer_budget: int = 0
+        self.engineer_spent: int = 0
         self.attack_count: int = 0
         self.attack_history: tuple[tuple[int, HullSection]|tuple[int, ...]|None, ...] = (None, None, None, None)
         self.repaired_hull: tuple[HullSection, ...] = ()
+        self.reduced_hull: tuple[HullSection, ...] = ()
         self.status_phase()
     
     cpdef void asign_command(self, int command) :
@@ -136,6 +138,18 @@ cdef class Ship:
 
     cpdef void gain_command_token(self, int command) :
         self.command_token += (command,)
+
+    cpdef tuple repair_command_used(self) :
+        """
+        Returns:
+            tuple (repair_dial_used (bool), repair_token_used (bool))
+        """
+        cdef:
+            bint has_dial = Command.REPAIR in self.command_dial
+            bint has_token = Command.REPAIR in self.command_token
+            int dial_contribution = has_dial * self.engineer_value
+
+        return has_dial, has_token and self.engineer_spent > dial_contribution
 
     cpdef void destroy(self) :
         cdef DefenseToken token
@@ -889,7 +903,7 @@ cdef class Ship:
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
             self.attack_count, self.attack_history, 
-            self.engineer_point, self.repaired_hull, 
+            self.engineer_budget, self.engineer_spent, self.repaired_hull, self.reduced_hull,
             [(<DefenseToken>dt).get_snapshot() for dt in self.defense_tokens]
         )
     
@@ -901,7 +915,7 @@ cdef class Ship:
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
             self.attack_count, self.attack_history, 
-            self.engineer_point, self.repaired_hull, 
+            self.engineer_budget, self.engineer_spent, self.repaired_hull, self.reduced_hull,
             defense_tokens_state
         ) = snapshot
 

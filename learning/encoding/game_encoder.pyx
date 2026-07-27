@@ -282,6 +282,11 @@ cdef void encode_ship_entity_features(Armada game,
             single_ship_view[offset + command] = 1.0
         offset += c_command_type # Advance offset by block size
 
+        # --- Engineering (2 features) ---
+        single_ship_view[offset] = ship.engineer_budget / global_max_engineer_value
+        single_ship_view[offset + 1] = ship.engineer_spent / global_max_engineer_value
+        offset += 2
+
         # --- Attack Role (8 features) ---
         if is_attack:
             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:

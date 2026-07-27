@@ -180,7 +180,7 @@
       null
     ]
   ],
-  "SHIP_USE_ENGINEER_POINT": [
+  "SHIP_RESOLVE_REPAIR": [
     [
       "repair_hull_action",
       null

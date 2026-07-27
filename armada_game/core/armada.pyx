@@ -136,6 +136,8 @@ cdef class Armada:
             int command
             bint dial, token
             int hull, from_hull, to_hull, attack_hull, defend_hull
+            int token_contribution, headroom
+            bint repair_hull_legal, recover_shield_legal, forced
             DefenseToken defense_token
 
         if self.active_ship is not None : active_ship = self.active_ship
@@ -178,27 +180,35 @@ cdef class Armada:
 
 
         # Engineering Sequence
-        # elif phase == Phase.SHIP_RESOLVE_REPAIR :
-        #     dial = Command.REPAIR in active_ship.command_dial
-        #     token_choices = [True, False] if Command.REPAIR in active_ship.command_token else [False]
-        #     for token in token_choices:
-        #         actions.append(('resolve_repair_command_action', (dial, token)))
+        elif phase == Phase.SHIP_RESOLVE_REPAIR :
+            # Force repair only while a legal action still fits within the dial's
+            # guaranteed share; past that, it'd dip into the optional token, so pass.
+            token_contribution = (Command.REPAIR in active_ship.command_token) * (active_ship.engineer_value + 1) // 2
+            headroom = active_ship.engineer_budget - token_contribution
 
-        elif phase == Phase.SHIP_USE_ENGINEER_POINT :
-            if active_ship.engineer_point >= 3 and active_ship.hull < active_ship.max_hull :
+            repair_hull_legal = active_ship.engineer_budget >= 3 and active_ship.hull < active_ship.max_hull
+            if repair_hull_legal :
                 actions.append(('repair_hull_action', None))
-            if active_ship.engineer_point >= 2 :
-                for hull in HULL_SECTIONS :
-                    if active_ship.shield[hull] < active_ship.max_shield[hull] :
-                        actions.append(('recover_shield_action', hull))
-            if not actions : actions.append(('pass_repair', None))
 
-            if active_ship.engineer_point >= 1 :
+            recover_shield_legal = False
+            if active_ship.engineer_budget >= 2 :
+                for hull in HULL_SECTIONS :
+                    if active_ship.shield[hull] < active_ship.max_shield[hull] and \
+                            not hull in active_ship.reduced_hull :
+                        actions.append(('recover_shield_action', hull))
+                        recover_shield_legal = True
+
+            forced = (repair_hull_legal and headroom >= 3) or (recover_shield_legal and headroom >= 2)
+            if not forced :
+                actions.append(('pass_repair', None))
+
+            if active_ship.engineer_budget >= 1 :
                 for from_hull in HULL_SECTIONS:
                     for to_hull in HULL_SECTIONS:
                         if active_ship.shield[to_hull] < active_ship.max_shield[to_hull] and active_ship.shield[from_hull] > 0 and \
                                 from_hull != to_hull and \
-                                not from_hull in active_ship.repaired_hull:
+                                not from_hull in active_ship.repaired_hull and \
+                                not to_hull in active_ship.reduced_hull:
                             actions.append(('move_shield_action', (from_hull, to_hull)))
 
         # Attack Sequence
@@ -457,9 +467,6 @@ cdef class Armada:
             command = action_data
             active_ship.gain_command_dial(command)
             active_ship.command_stack = active_ship.command_stack[1:]
-            # simplified
-            if command == Command.REPAIR :
-                active_ship.engineer_point = active_ship.engineer_value
             self.phase = Phase.SHIP_GAIN_COMMAND_TOKEN
 
         elif action_type == 'gain_command_token_action':
@@ -467,7 +474,10 @@ cdef class Armada:
 
             active_ship.discard_command_dial(command)
             active_ship.gain_command_token(command)
-            self.phase = Phase.SHIP_USE_ENGINEER_POINT
+            dial = Command.REPAIR in active_ship.command_dial
+            token = Command.REPAIR in active_ship.command_token
+            active_ship.engineer_budget = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
+            self.phase = Phase.SHIP_RESOLVE_REPAIR
 
         elif action_type == 'gain_and_discard_command_token_action':
             (gain_command, discard_command) = action_data
@@ -475,11 +485,17 @@ cdef class Armada:
             active_ship.discard_command_dial(gain_command)
             active_ship.discard_command_token(discard_command)
             active_ship.gain_command_token(gain_command)
-            self.phase = Phase.SHIP_USE_ENGINEER_POINT
+            dial = Command.REPAIR in active_ship.command_dial
+            token = Command.REPAIR in active_ship.command_token
+            active_ship.engineer_budget = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
+            self.phase = Phase.SHIP_RESOLVE_REPAIR
 
         elif action_type == 'pass_command_token':
             _ = action_data
-            self.phase = Phase.SHIP_USE_ENGINEER_POINT
+            dial = Command.REPAIR in active_ship.command_dial
+            token = Command.REPAIR in active_ship.command_token
+            active_ship.engineer_budget = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
+            self.phase = Phase.SHIP_RESOLVE_REPAIR
 
         elif action_type == 'resolve_squad_command_action':
             raise NotImplementedError(f"simplified {action_type}")
@@ -494,26 +510,16 @@ cdef class Armada:
                 self.phase = Phase.SHIP_RESOLVE_REPAIR
 
 
-        elif action_type == 'resolve_repair_command_action':
-            raise NotImplementedError(f"simplified {action_type}")
-            (dial, token) = action_data
-            if dial : active_ship.discard_command_dial(Command.REPAIR)
-            if token : active_ship.discard_command_token(Command.REPAIR)
-            if dial or token :
-                active_ship.resolved_command += (Command.REPAIR,)
-                active_ship.engineer_point = dial * active_ship.engineer_value + token * (active_ship.engineer_value + 1) // 2
-                self.phase = Phase.SHIP_USE_ENGINEER_POINT
-            else : 
-                self.phase = Phase.SHIP_DECLARE_TARGET
-
         elif action_type == 'repair_hull_action':
             _ = action_data
-            active_ship.engineer_point -= 3
+            active_ship.engineer_budget -= 3
+            active_ship.engineer_spent += 3
             active_ship.hull += 1
 
         elif action_type == 'recover_shield_action':
             hull= action_data
-            active_ship.engineer_point -= 2
+            active_ship.engineer_budget -= 2
+            active_ship.engineer_spent += 2
 
             shield_list = list(active_ship.shield)
             shield_list[hull] += 1
@@ -524,7 +530,8 @@ cdef class Armada:
 
         elif action_type == 'move_shield_action':
             (from_hull, to_hull) = action_data
-            active_ship.engineer_point -= 1
+            active_ship.engineer_budget -= 1
+            active_ship.engineer_spent += 1
 
             shield_list = list(active_ship.shield)
             shield_list[from_hull] -= 1
@@ -532,11 +539,20 @@ cdef class Armada:
             active_ship.shield = tuple(shield_list)
 
             active_ship.repaired_hull += (to_hull,)
+            active_ship.reduced_hull += (from_hull,)
 
         elif action_type == 'pass_repair':
             _ = action_data
             active_ship.repaired_hull = ()
-            active_ship.engineer_point = 0
+            active_ship.reduced_hull = ()
+
+            dial, token = active_ship.repair_command_used()
+            if dial : active_ship.discard_command_dial(Command.REPAIR)
+            if token : active_ship.discard_command_token(Command.REPAIR)
+            if dial or token : active_ship.resolved_command += (Command.REPAIR,)
+
+            active_ship.engineer_budget = 0
+            active_ship.engineer_spent = 0
             self.phase = Phase.SHIP_CHOOSE_TARGET_SHIP
 
 

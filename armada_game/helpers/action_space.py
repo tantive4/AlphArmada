@@ -58,10 +58,7 @@ def generate_all_maps():
             # case Phase.SHIP_RESOLVE_SQUAD:
             #     actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
 
-            # case Phase.SHIP_RESOLVE_REPAIR :
-            #     actions = [('resolve_repair_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
-
-            case Phase.SHIP_USE_ENGINEER_POINT :
+            case Phase.SHIP_RESOLVE_REPAIR :
                 actions = [('repair_hull_action', None)]
                 actions.extend([('recover_shield_action', hull) for hull in HullSection])
                 actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection if from_hull != to_hull])

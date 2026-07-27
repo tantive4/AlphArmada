@@ -19,8 +19,7 @@ class Phase(IntEnum):
     SHIP_REVEAL_COMMAND_DIAL = auto()
     SHIP_GAIN_COMMAND_TOKEN = auto()
     # SHIP_RESOLVE_SQUAD = auto()
-    # SHIP_RESOLVE_REPAIR = auto()
-    SHIP_USE_ENGINEER_POINT = auto()
+    SHIP_RESOLVE_REPAIR = auto()
 
     # Ship Phase -> Attack
     SHIP_CHOOSE_TARGET_SHIP = auto()
@@ -62,8 +61,6 @@ ActionType: TypeAlias = (
     tuple[Literal['gain_command_token_action'], Command] |
     tuple[Literal['gain_and_discard_command_token_action'], tuple[Command, Command]] |
     tuple[Literal['resolve_con-fire_command_action',
-                  'resolve_nav_command_action', 
-                  'resolve_repair_command_action', 
                   'resolve_squad_command_action'], tuple[bool, bool]] |
 
     tuple[Literal['repair_hull_action'], None] | 
@@ -136,10 +133,10 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
         case 'gain_and_discard_command_token_action', (gain_command, discard_command) :
             action_str = f'{game.active_ship} discards {Command(discard_command)} Token to gain {Command(gain_command)} Token'
 
-        case 'resolve_repair_command_action', (use_dial, use_token) :
-            if use_dial or use_token :
-                action_str = f'Resolve Repair Command{" (Dial)" if use_dial else ""}{" (Token)" if use_token else ""}'
-            else : action_str = None
+        case 'pass_repair', None :
+            if game.active_ship is None : raise ValueError('Need active ship to resolve repair')
+            dial_used, token_used = game.active_ship.repair_command_used()
+            action_str = f'Pass Repair{" (Dial Spent)" if dial_used else ""}{" (Token Spent)" if token_used else ""}'
 
         case 'move_shield_action', (from_hull, to_hull) :
             action_str = f'Move Shield from {HullSection(from_hull)} to {HullSection(to_hull)}'
