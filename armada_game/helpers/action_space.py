@@ -133,9 +133,9 @@ def generate_all_maps():
             case Phase.ATTACK_RESOLVE_EFFECTS :
                 # actions = [('spend_accuracy_action', (dice_type, index)) for dice_type in (Dice.BLUE, Dice.RED) for index in range(len(TokenType) * MAX_DEFENSE_TOKENS_PER_TYPE)]
                 actions = [('spend_accuracy_action', index) for index in range(Config.MAX_DEFENSE_TOKENS)]
-                # actions.extend([('resolve_con-fire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
+                actions.extend([('resolve_confire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
                 actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE])
-                # actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
+                actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
                 # actions.extend([('swarm_reroll_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
                 actions.append(('pass_attack_effect', None))
 

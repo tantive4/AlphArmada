@@ -1995,8 +1995,8 @@ struct __pyx_obj_11attack_info_AttackInfo {
   int is_attacker_ship;
   int is_defender_ship;
   int obstructed;
-  int con_fire_dial;
-  int con_fire_token;
+  int confire_dial;
+  int confire_token;
   int bomber;
   int swarm;
   int attack_ship_id;
@@ -3783,7 +3783,7 @@ static PyObject *__pyx_builtin_sum;
 static PyObject *__pyx_builtin_zip;
 static PyObject *__pyx_builtin_enumerate;
 /* #### Code section: string_decls ### */
-static const char __pyx_k_attack_hull_attack_pool_result_a[] = "attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage";
+static const char __pyx_k_attack_hull_attack_pool_result_a[] = "attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage";
 /* #### Code section: decls ### */
 static int __pyx_pf_11attack_info_10AttackInfo___init__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_attacker, PyObject *__pyx_v_defender, int __pyx_v_is_counter); /* proto */
 static PyObject *__pyx_pf_11attack_info_10AttackInfo_2declare_additional_squad_target(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_attacker, struct __pyx_obj_5squad_Squad *__pyx_v_defend_squad); /* proto */
@@ -3800,10 +3800,10 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_16is_defender_ship___get__(
 static int __pyx_pf_11attack_info_10AttackInfo_16is_defender_ship_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_11attack_info_10AttackInfo_10obstructed___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
 static int __pyx_pf_11attack_info_10AttackInfo_10obstructed_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_11attack_info_10AttackInfo_13con_fire_dial___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
-static int __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_11attack_info_10AttackInfo_14con_fire_token___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
-static int __pyx_pf_11attack_info_10AttackInfo_14con_fire_token_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_11attack_info_10AttackInfo_12confire_dial___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
+static int __pyx_pf_11attack_info_10AttackInfo_12confire_dial_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_11attack_info_10AttackInfo_13confire_token___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
+static int __pyx_pf_11attack_info_10AttackInfo_13confire_token_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_11attack_info_10AttackInfo_6bomber___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
 static int __pyx_pf_11attack_info_10AttackInfo_6bomber_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_11attack_info_10AttackInfo_5swarm___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self); /* proto */
@@ -4016,8 +4016,8 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_class_getitem __pyx_string_tab[73]
 #define __pyx_n_u_cline_in_traceback __pyx_string_tab[74]
 #define __pyx_n_u_cls __pyx_string_tab[75]
-#define __pyx_n_u_con_fire_dial __pyx_string_tab[76]
-#define __pyx_n_u_con_fire_token __pyx_string_tab[77]
+#define __pyx_n_u_confire_dial __pyx_string_tab[76]
+#define __pyx_n_u_confire_token __pyx_string_tab[77]
 #define __pyx_n_u_critical __pyx_string_tab[78]
 #define __pyx_n_u_d __pyx_string_tab[79]
 #define __pyx_n_u_data __pyx_string_tab[80]
@@ -4130,10 +4130,10 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b_iso88591_AQ __pyx_string_tab[187]
 #define __pyx_kp_b_iso88591_AQ_2 __pyx_string_tab[188]
 #define __pyx_kp_b_iso88591_A_1_M_a_9IQd_Qa_wavR_Qj_7_5_q_1 __pyx_string_tab[189]
-#define __pyx_kp_b_iso88591_A_3haq_HAQ_HAQ_haq_1_1_1_81A_1_8 __pyx_string_tab[190]
+#define __pyx_kp_b_iso88591_A_3haq_HAQ_HAQ_haq_1_1_81A_1_81A __pyx_string_tab[190]
 #define __pyx_kp_b_iso88591_A_4t_S_A_AQ_t3d_AQ_1_1_Q_4q_1_A __pyx_string_tab[191]
 #define __pyx_kp_b_iso88591_A_4z_gQ_t_3e __pyx_string_tab[192]
-#define __pyx_kp_b_iso88591_A_A_A_a_T_d_d_T_d_t1_d_t1_D_4q_4 __pyx_string_tab[193]
+#define __pyx_kp_b_iso88591_A_A_A_a_D_T_d_T_d_t1_d_t1_D_4q_4 __pyx_string_tab[193]
 #define __pyx_kp_b_iso88591_A_q_1_5Gs_iW___vvw_M_Cq_k_5_T_Ue __pyx_string_tab[194]
 #define __pyx_kp_b_iso88591_A_s_4_A __pyx_string_tab[195]
 #define __pyx_kp_b_iso88591_HHuuz_E_E_F_Qj_q_1_Q_1_Q_a_Qj_1 __pyx_string_tab[196]
@@ -4143,11 +4143,11 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b_iso88591_Qa_way_q __pyx_string_tab[200]
 #define __pyx_kp_b_iso88591_Qe1A __pyx_string_tab[201]
 #define __pyx_kp_b_iso88591_T __pyx_string_tab[202]
-#define __pyx_kp_b_iso88591_T_t_8_O4O_ddvvz_D_D_H_H_X_X_m_m __pyx_string_tab[203]
+#define __pyx_kp_b_iso88591_T_t_8_O4O_ddvvz_D_D_H_H_W_W_k_k __pyx_string_tab[203]
 #define __pyx_kp_b_iso88591__4 __pyx_string_tab[204]
 #define __pyx_kp_b_iso88591__5 __pyx_string_tab[205]
 #define __pyx_kp_b_iso88591_a_2 __pyx_string_tab[206]
-#define __pyx_kp_b_iso88591_a_U_A_A_Q_A_Q_4A_8 __pyx_string_tab[207]
+#define __pyx_kp_b_iso88591_a_U_A_1_A_A_Q_4A_8 __pyx_string_tab[207]
 #define __pyx_kp_b_iso88591_aq __pyx_string_tab[208]
 #define __pyx_kp_b_iso88591_d_2 __pyx_string_tab[209]
 #define __pyx_kp_b_iso88591_q __pyx_string_tab[210]
@@ -4164,7 +4164,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b_iso88591_q_Q_k __pyx_string_tab[221]
 #define __pyx_kp_b_iso88591_q_k __pyx_string_tab[222]
 #define __pyx_kp_b_iso88591_q_uCq_q_81 __pyx_string_tab[223]
-#define __pyx_int_245469741 __pyx_number_tab[0]
+#define __pyx_int_128228012 __pyx_number_tab[0]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -7060,30 +7060,30 @@ static int __pyx_pf_11attack_info_10AttackInfo___init__(struct __pyx_obj_11attac
  * 
  *         if self.is_attacker_ship :             # <<<<<<<<<<<<<<
  * 
- *             self.con_fire_dial = False
+ *             self.confire_dial = False
 */
   if (__pyx_v_self->is_attacker_ship) {
 
     /* "attack_info.pyx":49
  *         if self.is_attacker_ship :
  * 
- *             self.con_fire_dial = False             # <<<<<<<<<<<<<<
- *             self.con_fire_token = False
+ *             self.confire_dial = False             # <<<<<<<<<<<<<<
+ *             self.confire_token = False
  * 
 */
-    __pyx_v_self->con_fire_dial = 0;
+    __pyx_v_self->confire_dial = 0;
 
     /* "attack_info.pyx":50
  * 
- *             self.con_fire_dial = False
- *             self.con_fire_token = False             # <<<<<<<<<<<<<<
+ *             self.confire_dial = False
+ *             self.confire_token = False             # <<<<<<<<<<<<<<
  * 
  *             if self.is_defender_ship :
 */
-    __pyx_v_self->con_fire_token = 0;
+    __pyx_v_self->confire_token = 0;
 
     /* "attack_info.pyx":52
- *             self.con_fire_token = False
+ *             self.confire_token = False
  * 
  *             if self.is_defender_ship :             # <<<<<<<<<<<<<<
  *                 attack_hist_list = list(attack_ship.attack_history)
@@ -7218,7 +7218,7 @@ static int __pyx_pf_11attack_info_10AttackInfo___init__(struct __pyx_obj_11attac
       __pyx_v_self->obstructed = __pyx_t_4;
 
       /* "attack_info.pyx":52
- *             self.con_fire_token = False
+ *             self.confire_token = False
  * 
  *             if self.is_defender_ship :             # <<<<<<<<<<<<<<
  *                 attack_hist_list = list(attack_ship.attack_history)
@@ -7387,7 +7387,7 @@ static int __pyx_pf_11attack_info_10AttackInfo___init__(struct __pyx_obj_11attac
  * 
  *         if self.is_attacker_ship :             # <<<<<<<<<<<<<<
  * 
- *             self.con_fire_dial = False
+ *             self.confire_dial = False
 */
     goto __pyx_L9;
   }
@@ -8182,7 +8182,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_4initialize_attribute(struc
  *         self.phase : Phase = Phase.ATTACK_RESOLVE_EFFECTS
  *         self.attack_pool_result : tuple[tuple[int, ...], ...]  = EMPTY_DICE_POOL             # <<<<<<<<<<<<<<
  * 
- *         self.con_fire_dial : bool = False
+ *         self.confire_dial : bool = False
 */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_EMPTY_DICE_POOL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -8196,24 +8196,24 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_4initialize_attribute(struc
   /* "attack_info.pyx":116
  *         self.attack_pool_result : tuple[tuple[int, ...], ...]  = EMPTY_DICE_POOL
  * 
- *         self.con_fire_dial : bool = False             # <<<<<<<<<<<<<<
- *         self.con_fire_token : bool = False
+ *         self.confire_dial : bool = False             # <<<<<<<<<<<<<<
+ *         self.confire_token : bool = False
  *         self.swarm : bool = False
 */
-  __pyx_v_self->con_fire_dial = 0;
+  __pyx_v_self->confire_dial = 0;
 
   /* "attack_info.pyx":117
  * 
- *         self.con_fire_dial : bool = False
- *         self.con_fire_token : bool = False             # <<<<<<<<<<<<<<
+ *         self.confire_dial : bool = False
+ *         self.confire_token : bool = False             # <<<<<<<<<<<<<<
  *         self.swarm : bool = False
  *         self.bomber : bool = False
 */
-  __pyx_v_self->con_fire_token = 0;
+  __pyx_v_self->confire_token = 0;
 
   /* "attack_info.pyx":118
- *         self.con_fire_dial : bool = False
- *         self.con_fire_token : bool = False
+ *         self.confire_dial : bool = False
+ *         self.confire_token : bool = False
  *         self.swarm : bool = False             # <<<<<<<<<<<<<<
  *         self.bomber : bool = False
  * 
@@ -8221,7 +8221,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_4initialize_attribute(struc
   __pyx_v_self->swarm = 0;
 
   /* "attack_info.pyx":119
- *         self.con_fire_token : bool = False
+ *         self.confire_token : bool = False
  *         self.swarm : bool = False
  *         self.bomber : bool = False             # <<<<<<<<<<<<<<
  * 
@@ -9699,7 +9699,7 @@ static PyObject *__pyx_f_11attack_info_10AttackInfo_get_snapshot(struct __pyx_ob
  *             'is_attacker_ship': self.is_attacker_ship,
  *             'is_defender_ship': self.is_defender_ship,             # <<<<<<<<<<<<<<
  *             'obstructed': self.obstructed,
- *             'con_fire_dial': self.con_fire_dial,
+ *             'confire_dial': self.confire_dial,
 */
   __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->is_defender_ship); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -9710,8 +9710,8 @@ static PyObject *__pyx_f_11attack_info_10AttackInfo_get_snapshot(struct __pyx_ob
  *             'is_attacker_ship': self.is_attacker_ship,
  *             'is_defender_ship': self.is_defender_ship,
  *             'obstructed': self.obstructed,             # <<<<<<<<<<<<<<
- *             'con_fire_dial': self.con_fire_dial,
- *             'con_fire_token': self.con_fire_token,
+ *             'confire_dial': self.confire_dial,
+ *             'confire_token': self.confire_token,
 */
   __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->obstructed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -9721,30 +9721,30 @@ static PyObject *__pyx_f_11attack_info_10AttackInfo_get_snapshot(struct __pyx_ob
   /* "attack_info.pyx":174
  *             'is_defender_ship': self.is_defender_ship,
  *             'obstructed': self.obstructed,
- *             'con_fire_dial': self.con_fire_dial,             # <<<<<<<<<<<<<<
- *             'con_fire_token': self.con_fire_token,
+ *             'confire_dial': self.confire_dial,             # <<<<<<<<<<<<<<
+ *             'confire_token': self.confire_token,
  *             'bomber': self.bomber,
 */
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->con_fire_dial); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->confire_dial); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_con_fire_dial, __pyx_t_2) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_confire_dial, __pyx_t_2) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "attack_info.pyx":175
  *             'obstructed': self.obstructed,
- *             'con_fire_dial': self.con_fire_dial,
- *             'con_fire_token': self.con_fire_token,             # <<<<<<<<<<<<<<
+ *             'confire_dial': self.confire_dial,
+ *             'confire_token': self.confire_token,             # <<<<<<<<<<<<<<
  *             'bomber': self.bomber,
  *             'swarm': self.swarm,
 */
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->con_fire_token); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_self->confire_token); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_con_fire_token, __pyx_t_2) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_confire_token, __pyx_t_2) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "attack_info.pyx":176
- *             'con_fire_dial': self.con_fire_dial,
- *             'con_fire_token': self.con_fire_token,
+ *             'confire_dial': self.confire_dial,
+ *             'confire_token': self.confire_token,
  *             'bomber': self.bomber,             # <<<<<<<<<<<<<<
  *             'swarm': self.swarm,
  *             'attack_ship_id': self.attack_ship_id,
@@ -9755,7 +9755,7 @@ static PyObject *__pyx_f_11attack_info_10AttackInfo_get_snapshot(struct __pyx_ob
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "attack_info.pyx":177
- *             'con_fire_token': self.con_fire_token,
+ *             'confire_token': self.confire_token,
  *             'bomber': self.bomber,
  *             'swarm': self.swarm,             # <<<<<<<<<<<<<<
  *             'attack_ship_id': self.attack_ship_id,
@@ -10184,7 +10184,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_16from_snapshot(PyTypeObjec
  *         instance.is_attacker_ship = snapshot['is_attacker_ship']
  *         instance.is_defender_ship = snapshot['is_defender_ship']             # <<<<<<<<<<<<<<
  *         instance.obstructed = snapshot['obstructed']
- *         instance.con_fire_dial = snapshot['con_fire_dial']
+ *         instance.confire_dial = snapshot['confire_dial']
 */
   if (unlikely(__pyx_v_snapshot == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
@@ -10200,8 +10200,8 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_16from_snapshot(PyTypeObjec
  *         instance.is_attacker_ship = snapshot['is_attacker_ship']
  *         instance.is_defender_ship = snapshot['is_defender_ship']
  *         instance.obstructed = snapshot['obstructed']             # <<<<<<<<<<<<<<
- *         instance.con_fire_dial = snapshot['con_fire_dial']
- *         instance.con_fire_token = snapshot['con_fire_token']
+ *         instance.confire_dial = snapshot['confire_dial']
+ *         instance.confire_token = snapshot['confire_token']
 */
   if (unlikely(__pyx_v_snapshot == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
@@ -10216,24 +10216,24 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_16from_snapshot(PyTypeObjec
   /* "attack_info.pyx":204
  *         instance.is_defender_ship = snapshot['is_defender_ship']
  *         instance.obstructed = snapshot['obstructed']
- *         instance.con_fire_dial = snapshot['con_fire_dial']             # <<<<<<<<<<<<<<
- *         instance.con_fire_token = snapshot['con_fire_token']
+ *         instance.confire_dial = snapshot['confire_dial']             # <<<<<<<<<<<<<<
+ *         instance.confire_token = snapshot['confire_token']
  *         instance.bomber = snapshot['bomber']
 */
   if (unlikely(__pyx_v_snapshot == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 204, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_snapshot, __pyx_mstate_global->__pyx_n_u_con_fire_dial); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_snapshot, __pyx_mstate_global->__pyx_n_u_confire_dial); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_instance->con_fire_dial = __pyx_t_2;
+  __pyx_v_instance->confire_dial = __pyx_t_2;
 
   /* "attack_info.pyx":205
  *         instance.obstructed = snapshot['obstructed']
- *         instance.con_fire_dial = snapshot['con_fire_dial']
- *         instance.con_fire_token = snapshot['con_fire_token']             # <<<<<<<<<<<<<<
+ *         instance.confire_dial = snapshot['confire_dial']
+ *         instance.confire_token = snapshot['confire_token']             # <<<<<<<<<<<<<<
  *         instance.bomber = snapshot['bomber']
  *         instance.swarm = snapshot['swarm']
 */
@@ -10241,15 +10241,15 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_16from_snapshot(PyTypeObjec
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
     __PYX_ERR(0, 205, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_snapshot, __pyx_mstate_global->__pyx_n_u_con_fire_token); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_snapshot, __pyx_mstate_global->__pyx_n_u_confire_token); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_instance->con_fire_token = __pyx_t_2;
+  __pyx_v_instance->confire_token = __pyx_t_2;
 
   /* "attack_info.pyx":206
- *         instance.con_fire_dial = snapshot['con_fire_dial']
- *         instance.con_fire_token = snapshot['con_fire_token']
+ *         instance.confire_dial = snapshot['confire_dial']
+ *         instance.confire_token = snapshot['confire_token']
  *         instance.bomber = snapshot['bomber']             # <<<<<<<<<<<<<<
  *         instance.swarm = snapshot['swarm']
  *         instance.attack_ship_id = snapshot['attack_ship_id']
@@ -10265,7 +10265,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_16from_snapshot(PyTypeObjec
   __pyx_v_instance->bomber = __pyx_t_2;
 
   /* "attack_info.pyx":207
- *         instance.con_fire_token = snapshot['con_fire_token']
+ *         instance.confire_token = snapshot['confire_token']
  *         instance.bomber = snapshot['bomber']
  *         instance.swarm = snapshot['swarm']             # <<<<<<<<<<<<<<
  *         instance.attack_ship_id = snapshot['attack_ship_id']
@@ -10709,7 +10709,7 @@ static int __pyx_pf_11attack_info_10AttackInfo_16is_attacker_ship_2__set__(struc
  *     cdef public bint is_attacker_ship
  *     cdef public bint is_defender_ship             # <<<<<<<<<<<<<<
  *     cdef public bint obstructed
- *     cdef public bint con_fire_dial
+ *     cdef public bint confire_dial
 */
 
 /* Python wrapper */
@@ -10813,8 +10813,8 @@ static int __pyx_pf_11attack_info_10AttackInfo_16is_defender_ship_2__set__(struc
  *     cdef public bint is_attacker_ship
  *     cdef public bint is_defender_ship
  *     cdef public bint obstructed             # <<<<<<<<<<<<<<
- *     cdef public bint con_fire_dial
- *     cdef public bint con_fire_token
+ *     cdef public bint confire_dial
+ *     cdef public bint confire_token
 */
 
 /* Python wrapper */
@@ -10917,27 +10917,27 @@ static int __pyx_pf_11attack_info_10AttackInfo_10obstructed_2__set__(struct __py
 /* "attack_info.pxd":10
  *     cdef public bint is_defender_ship
  *     cdef public bint obstructed
- *     cdef public bint con_fire_dial             # <<<<<<<<<<<<<<
- *     cdef public bint con_fire_token
+ *     cdef public bint confire_dial             # <<<<<<<<<<<<<<
+ *     cdef public bint confire_token
  *     cdef public bint bomber
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11attack_info_10AttackInfo_13con_fire_dial_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_11attack_info_10AttackInfo_13con_fire_dial_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_11attack_info_10AttackInfo_12confire_dial_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_11attack_info_10AttackInfo_12confire_dial_1__get__(PyObject *__pyx_v_self) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial___get__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self));
+  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_12confire_dial___get__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11attack_info_10AttackInfo_13con_fire_dial___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self) {
+static PyObject *__pyx_pf_11attack_info_10AttackInfo_12confire_dial___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
@@ -10949,7 +10949,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_13con_fire_dial___get__(str
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_TraceStartFunc("__get__", __pyx_f[2], 10, 0, 0, 0, __PYX_ERR(2, 10, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->con_fire_dial); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 10, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->confire_dial); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10965,7 +10965,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_13con_fire_dial___get__(str
   #else
   __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(2, 10, __pyx_L1_error));
   #endif
-  __Pyx_AddTraceback("attack_info.AttackInfo.con_fire_dial.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("attack_info.AttackInfo.confire_dial.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -10975,21 +10975,21 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_13con_fire_dial___get__(str
 }
 
 /* Python wrapper */
-static int __pyx_pw_11attack_info_10AttackInfo_13con_fire_dial_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_11attack_info_10AttackInfo_13con_fire_dial_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_11attack_info_10AttackInfo_12confire_dial_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_11attack_info_10AttackInfo_12confire_dial_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial_2__set__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_12confire_dial_2__set__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_11attack_info_10AttackInfo_12confire_dial_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_TraceDeclarationsFunc
   int __pyx_t_1;
@@ -10999,7 +10999,7 @@ static int __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial_2__set__(struct _
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[51]))
   __Pyx_TraceStartFunc("__set__", __pyx_f[2], 10, 0, 0, 0, __PYX_ERR(2, 10, __pyx_L1_error));
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 10, __pyx_L1_error)
-  __pyx_v_self->con_fire_dial = __pyx_t_1;
+  __pyx_v_self->confire_dial = __pyx_t_1;
 
   /* function exit code */
   __pyx_r = 0;
@@ -11012,7 +11012,7 @@ static int __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial_2__set__(struct _
   #else
   __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(2, 10, __pyx_L1_error));
   #endif
-  __Pyx_AddTraceback("attack_info.AttackInfo.con_fire_dial.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("attack_info.AttackInfo.confire_dial.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_PyMonitoring_ExitScope(0);
@@ -11021,28 +11021,28 @@ static int __pyx_pf_11attack_info_10AttackInfo_13con_fire_dial_2__set__(struct _
 
 /* "attack_info.pxd":11
  *     cdef public bint obstructed
- *     cdef public bint con_fire_dial
- *     cdef public bint con_fire_token             # <<<<<<<<<<<<<<
+ *     cdef public bint confire_dial
+ *     cdef public bint confire_token             # <<<<<<<<<<<<<<
  *     cdef public bint bomber
  *     cdef public bint swarm
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11attack_info_10AttackInfo_14con_fire_token_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_11attack_info_10AttackInfo_14con_fire_token_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_11attack_info_10AttackInfo_13confire_token_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_11attack_info_10AttackInfo_13confire_token_1__get__(PyObject *__pyx_v_self) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_14con_fire_token___get__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self));
+  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_13confire_token___get__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11attack_info_10AttackInfo_14con_fire_token___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self) {
+static PyObject *__pyx_pf_11attack_info_10AttackInfo_13confire_token___get__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
@@ -11054,7 +11054,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_14con_fire_token___get__(st
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_TraceStartFunc("__get__", __pyx_f[2], 11, 0, 0, 0, __PYX_ERR(2, 11, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->con_fire_token); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 11, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->confire_token); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11070,7 +11070,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_14con_fire_token___get__(st
   #else
   __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(2, 11, __pyx_L1_error));
   #endif
-  __Pyx_AddTraceback("attack_info.AttackInfo.con_fire_token.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("attack_info.AttackInfo.confire_token.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -11080,21 +11080,21 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_14con_fire_token___get__(st
 }
 
 /* Python wrapper */
-static int __pyx_pw_11attack_info_10AttackInfo_14con_fire_token_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_11attack_info_10AttackInfo_14con_fire_token_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_11attack_info_10AttackInfo_13confire_token_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_11attack_info_10AttackInfo_13confire_token_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_14con_fire_token_2__set__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_11attack_info_10AttackInfo_13confire_token_2__set__(((struct __pyx_obj_11attack_info_AttackInfo *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_11attack_info_10AttackInfo_14con_fire_token_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_11attack_info_10AttackInfo_13confire_token_2__set__(struct __pyx_obj_11attack_info_AttackInfo *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_TraceDeclarationsFunc
   int __pyx_t_1;
@@ -11104,7 +11104,7 @@ static int __pyx_pf_11attack_info_10AttackInfo_14con_fire_token_2__set__(struct 
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[53]))
   __Pyx_TraceStartFunc("__set__", __pyx_f[2], 11, 0, 0, 0, __PYX_ERR(2, 11, __pyx_L1_error));
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 11, __pyx_L1_error)
-  __pyx_v_self->con_fire_token = __pyx_t_1;
+  __pyx_v_self->confire_token = __pyx_t_1;
 
   /* function exit code */
   __pyx_r = 0;
@@ -11117,7 +11117,7 @@ static int __pyx_pf_11attack_info_10AttackInfo_14con_fire_token_2__set__(struct 
   #else
   __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(2, 11, __pyx_L1_error));
   #endif
-  __Pyx_AddTraceback("attack_info.AttackInfo.con_fire_token.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("attack_info.AttackInfo.confire_token.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_PyMonitoring_ExitScope(0);
@@ -11125,8 +11125,8 @@ static int __pyx_pf_11attack_info_10AttackInfo_14con_fire_token_2__set__(struct 
 }
 
 /* "attack_info.pxd":12
- *     cdef public bint con_fire_dial
- *     cdef public bint con_fire_token
+ *     cdef public bint confire_dial
+ *     cdef public bint confire_token
  *     cdef public bint bomber             # <<<<<<<<<<<<<<
  *     cdef public bint swarm
  * 
@@ -11230,7 +11230,7 @@ static int __pyx_pf_11attack_info_10AttackInfo_6bomber_2__set__(struct __pyx_obj
 }
 
 /* "attack_info.pxd":13
- *     cdef public bint con_fire_token
+ *     cdef public bint confire_token
  *     cdef public bint bomber
  *     cdef public bint swarm             # <<<<<<<<<<<<<<
  * 
@@ -13524,7 +13524,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
   /* "(tree fragment)":5
  *     cdef object _dict
  *     cdef bint use_setstate
- *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.con_fire_dial, self.con_fire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)             # <<<<<<<<<<<<<<
+ *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.confire_dial, self.confire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)             # <<<<<<<<<<<<<<
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:
 */
@@ -13534,9 +13534,9 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_v_self->bomber); if (unlikely(!__pyx_t_3)) __PYX_ERR(3, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_self->con_fire_dial); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 5, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_self->confire_dial); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_self->con_fire_token); if (unlikely(!__pyx_t_5)) __PYX_ERR(3, 5, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_self->confire_token); if (unlikely(!__pyx_t_5)) __PYX_ERR(3, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->defend_ship_id); if (unlikely(!__pyx_t_6)) __PYX_ERR(3, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
@@ -13625,7 +13625,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
 
   /* "(tree fragment)":6
  *     cdef bint use_setstate
- *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.con_fire_dial, self.con_fire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)
+ *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.confire_dial, self.confire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)
  *     _dict = getattr(self, '__dict__', None)             # <<<<<<<<<<<<<<
  *     if _dict is not None and _dict:
  *         state += (_dict,)
@@ -13636,7 +13636,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
   __pyx_t_13 = 0;
 
   /* "(tree fragment)":7
- *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.con_fire_dial, self.con_fire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)
+ *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.confire_dial, self.confire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -13681,7 +13681,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
     __pyx_v_use_setstate = 1;
 
     /* "(tree fragment)":7
- *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.con_fire_dial, self.con_fire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)
+ *     state = (self.attack_hull, self.attack_pool_result, self.attack_range, self.attack_ship_id, self.attack_squad_id, self.bomber, self.confire_dial, self.confire_token, self.critical, self.defend_hull, self.defend_ship_id, self.defend_squad_id, self.dice_to_roll, self.is_attacker_ship, self.is_defender_ship, self.obstructed, self.phase, self.spent_token_indices, self.spent_token_types, self.squadron_target, self.swarm, self.total_damage)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -13695,7 +13695,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
  *     else:
  *         use_setstate = self.attack_hull is not None or self.attack_pool_result is not None or self.attack_range is not None or self.critical is not None or self.defend_hull is not None or self.dice_to_roll is not None or self.phase is not None or self.spent_token_indices is not None or self.spent_token_types is not None or self.squadron_target is not None             # <<<<<<<<<<<<<<
  *     if use_setstate:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, None), state
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, None), state
 */
   /*else*/ {
     __pyx_t_15 = (__pyx_v_self->attack_hull != Py_None);
@@ -13763,7 +13763,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
  *     else:
  *         use_setstate = self.attack_hull is not None or self.attack_pool_result is not None or self.attack_range is not None or self.critical is not None or self.defend_hull is not None or self.dice_to_roll is not None or self.phase is not None or self.spent_token_indices is not None or self.spent_token_types is not None or self.squadron_target is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, None), state
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, None), state
  *     else:
 */
   if (__pyx_v_use_setstate) {
@@ -13771,9 +13771,9 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
     /* "(tree fragment)":13
  *         use_setstate = self.attack_hull is not None or self.attack_pool_result is not None or self.attack_range is not None or self.critical is not None or self.defend_hull is not None or self.dice_to_roll is not None or self.phase is not None or self.spent_token_indices is not None or self.spent_token_types is not None or self.squadron_target is not None
  *     if use_setstate:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, None), state             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, None), state             # <<<<<<<<<<<<<<
  *     else:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, state)
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, state)
 */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_AttackInfo); if (unlikely(!__pyx_t_12)) __PYX_ERR(3, 13, __pyx_L1_error)
@@ -13783,9 +13783,9 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(3, 13, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_245469741);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_245469741);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_mstate_global->__pyx_int_245469741) != (0)) __PYX_ERR(3, 13, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_128228012);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_128228012);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_mstate_global->__pyx_int_128228012) != (0)) __PYX_ERR(3, 13, __pyx_L1_error);
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 2, Py_None) != (0)) __PYX_ERR(3, 13, __pyx_L1_error);
@@ -13809,15 +13809,15 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
  *     else:
  *         use_setstate = self.attack_hull is not None or self.attack_pool_result is not None or self.attack_range is not None or self.critical is not None or self.defend_hull is not None or self.dice_to_roll is not None or self.phase is not None or self.spent_token_indices is not None or self.spent_token_types is not None or self.squadron_target is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, None), state
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, None), state
  *     else:
 */
   }
 
   /* "(tree fragment)":15
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, None), state
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, None), state
  *     else:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, state)             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, state)             # <<<<<<<<<<<<<<
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_AttackInfo__set_state(self, __pyx_state)
 */
@@ -13830,9 +13830,9 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(3, 15, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_245469741);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_245469741);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_mstate_global->__pyx_int_245469741) != (0)) __PYX_ERR(3, 15, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_128228012);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_128228012);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_mstate_global->__pyx_int_128228012) != (0)) __PYX_ERR(3, 15, __pyx_L1_error);
     __Pyx_INCREF(__pyx_v_state);
     __Pyx_GIVEREF(__pyx_v_state);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_13, 2, __pyx_v_state) != (0)) __PYX_ERR(3, 15, __pyx_L1_error);
@@ -13890,7 +13890,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_18__reduce_cython__(struct 
 
 /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, state)
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_AttackInfo__set_state(self, __pyx_state)
 */
@@ -13994,7 +13994,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_20__setstate_cython__(struc
   __Pyx_TraceStartFunc("__setstate_cython__", __pyx_f[3], 16, 0, 0, 0, __PYX_ERR(3, 16, __pyx_L1_error));
 
   /* "(tree fragment)":17
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, state)
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, state)
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_AttackInfo__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
 */
@@ -14012,7 +14012,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_20__setstate_cython__(struc
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, state)
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_AttackInfo__set_state(self, __pyx_state)
 */
@@ -14044,7 +14044,7 @@ static PyObject *__pyx_pf_11attack_info_10AttackInfo_20__setstate_cython__(struc
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_AttackInfo(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
 */
 
 /* Python wrapper */
@@ -14178,15 +14178,15 @@ static PyObject *__pyx_pf_11attack_info___pyx_unpickle_AttackInfo(CYTHON_UNUSED 
   /* "(tree fragment)":6
  * def __pyx_unpickle_AttackInfo(__pyx_type, long __pyx_checksum, tuple __pyx_state):
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')             # <<<<<<<<<<<<<<
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')             # <<<<<<<<<<<<<<
  *     __pyx_result = AttackInfo.__new__(__pyx_type)
  *     if __pyx_state is not None:
 */
-  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, __pyx_k_attack_hull_attack_pool_result_a); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(3, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, __pyx_k_attack_hull_attack_pool_result_a); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(3, 6, __pyx_L1_error)
 
   /* "(tree fragment)":7
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
  *     __pyx_result = AttackInfo.__new__(__pyx_type)             # <<<<<<<<<<<<<<
  *     if __pyx_state is not None:
  *         __pyx_unpickle_AttackInfo__set_state(<AttackInfo> __pyx_result, __pyx_state)
@@ -14205,7 +14205,7 @@ static PyObject *__pyx_pf_11attack_info___pyx_unpickle_AttackInfo(CYTHON_UNUSED 
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
  *     __pyx_result = AttackInfo.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_AttackInfo__set_state(<AttackInfo> __pyx_result, __pyx_state)
@@ -14230,7 +14230,7 @@ static PyObject *__pyx_pf_11attack_info___pyx_unpickle_AttackInfo(CYTHON_UNUSED 
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
  *     __pyx_result = AttackInfo.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_AttackInfo__set_state(<AttackInfo> __pyx_result, __pyx_state)
@@ -14243,7 +14243,7 @@ static PyObject *__pyx_pf_11attack_info___pyx_unpickle_AttackInfo(CYTHON_UNUSED 
  *         __pyx_unpickle_AttackInfo__set_state(<AttackInfo> __pyx_result, __pyx_state)
  *     return __pyx_result             # <<<<<<<<<<<<<<
  * cdef __pyx_unpickle_AttackInfo__set_state(AttackInfo __pyx_result, __pyx_state: tuple):
- *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.con_fire_dial = __pyx_state[6]; __pyx_result.con_fire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
+ *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.confire_dial = __pyx_state[6]; __pyx_result.confire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
 */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v___pyx_result);
@@ -14256,7 +14256,7 @@ static PyObject *__pyx_pf_11attack_info___pyx_unpickle_AttackInfo(CYTHON_UNUSED 
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_AttackInfo(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
 */
 
   /* function exit code */
@@ -14283,7 +14283,7 @@ static PyObject *__pyx_pf_11attack_info___pyx_unpickle_AttackInfo(CYTHON_UNUSED 
  *         __pyx_unpickle_AttackInfo__set_state(<AttackInfo> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_AttackInfo__set_state(AttackInfo __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.con_fire_dial = __pyx_state[6]; __pyx_result.con_fire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
+ *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.confire_dial = __pyx_state[6]; __pyx_result.confire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 22)
 */
 
@@ -14304,7 +14304,7 @@ static PyObject *__pyx_f_11attack_info___pyx_unpickle_AttackInfo__set_state(stru
   /* "(tree fragment)":12
  *     return __pyx_result
  * cdef __pyx_unpickle_AttackInfo__set_state(AttackInfo __pyx_result, __pyx_state: tuple):
- *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.con_fire_dial = __pyx_state[6]; __pyx_result.con_fire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]             # <<<<<<<<<<<<<<
+ *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.confire_dial = __pyx_state[6]; __pyx_result.confire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]             # <<<<<<<<<<<<<<
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 22)
 */
   __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v___pyx_state, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1, __Pyx_ReferenceSharing_FunctionArgument); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 12, __pyx_L1_error)
@@ -14348,12 +14348,12 @@ static PyObject *__pyx_f_11attack_info___pyx_unpickle_AttackInfo__set_state(stru
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(3, 12, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v___pyx_result->con_fire_dial = __pyx_t_3;
+  __pyx_v___pyx_result->confire_dial = __pyx_t_3;
   __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v___pyx_state, 7, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1, __Pyx_ReferenceSharing_FunctionArgument); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(3, 12, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v___pyx_result->con_fire_token = __pyx_t_3;
+  __pyx_v___pyx_result->confire_token = __pyx_t_3;
   __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v___pyx_state, 8, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1, __Pyx_ReferenceSharing_FunctionArgument); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -14445,7 +14445,7 @@ static PyObject *__pyx_f_11attack_info___pyx_unpickle_AttackInfo__set_state(stru
 
   /* "(tree fragment)":13
  * cdef __pyx_unpickle_AttackInfo__set_state(AttackInfo __pyx_result, __pyx_state: tuple):
- *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.con_fire_dial = __pyx_state[6]; __pyx_result.con_fire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
+ *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.confire_dial = __pyx_state[6]; __pyx_result.confire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 22)             # <<<<<<<<<<<<<<
 */
   __pyx_t_2 = __Pyx_UpdateUnpickledDict(((PyObject *)__pyx_v___pyx_result), __pyx_v___pyx_state, 22); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(3, 13, __pyx_L1_error)
@@ -14454,7 +14454,7 @@ static PyObject *__pyx_f_11attack_info___pyx_unpickle_AttackInfo__set_state(stru
  *         __pyx_unpickle_AttackInfo__set_state(<AttackInfo> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_AttackInfo__set_state(AttackInfo __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.con_fire_dial = __pyx_state[6]; __pyx_result.con_fire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
+ *     __pyx_result.attack_hull = __pyx_state[0]; __pyx_result.attack_pool_result = __pyx_state[1]; __pyx_result.attack_range = __pyx_state[2]; __pyx_result.attack_ship_id = __pyx_state[3]; __pyx_result.attack_squad_id = __pyx_state[4]; __pyx_result.bomber = __pyx_state[5]; __pyx_result.confire_dial = __pyx_state[6]; __pyx_result.confire_token = __pyx_state[7]; __pyx_result.critical = __pyx_state[8]; __pyx_result.defend_hull = __pyx_state[9]; __pyx_result.defend_ship_id = __pyx_state[10]; __pyx_result.defend_squad_id = __pyx_state[11]; __pyx_result.dice_to_roll = __pyx_state[12]; __pyx_result.is_attacker_ship = __pyx_state[13]; __pyx_result.is_defender_ship = __pyx_state[14]; __pyx_result.obstructed = __pyx_state[15]; __pyx_result.phase = __pyx_state[16]; __pyx_result.spent_token_indices = __pyx_state[17]; __pyx_result.spent_token_types = __pyx_state[18]; __pyx_result.squadron_target = __pyx_state[19]; __pyx_result.swarm = __pyx_state[20]; __pyx_result.total_damage = __pyx_state[21]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 22)
 */
 
@@ -14676,13 +14676,13 @@ static int __pyx_setprop_11attack_info_10AttackInfo_obstructed(PyObject *o, PyOb
   }
 }
 
-static PyObject *__pyx_getprop_11attack_info_10AttackInfo_con_fire_dial(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_11attack_info_10AttackInfo_13con_fire_dial_1__get__(o);
+static PyObject *__pyx_getprop_11attack_info_10AttackInfo_confire_dial(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_11attack_info_10AttackInfo_12confire_dial_1__get__(o);
 }
 
-static int __pyx_setprop_11attack_info_10AttackInfo_con_fire_dial(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_11attack_info_10AttackInfo_confire_dial(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_11attack_info_10AttackInfo_13con_fire_dial_3__set__(o, v);
+    return __pyx_pw_11attack_info_10AttackInfo_12confire_dial_3__set__(o, v);
   }
   else {
     PyErr_SetString(PyExc_NotImplementedError, "__del__");
@@ -14690,13 +14690,13 @@ static int __pyx_setprop_11attack_info_10AttackInfo_con_fire_dial(PyObject *o, P
   }
 }
 
-static PyObject *__pyx_getprop_11attack_info_10AttackInfo_con_fire_token(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_11attack_info_10AttackInfo_14con_fire_token_1__get__(o);
+static PyObject *__pyx_getprop_11attack_info_10AttackInfo_confire_token(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_11attack_info_10AttackInfo_13confire_token_1__get__(o);
 }
 
-static int __pyx_setprop_11attack_info_10AttackInfo_con_fire_token(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_11attack_info_10AttackInfo_confire_token(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_11attack_info_10AttackInfo_14con_fire_token_3__set__(o, v);
+    return __pyx_pw_11attack_info_10AttackInfo_13confire_token_3__set__(o, v);
   }
   else {
     PyErr_SetString(PyExc_NotImplementedError, "__del__");
@@ -14944,8 +14944,8 @@ static struct PyGetSetDef __pyx_getsets_11attack_info_AttackInfo[] = {
   {"is_attacker_ship", __pyx_getprop_11attack_info_10AttackInfo_is_attacker_ship, __pyx_setprop_11attack_info_10AttackInfo_is_attacker_ship, 0, 0},
   {"is_defender_ship", __pyx_getprop_11attack_info_10AttackInfo_is_defender_ship, __pyx_setprop_11attack_info_10AttackInfo_is_defender_ship, 0, 0},
   {"obstructed", __pyx_getprop_11attack_info_10AttackInfo_obstructed, __pyx_setprop_11attack_info_10AttackInfo_obstructed, 0, 0},
-  {"con_fire_dial", __pyx_getprop_11attack_info_10AttackInfo_con_fire_dial, __pyx_setprop_11attack_info_10AttackInfo_con_fire_dial, 0, 0},
-  {"con_fire_token", __pyx_getprop_11attack_info_10AttackInfo_con_fire_token, __pyx_setprop_11attack_info_10AttackInfo_con_fire_token, 0, 0},
+  {"confire_dial", __pyx_getprop_11attack_info_10AttackInfo_confire_dial, __pyx_setprop_11attack_info_10AttackInfo_confire_dial, 0, 0},
+  {"confire_token", __pyx_getprop_11attack_info_10AttackInfo_confire_token, __pyx_setprop_11attack_info_10AttackInfo_confire_token, 0, 0},
   {"bomber", __pyx_getprop_11attack_info_10AttackInfo_bomber, __pyx_setprop_11attack_info_10AttackInfo_bomber, 0, 0},
   {"swarm", __pyx_getprop_11attack_info_10AttackInfo_swarm, __pyx_setprop_11attack_info_10AttackInfo_swarm, 0, 0},
   {"attack_ship_id", __pyx_getprop_11attack_info_10AttackInfo_attack_ship_id, __pyx_setprop_11attack_info_10AttackInfo_attack_ship_id, 0, 0},
@@ -16021,7 +16021,7 @@ __Pyx_RefNannySetupContext("PyInit_attack_info", 0);
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_AttackInfo, (type(self), 0xea1922d, state)
+ *         return __pyx_unpickle_AttackInfo, (type(self), 0x7a49aac, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_AttackInfo__set_state(self, __pyx_state)
 */
@@ -16038,7 +16038,7 @@ __Pyx_RefNannySetupContext("PyInit_attack_info", 0);
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_AttackInfo(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xea1922d, 0xfded361, 0xf74c95d, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, con_fire_dial, con_fire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x7a49aac, 0x22686a7, 0x384f3a1, b'attack_hull, attack_pool_result, attack_range, attack_ship_id, attack_squad_id, bomber, confire_dial, confire_token, critical, defend_hull, defend_ship_id, defend_squad_id, dice_to_roll, is_attacker_ship, is_defender_ship, obstructed, phase, spent_token_indices, spent_token_types, squadron_target, swarm, total_damage')
 */
   __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_11attack_info_1__pyx_unpickle_AttackInfo, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_AttackInfo, NULL, __pyx_mstate_global->__pyx_n_u_attack_info, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[100])); if (unlikely(!__pyx_t_2)) __PYX_ERR(3, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -16128,25 +16128,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 10; } index[] = {{179},{37},{39},{1},{1},{8},{32},{32},{7},{6},{2},{9},{39},{34},{14},{52},{1},{22},{10},{28},{30},{33},{42},{24},{23},{31},{22},{11},{5},{5},{4},{15},{4},{5},{21},{21},{21},{21},{21},{16},{22},{23},{20},{19},{20},{9},{1},{9},{19},{32},{24},{30},{3},{18},{16},{11},{11},{18},{12},{16},{16},{11},{14},{12},{15},{8},{1},{4},{6},{1},{5},{14},{22},{17},{18},{3},{13},{14},{8},{1},{4},{31},{11},{11},{14},{12},{15},{8},{7},{5},{14},{12},{8},{5},{10},{1},{9},{6},{6},{5},{13},{8},{7},{14},{19},{20},{12},{21},{12},{12},{12},{12},{5},{8},{20},{8},{16},{13},{10},{20},{16},{21},{5},{8},{5},{8},{10},{8},{5},{2},{4},{7},{7},{3},{10},{5},{5},{3},{14},{12},{11},{10},{25},{36},{14},{12},{10},{17},{13},{11},{8},{6},{4},{7},{14},{12},{10},{12},{19},{5},{4},{8},{19},{17},{15},{5},{7},{7},{8},{3},{5},{8},{12},{6},{12},{5},{6},{3},{14},{14},{14},{13},{14},{15},{19},{14},{2},{12},{14},{97},{279},{215},{36},{159},{161},{15},{591},{734},{2},{18},{28},{18},{14},{619},{14},{13},{2},{87},{12},{14},{12},{55},{13},{13},{2},{11},{16},{20},{28},{33},{24},{25},{25},{32}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (3410 bytes) */
-const char* const cstring = "BZh91AY&SYJ}\241\300\000\004\036\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\300@@@@@@@@@@@@\000@\000`\014?F\036\336\367\236sm\333=\336\247[u\356\365\232\335\252\267n\366\325\357;\027g+\274\000<\007\204\242&\224\320\rM4\233)\344\333R\236zF\230j&\324\237\252fSOS\364(\007\264\223\30124\324\315\036\251\2656\214\004\312z\233#\"i\354\202\203D\200\247\264\r\001\006\206D\3042\236\246dF\233\322S\332\243\324\3654=@h\323#@\000\000\000\031\032\031\2504\365\006\2014\023\"MOF\251\340\247\352e\007\352\231\003\311<\247\251\221\265=\020\000\000h\000\r\r\003\3244\320\000\320\003@\224\321#SM\005<\251\3552\233\324)\371S\315\024\3316\212y\020\320\032\000\000\000\006\236\240\r\001\240\320\000\000\032\020i\211\201\006\000&\232i\246\000#\001\030\2310\t\200\000\214#\000\000\214\000\2312a1\002SJhh\310\2014\247\215LS\303B\206\322z@\323#\312\000\320h\001\220\000\032\003@h\000\000\003N\243\014\314\306\235\270Qn7\303C\2413\303\004\032\t\377\322\300a\222`\003\326L\002\250*\242*\250* \206\327\031\275\311\305\307\314U\250TQ\242s\364'C\303\252\274\240?X\243\357\240\362\363\240\362\203QPUZ\225s\363\364\264\235\342\362\032\217/\217\313\347\363\323\247\374\215\364\177L={[;~\273\355\326\274\355\356I\\\2259\245\340U\334\263\256\341\372\256;E\334\026\360\020\020\\\004\022 \200\217\004\027\005\301tSL\367i\246\355\352i\246\241\202\206\021\202\246-Z\373\357~Z\364#\365\355\366\377o\337\277\336\231y\272^\014\340\245\225RI\024\221\211\"\216HD\221\311$\362\3134\377\361\002\034\374!\025\225\216\200\356\3642\036\316m\231\326\357cU\2111\r8GPW\024B(T\"\204E\024P\304\250\242\021\227\021\013]\3322plt\277\223\330\307\272\256e\3674M\346\010\037H}\367\334\017>\373\357?\004<\240\016}>\023\364\325\337\256\306\335_\340\273\325\316\353\311y\347\236K\317].\335\275\277\026mc\342\332\353\003{\274\036s\234\347k#\007\\p\262d\231&I!2\005UPU@EUQU\275\231\234\324*\317G9\316s\363\0212>\311\266\223.:\273x\306UliJR\224\362\r\316\r\275\255^n(B\020\203\351\215\202.\337\373\346x\032\334\251\366\324\353\265""\014\310\317c8\031\330\204\3479\316s\235\331M\263\022\0232BL\230C6!0\222@\351\235\010\031\221\2303\004\027\352ro\271\340\364\304S[\354\204\021\001\352\007\034q\307\023\210\201pM\265\275:\225\306\205\006\232i\246\346\0315x\365\360pos\361AlQ\343%)JR\224\273th\362.\361\302C\256\014(\214s\3479\317Ke\263\244!\253\030N\3541]\266mt\316\220\206\0231\344oe\321\250\010\202Y\2752\032T\321I\010\362\236\207\224UQ\301pa\313\226\247\024\242\200+b\223B\034\340\005#\020pI\311\202\342D\023\017P\365\200GK\324\220)\225.\022\270N\301\310\2300{\320C\324\354\355\"\225P\016\253\000\340\235\200\261\267R:\335\372}\335\353\177\3355\335\364\027\374+]\207\001\261\204\302\331\227\276\273&\026\335\201\345\320\3210\354B e\034B;4XB\016\303V\231!P\322\003T\233\302E0:P&\261NhMS\373P:jB{\034Ww\034\371\361n\233\304\316/K\006\301\337\177\346\233\357\010cit\030T\243\200Pb\374zY\n\276\005\206\"G\266c\215\365t\267\251\324\362\270\333<\273&Xb\327\307\030\233$\034\346'\021\000K\361v~\245\275,\272^\025s\013|?\256k<=sd\366T\240v\351t\310\204\203\222k\021\002\035A\252\005\225F\310\310?6\230q\374\266A\017\340\206\005i\024\212\305\227^e8a\243\264fp\024\024r\037V\243n\337\002\267\333\0063\007\222\202\\\210\010\016\231\212\343\3750\344\303l}\037\252tMO\333\241\372l\352\236\223N\312\312\347\001\t\261\017vQs\2322\356E\267\320\306\n[!q#\024{l}\221\230\332\330\200\341\245\247'\341]\317K\335\005\354\235\206\335\327^\026\033\027?C)o<y\3524\233\255#i\361v:\324!\307u\014k\216\267\260\021M<\301\347\345D\247\344\237\334\250-\245\217\266\300\241w\230t\314\323(\317\247\264\177%\335\254K2>M\360\314o\307\242\314z\014]\022\321\026n\277\231\007\241}\013&\253\340C\033\336\273\007/M\351\233l\322}\232\005\331\210\\\031\031\002\030\211\n:\262\216\271\ro\257\231\226\315\263\262p\233\223U\264\345\214\177\353n\234\346\231i\236'8%\320%\376\371w6\235q\243|Bb\312\237\230\362\\\246\362\026\033\004\301t\306\361jk;\356\304,\221\232P\n\304\327\214\001\340y\376\314x\207\037\225N\224\250\016g^\254)\355[\262a\362\213}\314G\260\234\330\333\267\342L""\260\255\370uf\010\364\260T)\223\006\264v\350~F\333\270+\352\327\233\327\306\216\005\331P\030b\027\224\336\267\227\022\333\301\202\210ar\261\030D^\\\334_\t\000\340\340|\267\354tX81\200=\347\307\034\243\343\224o<G\315\236\247K\\\001\t\036s\213\026\330\207\277\2711$\241\202\315\210\333u\250\300\035|5\240k5\240\252\362\37306\n\307\267\337\030c\327\267\320i\371\276\312A\207\220{\222Kr]\\\321\360W\2245\330!U\006Av(\235\003\207\003@\236\320\250$\311\222\254O\314\031\344\271\247\036\004\224S:\032\032\213N\221J\356\ni\206d\310\304\257\233\321h\354\311S\034N\357\202IB\021\035\354\205e\005\257t-\020\231e\3310\270u``\325]W\252=\243\276u\2647\364\276\303`\370N\276\254 H\n4G!\330\276@a\263zNktCTe\324X\312]\247I\252\265\266G\251\2579\327\266\313\226\344\361\375P\304\336\340\325\006\267\273r\326\306F\350\32160\223\016U\232d+\261\203\033j[\022B\262\330]\215\372\253\222\032\201\341\244\245\220X.>\351kr\377.\213\263\266_H\325\2741\303\317np\37589\017\215\203\010\257J\017f\263\324y.K\211WMK\013l\321h\261\201\255\256\263,\217\245\350\017D(\320\25477tExE\205&M\202N\347U\006\344\014\315\"\246\240\304-\354\331\340\332\025\325*\352i\251Q \260\214CP\307\240\273\345\303e\215\312O#q\301\300\265\251\203\266\354/\025\346\200\305\347\330\010B%\021\257q\\\026\210\205\225\256f\007H\326a\2423X\252\240ff\333\331c`\351\034\273\334\n\315\240\322\004\306e\232\210|\024\344\302 D\351\234\326\272\222\245Q\026Y\216\021\0053[\202\326\267\t\260x\212#3A\026#D}\"'x\322\235\345fZB\356\304\253\341\254\010\214\030\352\277V\032\352\326\251\360\002kE\014\210\344l\265.\372\031\260\342\026hd\2153\\\n\267\034\364T\330Z\244\2070yt&\272\024\306\255+\014\224\2400df\r$H\023\2414\236$\275&+\235\370\262\316\206\306\356o7&\266\310\340V\330o\014\326<bR$-\325\307^\005\225\rn\345\t2\352\252\246\235\033\235\351 *\266\024x,\222\346\251\332aW%\001qp\224\002\t\222.P\254D\270%\310,(\240J\320~s\204\3658B\361\226\252-\021!\260\234\347%|\027*v\032\364\3245\367\311Wu\2221\316\252v\325r\035\257\336s\222\264\353r\032s\"\317\214b\301\214""\3453\272u\215\321\266ah\203\317F*L<DG\245=?\007\216.\\\022{\244-\005\245h\010\222\301P\304/e\030\225\230\353-q\343\366.\322\301I\026\"B9\340T\361\022\305\240M\"\231\346r\334\307\240\025\n\010d\3158\014\344\261\352\027\360-\013\262<q\245\333\007x@V,\0302\202\200\006F\006\313)\316E\002\nH\017>,\242/2\372\340Z(\270\325\223wC\240t;\272\021\216\233\306\303\027\250\264\373\226\236\035\232\241\327\306+\3061=\262$\006\001\211\000e3\033\212\371\"\343\211=\033P\312\006\036\334n\345\271\034\354\206\361S\033M$0\342\264\237/\221\217\223[b\251\263\243hl\344\350A\312\\\222\003\031\013\014\226\261!\223Zc\270\325\307\004\005&iQ\246\005\031{\262\"\203x\211\321P\010\274v`\214,\322\367\024@\332!{\020\\\230\"C6\247\214a<\251\354(\200^\376l\373{\204\205\310\005\210\227n\010\202\203\240\364\"BzhyO~\261\262\013>w\026&\224\010a\032\273\031B\303H\326S\261\032\371\250\032\240\233\022\266\206iQN\361\231\256!\344\225\211\204\016\306\274\030\265\366<*\260\265j\2565\006FW\017K\020C\2745t\035D\302\211%\027\254\311k6\202\305\276\360Ch\261f\376\321} \212\361J\003g\266\213\230\254/\224H\210(z\327S=R-\034\335\273\327%\247\233\213\027iN\254\346\234\356r\341Q(\261\327!\311\241\323\030\210$\323\340\322\000\211&R\322\031\016j\000c\225\005Z\272\324\004\026\020f\201.\341\t\250\244\003<^@\357\224i1H\224\202\262\211\022\256\241\312\221\202\320\323\260\013\326\001\302\253\2426\3004\206\007\256\304h\266\351\270\334\372\035\364\267\327\002\344,\327\363F16p\313`\010*\2241\2345)\366\210_E\334\256 \202\331Ib\202\321\320\207\302\303(\333\350\364\375k\034/\272\0225\322P\256\351;\241k3\342z\361\336:\316\030\001N\366\014\030\007\026|\270\r!\363|\361\037\016X\001\223X'\231\243t\342Z\261\256%,\271\353\271\273\306\n\000\313\307\341c:M\016\207\\\305q\001\231\351\314B\017\204\365\037\206{\230\300U\353\267\331-j-\205\203\300\355\235\373\370Z\311\312\313f\334\235\025\201\211\226U\333T\367\376\216gE.\277\357\360<\3728\305*\036,x\343\2462\204UB\035f\246\t+N\217\034TK\226\037\211w\"\271\206XI\320`*\257\251\002__\336\232\364""\347\035o\247[h\274V#\226>5\267E\327I\312\022\233\361\214]R\337U\241o\361\222\247\200\335\322\312.\212t\007\0261\315\216\n*\323\037\320\356\002\352\361\200\312\033g\310L\030\031\376\244\370U\211y\006\3777\265\212\243p\326\244$\376d!U\024+\027\270\213$\352\\\243\322k&k\234\203\220[\311g\327)Q\252\033\025v\272!\311\224KA\3618\253tY\266\331I\007\332\256G\232\203\023\020{\315Q\223EK\377\373Z\031o0:5\261\276\022\336\256\230\306\315b\321\306\203\325a\256D<:!\254m\371\250\237\r\353\347\221p\270\342h\3617\246(\204`\223\246M\305J\324\213\235\257(\370,\304\244\224\230\231\375C\024\\8I\302\304\223\217\006\314\323\005I?x\271\352O\007\260\211\324v\014\311\263\t\224W\304\336\031\222\223\347\235l\220\234\001\000H4tl4\330\233\367%\377\\-\014+\362~\215\241K\213\360\264\313\314\300\257\253\036)0\344d\214\212\036\237\035f\311\213q\3353\007\313/4b\303\346\246\226\207x\355\321\371Y\376Ma\223\006\256\346G-\036\323(a\327Z\367\247y\tH*\026\352\002\212&\231LD\262P\025AT\317\263\232\250\300Jz\267\263\3423-u-J\374\267\363\224\276,Z:\225\353\375\375\336\356\005\341\256f\306\214X\3677iQ=\351:\277\313\302r\227\374V\347\2075,pK_\017\263\334e\032)\330\272\275?\313\336\2600\246\013\204\363s\241\264\333\242\0244\207\235\321>\34203M\320\2259Ib\306\255\273(\032<\230\326!\335\235^\366t@\322\224C\211\003\013(\2058\221\242\242A\334*+F\002\006\314\037\2060\210\270K\330jA\212\217\006\213\250z,M\204\0202cX\271\013\267\3463u:\026?)4=\364\031O\210l\232[\355.\024\0211\021\224\370&\327\023\363\324\t\325\022PfuD\006!r\0372\016\320\264\250\323\245\rDC\204\007d\016+\007\254*\210\353U\265\245r$bu\233\022\275N\250\311uVv\264\254\223\252\354\265k1Kl=\323\275]\226\314\324]vg\267\222\261\301\235E\257\305_\2343\211\331\023\342\231S\010\352\353\352j\2005\027\"\202\023vu\377\213\271\"\234(H%>\320\340\000";
-    PyObject *data = __Pyx_DecompressString(cstring, 3410, 2);
+    const struct { const unsigned int length: 10; } index[] = {{179},{37},{39},{1},{1},{8},{32},{32},{7},{6},{2},{9},{39},{34},{14},{52},{1},{22},{10},{28},{30},{33},{42},{24},{23},{31},{22},{11},{5},{5},{4},{15},{4},{5},{21},{21},{21},{21},{21},{16},{22},{23},{20},{19},{20},{9},{1},{9},{19},{32},{24},{30},{3},{18},{16},{11},{11},{18},{12},{16},{16},{11},{14},{12},{15},{8},{1},{4},{6},{1},{5},{14},{22},{17},{18},{3},{12},{13},{8},{1},{4},{31},{11},{11},{14},{12},{15},{8},{7},{5},{14},{12},{8},{5},{10},{1},{9},{6},{6},{5},{13},{8},{7},{14},{19},{20},{12},{21},{12},{12},{12},{12},{5},{8},{20},{8},{16},{13},{10},{20},{16},{21},{5},{8},{5},{8},{10},{8},{5},{2},{4},{7},{7},{3},{10},{5},{5},{3},{14},{12},{11},{10},{25},{36},{14},{12},{10},{17},{13},{11},{8},{6},{4},{7},{14},{12},{10},{12},{19},{5},{4},{8},{19},{17},{15},{5},{7},{7},{8},{3},{5},{8},{12},{6},{12},{5},{6},{3},{14},{14},{14},{13},{14},{15},{19},{14},{2},{12},{14},{97},{279},{215},{36},{159},{161},{15},{591},{734},{2},{18},{28},{18},{14},{619},{14},{13},{2},{87},{12},{14},{12},{55},{13},{13},{2},{11},{16},{20},{28},{33},{24},{25},{25},{32}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (3417 bytes) */
+const char* const cstring = "BZh91AY&SYO\374Vs\000\004#\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\300@@@@@@@@@@@@\000@\000`\014=\030}\275\355\355\302\275\353m\352\036\335\356w\247\273\036\332{=:\355Z\250\312\367\200\004\007\tMDI\246D\312~\247\250mLjyL\311\246\230E<C)\344\233&\324\231\r\242zhz\232\t\23256\246\324\330L\247\244i\3444L\306\212\006\211\023\023'\240\236\201\006G\250\020\324\361M\251\352\236\236\246&)\247\250\365=F@\007\250i\246\200\320\000\031\003COQ\352boT\rL\004&\221)\371)\223zMO5FOP=G\244\315\252=!\243OP\323@\323\324\007\250dz\206C@z\236S h4\000\001\210\202\000(e4\2365=S\365O\322\236(\332M4b\000\000\000\000\3044\r\0004h\311\240\000\001\240\203LL\0100\0014\323M0\001\030\010\304\311\200L\000\004a\030\000\004`\004\311\223\t\210\022\232\204b\t\250\323\001L\232\236\322i<\247\224\361G\2414\036\223F&\2004\320\000\000\310h\000\000\000\320\007\374A$\216\rX!V\243`\354\202-\013\340`\233\250) \202\220\004\001\354\240\002L\223\t&BL\014k\356\233_\035\315\335\363\207\200\340C\331\254q7\024\004<0 \"Y\"$Fh\025\206 @\366L$\270s\363\353\327\341\320\361\236I0\273\303\345\363\371\364\264\277a\376\217\335\332\213_[c\370\276\331\177\262\035\257}\037\207\006\377\316\227\t\265m\033\335{u,\274\347\363y\344\322m\310M\2316in\265\333\024.\340Z\347]\325\334\272\265\254_\303\202\226\263\337\241\273\177\222\346\247\014\214\177\035\336\367/5\236Y\325?\213\240\nH\244\215Q\327\021\306\250#\2165G\034b9e\324@\207\375\274\021i\233v'\311\336\311\312z\331\265\254\261\315\340\265\030\340\227\177\010\335\033\312\256\245E\\* \245*\272\242PT\222K\324!\253\372\361e\333\223J'\307\261\321V>\376\217\367\303\352\010`HL\020:\230 \202\007\340\206/D\001'\203\310\202\377\017R\375\355\033W\305\353\335:\311y)Jk\266\333Km\275\276\375L\270\371\\9\303{\242:1\214c,\214\034\007!\223$\3112I\t\220$\220$\300\311$$\376f6VU\216\210C\0140\303\022\2335,\252\322)\\\361\344\365G:\223\234\3479\323<f\343\361\265\2649y\314\314\314\374!\226R\357\371\233>\037\01758\365\342\344\"\221\026]@7 E\226Ye\226Ye\271\006\221\212I""\002\220H\242\020'\020\201I\"\310\271\010I\222d\230 \255\326\351F\255\340$r\356k\216f\r\0024h\321\243G\236\303c\362\350\342\315\024\\H\2106\333m\271(\347qqn\356nmj\340\202\320\267\306\363\317<\363\317=Z\221\243U<p\220\365\301\214J\035\344\3479\353i;i\004\r`\204\314A\025\324Nf`\022H\200\211\033Z\272}\346@\010 \\\275\000\200;3\201\351#\032\240\245\006\265\204\201\213N\021\3100\002\351\n\320\3446\300\025\210\004\307I\250L\3431@\366\017f\006\347\201$a\nU\270N\341K\303\200\024(|\006\033\241\253|\345;\034\273,!\304\235@\274\227\221\033\034\323\373\265\027K\256\234\315\205\352\354\253T\023x\204\023ix\252\344\023S\r\352q&\266)b\004\006<C\037\013\207\256\314\265\350\024$\202\211\201;\"l\351\t8d\341\216\304\314\305-\316N\0222\0022\351\273\270\351WN\352D\024=o\013\205\337\271\335\243\346\r\211g\323Qa\030B\002\0301b\300S\326Z\022\022:\205\371^\247\336\331\2437;O?\014\354&h\352\337\224\214\344\034o'\010\200%\357s;\2124\231\222s#\331\004l\217\224\333\232\322\313\323E@\361\315\255\264=\350M(\273\036\361\024\274Op\371Xg0\037\214&Ru\341\200\243\367b\346\266M&\265\261\352M\247E\330w\321\023\n\212\274\207W\"\353\340i_\3662\221\002\317\250\237|\301\207\\\205\261~Xv\033\215\371\226\361o\226\322\351u\353h~'\\\317\266\266\273\300b\246\t\005\303/[\307s\346J\3469\302%1u3$\203XQ\"\247\305\210\016\014\231\227J\307wk\271\351z@\274\343\221\307\275z\340\231\257y\334\365\362\343+\352\016\267M\253\001\2248\361\375\336\367f\224;[\204l2=\317\220\"\365\356`\227\345E\303\232\027\355;Q\251E\246^\250\351\232\351\34082k\235r\336\336D\357\270\327\027\316\260n\206\231\273W\254\314{L]\"\301rVG\272\303\344\241\020\235C\204\361}\355\034\275$\314\333\206\223I\273@\246B\024\214m\001\024D\207\215\336p\365\210U\354\3634\341\315%\335\206\346\305\341r\251\325<\021\334\226\007v\353\364\005~\377Wg\035g[7\304&!\260\210\217L3\036J\027q\014\013\304\310b\310\322V\250ki\240\207\020\343.T\0142L\244D\rg\177\354\222\021\217m\336\323\216\216\014Uz\364Nb\261E\245\337a\334\332\355\330\341S\003u0x\371\2029\027pR\245\325T\347""\234\364\332\303-Ul\211\356.\355nq\251{T\\\014h\002\361\035\353,|.aXN\273\244\350^\024\027*\326\346u\210Eh.\205;\230`R#@[j1\322\226C\2538\350)\255\311\361>\016(\024I`\252\0206\021}\323\330\246\324\030\301w\246.\255\2338\010o\307\274\r\227\274\022\201{)l\026P}n\014l\334\233kOO\3346Q\316,\323;\371.\216F\370Q\346\332*\016V1\236.\316\202\250\220\220\030\226\240(\210\024R\013\220\013:\344\217c\024\223\312\370\2271\241\222\022]\350\224\234\224P\305]c=A\211J4b\314\327\326\224!@f\246\023\016*kaP\204\317\205(\201c\304-\036\353[WYm\255jN_\r\264D[*Kf}\033\203Hj\350\256\243\231a\220@\254\366\020(\355\001l\021\3528\305D\025j\202\331\320\260\206\211\361\326|\226\202\255.\227\252\030[\2524\303W\333\262Y\3627\271DX\276D6x\230\207\253_\243\215\263T$\205\304\250-~\354\353\202\032\201\317h(d\026\215\216\354\211m]\267E\261\250\271#N\360\307i\315n\210\355g\231\213\253\n\035\215\216\345F\222\312U\226L\276]\364\216r\220\362\352%\335\313P\0139\317\211\020\326\277L\372\355\367\225\241Z\221F\3103\013\234o8$\300Rb0\013\207\237K\215\260\255P\256mb\255\365\204\311H2\230\367\343\026\344\247L\3438\034\004\232\2109\266!`\254N\021b\343\224Q\026\211\222\266\254}Nsa\205p\200\252\215\223!\0235\255c\3034!\261\2345\217\204\301\235a\\U\320\333\322\336Zz\341\224\023\031\326z\036\354T\352c\020\"4\306+T\224\234\232\025(7\303!\022\\\022\326\270QC\300\251\252\253\032@\3107\204\026\001\241M\306\330<\200\267L+\354k\000;\343\263M\364\352WN\212[\020\021\240D\240\370m\2313o\263_\302.5\030#W\032\261\254\255O\013\324\013lg)\213\036\214\337\243U\367\302V\230*\250B)\004\222\020\0012\010\301\236\013\324\"\271\336\371\363\363v\263\256\022\361V}\277Kc>\350`\005\330\014\210\023\231\237YWr\265x4D\032w]\"\265\345\030\360,f\210\200R\320\250\342\325\343pA\017\225@dRP\000\202h\213\252 \326&A2A\201E\001M\207\345=\343\363\235 \264\335\346\236Q\360\032\371\3348\205\300\266\343\230\342\3231\256vI\363\362?\034gN\322\256\003\232\353\3162\254U\322\306Y\263m_4.\202R\232\256vF\270\333\305-\210\266\252\203U2\230\221<\371\312\276]\212E""\242\3031a\352\251\252\222\307VrA\232\230&2\t\364L\213(\352\245\277*kGG:\301\266\n \n\236\002\030wD\320)\216\263\212\242:\200T'\217d\315\027\206\301\014y\213\273dn\024Jz\312\301\303V\326\300\203\306\240\023 \317\007\251\311\250a\354\341n]\224NS\031mn\3426\032\304\331\220d\031\006fA\014\222\270h\"\350\320\333\3243\334\3153b1~\312&\363\265fx\201\022\004\323G%\361\301*M)\341\266\244\324 \322u\367Y\317\326T\307\215\262\013*\306\010 \033\301;\231U\262\331Wh\257\230X'\220`t\260\006\342\206\005\021\301\221\244\264\223\360\026i\346\250^u\270\213\207v\010\363\265[iXMc@\rt\347~\270a\266i\204\201\266B\356 \311T\"CV%U^H\010\006\027\223>ny!\222\001\2020;\356\342#\232\321B\0014\242\320\237mX9B\321\241\202\3250p\201\010uY\363\003)\210\323VM\032\231^5!c\025\324\366j\337F\301\225\255!\323\"&\0209\215\250\021Sp\274k\367VJu\rJ\235\247\031\n\3004H\202\014\320\315\225\225\003U\013\222\241\242b\251\232\325\245\270\350!\2621=\314\345\352\001\021\321\256\003q\252}\254D/W\"B\001\332k\251\246\230\n\007e\326\335d2\350\343d\355\345\232sL;\355\032\211\340\373\014\260a4\031\021\204y\006\2377\0203:m,F\0057\201\005*\213!f\235C\017\242\210B\206\177\003\023yU\003:N\254\034\354#V\305\002U\204G\326W\032G\024\242\352\203,\300\274\256\034\024\333!\265\301\253\030\035\031\243\023l\235\213yos\262p-\345\232\336\370cA\260\001\034\300?v1S8n3\353\220Z(\312\352\0101\224\230(,\035\244>\030\031F\317?\243\330\237d\372p$V\030+\024L\244\223\241\2133\342M\303\027\001\356\236\361\305\010+\017\340\301\200o\350\313\204\336\020\035\310\270\\+\230\271\313\227\277|L\326\t\327\031t.\221b\263\036\315\025\2679\201\340b\336\3460\3273&y3\020m\300\006t\211\301\347\304\002h\266\266\212\211\346\014:l\234\307t\367\327\206\256O5\352T-\034z\310\030\2327\371\0352,\335nn\333n\002V4\310i\270\351\252\002Q\210\031i:\020(\260\334\\\t\232\345\307`\247.3\214\360\235\336p$\275L\024y;\255\251\245L\3739\272z\345\004\346\205[\365.,K\342>!~\375\350\244\274\335\264\272\022\267\247\243\266l\370;$\263K\034\204\265\2675}\271I\347\341\350\207\332K""\274p;\027`\3713`\314w\315\261''5\344\315\277\257\3628~\032\337\234b}X\234\220\202\311b\262\236q\257\315\275&\230gC\013\020\214\2570\n\035\000z\r^\r{\023\253_\230\001\0207,\373\356\330O\277i\231*\006\201\3549\276\342\0177\372\352bj\033\372x\017\236\0264\372\237\014\010#Rs\351\271e\365&z\2555\n\244\0045G\271\364\r\020\370m_@\313\013v\253\310\n|Uj\2638j\224\251\3445\231V\303\340D@T\2335\263\\wx\307!a\316*\n\253T;z\264\314\024O\312\027u\030\201\006\021S/\326gS\244R\313Z\017\376\351_\267\323>\341\247\036\320\230\034\342\275{O\023\233n\350\241\311\t\006\025\003\022\274\2037s\255#\265\235F?\025\275Y\363\263+\016\253;\217\303e\254d\\\343\031\304C\221\346\212Z}\021\340\357c\237n_\316\333\256\367\025\246h\37337\262\356\335\321\303\215'\036\247\214\277a1)\000\2047\210\322\031\271\010\004\201#\273mM3\201\264\264oq*\231\322|\222H\375\250\231\350\276-^C\233{\023\247\263\215F\360\324;\221b\226\270\2739\271g\275\252G\362\377F\361CrQ\337\3565\256\t'\277\353\367\035\222\273r\245\361\007[\211\330\002\010B_Iiz\315\254\272\341\252a\275M\362\360 \311\223\\\035\212\223HWV\327\233\024 G8\016\352\350\370\025\314\302\316 80Bs\200\211\022DS6w\010p\254L\304h\037v\032\005\302{\213VYU\331a\320=R\tC\0303\304\220\322\027r\2504\277\353|[_\npq\343@\\\003\345\022\356\272S\202a\207\213D\027,{\3536\261;\243\000\250lEq\250>Z\006s\274\247ZV\214ut\005y\270K#\330\304\013$\035\232\373\316\014\335\034\353j2\222\331\016\310\207u\222\227\305\366jYV\267Pv\213yV\263\313\201J\367s[*\213\257]\026f\027\340\303w\240\315\002\333\302\210Mv\025H\371\02144rh\001\231\367\336\020\213\231\313\377\027rE8P\220O\374Vs";
+    PyObject *data = __Pyx_DecompressString(cstring, 3417, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (3240 bytes) */
-const char* const cstring = "x\332\215\227\313_\033\307\262\307\255\221\304K\342\025;'N \216\024\3438q\002>8\370\332'\211o\242\3600\304\200$\220\r9\006\206\221f\220\306\214F\322<\320\303\330\361RK-g9\313Yj\251%K\226\275\324\222?!\177\302\251\337\214$\013\207\223{\375\301\363\355\256\251\251\356\256\256\252nm\026\014)b\344\004#\262X5r\0055\"\353\021QR\344\264\244\t\206\244T#\272\241\311\031C\322\240\244F\022\313\211\331\205\307\013\021A\025#\232\364J\312\030zD7\323\031E\320uI\217\024\216\"iSV\014Y\215\030\325\242\244\317E\326\216\"\325\202\031Q%I\214\030\205H\221\364\372?0r\222\032\321%\003\215\310]AU\013\206`\310\005\225\247\317e5{7\"\312\032\r\"\237H\370zEPti.\225\2439\322\037\351F\204\210\236\223\213\263FaV/\231\202\250\321\002\004\303\0202\307\256RO\226\023\364\210\240h\222 V#i\211\2064\004-+\031\2228\367\263 \212<Y\222\004-/\210\002\237\025\362\322\375LA\223\356{vxY=*\314\025+\342\337\277\257VDY\027\322\n\331\3063\233\221u\257%\252f\276X\235\343\361\311\\\336$\327\010\232&T#G\202\254x.\221\363\305\202f\364\253\231y\301\310\375E\343'\354\204\232\325\013\246\226\221\376w\356DRO\356\257\313\351\373\272lH\263E\232\212\220\225\364\373\256\235\373<MK6x~.\343n\352\354\367\377\304\022\356\305R\251\330\3423~ky;\276\376b\231_^YY^Lm\307\334\205\254\321:\336\267\346x^\223D3#\361\236\005\236\277\364\216vL\247\215\272\362mFP2\246\202\227\006m\246\302\213B\236f\326\247 J\264\373\232\304\223\347e\3545\351\270\033\305{\233\322\247y\244\025\362\274\256\nE=W\350\227\223\326Ub\254Y\026\024\271F\266\rrV\3324\372\307\325\244|\341D\342E9\323\221n\tjV\372u+\266\270\274\270\036\337^^Z[\\^\336H\244~\347\321\342\023\361\370\372fA\225\022\024<R\242\032\303\266\361\033\330\3015J\207M\251<\177\225\360\301U\302\357\257\022.\\%|\230\250.\t\206\220\242\344\341\267Wc\224n\350K\206\234\227H\331\025\343\221\250\246HByj\010\375b\236OT+\364\177\2112\226\337\224*\306\226t\264\275\272\226\340\227b\033\261\247\313\374\332&V\266\275\235|\036[\372@\226*\034K*l\010\344\300\254\232\227T\243/\342\347r\222R\2244\375\n\321\234\220q\023""\266\0107]\365\036\376\276J.Q\250\362n\035@F\350U5#S\360\024\264\202I\345C\322;\351Eil\360\212\214h\363\372\246\242\364e^\247Y,\024\024\nX\235<\331\221h\330\333\3766\257?(}\320\357\216\201\022\322\327\344e\261\333CX\366\267{\257$-\235\246\365\246\013y*\224\231\214\220\311I\356\203?2U\327\037Wg\001\357-\230\247\000\246\254\315\243Kk\245\225\360\206&d\2444Y\316(z\206\334yDu\217B\225\254t;\006v(\243Q\210\223m\221\346!\374\037\211$JG\222*\272\036\3534\261\272\276&\255\246\333\303g\375\355\336+I\343y\2123<\364\214\206\275\244\211\360^*\365z\005\005\n\010:\017\"\005\247\252\323\214t\t\273\354\036%</\225xZ\211\244\210\372\221\"d\365K\311\315\273\216\243\317\341\032\357\341\326I\036^FO\354d\301\377,\360&\245\371\007\242\023A1\245\376\252\200\266\321M\221\256\202k\327\253[\274WS\275A:m\023S\350\266Q\202eZ~\245[J\257*.\262J\326\324\214$\353|7,:\216\325\371^$\273mS\245\374\246V\337\234\013i\034\237\220u\035\215O\251\337?\357\216\022\305\212\356=j\022Q\323y>/P\324\320\277|A4\025\t-\225\262\313{\352\252\250\322\036PG*\323\303\314\343\0332UH\323\031b\322i.\026\350\274\325\334\224-\026\212<O\347\027\217\020>\326)'\335\236\227L^\273\34324\r\267\312\240e\252E9sL#\277\257\260\177\363B\307\336\2747sb\340l\304\244)\330\024o\342\275\023\207\377\313\331\323\023`;\372\3128:E\rO\303\324(\330\224#o$\367\361>~\274\2767\212\356\346\205\340\256\255w\212\361W\234hzN\240\013\014\371\273\033Rz\221j\242\227\205\024\014\030^\357\027\271\367\235\356\205\243\223\201\035\353\344t\367!S\016\321\335\307\235\0309Z/SY\344yC\242\nw\251J\230E\204\211I\023\357\316\312\r_\367\241\327\344b\335\367\347\300\265\321\033\354\372='\352\314\367z\267\355y;F\275\241K\357F\250\327\370\331\216\332\324\271\010_o<b\237u_A\261\361\310\232\265K\216\357\035\272\3010\013\335b\267\0365\215\326\243\263\250\247\377\230M}\347\304\234d#\346\366\331\365\031;f'{\203\272\357\336\3050\314\214=O6\206G\353\033\326d;|\313\022\332\341\211\206\277\361/k\315N\332\"\273\367\244\225l\t\355\211/\254\262-\330'\316\226\363\226\004\257\316}\347""\244=e=\242)>t|\316\344\305P\230\205\277\264\357`Vm\264i]4\300\300\265\341\031\373{;\347\010N\t\235I61c\257b\364\366\320D\177\2731f\345h\200\222+\216\3327\235I'\352\266\277\264\277\306\302\2412b}\r\217\2409l\335\264'\355\0175\330\304m\373\2613\357\304\376V\036\261\2070c\230\031\267*\336\204\373\233\375\032\227\333\357\255\\\232\300W\336\372\334\366]\273\342\224\232\236\231;\366\256\223t\004\250\207\255Ul\300\305\320x\275Dn\231\2706\034\256/\324\rv\375\216\275\355\004\310d\370\243\306=+f\221+B\365\237\032\206\365\275%\222\365\256\324\365n\324&/\177\3348\200\007\250\373\205u\352x\255\250=\355\220\312\224\265`\225\354\020\2047-\237\365\205kw\350:\306x\016G\270F\3569w\330\375_\316|gSl\375\220\035\212L,\376y\355Z\311\267\302\021V\2705`\215\373\r\370\215{\306u\354O\261\357~j\305Z\373\347Q\327\310\234s\334\232>K\236\345\331\366\016\333Q\231\2521M\177\027\303\334\027\3525k\322\272k\177\356d\233\264\230\361\272\321xb\373)\004$\347I\313\007\235\341v8b\007\354X\017\237Y3\210\272\317\255\224\355F\240\273\360\1774D\213\360q#e\275\027~a\031\264\370\017z\323\326\222\355C,\322\352{\350\010;\350hv\214}i\317\3304\336m{\201\302\215\026w\303N\266\3037\255\200\025{\027\273 \335\022\362\3413\366\351|\363\006{\370\364L?\2379\227\331\316K\366\222g\374\t;)\223O\274d\231\266\026\311\341>\373c\373\270\371Q\363ak\364,u>\315\236KL\312\261\234\314\344<9Q\365\305\340\313\030\367+\360+\267\tlr{\300\036\267\017\354s\007\334\005\271\356_\215\247\335m\237\266\326)\350\256;\213N\311u\370\264\025k{\241\003\350\215hc\241\361\306\216\261@\204EV\331\252\311\314\032\031z\355[\206\275e\21663L)\335\t\231P\375\207F\262\361\n\216\240\240\2442\322\016\177j\335\302\332\251\373\265\023j\316\273\255Y\312\303\360'\354\223\257\035\267JLvT\247,\357\3657\316t\323\365\323\230-|h\363[\212\271\377f\363\242\247p\311\022\212\001R\240\344\276\217b\347\335\224\215^\204\0213\363\355\tw\177\\K\224\203>\026\235oN\265\226\317&\333\023Slj\326y\336\2146\347/&n\260\033\017\232w\330\243U*HS,E~W\230R&'T|\353\360\305:\027\007\342""\\\002Hp[\300\026\267\rls<\300s\207\300!'pm\330\373\306\231b\013Kg\261\263}\266E;~xq\305L\246[\311\377\307<*d\266\352\353\354x\022H\276\237\300_\306\332v%?\264fZ\202\353\223\007\315o[{\347\223\347\263n\354Q\206!\366P\375ig\220\200\236\307\0364\277k)\347\337\270\211Hap\322q'\nB\327\221\3568\323\354\341\262\227\261\251\213K\022\301U\230\261\327\233>v-\301\022\311v\000\305\3605U\214\005\347\224\375\230d\311=\266\267\317\366\005&\344Y\376\rM\377\255\357r\231\350\254\360\337\300\2779\005P\2702P\346*@\205;\005N\271U?a\325\377\022x\351?\002\216\374Y \353?\006\216\375e\240\354\217\005\2205\201u`=\260\001l\004\222@2\260\017\354\007T@\rT\201j\240\006\324\002o\201\267\201\337\202\230Yp\017\330\013f\201l0\007\344\202\n\240\004+@%\2704@X\032\210\003\361\201\004\220\030H\001\251\201C\340p\240\000\024\006j@m\3405\360z\340\017\340\217\201g\203\204g\203\373\300\376`\016\310\r\312\200<\250\002\352`\r\250\rn\014a\rC\273\300\356\320\357\300\357C\007\300\301\320+\340\325P\r\250\r-\017#\213\207W\200\225\341g\300\263\341\035`g\370\0308\036>\001N\206\313@y\370\0248\035^\035\201wG\366\200\275\221,\220\035\311\001\271\221<\220\037\251\002\325\221\247!\302\323\320\026\260\025\332\006\266C\273\300nH\004\304P\036\310\207*@%T\005\252\241\267\300\333\320oax7,\000BX\001\224p\036\310\2075@\013\277\005\336\206\267Gaz\364\0008\030\345\001~T\004\304\321\"P\034]\034#,\216m\002\233cq >\226\002Rc\207\300\341\230\014\310c\006`\214\231\2009V\003jc+\343\360\322\370\013\340\305\270\000\010\343i =\236\031o\007>\267\222\226\352l\264&\033\311w\276v`\264\236\254\013\355\300\247tH\335\261J\220\014\262A\350\010\250\254\345\206\320\250\332>\357\230\366\375y\323\275[\341\255\204[\032I\306\256\005\251\254\336\261S\316\244w\367\032\253\247\032\267,\203\335~\334\n\264\342\347\013,\356\235\252\224\254^I^B\344/q\253\300*\267\013\354v\313\177\036\310s%\240\324\315\221_\220\000\277\3707\201M\377\026\260\345\317\000\231n\252T\201\252\377\r\360\306\337\311\221\004\220\010d\200L \013d?\310\212g\010\371g\3018\020\017\356\000;""\301\227\300\313`\t(\005M\300\014\256!\272\327\0066\200\215\001\036\340\0072@f\340\0308\356fEq\240\035\010\327\2376\346\033+\326wt\256\006\006\337\235\324w\032\313\326\r\\f>j\320\025\351\223\006\235b\237\320\245\346\2113\350\230\315\305\246\301~\214\237\227\331\013\252k\007\354 \315\322EV,\263\362);\375\003k\347:>\353\324\225\347\300\363ny\351\034\231\002 p*\240r&`r5\240\306\275\001\336p1\270'\346\217\003q\377\013\340E\267\364\034\000\007\3764\220\366\313\200\354/\002E\277\t\230\376\nP\361\237\002\247\376N\351\331\005v\273\025\350\0208\014\210\200\030(\003\345\256\257\027\341\310\305\340\n\260\022\354\324\243\216\257\323@:\230\t\302[to\034g\343\337R\265-5\007\233\257\317\356\236\323\231}I\022\355\335\333\277\301\265\270\2160\244\337\000O\350\3521\331\020X\340+r;n\t\237[\317q#\245V\354\314\273\220\323\255\337\355\337\241+N\357\036\341jzW\312\205\246\327\177\334\362.\3558\361\275\213|\264\363\273\341+\\\312\275P\247\300\377\312\026\235\356\233\273\336\017\220\213\000\335\230X\344\237\315P\353\307\263c\226\334j\007\2567~\260v\351\327\203\033\014\247\364[\205\214\342\027\307~k\356\234\022.T\357\375\214\371\t\367'\352\204{\235\206\233\223t\007q\376\341\270\315\020\013\321\000t\205|\344D?\350\337vv\232\261+d\213\315r+sv\363|\362o\336]?_e\251\347W*TZ%v\215V\327\016\004\333t\337N\266C\341\366\320X\375\230JF\364\375\213\317hU}/\\Kts/Y()\357\314\372b\275\344^\331 ~\334\230\377\017\220\302\206k";
-    PyObject *data = __Pyx_DecompressString(cstring, 3240, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (3249 bytes) */
+const char* const cstring = "x\332\215\227\313\177\032G\022\307\315\000z\201$+v6N\2448(\226\343\304\211\344U\"\257\275I\274\273D\017K\266\036 !+\261\036\243\201i\304\030\030`\036\002d\331\353#G\216s\234\343\0349r\324Q\307>r\324\237\220?a\3537\003\0309\332\354\372#\317\267\272\272\247\272\273\272\252\246Y/\030,bd$#2_52\0055\242\350\021\231\345\224$\323$\203\345\252\021\335\320\224\224\3014\014R#\261\305\330\364\334\343\271\210\244\312\021\215\275b)C\217\350f2\225\223t\235\351\221B:\2224\225\234\241\250\021\243Zd\372Ld%\035\251\026\314\210\312\230\0341\n\221\"\215\353}\301\31005\2423\003B\344\236\244\252\005C2\224\202*\322\353\212zt/\"+\032M\242\0343\274\275$\345t6\223\310\320\032\351\217\306F\244\210\236Q\212\323FaZ/\231\222\254\321\006$\303\220RYwPW\227\221\364\210\224\323\230$W#IFS\032\222v\304\014&\317\374S\222e\221,1I\313K\262$\036Iy\366 U\320\330\003\317\216\250\250\351\302L\261\"\377y\177\265\"+\272\224\314\221m<\217R\212\356I\262j\346\213\325\031\021\257\314\344Mr\215\244iR5\222\226\224\234\347\022%_,hF\35703/\031\231?\214\370\031'\241\036\351\005SK\261\177\314\0343\365\370\301\252\222|\240+\006\233.\322R\244#\246?p\355<\020iY\212!\2123)\367P\247\177\370+\266p?\232HD\347\237\213\233\213[\033\253/\026\305\305\245\245\305\371\304V\324\335\310\n\355\343\2754#\212\032\223\315\024\023=\013\242x\251\217NL\247\203\272\2627%\345Rf\016\235\006\035fN\224\245<\255\254g\200\314\350\3645&\222\347\025\2345\215q\017J\364\016\245gdZ+\344E]\225\212z\246\320\253\247QW\251\261gE\312)'d\333 g%M\243w^\215\345\013\307L\224\225T[\273)\251G\354\227\315\350\374\342\374\352\306\326\342\302\312\374\342\342Z,\361\233\010I\214ml\254\256\027T\026\243\340a\261j\024\307&\256\341\004W(\035\326Yy\366*\345\367W)\177\270J9w\225\362a\254\272 \031R\202\222G\334Z\216R\272\241\315\014%\317h\260\253\306#VM\220\206\362\324\220z\325\242\030\253V\350\377\002e\254\270\316*\306&Ko-\257\304\304\205\350Z\364\351\242\270\262\216\235mm\305\267\243\013\037\350\022\205,SaC\"\007\036\251y\246\032=\021?\223a\271\"\323\364+T3R\312M\330\"\334t""U?\374}\225\236Q\250\212n\035@F\350U5\245P\360\024\264\202I\345\203\351\355\364\24246\304\234\202h\363\332f.\327\223ym\261X(\344(`u\362d[\243\341l{eQ\377\276\364A\2733\007JH\217(*r\247\205\260\354\225\273]LK&i\277\311B\236\ne*%\2452\314}\210iSu\375qu\026\210\336\206E\n`\312\332<\232\264W\332\211hhR\212%\311r*\247\247\nj\232\312\036E*\031i\313\006\316'\245Q\200\223e\231V!\375\2174\222Y\232\251\262\353\257\266\210\275\365\210\264\227N\013\257\365\312\335.\246\211\"E\031\036zJ\303I\322BD/\221\272\255B\016\003\020r\036d\nMU\247\025\351\014g\354~HD\221\225D1\255\260\234\254\247s\322\221~)\265E\327m\364:\034\343=\334*)\302\307h\311\355\034\370\333\234hR\222\177\240:\226r&\353\255\t\220\215N\202t\006\270v\275\252%z\025\325\233\244-\233XBGF\001Vh\373\225N!\275\252\264(*YSSL\321\305NP\264\035\253\213\3358veS\245\354&\251g\315\205$>\236\320u\034\215W\251\335\273\356\366 \212\024\335{\2340\242\246\213b^\242\230\241\177\371\202l\346\030$\225r\313{\352\252\254\322\031P\203\225\351a\346\361\016\231*$\351\013b\322\267\\.\320\327Vs\023\266X(\212\"}\275D\004pV\247\214t[^*yr\333e\020\r\267\306@2\325\242\222\312\322\314\357\353\353\237t\3508\233\367f\216\r|\031\261h\n\266\234\267\360\356\367F\374\303\227\247\253\300q\364\024q4\212\032\236\206\251Q\260\345\322\336L\356\343}\374xmo\026\335\315\013\311\335[\367\033&^\361=\3233\022]_\310\337\235\220\322\213T\021\275,\244`\300\364z\257\312\275\355t\256\033\355\014l['\247\273\017\205r\210n>\356\302\310\321z\231\212\242(\032\214\352\333\245\032a\026\021&&-\274\263*7|\335\207~\242\024k\276\337\373\256\r\337\3447\356;\223\316l\267u\307\236\265\243\324\032\270\3247D\255\372?\355I\233\032\027\341\033\365G\374\263N\027\006\326\037Y\323v\311\361\275C3\030\346\241\333\374\366\243\206\321|t6\351\215\177\314\307\277s\242N\274\036u\333\374\306\224\035\265\343\335I\335\276wQL3e\317\222\215\301\341\332\2325\326\n\337\266\244V\370z\335_\377\273\265b\307m\231\337\177\322\2147\245\326\365/\254\262-\331\307\316\246\363\226\024\257\316}\3474z\334zDK|\350""\370\234\261\213\2010\017\177i\337\305\252Z\220i_4A\337\265\301)\373\007;\343HN\t\2151~}\312^\306\354\255\201\353\275r}\304\312\320\004%W\035\261\007`\323\225'\355[\316\2303\211!C\326\327\360\010\304A\353\226=fO\272#\276\264\277\206k\\\371\216\375\330\231u\242\177\252\177o\275>jU\274\005\367\212\227\347\357\225\337[\271\264\200\257\274\375\271\362=\273\342\224\032\236\231\273\366\257N\334\2210<l-\343\000.\006Fk%r\313\365k\203\341\332\\\315\3407\356\332[N\200L\206?\252\337\267\242\026\271\"T\373\271nX?X2Y\357h]\357N\332\344\345\217\353\007\360\0005\277\260N\035O\232\264'\034\0322n\315Y%;\004\345-\313g}\341\332\035\270\2019\266\341\010\327\310}\347.\177\360\2573\337\3318_=\344\2072\227\213\277_\273V\362-\t\204%a\005X\021\236\001\317\204\347B\333\3768\377\356\347f\264\271\177>\351\032\231q\262\315\211\263\370Y\236o\355\360\035\225\253\032\327\364wQ\254}\256vb\215Y\367\354\317\235\243\006mf\264f\324\237\330~\n\001\346<i\3720f\260\025\216\330\001;\332\305g\326\024\242n\302Z\260}\255\360\347V\302\246\320\372K]\266h\377\037\327\023^X\272\336\370\3022h\363\037\264\332\357\271\273\357\242\255l\243=\262m\354K{\312\246\371\356\330s\024n\264\271\233v\274\025\276e\005\254\350\273\350\005\215-!\037>\343\237\3166n\362\207O\317\364\363\251s\205\357\354\362]\221\213\307\374\270L>\361\222e\302\232'\207\373\354\217\355l\343\243\306\303\346\360Y\342|\202o3\3162<\243p%ONT}Q\3702*\374\002\374\"\254\003\353\302\036\260'\354\003\373\302\201pA\256\373{\375i\347\330'\254U\n\272\033\316\274Sr\035>aE[^\350\000z}\262>W\177cGy \302#\313|\331\344\346\t\031z\355[\204\275E\201\0163L)\335\016\231P\355\307z\274\376\n\216\240\240\2442\322\n\177j\335\306\336\251\371\265\023j\314\272\3224\345a\370\023\376\311\327\216[%\306\332C\307-\257\373\033g\242\341\372i\304\226>\264\371-\305\334\177\263y\321\035p\311\022\212\001R\240\344\366G\332\206\260\3360bf\266u\335=\037\327\022\272\371\344lc\274\271x6\326\272>\316\307\247\235\355\306dc\366\342\372M~\363\373\306]\376h\231\n\3228O\220\337s<W&'T|\253\360\305\252""\260\001l\0101 &l\002\233\302\026\260%\210\200(\034\002\207\202$\264`\357\033g\234\317-\234E\317\366\371&\235\370\341\305\025+\231h\306\377\217uT\310l\325\327>\3618\020\177\277\200?\314\265\345j~lN5%\327'\3377\276m\356\235\217\235O\273\261G\031\206\330C\365\247\223A\002\216\265\274Q\3375s\347\337\270\211Hap|\341\271\021\005\241\343Hw\236\t\376p\321\313\330\304\305%\215\344\016\230\262W\033>~-\306c\361V\000\305\3605U\2149\347\224\377\024\347\361=\276\267\317\367%.\345y\376\r-\377\255\357r\231h\357\360%\360R\310\0019\241\014\224\205\nP\021N\201Sa\331OX\366\357\002\273\3764\220\366\037\001G\376,\220\365\227\201\262?\032@\326\004V\201\325\300\032\260\026\210\003\361\300>\260\037\310\003\371@\005\250\004\252@5\360\006x\023X\tb\201\301\227\300\313 \003X0\r\244\203\257\200W\301c\3408\370K\037\362\262o\rX\353[\007\326\3736\201\315\276\003\340\240/\017\344\373*@\245\257\nT\373\336\000o\372V\3721Q\377.\260\333\237\006\322\375G\300Q\177\016\310\365W\200J\377\363\001\302\363\201\027\300\213\201\035`g`\017\330\033\310\000\231\201\nP\031\230\037$\314\017.\000\013\203+\300\312\3406\260=\250\000\312\240\001\030\203&`\016\236\000'\203KC\250\341C/\201\227C\014`Ci =\224\005\262Ce\240<\264\030B\235\010\305\200X(\016\304C/\200\027\241$\220\014e\201l\350\0308\016\225\201r\350\0248\r-\207q\214a\021\020\303\257\200W\341,\220\r\027\201b\370\0248\r\307\207azx\017\330\033\336\007\366\207\223@rX\005\324\341\350\010Nzd\025X\035Y\003\326F6\201\315\221\003\340`\344\0108\032\321\000mD\007\364\221\nP\031Y\030\205\227F\023@bT\004\304\321C\340pT\032m\005>\267\342\226\352\2545\307\352\361w\276V`\270\026\257I\255\300\247\364\221\272k\225\240\351\347\375\030#\241\262\226\353R\275j\373\274\317\264\357\367[\356\335\n\275\014\2674\322\214\\\013RY\275k'\2341\357\3565RK\324o[\006\277\363\270\031hn\234\317\361\r\357\253J\311\352\225\344\005D\376\202\260\014,\013;\300\216\260\013\354\nY +\024\200\202p\002\234\010o\201\267\302*\362`\325\037\003b~\t\220\374\014`\235\034y\r\274\366?C\310?\013\254\003\353\001\t""\220\002\014`\235\3448\005N;Y\261\006\254\005\267\201\355\340o\300o\301\002P\010\352\200\036|\212\350~\332\367\034x\336\267\017\354\367I\200\324\247\000J'+\324\276V \\{Z\237\255/Y\337\321w5\320\377\356\270\266S_\264n\3422\363Q\235\256H\237\324\351+\366\t]j\2368\375\216\331\230o\030\374\247\215\3632\177Au\355\200\037$y\262\310\213e^>\345\247\377&\233\377\022\332>k\327\225m`\273S^\332\237L\t\220\004\025P\005\0230;\036|\003\274\021\242pO\324\277\001l\370_\000/:\245\347\0008\360'\201\244_\001\024\177\021(\372M\300\364W\200\212\377\0248\365\267K\317\257\300\257\235\nt\010\034\006d@\016\224\201r\340-\36060\017G\316\007\227\200\245\3403\340Yp\027\330\r&\201d0\025\204\267\350\3368\312G\277\245j[j\3647^\237\335;\247o\366%\315d\367\336\376\r\256\3025\204!\375\006xBW\217\261\272\304\003_\221\333qK\370\334\332\306\215\224\244\350\231w!\277\323\276+\322\355\277\325\275G\270#\275+\345\\\303k?nz\227v|\361\275\213\374d\373w\303W\270\224{\241N\201\377\225-;\235\236{\336\017\220\213\000\335\230x\344\257\215P\363\247\263,\217o\266\0027\352?Z\277\322\257\0077\030N\351\267\n\031\305/\216\375\346\3149%\\\250\326\375\031\3633\356O\324\010w\033u7'\351\016\342\374\305q\305\020\017\321\004t\205|\344L~\320\276\343\3544\242W\350\346\033\345f\352\354\326\371\330\237\364\3358_\346\211\355+\007T\232%~\215v\327\n\004[t\337\216\267B\341\326\300H-K%c\362}\307g\264\253\236\016\327\022\335\334K\026J\312;\2636_+\271W6\250\037\327g\377\003e\220\203\235";
+    PyObject *data = __Pyx_DecompressString(cstring, 3249, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (6066 bytes) */
-const char* const bytes = "Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.This is not a ship-to-squadron attackThis squadron has already been targeted.?add_notearmada_game/core/attack_info.pxdarmada_game/core/attack_info.pyxdisableenablegcisenablednumpy._core.multiarray failed to importnumpy._core.umath failed to import<stringsource>.venv/Lib/site-packages/numpy/__init__.cython-30.pxd*ATTACK_RESOLVE_EFFECTSAttackInfoAttackInfo.__reduce_cython__AttackInfo.__setstate_cython__AttackInfo.calculate_total_damageAttackInfo.declare_additional_squad_targetAttackInfo.from_snapshotAttackInfo.get_snapshotAttackInfo.initialize_attributeAttackInfo.remove_diceAttackRangeBRACECLOSEDICEEMPTY_DICE_POOLNonePhasePyArray_MultiIterNew1PyArray_MultiIterNew2PyArray_MultiIterNew3PyArray_MultiIterNew4PyArray_MultiIterNew5PyDataType_SHAPEPyDatetimeArrType_TypePyTimedeltaArrType_Type__Pyx_PyDict_NextRefSHIP_DAMAGE_INDICESSQUAD_DAMAGE_INDICESTokenTypeaalignmentarmada_game.helpersarmada_game.helpers.action_phasearmada_game.helpers.dicearmada_game.helpers.enum_classarrasyncio.coroutinesattack_hist_listattack_hullattack_infoattack_pool_resultattack_rangeattack_range_s2qattack_range_s2sattack_shipattack_ship_idattack_squadattack_squad_idattackerbbasebomberccachecache_functioncalculate_total_damage__class_getitem__cline_in_tracebackclscon_fire_dialcon_fire_tokencriticalddatadeclare_additional_squad_targetdefend_hulldefend_shipdefend_ship_iddefend_squaddefend_squad_iddefender__del__descrdice_to_removedice_to_roll__dict___dictdimensionseenumerate__eq__fieldsflagsfrom_snapshot__func____get__get_array_baseget_datetime64_unitget_datetime64_valueget_snapshotget_timedelta64_value__getstate__import_arrayimport_ufuncimport_umathindex__init__initialize_attributeinstanceis_attacker_ship_is_coroutineis_counteris_datetime64_objectis_defender_shipis_timedelta64_objectitemsitemsizeiters__main____module____name_""_namesndndim__new__numiterobjobstructedotherphasepop__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AttackInfo__pyx_unpickle_AttackInfo__set_state__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__remove_dice__repr__returnself__set__set_array_base__set_name__setdefault__setstate____setstate_cython__shapesizesnapshotspent_token_indicesspent_token_typessquadron_targetstate__str__stridessubarraysumswarm__test__total_damageupdateuse_setstatevaluevalueszip\210\001\360\006\000\r\024\320\023*\250!\2501\210\001\360\006\000\r\024\320\023#\2401\240A\210\001\360\010\000\r\024\320\023*\250!\2501\210\001\360\n\000\r\024\220?\240!\2401\210\001\340\014\023\2207\320\032*\250!\2501\210\001\360\010\000\r\024\2207\230-\240q\250\001\200\001\360\010\000\005\014\320\013\036\320\0367\260t\2707\300!\210\001\340\014\023\2208\320\033,\250A\250Q\220A\210\001\340\014\023\320\023$\240A\240Q\210\001\360\006\000\r\024\320\023,\250A\250Q\200A\360\n\000\r$\2401\360\010\000\t\r\210M\230\021\330\014\036\230a\330\014\020\220\003\2209\230I\240Q\240d\320*=\270Q\270a\330\020\037\230w\240a\240v\250R\250~\270Q\270j\310\001\310\021\330\014\033\2307\240!\2405\250\001\250\021\340\010\014\320\014\"\240%\240q\250\001\330\010\014\320\014#\2401\200A\360\006\000\t$\2403\240h\250a\250q\360\006\000\t\021\320\020$\240H\250A\250Q\330\010\020\320\020$\240H\250A\250Q\330\010\020\220\016\230h\240a\240q\330\010\020\320\020!\240\030\250\021\250!\330\010\020\320\020\"\240(\250!\2501\330\010\020\220\n\230(\240!\2401\330\010\020\220\t\230\030\240\021\240!\330\010\020\320\020\"\240(\250!\2501\330\010\020\320\020#\2408\2501\250A\330\010\020\320\020\"\240(\250!\2501\330\010\020\320\020#\2408\2501\250A\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\220\017\230x\240q\250\001\330\010\020\220\017\230x\240q\250\001\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\320\020#\2408\2501\250A\330\010\020\220\t\230\030\240\021\240!\330\010\020\320""\020&\240h\250a\250q\330\010\020\320\020'\240x\250q\260\001\330\010\020\320\020%\240X\250Q\250a\330\010\020\220\014\230H\240A\240Q\340\010\017\210q\200A\360\020\000\t\014\2104\210t\320\023%\240S\250\004\250A\330\014\022\220*\230A\230Q\330\010\013\210<\220t\2303\230d\240!\330\014\022\220*\230A\230Q\340\010\014\320\014!\240\021\340\010\025\220^\2401\330\010\014\320\014\037\230|\2501\330\010\014\320\014!\240\034\250Q\340\010\033\2304\230q\240\013\2501\330\010\030\230\001\230\037\250\004\250A\330\010\023\320\023%\240U\250!\2501\340\010\014\320\014*\250%\320/@\300\001\300\033\320L`\320`d\320dp\360\000\000q\001F\002\360\000\000F\002I\002\360\000\000I\002J\002\360\000\000J\002K\002\330\010\014\320\014!\240\033\320,<\270A\270]\310!\340\010\014\320\014.\250k\270\034\300Q\300m\320SW\320Wn\320nr\320rs\200A\330\010\013\2104\210z\230\021\230'\240\035\250g\260Q\330\010\017\210t\220=\240\003\2403\240e\250=\270\001\200A\330\010\t\330\014 \240\004\240A\330\014 \240\004\240A\330\014\032\230$\230a\330\014\035\230T\240\021\330\014\036\230d\240!\330\014\026\220d\230!\330\014\025\220T\230\021\330\014\036\230d\240!\330\014\037\230t\2401\330\014\036\230d\240!\330\014\037\230t\2401\330\014\034\230D\240\001\330\014\033\2304\230q\330\014\033\2304\230q\330\014\034\230D\240\001\330\014\034\230D\240\001\330\014\037\230t\2401\330\014\025\220T\230\021\330\014\"\240$\240a\330\014#\2404\240q\330\014!\240\024\240Q\330\014\030\230\004\230A\200A\340\014\037\230q\360\010\000\t\032\320\0311\260\024\3205G\300s\310$\310i\320W[\320[_\320_v\320vw\330\010\014\210M\230\021\330\014\034\230C\230q\240\001\240\025\240k\260\022\2605\270\r\300T\310\034\320Ue\320eh\320hi\320im\360\000\000n\001A\002\360\000\000A\002B\002\360\000\000B\002N\002\360\000\000N\002\\\002\360\000\000\\\002]\002\360\000\000]\002^\002\340\010\013\2109\220G\2303\230d\240!\330\014\034\230L\250\001\250\023\250C\250q\340\010\014\320\014\034\230A\330\010\017\210q\200A\330\010\017\210s\220!\2204\220}\240A\320\004 \320 H\320Hu\320uz\360\000\000{\001E""\002\360\000\000E\002F\002\360\014\000\t\r\320\014!\240\021\340\010\013\210:\220Q\220j\240\001\330\014\020\320\020*\250!\330\014\031\230\036\240q\330\014\020\320\020(\250\013\2601\330\014\020\320\020-\250Q\330\014\027\320\027(\250\001\360\006\000\r\021\320\020*\250!\330\014\033\2301\330\014\020\320\020)\250\034\260Q\330\014\030\230\016\240a\340\010\013\210:\220Q\220j\240\001\330\014\020\320\020+\2501\330\014\031\230\036\240q\330\014\020\320\020(\250\013\2601\330\014\020\320\020-\250Q\340\014\020\320\020+\2501\330\014\033\2301\330\014\020\320\020)\250\034\260Q\360\006\000\t\014\2104\210q\340\014\020\320\020!\240\021\330\014\020\320\020\"\240!\340\014\017\210t\2201\330\020#\2404\240q\250\013\2601\330\020 \240\001\320!1\260\033\270E\300\021\330\020\033\320\033-\250U\260!\2601\340\020\024\320\0242\260%\3207H\310\001\310\033\320Th\320hl\320lw\360\000\000x\001L\002\360\000\000L\002O\002\360\000\000O\002P\002\360\000\000P\002R\002\360\000\000R\002S\002\360\000\000S\002_\002\360\000\000_\002`\002\360\000\000`\002a\002\330\020\024\320\024)\250\033\3204D\300A\300]\320R_\320_`\340\020#\2404\240q\250\013\2601\330\020 \240\001\320!1\260\034\270Q\330\020\033\320\033-\250U\260!\2601\340\020\024\320\0242\260%\3207H\310\001\310\033\320Th\320hl\320lx\360\000\000y\001N\002\360\000\000N\002Q\002\360\000\000Q\002R\002\360\000\000R\002S\002\330\020\024\320\024)\250\033\3204D\300A\300]\320RS\330\020\024\320\024:\270$\270a\340\014\020\320\0202\260+\270\\\310\021\310-\320W[\320[r\320rv\320vw\360\010\000\r\021\320\020.\250k\270\021\330\014\020\320\0202\260,\270l\310)\320SW\320Wu\320uv\340\014\020\320\020!\240\034\250Q\340\014\017\210t\2201\330\020\024\320\024)\250\034\3205E\300Q\300m\320ST\340\020\024\320\024)\250\034\3205E\300Q\300a\330\020\024\320\024$\240L\260\001\320\000P\320PQ\330\004\020\220\017\230{\250!\2504\250|\320;Q\320Q\\\320\\]\320]a\320am\320m}\360\000\000~\001I\002\360\000\000I\002J\002\360\000\000J\002N\002\360\000\000N\002Z\002\360\000\000Z\002l\002\360\000\000l\002w\002""\360\000\000w\002x\002\360\000\000x\002|\002\360\000\000|\002H\003\360\000\000H\003[\003\360\000\000[\003f\003\360\000\000f\003g\003\360\000\000g\003k\003\360\000\000k\003w\003\360\000\000w\003A\004\360\000\000A\004L\004\360\000\000L\004M\004\360\000\000M\004Q\004\360\000\000Q\004]\004\360\000\000]\004n\004\360\000\000n\004y\004\360\000\000y\004z\004\360\000\000z\004~\004\360\000\000~\004J\005\360\000\000J\005\\\005\360\000\000\\\005g\005\360\000\000g\005h\005\360\000\000h\005l\005\360\000\000l\005x\005\360\000\000x\005D\006\360\000\000D\006O\006\360\000\000O\006P\006\360\000\000P\006T\006\360\000\000T\006`\006\360\000\000`\006o\006\360\000\000o\006z\006\360\000\000z\006{\006\360\000\000{\006\177\006\360\000\000\177\006K\007\360\000\000K\007]\007\360\000\000]\007h\007\360\000\000h\007i\007\360\000\000i\007n\007\360\000\000n\007z\007\360\000\000z\007M\010\360\000\000M\010X\010\360\000\000X\010Y\010\360\000\000Y\010^\010\360\000\000^\010j\010\360\000\000j\010z\010\360\000\000z\010E\t\360\000\000E\tF\t\360\000\000F\tK\t\360\000\000K\tW\t\360\000\000W\tk\t\360\000\000k\tv\t\360\000\000v\tw\t\360\000\000w\t|\t\360\000\000|\tH\n\360\000\000H\n\\\n\360\000\000\\\ng\n\360\000\000g\nh\n\360\000\000h\nm\n\360\000\000m\ny\n\360\000\000y\nG\013\360\000\000G\013R\013\360\000\000R\013S\013\360\000\000S\013X\013\360\000\000X\013d\013\360\000\000d\013m\013\360\000\000m\013x\013\360\000\000x\013y\013\360\000\000y\013~\013\360\000\000~\013J\014\360\000\000J\014a\014\360\000\000a\014l\014\360\000\000l\014m\014\360\000\000m\014r\014\360\000\000r\014~\014\360\000\000~\014S\r\360\000\000S\r^\r\360\000\000^\r_\r\360\000\000_\rd\r\360\000\000d\rp\r\360\000\000p\rC\016\360\000\000C\016N\016\360\000\000N\016O\016\360\000\000O\016T\016\360\000\000T\016`\016\360\000\000`\016i\016\360\000\000i\016t\016\360\000\000t\016u\016\360\000\000u\016z\016\360\000\000z\016F\017\360\000\000F\017V\017\360\000\000V\017a\017\360\000\000a\017b\017\360\000\000b\017c\017\330\004\035\230Q\230n\250M\270\021\220Q""\200\001\330\004\r\210Q\210a\330\004\031\230\021\230%\230q\200\001\330\004\007\320\007\035\230Q\230a\330\010\017\210w\220a\220y\240\001\340\010\017\210q\200\001\360\030\000\005\014\320\013\035\230Q\230e\2401\240A\200\001\360\016\000\005\r\320\014%\240T\250\021\200\001\360\010\000\005\016\210T\220\036\230t\320#8\270\004\270O\3104\320O`\320`d\320dv\320vz\360\000\000{\001D\002\360\000\000D\002H\002\360\000\000H\002X\002\360\000\000X\002\\\002\360\000\000\\\002m\002\360\000\000m\002q\002\360\000\000q\002|\002\360\000\000|\002@\003\360\000\000@\003N\003\360\000\000N\003R\003\360\000\000R\003c\003\360\000\000c\003g\003\360\000\000g\003y\003\360\000\000y\003}\003\360\000\000}\003L\004\360\000\000L\004P\004\360\000\000P\004c\004\360\000\000c\004g\004\360\000\000g\004z\004\360\000\000z\004~\004\360\000\000~\004K\005\360\000\000K\005O\005\360\000\000O\005W\005\360\000\000W\005[\005\360\000\000[\005q\005\360\000\000q\005u\005\360\000\000u\005I\006\360\000\000I\006M\006\360\000\000M\006_\006\360\000\000_\006c\006\360\000\000c\006k\006\360\000\000k\006o\006\360\000\000o\006p\006\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230=\250\007\250u\260C\260t\320;O\310w\320V[\320[^\320^b\320bp\320pw\320w|\320|\177\360\000\000@\002D\002\360\000\000D\002N\002\360\000\000N\002U\002\360\000\000U\002Z\002\360\000\000Z\002]\002\360\000\000]\002a\002\360\000\000a\002n\002\360\000\000n\002u\002\360\000\000u\002z\002\360\000\000z\002}\002\360\000\000}\002A\003\360\000\000A\003O\003\360\000\000O\003V\003\360\000\000V\003[\003\360\000\000[\003^\003\360\000\000^\003b\003\360\000\000b\003i\003\360\000\000i\003p\003\360\000\000p\003u\003\360\000\000u\003x\003\360\000\000x\003|\003\360\000\000|\003Q\004\360\000\000Q\004X\004\360\000\000X\004]\004\360\000\000]\004`\004\360\000\000`\004d\004\360\000\000d\004w\004\360\000\000w\004~\004\360\000\000~\004C\005\360\000\000C\005F\005\360\000\000F\005J\005\360\000\000J\005[\005""\360\000\000[\005b\005\360\000\000b\005c\005\330\004\007\200q\330\010\017\320\017+\2504\250q\260\007\260{\300'\310\021\340\010\017\320\017+\2504\250q\260\007\260{\300!\210\001\360\006\000\r\024\320\023)\250\021\250!\210\001\360\016\000\r\024\220=\240\001\240\021\220a\320\004&\240a\330\010\014\320\014\035\230U\240!\330\010\014\320\014A\300\021\340\010\014\320\014$\240A\330\010\014\320\014%\240Q\330\010\014\320\014\034\230A\330\010\014\320\014\035\230Q\340\010\014\320\0144\260A\330\010\014\320\0148\270\001\330\010\014\320\014*\250!\330\010\014\320\014\"\240!\210\001\340\014\023\320\023&\240a\240q\200\001\360\010\000\005\r\320\014&\240d\250!\210\001\340\014\023\320\023'\240q\250\001\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220:\230X\240Q\240a\330\004\007\200|\2207\230!\330\010,\250A\250]\270.\310\001\330\004\013\2101\210\001\360\010\000\r\024\220<\230q\240\001\210\001\360\014\000\r\024\220<\230q\240\001\220q\200\001\330\004(\250\001\250\026\250q\200\001\330\004\013\320\013\037\230q\240\003\2407\250!\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260A\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\021\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\023\310H\320TU\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260x\270q\320\000'\240q\330\004\005\330\010\025\220Q\330\013\014\330\010\016\210k\230\021\230!\320\000'\240q\330\004\005\330\010\032\230!\330\013\014\330\010\016\210k\230\021\230!\200\001\330\004\013\210<\220q\230\001\330\004\007\200u\210C\210q\330\010\017\210q\330\004\013\2108\2201";
+    #else /* compression: none (6064 bytes) */
+const char* const bytes = "Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.This is not a ship-to-squadron attackThis squadron has already been targeted.?add_notearmada_game/core/attack_info.pxdarmada_game/core/attack_info.pyxdisableenablegcisenablednumpy._core.multiarray failed to importnumpy._core.umath failed to import<stringsource>.venv/Lib/site-packages/numpy/__init__.cython-30.pxd*ATTACK_RESOLVE_EFFECTSAttackInfoAttackInfo.__reduce_cython__AttackInfo.__setstate_cython__AttackInfo.calculate_total_damageAttackInfo.declare_additional_squad_targetAttackInfo.from_snapshotAttackInfo.get_snapshotAttackInfo.initialize_attributeAttackInfo.remove_diceAttackRangeBRACECLOSEDICEEMPTY_DICE_POOLNonePhasePyArray_MultiIterNew1PyArray_MultiIterNew2PyArray_MultiIterNew3PyArray_MultiIterNew4PyArray_MultiIterNew5PyDataType_SHAPEPyDatetimeArrType_TypePyTimedeltaArrType_Type__Pyx_PyDict_NextRefSHIP_DAMAGE_INDICESSQUAD_DAMAGE_INDICESTokenTypeaalignmentarmada_game.helpersarmada_game.helpers.action_phasearmada_game.helpers.dicearmada_game.helpers.enum_classarrasyncio.coroutinesattack_hist_listattack_hullattack_infoattack_pool_resultattack_rangeattack_range_s2qattack_range_s2sattack_shipattack_ship_idattack_squadattack_squad_idattackerbbasebomberccachecache_functioncalculate_total_damage__class_getitem__cline_in_tracebackclsconfire_dialconfire_tokencriticalddatadeclare_additional_squad_targetdefend_hulldefend_shipdefend_ship_iddefend_squaddefend_squad_iddefender__del__descrdice_to_removedice_to_roll__dict___dictdimensionseenumerate__eq__fieldsflagsfrom_snapshot__func____get__get_array_baseget_datetime64_unitget_datetime64_valueget_snapshotget_timedelta64_value__getstate__import_arrayimport_ufuncimport_umathindex__init__initialize_attributeinstanceis_attacker_ship_is_coroutineis_counteris_datetime64_objectis_defender_shipis_timedelta64_objectitemsitemsizeiters__main____module____name__n""amesndndim__new__numiterobjobstructedotherphasepop__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AttackInfo__pyx_unpickle_AttackInfo__set_state__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__remove_dice__repr__returnself__set__set_array_base__set_name__setdefault__setstate____setstate_cython__shapesizesnapshotspent_token_indicesspent_token_typessquadron_targetstate__str__stridessubarraysumswarm__test__total_damageupdateuse_setstatevaluevalueszip\210\001\360\006\000\r\024\320\023*\250!\2501\210\001\360\006\000\r\024\320\023#\2401\240A\210\001\360\010\000\r\024\320\023*\250!\2501\210\001\360\n\000\r\024\220?\240!\2401\210\001\340\014\023\2207\320\032*\250!\2501\210\001\360\010\000\r\024\2207\230-\240q\250\001\200\001\360\010\000\005\014\320\013\036\320\0367\260t\2707\300!\210\001\340\014\023\2208\320\033,\250A\250Q\220A\210\001\340\014\023\320\023$\240A\240Q\210\001\360\006\000\r\024\320\023,\250A\250Q\200A\360\n\000\r$\2401\360\010\000\t\r\210M\230\021\330\014\036\230a\330\014\020\220\003\2209\230I\240Q\240d\320*=\270Q\270a\330\020\037\230w\240a\240v\250R\250~\270Q\270j\310\001\310\021\330\014\033\2307\240!\2405\250\001\250\021\340\010\014\320\014\"\240%\240q\250\001\330\010\014\320\014#\2401\200A\360\006\000\t$\2403\240h\250a\250q\360\006\000\t\021\320\020$\240H\250A\250Q\330\010\020\320\020$\240H\250A\250Q\330\010\020\220\016\230h\240a\240q\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\320\020!\240\030\250\021\250!\330\010\020\220\n\230(\240!\2401\330\010\020\220\t\230\030\240\021\240!\330\010\020\320\020\"\240(\250!\2501\330\010\020\320\020#\2408\2501\250A\330\010\020\320\020\"\240(\250!\2501\330\010\020\320\020#\2408\2501\250A\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\220\017\230x\240q\250\001\330\010\020\220\017\230x\240q\250\001\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\320\020 \240\010\250\001\250\021\330\010\020\320\020#\2408\2501\250A\330\010\020\220\t\230\030\240\021\240!\330\010\020""\320\020&\240h\250a\250q\330\010\020\320\020'\240x\250q\260\001\330\010\020\320\020%\240X\250Q\250a\330\010\020\220\014\230H\240A\240Q\340\010\017\210q\200A\360\020\000\t\014\2104\210t\320\023%\240S\250\004\250A\330\014\022\220*\230A\230Q\330\010\013\210<\220t\2303\230d\240!\330\014\022\220*\230A\230Q\340\010\014\320\014!\240\021\340\010\025\220^\2401\330\010\014\320\014\037\230|\2501\330\010\014\320\014!\240\034\250Q\340\010\033\2304\230q\240\013\2501\330\010\030\230\001\230\037\250\004\250A\330\010\023\320\023%\240U\250!\2501\340\010\014\320\014*\250%\320/@\300\001\300\033\320L`\320`d\320dp\360\000\000q\001F\002\360\000\000F\002I\002\360\000\000I\002J\002\360\000\000J\002K\002\330\010\014\320\014!\240\033\320,<\270A\270]\310!\340\010\014\320\014.\250k\270\034\300Q\300m\320SW\320Wn\320nr\320rs\200A\330\010\013\2104\210z\230\021\230'\240\035\250g\260Q\330\010\017\210t\220=\240\003\2403\240e\250=\270\001\200A\330\010\t\330\014 \240\004\240A\330\014 \240\004\240A\330\014\032\230$\230a\330\014\034\230D\240\001\330\014\035\230T\240\021\330\014\026\220d\230!\330\014\025\220T\230\021\330\014\036\230d\240!\330\014\037\230t\2401\330\014\036\230d\240!\330\014\037\230t\2401\330\014\034\230D\240\001\330\014\033\2304\230q\330\014\033\2304\230q\330\014\034\230D\240\001\330\014\034\230D\240\001\330\014\037\230t\2401\330\014\025\220T\230\021\330\014\"\240$\240a\330\014#\2404\240q\330\014!\240\024\240Q\330\014\030\230\004\230A\200A\340\014\037\230q\360\010\000\t\032\320\0311\260\024\3205G\300s\310$\310i\320W[\320[_\320_v\320vw\330\010\014\210M\230\021\330\014\034\230C\230q\240\001\240\025\240k\260\022\2605\270\r\300T\310\034\320Ue\320eh\320hi\320im\360\000\000n\001A\002\360\000\000A\002B\002\360\000\000B\002N\002\360\000\000N\002\\\002\360\000\000\\\002]\002\360\000\000]\002^\002\340\010\013\2109\220G\2303\230d\240!\330\014\034\230L\250\001\250\023\250C\250q\340\010\014\320\014\034\230A\330\010\017\210q\200A\330\010\017\210s\220!\2204\220}\240A\320\004 \320 H\320Hu\320uz\360\000""\000{\001E\002\360\000\000E\002F\002\360\014\000\t\r\320\014!\240\021\340\010\013\210:\220Q\220j\240\001\330\014\020\320\020*\250!\330\014\031\230\036\240q\330\014\020\320\020(\250\013\2601\330\014\020\320\020-\250Q\330\014\027\320\027(\250\001\360\006\000\r\021\320\020*\250!\330\014\033\2301\330\014\020\320\020)\250\034\260Q\330\014\030\230\016\240a\340\010\013\210:\220Q\220j\240\001\330\014\020\320\020+\2501\330\014\031\230\036\240q\330\014\020\320\020(\250\013\2601\330\014\020\320\020-\250Q\340\014\020\320\020+\2501\330\014\033\2301\330\014\020\320\020)\250\034\260Q\360\006\000\t\014\2104\210q\340\014\020\320\020 \240\001\330\014\020\320\020!\240\021\340\014\017\210t\2201\330\020#\2404\240q\250\013\2601\330\020 \240\001\320!1\260\033\270E\300\021\330\020\033\320\033-\250U\260!\2601\340\020\024\320\0242\260%\3207H\310\001\310\033\320Th\320hl\320lw\360\000\000x\001L\002\360\000\000L\002O\002\360\000\000O\002P\002\360\000\000P\002R\002\360\000\000R\002S\002\360\000\000S\002_\002\360\000\000_\002`\002\360\000\000`\002a\002\330\020\024\320\024)\250\033\3204D\300A\300]\320R_\320_`\340\020#\2404\240q\250\013\2601\330\020 \240\001\320!1\260\034\270Q\330\020\033\320\033-\250U\260!\2601\340\020\024\320\0242\260%\3207H\310\001\310\033\320Th\320hl\320lx\360\000\000y\001N\002\360\000\000N\002Q\002\360\000\000Q\002R\002\360\000\000R\002S\002\330\020\024\320\024)\250\033\3204D\300A\300]\320RS\330\020\024\320\024:\270$\270a\340\014\020\320\0202\260+\270\\\310\021\310-\320W[\320[r\320rv\320vw\360\010\000\r\021\320\020.\250k\270\021\330\014\020\320\0202\260,\270l\310)\320SW\320Wu\320uv\340\014\020\320\020!\240\034\250Q\340\014\017\210t\2201\330\020\024\320\024)\250\034\3205E\300Q\300m\320ST\340\020\024\320\024)\250\034\3205E\300Q\300a\330\020\024\320\024$\240L\260\001\320\000P\320PQ\330\004\020\220\017\230{\250!\2504\250|\320;Q\320Q\\\320\\]\320]a\320am\320m}\360\000\000~\001I\002\360\000\000I\002J\002\360\000\000J\002N\002\360\000\000N\002Z\002\360\000\000Z\002l\002\360\000\000l""\002w\002\360\000\000w\002x\002\360\000\000x\002|\002\360\000\000|\002H\003\360\000\000H\003[\003\360\000\000[\003f\003\360\000\000f\003g\003\360\000\000g\003k\003\360\000\000k\003w\003\360\000\000w\003A\004\360\000\000A\004L\004\360\000\000L\004M\004\360\000\000M\004Q\004\360\000\000Q\004]\004\360\000\000]\004m\004\360\000\000m\004x\004\360\000\000x\004y\004\360\000\000y\004}\004\360\000\000}\004I\005\360\000\000I\005Z\005\360\000\000Z\005e\005\360\000\000e\005f\005\360\000\000f\005j\005\360\000\000j\005v\005\360\000\000v\005B\006\360\000\000B\006M\006\360\000\000M\006N\006\360\000\000N\006R\006\360\000\000R\006^\006\360\000\000^\006m\006\360\000\000m\006x\006\360\000\000x\006y\006\360\000\000y\006}\006\360\000\000}\006I\007\360\000\000I\007[\007\360\000\000[\007f\007\360\000\000f\007g\007\360\000\000g\007l\007\360\000\000l\007x\007\360\000\000x\007K\010\360\000\000K\010V\010\360\000\000V\010W\010\360\000\000W\010\\\010\360\000\000\\\010h\010\360\000\000h\010x\010\360\000\000x\010C\t\360\000\000C\tD\t\360\000\000D\tI\t\360\000\000I\tU\t\360\000\000U\ti\t\360\000\000i\tt\t\360\000\000t\tu\t\360\000\000u\tz\t\360\000\000z\tF\n\360\000\000F\nZ\n\360\000\000Z\ne\n\360\000\000e\nf\n\360\000\000f\nk\n\360\000\000k\nw\n\360\000\000w\nE\013\360\000\000E\013P\013\360\000\000P\013Q\013\360\000\000Q\013V\013\360\000\000V\013b\013\360\000\000b\013k\013\360\000\000k\013v\013\360\000\000v\013w\013\360\000\000w\013|\013\360\000\000|\013H\014\360\000\000H\014_\014\360\000\000_\014j\014\360\000\000j\014k\014\360\000\000k\014p\014\360\000\000p\014|\014\360\000\000|\014Q\r\360\000\000Q\r\\\r\360\000\000\\\r]\r\360\000\000]\rb\r\360\000\000b\rn\r\360\000\000n\rA\016\360\000\000A\016L\016\360\000\000L\016M\016\360\000\000M\016R\016\360\000\000R\016^\016\360\000\000^\016g\016\360\000\000g\016r\016\360\000\000r\016s\016\360\000\000s\016x\016\360\000\000x\016D\017\360\000\000D\017T\017\360\000\000T\017_\017\360\000\000_\017`\017\360\000\000`\017a\017\330\004\035\230Q\230n\250M\270\021""\220Q\200\001\330\004\r\210Q\210a\330\004\031\230\021\230%\230q\200\001\330\004\007\320\007\035\230Q\230a\330\010\017\210w\220a\220y\240\001\340\010\017\210q\200\001\360\030\000\005\014\320\013\035\230Q\230e\2401\240A\200\001\360\016\000\005\r\320\014%\240T\250\021\200\001\360\010\000\005\016\210T\220\036\230t\320#8\270\004\270O\3104\320O`\320`d\320dv\320vz\360\000\000{\001D\002\360\000\000D\002H\002\360\000\000H\002W\002\360\000\000W\002[\002\360\000\000[\002k\002\360\000\000k\002o\002\360\000\000o\002z\002\360\000\000z\002~\002\360\000\000~\002L\003\360\000\000L\003P\003\360\000\000P\003a\003\360\000\000a\003e\003\360\000\000e\003w\003\360\000\000w\003{\003\360\000\000{\003J\004\360\000\000J\004N\004\360\000\000N\004a\004\360\000\000a\004e\004\360\000\000e\004x\004\360\000\000x\004|\004\360\000\000|\004I\005\360\000\000I\005M\005\360\000\000M\005U\005\360\000\000U\005Y\005\360\000\000Y\005o\005\360\000\000o\005s\005\360\000\000s\005G\006\360\000\000G\006K\006\360\000\000K\006]\006\360\000\000]\006a\006\360\000\000a\006i\006\360\000\000i\006m\006\360\000\000m\006n\006\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230=\250\007\250u\260C\260t\320;O\310w\320V[\320[^\320^b\320bp\320pw\320w|\320|\177\360\000\000@\002D\002\360\000\000D\002N\002\360\000\000N\002U\002\360\000\000U\002Z\002\360\000\000Z\002]\002\360\000\000]\002a\002\360\000\000a\002n\002\360\000\000n\002u\002\360\000\000u\002z\002\360\000\000z\002}\002\360\000\000}\002A\003\360\000\000A\003O\003\360\000\000O\003V\003\360\000\000V\003[\003\360\000\000[\003^\003\360\000\000^\003b\003\360\000\000b\003i\003\360\000\000i\003p\003\360\000\000p\003u\003\360\000\000u\003x\003\360\000\000x\003|\003\360\000\000|\003Q\004\360\000\000Q\004X\004\360\000\000X\004]\004\360\000\000]\004`\004\360\000\000`\004d\004\360\000\000d\004w\004\360\000\000w\004~\004\360\000\000~\004C\005\360\000\000C\005F\005\360\000\000F\005J\005\360\000\000J\005[""\005\360\000\000[\005b\005\360\000\000b\005c\005\330\004\007\200q\330\010\017\320\017+\2504\250q\260\007\260{\300'\310\021\340\010\017\320\017+\2504\250q\260\007\260{\300!\210\001\360\006\000\r\024\320\023)\250\021\250!\210\001\360\016\000\r\024\220=\240\001\240\021\220a\320\004&\240a\330\010\014\320\014\035\230U\240!\330\010\014\320\014A\300\021\340\010\014\320\014#\2401\330\010\014\320\014$\240A\330\010\014\320\014\034\230A\330\010\014\320\014\035\230Q\340\010\014\320\0144\260A\330\010\014\320\0148\270\001\330\010\014\320\014*\250!\330\010\014\320\014\"\240!\210\001\340\014\023\320\023&\240a\240q\200\001\360\010\000\005\r\320\014&\240d\250!\210\001\340\014\023\320\023'\240q\250\001\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220:\230X\240Q\240a\330\004\007\200|\2207\230!\330\010,\250A\250]\270.\310\001\330\004\013\2101\210\001\360\010\000\r\024\220<\230q\240\001\210\001\360\014\000\r\024\220<\230q\240\001\220q\200\001\330\004(\250\001\250\026\250q\200\001\330\004\013\320\013\037\230q\240\003\2407\250!\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260A\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\021\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260w\270c\300\030\310\023\310H\320TU\200\001\330\004\013\320\013\037\230q\240\003\2407\250#\250W\260C\260x\270q\320\000'\240q\330\004\005\330\010\025\220Q\330\013\014\330\010\016\210k\230\021\230!\320\000'\240q\330\004\005\330\010\032\230!\330\013\014\330\010\016\210k\230\021\230!\200\001\330\004\013\210<\220q\230\001\330\004\007\200u\210C\210q\330\010\017\210q\330\004\013\2108\2201";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -16201,7 +16201,7 @@ const char* const bytes = "Note that Cython is deliberately stricter than PEP-48
   }
   {
     PyObject **numbertab = __pyx_mstate->__pyx_number_tab + 0;
-    int32_t const cint_constants_4[] = {245469741L};
+    int32_t const cint_constants_4[] = {128228012L};
     for (int i = 0; i < 1; i++) {
       numbertab[i] = PyLong_FromLong(cint_constants_4[i - 0]);
       if (unlikely(!numbertab[i])) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -16441,7 +16441,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 112};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_armada_game_core_attack_info_pyx, __pyx_mstate->__pyx_n_u_initialize_attribute, __pyx_mstate->__pyx_kp_b_iso88591_a_U_A_A_Q_A_Q_4A_8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_armada_game_core_attack_info_pyx, __pyx_mstate->__pyx_n_u_initialize_attribute, __pyx_mstate->__pyx_kp_b_iso88591_a_U_A_1_A_A_Q_4A_8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 126};
@@ -16466,12 +16466,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 169};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[42] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_armada_game_core_attack_info_pyx, __pyx_mstate->__pyx_n_u_get_snapshot, __pyx_mstate->__pyx_kp_b_iso88591_A_A_A_a_T_d_d_T_d_t1_d_t1_D_4q_4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[42])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[42] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_armada_game_core_attack_info_pyx, __pyx_mstate->__pyx_n_u_get_snapshot, __pyx_mstate->__pyx_kp_b_iso88591_A_A_A_a_D_T_d_T_d_t1_d_t1_D_4q_4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[42])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 195};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_cls, __pyx_mstate->__pyx_n_u_snapshot, __pyx_mstate->__pyx_n_u_instance};
-    __pyx_mstate_global->__pyx_codeobj_tab[43] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_armada_game_core_attack_info_pyx, __pyx_mstate->__pyx_n_u_from_snapshot, __pyx_mstate->__pyx_kp_b_iso88591_A_3haq_HAQ_HAQ_haq_1_1_1_81A_1_8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[43])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[43] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_armada_game_core_attack_info_pyx, __pyx_mstate->__pyx_n_u_from_snapshot, __pyx_mstate->__pyx_kp_b_iso88591_A_3haq_HAQ_HAQ_haq_1_1_81A_1_81A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[43])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 7};
@@ -16746,7 +16746,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_state, __pyx_mstate->__pyx_n_u_dict_2, __pyx_mstate->__pyx_n_u_use_setstate};
-    __pyx_mstate_global->__pyx_codeobj_tab[98] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_t_8_O4O_ddvvz_D_D_H_H_X_X_m_m, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[98])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[98] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_t_8_O4O_ddvvz_D_D_H_H_W_W_k_k, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[98])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16};

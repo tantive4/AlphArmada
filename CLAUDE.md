@@ -20,8 +20,15 @@ Cython gotcha below before touching anything near those. Command stacks
 (`Config.MAX_COMMAND_STACK = 3`) are live: ships assign a command dial per round in
 `COMMAND_PHASE` (FIFO queue sized to `command_value`, fixed assignment order —
 highest point cost first, tie-break by hull then id) and reveal the top of the stack
-at the start of their own activation. Using command tokens to resolve command
-effects (spend a token instead of/alongside the dial) is still stubbed out.
+at the start of their own activation. All three live commands resolve fully,
+from a dial and/or a held token: nav (`Ship.nav_command_used()`), repair
+(`Ship.repair_command_used()` + `Phase.SHIP_RESOLVE_REPAIR`) and con-fire
+(`resolve_confire_command_action` + `use_confire_dial_action` /
+`use_confire_token_action` in `ATTACK_RESOLVE_EFFECTS`). Nav and repair derive
+which resources were spent *post-hoc* from what the ship actually did;
+con-fire instead pre-commits via an explicit resolve action and is one-shot
+per activation — see `TODO.md` for why that asymmetry is deliberate. Squad
+command remains stubbed, blocked on squadrons.
 
 ## Commands
 

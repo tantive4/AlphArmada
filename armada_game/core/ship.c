@@ -1938,8 +1938,8 @@ struct __pyx_obj_11attack_info_AttackInfo {
   int is_attacker_ship;
   int is_defender_ship;
   int obstructed;
-  int con_fire_dial;
-  int con_fire_token;
+  int confire_dial;
+  int confire_token;
   int bomber;
   int swarm;
   int attack_ship_id;

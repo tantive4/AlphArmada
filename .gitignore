@@ -199,3 +199,6 @@ reference/
 
 # Local replay data
 replay_buffers/
+
+# Local working notes
+TODO.md

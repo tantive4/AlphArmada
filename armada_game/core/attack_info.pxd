@@ -7,8 +7,8 @@ cdef class AttackInfo:
     cdef public bint is_attacker_ship
     cdef public bint is_defender_ship
     cdef public bint obstructed
-    cdef public bint con_fire_dial
-    cdef public bint con_fire_token
+    cdef public bint confire_dial
+    cdef public bint confire_token
     cdef public bint bomber
     cdef public bint swarm
     

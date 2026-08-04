@@ -46,8 +46,8 @@ cdef class AttackInfo :
 
         if self.is_attacker_ship :
 
-            self.con_fire_dial = False
-            self.con_fire_token = False
+            self.confire_dial = False
+            self.confire_token = False
             
             if self.is_defender_ship :
                 attack_hist_list = list(attack_ship.attack_history)
@@ -113,8 +113,8 @@ cdef class AttackInfo :
         self.phase : Phase = Phase.ATTACK_RESOLVE_EFFECTS
         self.attack_pool_result : tuple[tuple[int, ...], ...]  = EMPTY_DICE_POOL
 
-        self.con_fire_dial : bool = False
-        self.con_fire_token : bool = False
+        self.confire_dial : bool = False
+        self.confire_token : bool = False
         self.swarm : bool = False
         self.bomber : bool = False
 
@@ -171,8 +171,8 @@ cdef class AttackInfo :
             'is_attacker_ship': self.is_attacker_ship,
             'is_defender_ship': self.is_defender_ship,
             'obstructed': self.obstructed,
-            'con_fire_dial': self.con_fire_dial,
-            'con_fire_token': self.con_fire_token,
+            'confire_dial': self.confire_dial,
+            'confire_token': self.confire_token,
             'bomber': self.bomber,
             'swarm': self.swarm,
             'attack_ship_id': self.attack_ship_id,
@@ -201,8 +201,8 @@ cdef class AttackInfo :
         instance.is_attacker_ship = snapshot['is_attacker_ship']
         instance.is_defender_ship = snapshot['is_defender_ship']
         instance.obstructed = snapshot['obstructed']
-        instance.con_fire_dial = snapshot['con_fire_dial']
-        instance.con_fire_token = snapshot['con_fire_token']
+        instance.confire_dial = snapshot['confire_dial']
+        instance.confire_token = snapshot['confire_token']
         instance.bomber = snapshot['bomber']
         instance.swarm = snapshot['swarm']
         instance.attack_ship_id = snapshot['attack_ship_id']

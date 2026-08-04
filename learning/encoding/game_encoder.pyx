@@ -137,8 +137,8 @@ cdef void encode_scalar_features(Armada game, float[:] scalar_view):
     attack_info = game.attack_info
 
     # Attack availability flags (3 features)
-    scalar_view[offset] = float(attack_info.con_fire_dial)
-    scalar_view[offset + 1] = float(attack_info.con_fire_token)
+    scalar_view[offset] = float(attack_info.confire_dial)
+    scalar_view[offset + 1] = float(attack_info.confire_token)
     scalar_view[offset + 2] = float(attack_info.swarm)
     offset += 3
 
@@ -279,6 +279,13 @@ cdef void encode_ship_entity_features(Armada game,
 
         # --- Command Tokens (4 features) ---
         for command in ship.command_token:
+            single_ship_view[offset + command] = 1.0
+        offset += c_command_type # Advance offset by block size
+
+        # --- Resolved Commands (3 features) ---
+        # Gates con-fire's one-shot-per-activation rule: without this, a ship that
+        # resolved CONFIRE with only one of dial/token still shows the other as held.
+        for command in ship.resolved_command:
             single_ship_view[offset + command] = 1.0
         offset += c_command_type # Advance offset by block size
 

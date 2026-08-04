@@ -262,33 +262,35 @@ cdef class Armada:
                 if blue_acc_count or red_acc_count : actions.append(('spend_accuracy_action', index))
 
 
-            # use con-fire command
-            # if attack_info.con_fire_dial :
-            if Command.CONFIRE in attack_ship.command_dial and Command.CONFIRE not in attack_ship.resolved_command :
-                for dice in Dice:
-                    if sum(attack_info.attack_pool_result[dice]) :
-                        actions.append(('use_confire_dial_action', DICE_CHOICE_1[dice]))
+            # con-fire command
+            if attack_info.is_attacker_ship :
+                # resolve : commit dial and/or token. Once per activation, and before
+                # either granted effect is used (no incremental top-up afterwards).
+                if Command.CONFIRE not in attack_ship.resolved_command :
+                    dial = Command.CONFIRE in attack_ship.command_dial
+                    token = Command.CONFIRE in attack_ship.command_token
+                    if dial and token:
+                        actions.append(('resolve_confire_command_action', (True, True)))
+                    if dial:
+                        actions.append(('resolve_confire_command_action', (True, False)))
+                    if token:
+                        actions.append(('resolve_confire_command_action', (False, True)))
 
-            actions.append(('pass_attack_effect', None)) # Above actions are MUST USED actions
+                # use the granted effects, legal any time before pass_attack_effect
+                if attack_info.confire_dial : # add a die of a color already in the pool
+                    for dice in DICE:
+                        if sum(attack_info.attack_pool_result[dice]) :
+                            actions.append(('use_confire_dial_action', DICE_CHOICE_1[dice]))
+
+                if attack_info.confire_token : 
+                    actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(attack_info.attack_pool_result)])
 
             # simplified
-            # # use con-fire command
-            # if attack_info.is_attacker_ship and Command.CONFIRE not in attack_ship.resolved_command :
-            #     dial = Command.CONFIRE in attack_ship.command_dial
-            #     token = Command.CONFIRE in attack_ship.command_token
-            #     if dial and token:
-            #         actions.append(('resolve_con-fire_command_action', (True, True)))
-            #     if dial:
-            #         actions.append(('resolve_con-fire_command_action', (True, False)))
-            #     if token:
-            #         actions.append(('resolve_con-fire_command_action', (False, True)))
-
-            # if attack_info.con_fire_token and not attack_info.con_fire_dial : # Use reroll after adding dice
-            #     actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(attack_info.attack_pool_result)])
-
             # # swarm reroll
             # if attack_info.swarm:
             #     actions.extend([('swarm_reroll_action', dice) for dice in dice_single_choice(attack_info.attack_pool_result)])
+
+            actions.append(('pass_attack_effect', None)) # Above actions are MUST USED actions
 
         elif phase == Phase.ATTACK_SPEND_DEFENSE_TOKENS :
             if attack_info.is_defender_ship:
@@ -608,35 +610,28 @@ cdef class Armada:
 
             attack_info.calculate_total_damage()
 
-        elif action_type == 'resolve_con-fire_command_action':
-            raise NotImplementedError(f"simplified {action_type}")
+        elif action_type == 'resolve_confire_command_action':
             (dial, token) = action_data
             if dial : active_ship.discard_command_dial(Command.CONFIRE)
             if token : active_ship.discard_command_token(Command.CONFIRE)
             active_ship.resolved_command += (Command.CONFIRE,)
-            attack_info.con_fire_dial, attack_info.con_fire_token = dial, token
-            attack_info.calculate_total_damage()
-        
-        elif action_type == 'use_confire_dial_action':
-            # simplified
-            active_ship.discard_command_dial(Command.CONFIRE)
-            active_ship.resolved_command += (Command.CONFIRE,)
+            attack_info.confire_dial, attack_info.confire_token = dial, token
 
+        elif action_type == 'use_confire_dial_action':
             dice_to_add = action_data
             attack_info.dice_to_roll = dice_to_add
-            attack_info.con_fire_dial = False
-            attack_info.calculate_total_damage()
+            attack_info.confire_dial = False
             self.phase = Phase.ATTACK_ROLL_DICE
-            
+
         elif action_type == 'use_confire_token_action':
-            raise NotImplementedError(f"simplified {action_type}")
             reroll_dice = action_data
-            attack_info.con_fire_token = False
+            attack_info.confire_token = False
 
             attack_info.remove_dice(reroll_dice)
 
-            attack_info.dice_to_roll = tuple([sum(reroll_dice[dice_type]) for dice_type in DICE])
-            attack_info.calculate_total_damage()
+            for dice_type in DICE:
+                dice_pool.append(sum(reroll_dice[dice_type]))
+            attack_info.dice_to_roll = tuple(dice_pool)
             self.phase = Phase.ATTACK_ROLL_DICE
 
         elif action_type == 'swarm_reroll_action':

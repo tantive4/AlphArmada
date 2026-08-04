@@ -60,7 +60,7 @@ ActionType: TypeAlias = (
     tuple[Literal['reveal_command_action'], Command] |
     tuple[Literal['gain_command_token_action'], Command] |
     tuple[Literal['gain_and_discard_command_token_action'], tuple[Command, Command]] |
-    tuple[Literal['resolve_con-fire_command_action',
+    tuple[Literal['resolve_confire_command_action',
                   'resolve_squad_command_action'], tuple[bool, bool]] |
 
     tuple[Literal['repair_hull_action'], None] | 
@@ -158,6 +158,12 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
         case 'gather_dice_action', dice_to_remove :
             if game.attack_info is None : raise ValueError('Need attack info to resolve attack effect')
             action_str = f'Gather Dice {game.attack_info.dice_to_roll} {f"(Remove {Dice(dice_to_remove.index(1))} Die)" if any(dice_to_remove) else ""}'
+
+        case 'resolve_confire_command_action', (dial, token) :
+            action_str = f'Resolve Con-Fire Command:{" (Dial Spent)" if dial else ""}{" (Token Spent)" if token else ""}'
+
+        case 'use_confire_dial_action', dice_to_add :
+            action_str = f'Use Confire Dial to Add {Dice(dice_to_add.index(1))} Die'
 
         case 'use_confire_token_action', dice :
             action_str = f'Use Confire Token to Reroll {dice_icon(dice)}'
