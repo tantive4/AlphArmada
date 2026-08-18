@@ -90,3 +90,12 @@ class TokenType(IntEnum):
     EVADE = 2
     SCATTER = 3
 
+class NodeType(IntEnum):
+    """MCTS node kind: a player decision, or a chance node sampling a random outcome."""
+    DECISION = 0
+    DICE = auto()
+    DAMAGE = auto()
+    def __str__(self):
+        return self.name
+    __repr__ = __str__
+

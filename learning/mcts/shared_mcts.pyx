@@ -9,13 +9,14 @@ import numpy as np
 import torch.nn.functional as F
 cimport numpy as cnp
 
-from libc.math cimport log, sqrt
+from libc.math cimport sqrt
 
 from action_manager cimport ActionManager
 from learning.model.big_deep import BigDeep
 from game_encoder cimport encode_game_state
 from armada_game.helpers import dice
 from armada_game.helpers.action_phase import Phase, ActionType
+from armada_game.helpers.enum_class import NodeType
 from armada cimport Armada
 from attack_info cimport AttackInfo
 from learning.params.configs import Config
@@ -30,8 +31,7 @@ cdef class Node:
     cdef :
         public tuple snapshot
         public int decision_player
-        public bint chance_node
-        public bint information_set
+        public int node_type
 
         public tuple action
         public list children
@@ -54,10 +54,13 @@ cdef class Node:
 
         self.decision_player = game.decision_player # decision player used when get_possible_action is called on this node
 
-        self.chance_node = <bint>(game.phase == Phase.ATTACK_ROLL_DICE)
-        # simplified
-        # self.information_set = <bint>(game.phase == Phase.SHIP_REVEAL_COMMAND_DIAL)
-        self.information_set = False
+        if game.phase == Phase.ATTACK_ROLL_DICE:
+            self.node_type = NodeType.DICE
+        # No damage-card phase exists yet (critical effects / asteroids unimplemented).
+        # elif game.phase == Phase.<DAMAGE_DRAW_PHASE>:
+        #     self.node_type = NodeType.DAMAGE
+        else:
+            self.node_type = NodeType.DECISION
 
         self.action = action
         self.children = []
@@ -94,10 +97,7 @@ cdef class Node:
             return random.choice(self.children)
 
         for child in self.children:
-            # Don't use policy for secret information
-            if self.information_set: ucb = self._get_ucb(child)
-            # Use policy for regular decision nodes
-            else: ucb = self._get_pucb(child)
+            ucb = self._get_pucb(child)
 
             if ucb > best_ucb:
                 best_child = child
@@ -115,13 +115,6 @@ cdef class Node:
         self.visits += 1
         self.wins += result
         self.virtual_loss_count -= 1
-
-    cdef float _get_ucb(self, Node child):
-        cdef float q_value
-        if child.visits + child.virtual_loss_count == 0:
-            return float('inf')
-        q_value = (child.wins - child.virtual_loss_count) / (child.visits + child.virtual_loss_count)
-        return q_value + Config.EXPLORATION_CONSTANT * <float>sqrt(log(<double>(self.visits + self.virtual_loss_count)) / (child.visits + child.virtual_loss_count))
 
     cdef float _get_pucb(self, Node child):
         cdef int child_visit = child.visits + child.virtual_loss_count
@@ -229,7 +222,7 @@ cdef class MCTS:
                     expandable_indices.append(para_index)
 
             # 2. Expansion (for player decision nodes)
-            # note that leaf node is not chance node or information set node
+            # note that leaf node is not a chance node
             if expandable_indices:
                 batch_value, batch_policy = self._get_value_policy(expandable_indices)
 
@@ -240,7 +233,7 @@ cdef class MCTS:
 
                     value = <float>(batch_value[output_index])
                     policy_arr = batch_policy[output_index]
-                    
+
                     valid_actions: list[ActionType] = game.get_valid_actions()
                     policy_arr = self._mask_policy(policy_arr, <int>game.phase, valid_actions)
 
@@ -310,18 +303,18 @@ cdef class MCTS:
             bint found
         node.add_virtual_loss()
         game = self.para_games[para_index]
-        while (node.visits > 0 and node.children) or node.chance_node or node.information_set:
+        while (node.visits > 0 and node.children) or node.node_type != NodeType.DECISION:
 
-            if node.chance_node:
+            if node.node_type == NodeType.DICE:
                 game.revert_snapshot(node.snapshot)
 
-                # For a chance node, sample a random outcome instead of using UCT.
-            
+                # For a dice node, sample a random dice roll instead of using UCT.
+
                 if (attack_info := game.attack_info) is None :
-                    raise ValueError("Invalid game for chance node: missing attack/defend info.")
+                    raise ValueError("Invalid game for dice node: missing attack/defend info.")
                 dice_roll = dice.roll_dice(attack_info.dice_to_roll)
                 action = ("roll_dice_action", dice_roll)
-                
+
                 found = <bint>False
                 for child in node.children:
                     if child.action[1] == dice_roll:
@@ -335,17 +328,9 @@ cdef class MCTS:
                     game.apply_action(action)
                     node = node.add_child(action, game)
 
-            elif node.information_set :
+            elif node.node_type == NodeType.DAMAGE:
+                raise NotImplementedError("Damage node not yet implemented: damage card deck is unbuilt.")
 
-                if not node.children :
-                    game.revert_snapshot(node.snapshot)
-                    # expand all possible actions
-                    for action in game.get_valid_actions() :
-                        game.apply_action(action)
-                        node.add_child(action, game)
-                        game.revert_snapshot(node.snapshot)
-                node = node.select_child()
-            
             else:
                 node = node.select_child()
             
