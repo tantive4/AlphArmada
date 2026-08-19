@@ -119,13 +119,15 @@ def generate_all_maps():
 
 
             # === Attack Step ===
-            # case Phase.ATTACK_GATHER_DICE :
-            #     for dice_type in DICE :
-            #         dice_to_remove = [0,0,0]
-            #         dice_to_remove[dice_type] = 1
-            #         dice_to_remove = tuple(dice_to_remove)
-            #         actions.append(('gather_dice_action', dice_to_remove))
-            #     actions.append(('gather_dice_action', (0, 0, 0)))
+            case Phase.ATTACK_GATHER_DICE :
+                # An obstructed attack removes one die of a chosen color.  The
+                # zero vector advances unobstructed attacks without modifying
+                # their gathered dice pool.
+                for dice_type in DICE :
+                    dice_to_remove = [0, 0, 0]
+                    dice_to_remove[dice_type] = 1
+                    actions.append(('gather_dice_action', tuple(dice_to_remove)))
+                actions.append(('gather_dice_action', (0, 0, 0)))
 
             case Phase.ATTACK_ROLL_DICE : # chance node
                 pass

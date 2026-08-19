@@ -226,17 +226,16 @@ cdef class Armada:
                 # for squad in active_ship.get_valid_squad_target(attack_hull):
                 #     actions.append(('declare_target_action', (attack_hull, squad.id)))
 
-        # elif phase == Phase.ATTACK_GATHER_DICE :
-        #     dice_to_roll = attack_info.dice_to_roll
-
-        #     if attack_info.obstructed:
-        #         if sum(dice_to_roll) <= 1 : print(f"WARNING: empty attack pool \n{self.get_snapshot()}\n{attack_info.get_snapshot()}")
-        #         for dice_type in DICE :
-        #             if dice_to_roll[dice_type] > 0 :
-        #                 dice_to_remove = DICE_CHOICE_1[dice_type]
-        #                 actions.append(('gather_dice_action', dice_to_remove))
-        #     else:
-        #         actions = [('gather_dice_action', (0,0,0))]
+        elif phase == Phase.ATTACK_GATHER_DICE :
+            # Obstruction removes exactly one die before rolling.  If that
+            # leaves no gathered dice, the Roll Attack Dice rule cancels the
+            # attack instead of advancing to the roll chance node.
+            if attack_info.obstructed:
+                for dice_type in DICE :
+                    if attack_info.dice_to_roll[dice_type] > 0:
+                        actions.append(('gather_dice_action', DICE_CHOICE_1[dice_type]))
+            else:
+                actions = [('gather_dice_action', (0, 0, 0))]
         
         elif phase == Phase.ATTACK_ROLL_DICE :
             raise NotImplementedError("This is a chance node. No player action available.")
@@ -569,18 +568,24 @@ cdef class Armada:
             # gather initial dice pool here
             self.attack_info = AttackInfo((active_ship, attack_hull), defender)
 
-            # simplified
-            # self.phase = Phase.ATTACK_GATHER_DICE
-            self.phase = Phase.ATTACK_ROLL_DICE
+            self.phase = Phase.ATTACK_GATHER_DICE
         
         elif action_type == 'gather_dice_action':
-            raise NotImplementedError(f"simplified {action_type}")
-            dice_to_remove= action_data
-            # update dice pool considering obstruction.etc
+            dice_to_remove = action_data
+
+            if attack_info.obstructed:
+                if sum(dice_to_remove) != 1:
+                    raise ValueError('An obstructed attack must remove exactly one gathered die')
+            elif any(dice_to_remove):
+                raise ValueError('An unobstructed attack cannot remove a gathered die')
+
+            # Remove the chosen color from the gathered pool.
             for dice_type in DICE:
-                new_count = attack_info.dice_to_roll[dice_type] - dice_to_remove[dice_type]
-                dice_pool.append(new_count)
+                if dice_to_remove[dice_type] < 0 or dice_to_remove[dice_type] > attack_info.dice_to_roll[dice_type]:
+                    raise ValueError('Cannot remove a die that is not in the gathered attack pool')
+                dice_pool.append(attack_info.dice_to_roll[dice_type] - dice_to_remove[dice_type])
             attack_info.dice_to_roll = tuple(dice_pool)
+
             self.phase = Phase.ATTACK_ROLL_DICE
 
         elif action_type == 'roll_dice_action':

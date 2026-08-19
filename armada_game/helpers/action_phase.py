@@ -35,7 +35,7 @@ class Phase(IntEnum):
     # SQUAD_MOVE = auto()
 
     # === Attack Step ===
-    # ATTACK_GATHER_DICE = auto()
+    ATTACK_GATHER_DICE = auto()
     ATTACK_ROLL_DICE = auto()
     ATTACK_RESOLVE_EFFECTS = auto()
     ATTACK_SPEND_DEFENSE_TOKENS = auto()

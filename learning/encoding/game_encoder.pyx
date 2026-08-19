@@ -438,7 +438,9 @@ cdef void encode_spatial_mask(Armada game, cnp.uint8_t[:, :, :, :] planes_view):
 @cython.wraparound(False)
 cdef void encode_relation_matrix(Armada game, float[:, :, :] rel_matrix):
     """
-    Optimized pairwise range encoding.
+    Optimized pairwise range encoding.  Each hull-pair range is offset by 0.4
+    when its line of sight is obstructed, preserving the fixed 20-feature
+    relation layout while exposing obstruction for target selection.
     """
 
     cdef int i, j, attacker_id, defender_id
@@ -487,6 +489,10 @@ cdef void encode_relation_matrix(Armada game, float[:, :, :] rel_matrix):
                 for to_hull in range(c_hull_type):
                     attack_range = <float>attack_range_list[to_hull]
 
+                    if AttackRange.CLOSE <= attack_range <= AttackRange.LONG and \
+                            attacker.is_obstruct_s2s(from_hull, defender, to_hull):
+                        attack_range += 0.4
+
                     flat_idx = from_hull * c_hull_type + to_hull
 
                     rel_matrix[attacker_id, defender_id, flat_idx] = attack_range
@@ -501,7 +507,7 @@ cdef void encode_relation_matrix(Armada game, float[:, :, :] rel_matrix):
             relative_bearing = angle_to_target - attacker.orientation
 
             # --- Store them at the end of the vector ---
-            # Indices 0-15 are Hull Ranges
+            # Indices 0-15 are Hull Ranges (+0.4 when obstructed)
             # Indices 16-19 are Relative Physics
             rel_matrix[attacker_id, defender_id, 16] = dx
             rel_matrix[attacker_id, defender_id, 17] = dy

@@ -11463,6 +11463,40 @@
       ]
     ]
   ],
+  "ATTACK_GATHER_DICE": [
+    [
+      "gather_dice_action",
+      [
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      "gather_dice_action",
+      [
+        0,
+        1,
+        0
+      ]
+    ],
+    [
+      "gather_dice_action",
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    [
+      "gather_dice_action",
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  ],
   "ATTACK_ROLL_DICE": [],
   "ATTACK_RESOLVE_EFFECTS": [
     [

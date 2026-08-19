@@ -389,29 +389,20 @@ cdef class Ship:
         Returns:
             obstructed (bool)
         """
-        return False
-        # simplified
         cdef:
             tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(cache._ship_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
             Ship ship
-            Obstacle obstacle
-            tuple self_point, other_point
-        
-        self_point = cache.los_point_ship(line_of_sight[0],line_of_sight[1], self.get_ship_hash_state())
-        other_point = cache.los_point_ship(line_of_sight[1],line_of_sight[0], to_ship.get_ship_hash_state())
-        line_of_sight = (self_point, other_point)
-        for ship in self.game.ships:
 
+        # Rule Reference, Line of Sight: trace between each hull zone's yellow
+        # targeting point.  In the active ruleset, only another non-destroyed
+        # ship can obstruct that line (obstacles and squadrons are disabled).
+        for ship in self.game.ships:
             if ship.id == self.id or ship.id == to_ship.id:
                 continue
             if ship.destroyed:
                 continue
 
             if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
-                return True
-
-        for obstacle in self.game.obstacles:
-            if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):
                 return True
 
         return False
@@ -495,8 +486,12 @@ cdef class Ship:
 
                 dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=True))
                 if dice_count == 0 : continue
-                elif dice_count == 1:
-                    if self.is_obstruct_s2s(attack_hull, ship, target_hull) : continue
+                # Simplified training policy: do not declare an attack that
+                # obstruction would immediately cancel after its only die is
+                # removed.  This intentionally prunes a rules-legal but
+                # deterministic zero-effect branch from self-play.
+                if dice_count == 1 and self.is_obstruct_s2s(attack_hull, ship, target_hull):
+                    continue
                 valid_ship_targets.append(ship)
                 break
 
@@ -519,8 +514,10 @@ cdef class Ship:
 
             dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=True))
             if dice_count == 0 : continue
-            elif dice_count == 1:
-                if self.is_obstruct_s2s(attack_hull, target_ship, target_hull) : continue
+            # Mirror get_valid_ship_target so an individually declared hull
+            # cannot enter the pruned one-die obstructed branch either.
+            if dice_count == 1 and self.is_obstruct_s2s(attack_hull, target_ship, target_hull):
+                continue
             valid_target_hulls.append(target_hull)
 
         return valid_target_hulls
