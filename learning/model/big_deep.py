@@ -215,7 +215,8 @@ class BigDeep(nn.Module):
         )
 
         # Spatial ResNet
-        self.spatial_in_channels = self.presence_channels + self.threat_channels
+        self.obstacle_channels = Config.OBSTACLE_SPATIAL_CHANNELS
+        self.spatial_in_channels = self.presence_channels + self.threat_channels + self.obstacle_channels
         self.spatial_out_channels = 64
         self.register_buffer('bit_mask', torch.tensor([1, 2, 4, 8, 16, 32, 64, 128], dtype=torch.uint8))
         self.bit_mask = cast(torch.Tensor, self.bit_mask)
@@ -464,8 +465,12 @@ class BigDeep(nn.Module):
         threat_vals = self.threat_projector(ships_l1).view(batch_size, N, self.threat_channels, self.num_threat_planes)
 
         presence_map = torch.einsum('bnc, bnhw -> bchw', presence_vals, unpacked_spatial[:, :, 0])
-        threat_map = torch.einsum('bncg, bnghw -> bchw', threat_vals, unpacked_spatial[:, :, 1:])
-        spatial_combined = torch.cat([presence_map, threat_map], dim=1)
+        threat_end = 1 + self.num_threat_planes
+        threat_map = torch.einsum('bncg, bnghw -> bchw', threat_vals, unpacked_spatial[:, :, 1:threat_end])
+        obstacle_start = Config.OBSTACLE_SPATIAL_OFFSET
+        obstacle_end = obstacle_start + self.obstacle_channels
+        obstacle_map = unpacked_spatial[:, :, obstacle_start:obstacle_end].amax(dim=1)
+        spatial_combined = torch.cat([presence_map, threat_map, obstacle_map], dim=1)
 
         x = self.spatial_head_conv(spatial_combined)
         scalar_embed_raw = scalar_token.squeeze(1)
@@ -615,7 +620,9 @@ class BigDeep(nn.Module):
             scalar_input: [B, 45]
             ship_entity_input: [B, N, 110]
             ship_coord_input: [B, N, 2] - Normalized (0-1) coordinates for safer indexing
-            spatial_input: [B, N, 10, H, W] - Plane 0 is presence, 1-9 are threat geometry
+            spatial_input: [B, N, 13, H, packed W] - plane 0 is presence,
+                           planes 1-9 are threat geometry, and planes 10-12 are
+                           station, debris, and asteroid occupancy
             relation_input: [B, N, N, 20] - Raw 4x4 hull relation matrix (flattened) + 4 geometric information
             active_ship_indices: [B] Tensor. Int index of active ship (0 to N-1).
                                  Use N (Config.MAX_SHIPS) or -1 for "No Active Ship".

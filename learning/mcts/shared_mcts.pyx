@@ -164,9 +164,9 @@ cdef class MCTS:
             (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE),
             dtype=np.float32
         )
-        # Spatial buffer is the largest (ensure dims match BigDeep: [B, N, 10, H, W/8])
+        # Spatial buffer is the largest (ensure dims match BigDeep: [B, N, C, H, W/8])
         self.spatial_buffer = np.zeros(                                      # type: ignore 
-            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), 
+            (Config.GPU_INPUT_BATCH_SIZE, Config.MAX_SHIPS, Config.SPATIAL_CHANNELS, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8),
             dtype=np.uint8
         )
         self.relation_buffer = np.zeros(                                     # type: ignore

@@ -163,7 +163,7 @@ class AlphArmadaWorker:
         ship_entity_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.SHIP_ENTITY_FEATURE_SIZE), dtype=np.float32)
         ship_coords_store = np.zeros((num_steps, Config.MAX_SHIPS, 3), dtype=np.float32)
         ship_def_token_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.MAX_DEFENSE_TOKENS, Config.DEF_TOKEN_FEATURE_SIZE), dtype=np.float32)
-        spatial_store = np.zeros((num_steps, Config.MAX_SHIPS, 10, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), dtype=np.uint8)
+        spatial_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.SPATIAL_CHANNELS, Config.BOARD_RESOLUTION[0], Config.BOARD_RESOLUTION[1]//8), dtype=np.uint8)
         relation_store = np.zeros((num_steps, Config.MAX_SHIPS, Config.MAX_SHIPS, 20), dtype=np.float32)
 
         active_id_store = np.zeros(num_steps, dtype=np.int8)

@@ -6,8 +6,7 @@ import shutil
 import warnings
 
 import numpy as np
-from shapely.geometry import Polygon, Point, box
-from shapely import affinity
+from shapely.geometry import Polygon, box
 
 from armada import Armada
 from ship import Ship
@@ -41,17 +40,6 @@ BOARD_HEIGHT = measurement.LONG_RANGE * 3
 DIST_1 = measurement.DISTANCE[1] # 76.5
 DIST_2 = measurement.DISTANCE[2] # 124.5
 DIST_3 = measurement.DISTANCE[3] # 185.5
-DIST_5 = measurement.DISTANCE[5] # 304.8
-
-# Mapping Obstacle ID to measurement.py geometry
-OBSTACLE_GEOM_MAP = {
-    (ObstacleType.STATION, 0): measurement.OBSTACLE[0],
-    (ObstacleType.DEBRIS, 1): measurement.OBSTACLE[1],
-    (ObstacleType.DEBRIS, 2): measurement.OBSTACLE[2],
-    (ObstacleType.ASTEROID, 3): measurement.OBSTACLE[3],
-    (ObstacleType.ASTEROID, 4): measurement.OBSTACLE[4],
-    (ObstacleType.ASTEROID, 5): measurement.OBSTACLE[5],
-}
 
 # --- Helper Functions ---
 
@@ -120,14 +108,61 @@ def get_ship_polygon(ship, x, y, orientation):
     ship_state = (ship.name, int(x*measurement.HASH_PRECISION), int(y*measurement.HASH_PRECISION), int(orientation*measurement.HASH_PRECISION))
     return Polygon(cache._ship_coordinate(ship_state)['base_corners'])
 
-def get_obstacle_polygon(obs_obj, x, y, orientation):
+def get_obstacle_polygon(obs_obj, x, y, orientation, flip=False):
     """Returns obstacle polygon."""
-    key = (obs_obj.type, obs_obj.index)
-    base_verts = OBSTACLE_GEOM_MAP[key]
-    poly = Polygon(base_verts)
-    poly = affinity.rotate(poly, orientation, origin=(0,0), use_radians=True)
-    poly = affinity.translate(poly, x, y)
-    return poly
+    return Polygon(cache._obstacle_coordinate((obs_obj.index, x, y, orientation, flip)))
+
+
+def get_random_obstacle_layout(obstacles, *, max_layout_attempts=100, max_obstacle_attempts=1000):
+    """Return a complete random legal six-obstacle layout.
+
+    Rule Reference, Setup / Place Obstacles: ordinary obstacles must be in the
+    setup area, beyond distance 3 of its edges, and beyond distance 1 of one
+    another.  A complete layout is generated before mutating the game so a
+    failed rejection-sampling attempt can be restarted cleanly.
+    """
+    # TODO(6x3-map): Keep this distance-3 inset for the current 3' x 3' board.
+    # When BOARD_WIDTH becomes 6 * LONG_RANGE, replace the horizontal bounds
+    # with the central setup area's distance-5 short-edge inset.  See TODO.md.
+    obstacle_zone = box(
+        DIST_3,
+        DIST_3,
+        BOARD_WIDTH - DIST_3,
+        BOARD_HEIGHT - DIST_3,
+    )
+    obstacle_rect = obstacle_zone.bounds
+
+    for _ in range(max_layout_attempts):
+        placement_order = list(obstacles)
+        random.shuffle(placement_order)
+        placed_polygons = []
+        placements = []
+
+        for obstacle in placement_order:
+            for _ in range(max_obstacle_attempts):
+                x, y = random_coord_in_rect(obstacle_rect)
+                orientation = random.uniform(0, 2 * math.pi)
+                flip = bool(random.getrandbits(1))
+                polygon = get_obstacle_polygon(obstacle, x, y, orientation, flip)
+
+                if not obstacle_zone.contains(polygon):
+                    continue
+                if any(polygon.distance(other) <= DIST_1 for other in placed_polygons):
+                    continue
+
+                placed_polygons.append(polygon)
+                placements.append((obstacle, x, y, orientation, flip, polygon))
+                break
+            else:
+                break
+
+        if len(placements) == len(obstacles):
+            return placements
+
+    raise RuntimeError(
+        f"Could not generate a legal layout for all {len(obstacles)} obstacles "
+        f"after {max_layout_attempts} full-layout attempts."
+    )
 
 def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada: 
     players = [Faction.REBEL, Faction.EMPIRE]
@@ -153,45 +188,14 @@ def setup_game(*, debuging_visual:bool=False, para_index:int=0) -> Armada:
         Obstacle(ObstacleType.DEBRIS, 2),
         Obstacle(ObstacleType.STATION, 1),
     ]
-    obstacles = [] # simplified
 
-
-    placed_polygons = [] # To store (polygon, type) for collision checks
-
-    # 2. Place Obstacles
-    # Zone: Distance 3 from player edges (Y), Distance 5 from short edges (X)
-    obs_rect = (DIST_5, DIST_3, BOARD_WIDTH - DIST_5, BOARD_HEIGHT - DIST_3)
-    obs_deployment_zone = box(*obs_rect)
-
-    for obs in obstacles:
-        placed = False
-        for _ in range(200): # Retry limit
-            x, y = random_coord_in_rect(obs_rect)
-            orientation = random.uniform(0, 2 * math.pi)
-            
-            poly = get_obstacle_polygon(obs, x, y, orientation)
-            
-            valid = True
-
-            # Check bounds
-            if not obs_deployment_zone.contains(poly):
-                valid = False
-
-            # Check overlap/distance with existing obstacles
-            for existing_poly in placed_polygons:
-                dist = poly.distance(existing_poly)
-                if dist <= DIST_1: 
-                    valid = False
-                    break
-            
-            if valid:
-                game.place_obstacle(obs, x, y, orientation, False)
-                placed_polygons.append(poly)
-                placed = True
-                break
-        
-        if not placed:
-            print(f"Warning: Could not place obstacle {obs} validly.")
+    # 2. Place Obstacles.  Random order substitutes for alternating player
+    # choices while retaining the fixed standard mix and every geometry rule.
+    obstacle_layout = get_random_obstacle_layout(obstacles)
+    placed_polygons = []
+    for obstacle, x, y, orientation, flip, polygon in obstacle_layout:
+        game.place_obstacle(obstacle, x, y, orientation, flip)
+        placed_polygons.append(polygon)
 
 
 

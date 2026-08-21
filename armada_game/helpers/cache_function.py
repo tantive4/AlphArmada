@@ -1,4 +1,5 @@
 from functools import lru_cache
+from math import isnan
 
 import numpy as np
 from matplotlib.path import Path
@@ -11,7 +12,7 @@ from armada_game.helpers import jit_geometry as jit
 
 from learning.params.configs import Config
 height_res, width_res = Config.BOARD_RESOLUTION
-width_step = LONG_RANGE * 6 / width_res
+width_step = LONG_RANGE * 3 / width_res
 height_step = LONG_RANGE * 3 / height_res
 
 CACHE_SIZE = 6400
@@ -36,6 +37,8 @@ def delete_cache():
     maneuver_tool.cache_clear()
     _ship_presence_indices.cache_clear()
     _ship_threat_indices.cache_clear()
+    _obstacle_presence_indices.cache_clear()
+    visible_los_segment_s2s.cache_clear()
     _squad_presence_indices.cache_clear()
     _threat_sparse.cache_clear()
 
@@ -76,20 +79,19 @@ def _obstacle_coordinate(obstacle_state : tuple[int, float, float, float, bool])
     """
     Returns the world coordinates of the obstacle polygon corners.
     """
-    # CW rotation matrix
+    # Match Obstacle.place_obstacle(): positive orientation is counter-clockwise.
     orientation = obstacle_state[3]
-    c, s = np.cos(-orientation), np.sin(-orientation)
+    c, s = np.cos(orientation), np.sin(orientation)
     rotation_matrix = np.array([[c, -s], [s, c]], dtype=np.float32)
     translation_vector = np.array([obstacle_state[1], obstacle_state[2]], dtype=np.float32)
 
     # Rotate each vertex by applying the transpose of the rotation matrix
     # to the (N,2) vertices array, then translate by (2,) vector.
     if obstacle_state[4]:
-        flip_matrix = np.array([[-1, 0],
-                                [0, 1]])
-        current_vertices = rotation_matrix @ (flip_matrix @ OBSTACLE[obstacle_state[0]]) + translation_vector
+        flip_matrix = np.array([[-1, 0], [0, 1]], dtype=np.float32)
+        current_vertices = (OBSTACLE[obstacle_state[0]] @ flip_matrix.T) @ rotation_matrix.T + translation_vector
     else:
-        current_vertices =  OBSTACLE[obstacle_state[0]] @ rotation_matrix.T + translation_vector
+        current_vertices = OBSTACLE[obstacle_state[0]] @ rotation_matrix.T + translation_vector
 
     return current_vertices
 
@@ -174,20 +176,72 @@ def los_point_ship(start_point : tuple[float, float], end_point : tuple[float, f
     return jit.find_intersection(self_los, other_los, ship_token)
 
 @lru_cache(maxsize=CACHE_SIZE)
-def is_obstruct_obstacle(targeting_point : tuple[tuple[float, float], tuple[float, float]], obstacle_state : tuple[int, float, float, float]) -> bool :
+def is_obstruct_obstacle(targeting_point : tuple[tuple[float, float], tuple[float, float]], obstacle_state : tuple[int, float, float, float, bool]) -> bool :
     line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
     obstacle_path : Path = Path(_obstacle_coordinate(obstacle_state))
     line_path : Path = Path(line_of_sight)
-    return obstacle_path.intersects_path(line_path, filled=True)
+    return (
+        obstacle_path.intersects_path(line_path, filled=True)
+        or obstacle_path.contains_point(line_of_sight[0])
+        or obstacle_path.contains_point(line_of_sight[1])
+    )
+
+@lru_cache(maxsize=CACHE_SIZE)
+def visible_los_segment_s2s(
+    attacker_state: tuple[str, int, int, int],
+    from_hull: int,
+    defender_state: tuple[str, int, int, int],
+    to_hull: int,
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    """Trim ship-to-ship LOS to the portion visible outside endpoint tokens.
+
+    Rule Reference, Line of Sight and Obstructed FAQ: an obstacle hidden under
+    an overlapping ship does not obstruct unless LOS crosses a visible portion.
+    The smaller token is opaque; the larger surrounding base is transparent.
+
+    Keyed on the two ship states and hull indices rather than on the targeting
+    points, so callers never build the raw point tuple.  Building and hashing
+    that tuple dominated the cached path; going through the states instead is
+    about ten times cheaper per call.  The trimmed segment is what both the
+    ship and the obstacle obstruction checks consume: a third ship's base
+    cannot reach inside either endpoint token (a token is strictly inside its
+    own base, and bases never overlap), so trimming cannot hide a third ship.
+
+    NOTE: this assumes the two ship tokens do not overlap.  That holds today
+    because `Ship.move_ship()` backs a maneuver off until no ship *bases*
+    overlap, which makes token overlap unreachable.  If ships can ever overlap
+    (a "place ship" effect, for instance), two cases go wrong here and both
+    report a spurious obstruction: `find_intersection` yields NaN once the
+    whole segment is hidden inside one token and the fallback below then
+    returns the *untrimmed* line, and partial overlap puts `visible_start`
+    past `visible_end` so the returned segment runs backwards across the
+    region hidden under both tokens.  The fix would be to return None for an
+    empty visible interval and let callers skip their obstruction loops.
+    """
+    attacker_coords = _ship_coordinate(attacker_state)
+    defender_coords = _ship_coordinate(defender_state)
+    start = attacker_coords['targeting_points'][from_hull]
+    end = defender_coords['targeting_points'][to_hull]
+
+    visible_start = jit.find_intersection(start, end, attacker_coords['token_corners'])
+    visible_end = jit.find_intersection(end, start, defender_coords['token_corners'])
+    if isnan(visible_start[0]) or isnan(visible_end[0]):
+        return ((float(start[0]), float(start[1])), (float(end[0]), float(end[1])))
+
+    return (
+        (float(visible_start[0]), float(visible_start[1])),
+        (float(visible_end[0]), float(visible_end[1])),
+    )
 
 @lru_cache(maxsize=CACHE_SIZE)
 def is_obstruct_ship(targeting_point : tuple[tuple[float, float], tuple[float, float]], ship_state : tuple[str, int, int, int]) -> bool :
     line_of_sight : np.ndarray = np.array(targeting_point, dtype=np.float32)
 
-    ship_token : np.ndarray = np.array(_ship_coordinate(ship_state)['base_corners'], dtype=np.float32)
+    # Third-ship obstruction uses the full ship base, not the smaller token.
+    ship_base : np.ndarray = np.array(_ship_coordinate(ship_state)['base_corners'], dtype=np.float32)
 
-    return jit.SAT_overlapping_check(line_of_sight, ship_token)
+    return jit.SAT_overlapping_check(line_of_sight, ship_base)
 
 @lru_cache(maxsize=CACHE_SIZE)
 def is_overlap_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[str, int, int, int]) -> bool :
@@ -251,6 +305,18 @@ def _ship_presence_indices(ship_state: tuple[str, int, int, int],) -> tuple[np.n
     rr, cc = draw_polygon(scaled_vertices[:, 1], scaled_vertices[:, 0], shape=(height_res, width_res))
     
     return rr, cc
+
+@lru_cache(maxsize=CACHE_SIZE)
+def _obstacle_presence_indices(
+    obstacle_state: tuple[int, float, float, float, bool],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return obstacle-polygon cells in the same 3' x 3' grid as ships."""
+    scaled_vertices = _obstacle_coordinate(obstacle_state) / [width_step, height_step]
+    return draw_polygon(
+        scaled_vertices[:, 1],
+        scaled_vertices[:, 0],
+        shape=(height_res, width_res),
+    )
 
 @lru_cache(maxsize=CACHE_SIZE)
 def _ship_threat_indices(ship_state: tuple[str, int, int, int],) -> dict[int,dict[int,tuple[np.ndarray, np.ndarray]]]:

@@ -40,9 +40,10 @@ AlphArmada models a ship-focused version of Armada:
   speed.
 
 The current training setup intentionally simplifies parts of the full tabletop
-game. Squadrons are disabled (`MAX_SQUADS = 0`), and randomized setup currently
-places no obstacles, although squadron, obstacle, and command-token-based
-command resolution remain present in the codebase but unimplemented/stubbed.
+game. Squadrons are disabled (`MAX_SQUADS = 0`), and squadron command resolution
+remains present in the codebase but stubbed. Randomized setup places all six
+ordinary obstacles and they obstruct line of sight, but the effects of a ship
+overlapping an obstacle are still disabled.
 
 ## Model Structure
 
@@ -57,7 +58,8 @@ It receives a structured encoding of the current game state:
 - `ship_coords`: normalized ship position and orientation.
 - `ship_def_tokens`: up to 4 defense tokens per ship, with readiness,
   accuracy-lock, spendability, and token type.
-- `spatial`: bit-packed 64 x 64 ship presence and threat planes.
+- `spatial`: bit-packed 64 x 64 ship presence, threat, and type-separated
+  station/debris/asteroid occupancy planes.
 - `relations`: 10 x 10 pairwise ship relation features, including hull-zone
   ranges and relative geometry.
 
@@ -69,9 +71,9 @@ The architecture is a transformer-centric "sandwich" model:
 3. Fourier coordinate features and learned geometric relation bias inform
    multi-head attention.
 4. A first 3-layer transformer block reasons over global and ship tokens.
-5. Ship tokens are scattered into spatial presence/threat maps, processed by a
-   6-block ResNet with global-pooling bias, then gathered back into the token
-   stream.
+5. Ship tokens are scattered into spatial presence/threat maps, combined with
+   the obstacle-occupancy map, processed by a 6-block ResNet with global-pooling
+   bias, then gathered back into the token stream.
 6. A second 3-layer transformer block performs tactical reasoning with the
    spatial context fused back in.
 

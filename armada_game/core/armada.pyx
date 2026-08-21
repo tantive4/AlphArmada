@@ -7,8 +7,6 @@ import math
 import numpy as np
 cimport numpy as cnp
 cnp.import_array()
-from skimage.draw import polygon as draw_polygon
-
 from learning.params.configs import Config
 from armada_game.helpers.action_phase import Phase, ActionType, get_action_str, phase_type
 from armada_game.helpers import visualizer
@@ -227,9 +225,9 @@ cdef class Armada:
                 #     actions.append(('declare_target_action', (attack_hull, squad.id)))
 
         elif phase == Phase.ATTACK_GATHER_DICE :
-            # Obstruction removes exactly one die before rolling.  If that
-            # leaves no gathered dice, the Roll Attack Dice rule cancels the
-            # attack instead of advancing to the roll chance node.
+            # Obstruction removes exactly one die before rolling.  One-die
+            # obstructed declarations are pruned by Ship target validation,
+            # so every offered removal leaves at least one die for training.
             if attack_info.obstructed:
                 for dice_type in DICE :
                     if attack_info.dice_to_roll[dice_type] > 0:
@@ -1086,40 +1084,16 @@ cdef class Armada:
         squad_view[offset] = squad.anti_squad[2] / Config.GLOBAL_MAX_DICE; offset += 1
 
     def place_obstacle(self, obstacle: Obstacle, x: float, y: float, orientation: float, flip: bool) -> None:
-        raise NotImplementedError("simplified place_obstacle")
+        """Places one static obstacle in the play area.
+
+        Spatial planes are encoded from the obstacle state on demand.  Keeping
+        no mutable raster here ensures snapshots and deep-copied games always
+        derive geometry from the authoritative obstacle objects.
+        """
+        obstacle.place_obstacle(x, y, orientation, flip)
         self.obstacles.append(obstacle)
         self.obstacles.sort(key=lambda obstacle: obstacle.index)
-        obstacle.place_obstacle(x, y, orientation, flip)
         self.visualize(f'\n{str(obstacle)} is placed.')
-
-        obstacle_view = self.spatial_encode_array[obstacle.type]
-        height_res, width_res = Config.BOARD_RESOLUTION
-        width_step = self.player_edge / width_res
-        height_step = self.short_edge / height_res
-        scale_factor = 2
-        scaled_vertices = obstacle.coordinates / [width_step, height_step]
-
-        # Important: We must scale the vertices *and* the shape constraint
-        high_res_vertices = scaled_vertices * scale_factor
-        high_res_shape = (obstacle_view.shape[0] * scale_factor, obstacle_view.shape[1] * scale_factor)
-
-        # 2. DRAW: Get coordinates on the high-res grid
-        # Note: We pass the high_res_shape so it doesn't clip incorrectly
-        rr, cc = draw_polygon(
-            high_res_vertices[:, 1], 
-            high_res_vertices[:, 0], 
-            shape=high_res_shape
-        )
-
-        # 3. DOWNSAMPLE INDICES
-        rr //= scale_factor
-        cc //= scale_factor
-
-        # 4. ACCUMULATE: Use add.at to handle overlapping indices correctly
-        # Value to add is 1.0 / (scale_factor^2) -> 1.0 / 4 = 0.25
-        value_per_hit = 1.0 / (scale_factor ** 2)
-
-        np.add.at(obstacle_view, (rr, cc), value_per_hit)
 
 
 

@@ -390,12 +390,26 @@ cdef class Ship:
             obstructed (bool)
         """
         cdef:
-            tuple line_of_sight = (tuple(cache._ship_coordinate(self.get_ship_hash_state())['targeting_points'][from_hull]), tuple(cache._ship_coordinate(to_ship.get_ship_hash_state())['targeting_points'][to_hull]))
+            tuple line_of_sight
             Ship ship
+            Obstacle obstacle
 
         # Rule Reference, Line of Sight: trace between each hull zone's yellow
-        # targeting point.  In the active ruleset, only another non-destroyed
-        # ship can obstruct that line (obstacles and squadrons are disabled).
+        # targeting point.  The FAQ excludes obstacle portions hidden under an
+        # overlapping endpoint ship, so the traced line is trimmed to what stays
+        # visible outside both ships' opaque tokens; their larger transparent
+        # bases hide nothing.  A third ship's base can never reach inside either
+        # endpoint token, so the same trimmed segment answers the ship check.
+        line_of_sight = cache.visible_los_segment_s2s(
+            self.get_ship_hash_state(),
+            from_hull,
+            to_ship.get_ship_hash_state(),
+            to_hull,
+        )
+
+        # Another non-destroyed ship that is neither endpoint obstructs when LOS
+        # crosses its full base (not merely its smaller ship token); squadrons
+        # do not.
         for ship in self.game.ships:
             if ship.id == self.id or ship.id == to_ship.id:
                 continue
@@ -403,6 +417,13 @@ cdef class Ship:
                 continue
 
             if cache.is_obstruct_ship(line_of_sight, ship.get_ship_hash_state()):
+                return True
+
+        # Rule Reference, Line of Sight / Obstacles / Obstructed: tracing LOS
+        # through an ordinary obstacle obstructs once, regardless of how many
+        # obstacles are crossed.
+        for obstacle in self.game.obstacles:
+            if cache.is_obstruct_obstacle(line_of_sight, obstacle.get_hash_state()):
                 return True
 
         return False

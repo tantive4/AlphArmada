@@ -20,6 +20,7 @@ from armada_game.helpers import cache_function as cache
 from armada cimport Armada
 from ship cimport Ship
 from squad cimport Squad
+from obstacle cimport Obstacle
 from attack_info cimport AttackInfo
 from defense_token cimport DefenseToken
 
@@ -44,10 +45,8 @@ cdef:
     tuple board_resolution = Config.BOARD_RESOLUTION
     int height_res = board_resolution[0]
     int width_res = board_resolution[1]
-    float width_step = LONG_RANGE * 6 / width_res
-    float height_step = LONG_RANGE * 3 / height_res
-
     int ship_static_offset = <int>Config.SHIP_STATIC_OFFSET
+    int obstacle_spatial_offset = <int>Config.OBSTACLE_SPATIAL_OFFSET
 
 
 
@@ -84,6 +83,12 @@ cpdef tuple encode_game_state(Armada game,
     Writes encoding directly into the provided memory views.
     Returns (active_ship_id, target_ship_id).
     """
+    if spatial_buffer.shape[1] != Config.SPATIAL_CHANNELS:
+        raise ValueError(
+            f"Expected {Config.SPATIAL_CHANNELS} spatial channels, "
+            f"received {spatial_buffer.shape[1]}"
+        )
+
     encode_scalar_features(game, scalar_buffer)
     encode_ship_entity_features(game, ship_entity_buffer, ship_coords_buffer, ship_def_token_buffer)
     encode_spatial_mask(game, spatial_buffer)
@@ -385,11 +390,12 @@ cdef void encode_spatial_mask(Armada game, cnp.uint8_t[:, :, :, :] planes_view):
     # Standard cleanup
     planes_view[:] = 0
 
-    cdef int i, r, c
+    cdef int i, r, c, ship_idx
     cdef long long[:] rr_view, cc_view
     cdef int hull, attack_range, channel_idx
     cdef dict threat_plane_dict, ranges_dict
     cdef Ship ship
+    cdef Obstacle obstacle
     cdef tuple ship_hash
 
     for ship in game.ships:
@@ -433,6 +439,23 @@ cdef void encode_spatial_mask(Armada game, cnp.uint8_t[:, :, :, :] planes_view):
 
                     # Bitwise Packing
                     planes_view[ship.id, channel_idx, r, c >> 3] |= (1 << (c & 7))
+
+    # --- 3. Type-Separated Global Obstacle Occupancy ---
+    # Station, debris, and asteroid currently share obstruction behavior, but
+    # retain separate planes for their future type-specific overlap effects.
+    # Repeat each global plane across ship slots to preserve the established
+    # per-ship spatial tensor layout.
+    for obstacle in game.obstacles:
+        channel_idx = obstacle_spatial_offset + <int>obstacle.type
+        rr, cc = cache._obstacle_presence_indices(obstacle.get_hash_state())
+        rr_view = rr
+        cc_view = cc
+
+        for ship_idx in range(max_ships):
+            for i in range(rr_view.shape[0]):
+                r = rr_view[i]
+                c = cc_view[i]
+                planes_view[ship_idx, channel_idx, r, c >> 3] |= (1 << (c & 7))
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

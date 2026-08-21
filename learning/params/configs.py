@@ -16,6 +16,9 @@ class Config:
 
     # Encoding
     BOARD_RESOLUTION = (64, 64)  # (short_edge height resolution, player_edge width resolution)
+    OBSTACLE_SPATIAL_OFFSET = 10
+    OBSTACLE_SPATIAL_CHANNELS = 3  # station, debris, asteroid
+    SPATIAL_CHANNELS = OBSTACLE_SPATIAL_OFFSET + OBSTACLE_SPATIAL_CHANNELS
     SHIP_ENTITY_FEATURE_SIZE = 128
     SHIP_STATIC_OFFSET = 36
     DEF_TOKEN_FEATURE_SIZE = 8
