@@ -183,7 +183,95 @@
   "SHIP_RESOLVE_REPAIR": [
     [
       "repair_hull_action",
-      null
+      0
+    ],
+    [
+      "repair_hull_action",
+      1
+    ],
+    [
+      "repair_hull_action",
+      2
+    ],
+    [
+      "repair_hull_action",
+      3
+    ],
+    [
+      "repair_hull_action",
+      4
+    ],
+    [
+      "repair_hull_action",
+      5
+    ],
+    [
+      "repair_hull_action",
+      6
+    ],
+    [
+      "repair_hull_action",
+      7
+    ],
+    [
+      "repair_hull_action",
+      8
+    ],
+    [
+      "repair_hull_action",
+      9
+    ],
+    [
+      "repair_hull_action",
+      10
+    ],
+    [
+      "repair_hull_action",
+      11
+    ],
+    [
+      "repair_hull_action",
+      12
+    ],
+    [
+      "repair_hull_action",
+      13
+    ],
+    [
+      "repair_hull_action",
+      14
+    ],
+    [
+      "repair_hull_action",
+      15
+    ],
+    [
+      "repair_hull_action",
+      16
+    ],
+    [
+      "repair_hull_action",
+      17
+    ],
+    [
+      "repair_hull_action",
+      18
+    ],
+    [
+      "repair_hull_action",
+      19
+    ],
+    [
+      "repair_hull_action",
+      20
+    ],
+    [
+      "repair_hull_action",
+      21
+    ],
+    [
+      "repair_hull_action",
+      22
     ],
     [
       "recover_shield_action",
@@ -15028,5 +15116,6 @@
       "resolve_damage_action",
       null
     ]
-  ]
+  ],
+  "DRAW_DAMAGE_CARD": []
 }

@@ -4,6 +4,7 @@ import itertools
 from armada_game.helpers.action_phase import Phase, ActionType
 from armada_game.helpers.enum_class import *
 from armada_game.helpers.dice import dice_single_choice, FULL_DICE_POOL
+from armada_game.helpers.damage_deck import DAMAGE_CARD_TYPES
 from learning.params.configs import Config
 from armada_game.helpers.paths import data_path
 
@@ -59,7 +60,8 @@ def generate_all_maps():
             #     actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
 
             case Phase.SHIP_RESOLVE_REPAIR :
-                actions = [('repair_hull_action', None)]
+                # one action per faceup damage card type, plus FACEDOWN_CARD_INDEX
+                actions = [('repair_hull_action', card_index) for card_index in range(DAMAGE_CARD_TYPES + 1)]
                 actions.extend([('recover_shield_action', hull) for hull in HullSection])
                 actions.extend([('move_shield_action', (from_hull, to_hull)) for from_hull in HullSection for to_hull in HullSection if from_hull != to_hull])
                 actions.append(('pass_repair', None))
@@ -129,7 +131,7 @@ def generate_all_maps():
                     actions.append(('gather_dice_action', tuple(dice_to_remove)))
                 actions.append(('gather_dice_action', (0, 0, 0)))
 
-            case Phase.ATTACK_ROLL_DICE : # chance node
+            case Phase.ATTACK_ROLL_DICE | Phase.DRAW_DAMAGE_CARD : # chance nodes
                 pass
 
             case Phase.ATTACK_RESOLVE_EFFECTS :

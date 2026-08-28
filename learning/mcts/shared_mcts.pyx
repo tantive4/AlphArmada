@@ -14,11 +14,9 @@ from libc.math cimport sqrt
 from action_manager cimport ActionManager
 from learning.model.big_deep import BigDeep
 from game_encoder cimport encode_game_state
-from armada_game.helpers import dice
 from armada_game.helpers.action_phase import Phase, ActionType
 from armada_game.helpers.enum_class import NodeType
 from armada cimport Armada
-from attack_info cimport AttackInfo
 from learning.params.configs import Config
 
 cdef int max_ships = Config.MAX_SHIPS
@@ -56,9 +54,8 @@ cdef class Node:
 
         if game.phase == Phase.ATTACK_ROLL_DICE:
             self.node_type = NodeType.DICE
-        # No damage-card phase exists yet (critical effects / asteroids unimplemented).
-        # elif game.phase == Phase.<DAMAGE_DRAW_PHASE>:
-        #     self.node_type = NodeType.DAMAGE
+        elif game.phase == Phase.DRAW_DAMAGE_CARD:
+            self.node_type = NodeType.DAMAGE
         else:
             self.node_type = NodeType.DECISION
 
@@ -296,28 +293,23 @@ cdef class MCTS:
         cdef:
             Node node = root_node
             object path = deque([node])
-            Armada game 
-            AttackInfo attack_info
+            Armada game
             Node matching_child, child
-            tuple action, dice_roll
+            tuple action
             bint found
         node.add_virtual_loss()
         game = self.para_games[para_index]
         while (node.visits > 0 and node.children) or node.node_type != NodeType.DECISION:
 
-            if node.node_type == NodeType.DICE:
+            if node.node_type != NodeType.DECISION:
+                # Chance node (dice roll or damage card draw): sample the
+                # outcome instead of using UCT.
                 game.revert_snapshot(node.snapshot)
-
-                # For a dice node, sample a random dice roll instead of using UCT.
-
-                if (attack_info := game.attack_info) is None :
-                    raise ValueError("Invalid game for dice node: missing attack/defend info.")
-                dice_roll = dice.roll_dice(attack_info.dice_to_roll)
-                action = ("roll_dice_action", dice_roll)
+                action = game.sample_chance_action()
 
                 found = <bint>False
                 for child in node.children:
-                    if child.action[1] == dice_roll:
+                    if child.action == action:
                         matching_child = child
                         found = <bint>True
                         break
@@ -328,12 +320,9 @@ cdef class MCTS:
                     game.apply_action(action)
                     node = node.add_child(action, game)
 
-            elif node.node_type == NodeType.DAMAGE:
-                raise NotImplementedError("Damage node not yet implemented: damage card deck is unbuilt.")
-
             else:
                 node = node.select_child()
-            
+
             node.add_virtual_loss()
             path.append(node)
         return path

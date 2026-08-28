@@ -17,8 +17,9 @@ Squadrons are present in the code but disabled in the active config
 (`Config.MAX_SQUADS = 0`). Many of their handlers in `armada.pyx` are stubbed with
 `raise NotImplementedError(f"simplified ...")` guarding otherwise-dead code — see the
 Cython gotcha below before touching anything near those. Obstacles are live: all six
-are placed at setup and they obstruct line of sight, but their overlap effects stay
-disabled (see the obstacle section below). Command stacks
+are placed at setup and they obstruct line of sight; of their overlap effects only
+the asteroid's is implemented (see the obstacle and damage-card sections below).
+Damage cards are tracked per type but have no faceup effects yet. Command stacks
 (`Config.MAX_COMMAND_STACK = 3`) are live: ships assign a command dial per round in
 `COMMAND_PHASE` (FIFO queue sized to `command_value`, fixed assignment order —
 highest point cost first, tie-break by hull then id) and reveal the top of the stack
@@ -66,7 +67,6 @@ Windows) since it isn't a package script itself:
 import random
 from armada_game.helpers.setup_game import setup_game
 from armada_game.helpers.action_phase import Phase
-from armada_game.helpers.dice import roll_dice
 
 N_GAMES = 100
 counters = {"my_new_phase_visits": 0, "branch_a_chosen": 0, "branch_b_chosen": 0}
@@ -77,9 +77,10 @@ for i in range(N_GAMES):
     step = 0
     try:
         while game.winner == 0.0:
-            if game.phase == Phase.ATTACK_ROLL_DICE:
-                # chance node, not a player decision — sample it directly
-                action = ('roll_dice_action', roll_dice(game.attack_info.dice_to_roll))
+            if not game.decision_player:
+                # chance node, not a player decision — sample it directly.
+                # covers ATTACK_ROLL_DICE and DRAW_DAMAGE_CARD alike.
+                action = game.sample_chance_action()
             else:
                 actions = game.get_valid_actions()
 
@@ -142,7 +143,11 @@ valid actions available` crash mid-rollout — not a compile error.
      `self.current_player` (the active player); attack-defense phases
      (`ATTACK_SPEND_DEFENSE_TOKENS`, `CHOOSE_DEFEND_DICE`, `ATTACK_RESOLVE_DAMAGE`)
      are decided by the *defender* — if you add a new defender-side phase, it must be
-     added to that tuple or turns will silently go to the wrong player.
+     added to that tuple or turns will silently go to the wrong player. Chance
+     phases (`ATTACK_ROLL_DICE`, `DRAW_DAMAGE_CARD`) set `decision_player = 0`;
+     every driver loop treats a falsy `decision_player` as "call
+     `sample_chance_action()`", so that is the only place a new chance phase
+     needs registering.
 3. **`armada_game/helpers/action_space.py`** — a second, independent enumeration of
    the *canonical* (state-independent) action space per phase, used only to size the
    model's output and build `action_space.json`. This must generate the same
@@ -228,14 +233,71 @@ token-spend always synchronously transitions into whatever phase resolves it.
 `remove_dice()` and the phase-transition handlers in `armada.pyx` call
 `calculate_total_damage()` for you at the right points — don't call it redundantly.
 
+## Damage cards and the `DRAW_DAMAGE_CARD` chance node
+
+`Ship.hull` is still the authoritative "hull remaining" counter, so
+`max_hull - hull` is the total number of damage cards a ship holds.
+`Ship.damage_cards` is a 22-tuple counting the **faceup** cards by type;
+facedown cards are anonymous and **derived**, never stored
+(`Ship.facedown_damage_count()` = `max_hull - hull - sum(damage_cards)`). That is
+deliberate: four separate sites decrement `hull` (`defend()`, `overlap_damage()`,
+`deal_faceup_damage_card()`, and `discard_damage_card()` in reverse), and a stored
+facedown counter would desync the first time one of them was missed.
+
+Card types are **anonymous indices 0-21** with no effects implemented; only their
+copy counts matter (`DAMAGE_CARD_COPIES` in `armada_game/helpers/damage_deck.py`:
+type 6 has 4 copies, type 21 has 8, the rest 2, summing to 52).
+
+**Two sources deal a faceup card, and they are not the same operation:**
+
+- **Standard critical** (`resolve_damage_action`): any crit icon in the *final*
+  attack pool, when the attack deals at least one card. It adds **no** damage —
+  it only reclassifies one card the attack already dealt, so
+  `flip_damage_card_faceup()` must not touch `hull`. (The old
+  `if critical == Critical.STANDARD: self.hull -= 1` in `Ship.defend()` was a
+  wrong reading of this rule and has been deleted.) Skipped entirely when the
+  attack destroys the defender.
+- **Asteroid overlap** (`determine_course_action`): a genuinely new card, so
+  `deal_faceup_damage_card()` decrements `hull` and can destroy the ship. One
+  draw per asteroid overlapped, resolved sequentially.
+
+**Deck model** (deliberate deviations from the RRG, which has one shared deck):
+each player has their own 52-card deck, and sampling excludes only the faceup
+cards on that player's **surviving** ships (`Armada.get_dealt_damage_counts()`).
+Facedown cards count as still in the deck, and there is no discard pile —
+repaired and destroyed-ship cards silently return to circulation.
+
+**Chance-node plumbing.** `Phase.DRAW_DAMAGE_CARD` mirrors `ATTACK_ROLL_DICE`:
+`decision_player = 0`, `get_valid_actions()` raises, and `action_space.py` emits
+an empty list so `BigDeep` skips the phase automatically. `Armada` carries
+`damage_draw_ship_id` / `damage_draw_count` / `damage_draw_source` (all in the
+snapshot) because the draw suspends a step that must be resumed — hence the two
+extracted tails `finish_attack()` and `end_ship_activation()`, which the draw
+handler dispatches to on `damage_draw_source`. The attack case deliberately keeps
+`attack_info` and `defend_ship` alive across the chance node so `finish_attack()`
+can still read them.
+
+`Armada.sample_chance_action()` is the single sampler for *every* chance phase;
+`rollout()`, `alpharmada.py`, both `evaluation/` drivers, the matchup notebook, and
+both MCTS `_select` loops all call it, and MCTS matches chance children on the full
+action tuple. Adding another chance phase means extending that one method plus
+`update_decision_player()` — no driver loop should ever test a phase by name again.
+
+**Repair Hull** now chooses its target: `('repair_hull_action', card_index)`, where
+0-21 discards that faceup type and `FACEDOWN_CARD_INDEX` (22) discards an anonymous
+facedown card. `get_valid_actions()` only offers cards the ship actually holds.
+
 ## Obstacles, line of sight, and the spatial planes
 
-All six ordinary obstacles are placed every game and they obstruct attacks. Their
-*overlap* effects are still disabled — the `active_ship.overlap_obstacle(obstacle)`
-call in `armada.pyx` is commented out, so `Ship.overlap_obstacle()` never runs. Be
-aware of the training artifact that creates: a ship parked on an obstacle hides it
-from its own line of sight (see below) and pays none of the RRG damage for doing so,
-so sitting on an asteroid is currently a free advantage.
+All six ordinary obstacles are placed every game and they obstruct attacks. Only
+the **asteroid** overlap effect is implemented: ending a maneuver on an asteroid
+deals one faceup damage card per asteroid overlapped, resolved through the
+`DRAW_DAMAGE_CARD` chance node from `determine_course_action` (see the damage-card
+section). Because that needs a chance node it cannot go through
+`Ship.overlap_obstacle()`, which now raises `NotImplementedError` — its station and
+debris branches remain dead code, so a ship parked on a station or debris field
+still pays none of the RRG cost while hiding that obstacle from its own line of
+sight (see below).
 
 **Placement** (`get_random_obstacle_layout()` in `armada_game/helpers/setup_game.py`)
 builds a complete layout by rejection sampling before mutating the game, then raises

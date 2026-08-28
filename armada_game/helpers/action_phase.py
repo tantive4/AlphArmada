@@ -3,6 +3,7 @@ from enum import IntEnum, auto
 from typing import TypeAlias, Literal, TYPE_CHECKING
 
 from armada_game.helpers.dice import dice_icon, ACCURACY_INDEX
+from armada_game.helpers.damage_deck import FACEDOWN_CARD_INDEX
 from armada_game.helpers.enum_class import *
 if TYPE_CHECKING:
     from armada import Armada
@@ -43,7 +44,10 @@ class Phase(IntEnum):
     # ATTACK_USE_CRITICAL_EFFECT = auto()
     ATTACK_RESOLVE_DAMAGE = auto()
     # ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET = auto()
-    
+
+    # === Damage Card Draw === (chance node, like ATTACK_ROLL_DICE)
+    DRAW_DAMAGE_CARD = auto()
+
     def __str__(self):
         return self.name
     __repr__ = __str__
@@ -63,7 +67,8 @@ ActionType: TypeAlias = (
     tuple[Literal['resolve_confire_command_action',
                   'resolve_squad_command_action'], tuple[bool, bool]] |
 
-    tuple[Literal['repair_hull_action'], None] | 
+    # card index 0..21, or FACEDOWN_CARD_INDEX (22) to discard a facedown card
+    tuple[Literal['repair_hull_action'], int] |
     tuple[Literal['recover_shield_action'], HullSection] |
     tuple[Literal['move_shield_action'], tuple[HullSection, HullSection]] |
 
@@ -86,6 +91,9 @@ ActionType: TypeAlias = (
     tuple[Literal['use_critical_action'], Critical | None] |
     tuple[Literal['resolve_damage_action'], tuple[HullSection,int] | None]|
     tuple[Literal['declare_additional_squad_target_action'], int] |
+
+    # Damage Card Draw (chance node) : drawn card type index 0..21
+    tuple[Literal['draw_damage_card_action'], int] |
 
     # Maneuver Step
     tuple[Literal['determine_course_action'], tuple[tuple[int, ...], int]] | # course, placement 
@@ -137,6 +145,13 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             if game.active_ship is None : raise ValueError('Need active ship to resolve repair')
             dial_used, token_used = game.active_ship.repair_command_used()
             action_str = f'Pass Repair{" (Dial Spent)" if dial_used else ""}{" (Token Spent)" if token_used else ""}'
+
+        case 'repair_hull_action', card_index :
+            card_str = 'Facedown' if card_index == FACEDOWN_CARD_INDEX else f'Faceup #{card_index}'
+            action_str = f'Repair Hull: discard {card_str} Damage Card'
+
+        case 'draw_damage_card_action', card_index :
+            action_str = f'Draw Damage Card #{card_index} (Faceup)'
 
         case 'move_shield_action', (from_hull, to_hull) :
             action_str = f'Move Shield from {HullSection(from_hull)} to {HullSection(to_hull)}'

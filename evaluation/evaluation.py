@@ -8,7 +8,6 @@ from action_manager import ActionManager
 from para_mcts import MCTS
 from armada_game.helpers.setup_game import setup_game
 from armada_game.helpers.action_phase import Phase
-from armada_game.helpers.dice import roll_dice
 
 def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
 
@@ -56,9 +55,9 @@ def evaluation(model1:BigDeep, model2:BigDeep, mcts_iter=200, game_count=128):
                     action = mcts1.get_best_action(para_index)
                 elif para_index in p2_indices:
                     action = mcts2.get_best_action(para_index)
-                elif game.phase == Phase.ATTACK_ROLL_DICE:
-                    dice_roll = roll_dice(game.attack_info.dice_to_roll)
-                    action = ('roll_dice_action', dice_roll)
+                elif not game.decision_player:
+                    # Chance node (dice roll or damage card draw)
+                    action = game.sample_chance_action()
                 else: raise NotImplementedError(f"Unknown Phase\n{game.get_snapshot()}")
 
                 game.apply_action(action)

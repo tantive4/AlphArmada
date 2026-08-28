@@ -9,6 +9,7 @@ cimport numpy as cnp
 from libc.math cimport sin, cos
 
 from armada_game.helpers.dice import *
+from armada_game.helpers.damage_deck import *
 from defense_token cimport DefenseToken
 from armada_game.helpers.measurement import *
 from armada_game.helpers.enum_class import *
@@ -107,6 +108,10 @@ cdef class Ship:
         self.attack_history: tuple[tuple[int, HullSection]|tuple[int, ...]|None, ...] = (None, None, None, None)
         self.repaired_hull: tuple[HullSection, ...] = ()
         self.reduced_hull: tuple[HullSection, ...] = ()
+        # Per-type count of FACEUP damage cards only.  Facedown cards stay
+        # anonymous and are derived from the hull counter; see
+        # facedown_damage_count().
+        self.damage_cards: tuple[int, ...] = EMPTY_DAMAGE_CARDS
         self.status_phase()
     
     cpdef void asign_command(self, int command) :
@@ -163,6 +168,8 @@ cdef class Ship:
 
         self.hull = 0
         self.shield = (0, 0, 0, 0)
+        # A destroyed ship discards its damage cards, returning them to circulation.
+        self.damage_cards = EMPTY_DAMAGE_CARDS
         for token in self.defense_tokens :
             if not token.discarded : token.discard()
         self.game.visualize(f'{self} is destroyed!')
@@ -291,19 +298,23 @@ cdef class Ship:
         return cache.is_overlap_s2o(self.get_ship_hash_state(), obstacle.get_hash_state())
 
     cpdef void overlap_obstacle(self, Obstacle obstacle) :
+        """
+        Station and debris overlap effects remain disabled; this is never called.
+        Asteroid overlap IS live, but is driven from Armada.apply_action(), which
+        routes through the Phase.DRAW_DAMAGE_CARD chance node to deal the faceup
+        card - it cannot be resolved synchronously here.
+        """
+        raise NotImplementedError("simplified overlap_obstacle")
         obstacle_type = obstacle.type
-        if obstacle_type == ObstacleType.STATION: 
+        if obstacle_type == ObstacleType.STATION:
             self.hull = min(self.hull+1, self.max_hull)
-        elif obstacle_type == ObstacleType.DEBRIS: 
+        elif obstacle_type == ObstacleType.DEBRIS:
             max_shield = max(self.shield)
             for hull in HULL_SECTIONS:
-                if self.shield[hull] == max_shield: 
+                if self.shield[hull] == max_shield:
                     selected_hull = hull
                     break
             self.defend(selected_hull,2,None)
-
-        elif obstacle_type == ObstacleType.ASTEROID: 
-            self.hull = self.hull - 2
 
 
 # sub method for ship dimension
@@ -472,18 +483,66 @@ cdef class Ship:
     cpdef void defend(self, int defend_hull, int total_damage, object critical) :
         cdef:
             int shield_damage = min(total_damage, self.shield[defend_hull])
-            list shield_list = list(self.shield) 
+            list shield_list = list(self.shield)
         shield_list[defend_hull] -= shield_damage
         self.shield = tuple(shield_list)
 
         total_damage -= shield_damage
 
-        # Apply remaining damage to the hull
+        # Apply remaining damage to the hull.  One damage card per unshielded
+        # point; the standard critical adds no damage, it only turns the first
+        # of those cards faceup (resolved by Phase.DRAW_DAMAGE_CARD).
         if total_damage > 0:
             self.hull -= total_damage
-            if critical == Critical.STANDARD : self.hull -= 1 # Structural Damage
 
         if self.hull <= 0 : self.destroy()
+
+    cpdef int facedown_damage_count(self) :
+        """
+        Facedown cards are anonymous, so they are derived rather than stored:
+        every damage card the ship holds that is not tracked faceup.
+        """
+        return self.max_hull - self.hull - sum(self.damage_cards)
+
+    cpdef void flip_damage_card_faceup(self, int card_index) :
+        """
+        Standard critical effect.  The card was already dealt by defend(), so
+        this only reclassifies one facedown card and must not touch the hull.
+        """
+        cdef list card_list
+        if self.facedown_damage_count() <= 0 :
+            raise ValueError(f'{self} has no facedown damage card to turn faceup')
+        card_list = list(self.damage_cards)
+        card_list[card_index] += 1
+        self.damage_cards = tuple(card_list)
+
+    cpdef void deal_faceup_damage_card(self, int card_index) :
+        """
+        Asteroid overlap.  Unlike the critical, this deals a brand new card, so
+        the hull counter drops with it.
+        """
+        cdef list card_list = list(self.damage_cards)
+        card_list[card_index] += 1
+        self.damage_cards = tuple(card_list)
+        self.hull -= 1
+        if self.hull <= 0 : self.destroy()
+
+    cpdef void discard_damage_card(self, int card_index) :
+        """
+        Repair Hull.  card_index is a faceup type, or FACEDOWN_CARD_INDEX to
+        discard one of the anonymous facedown cards.
+        """
+        cdef list card_list
+        if card_index == FACEDOWN_CARD_INDEX :
+            if self.facedown_damage_count() <= 0 :
+                raise ValueError(f'{self} has no facedown damage card to discard')
+        else :
+            if self.damage_cards[card_index] <= 0 :
+                raise ValueError(f'{self} has no faceup damage card #{card_index} to discard')
+            card_list = list(self.damage_cards)
+            card_list[card_index] -= 1
+            self.damage_cards = tuple(card_list)
+        self.hull += 1
 
     cpdef list get_valid_ship_target(self, int attack_hull) :
         cdef:
@@ -920,8 +979,9 @@ cdef class Ship:
             self.hull, self.shield,
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
-            self.attack_count, self.attack_history, 
+            self.attack_count, self.attack_history,
             self.engineer_budget, self.engineer_spent, self.repaired_hull, self.reduced_hull,
+            self.damage_cards,
             [(<DefenseToken>dt).get_snapshot() for dt in self.defense_tokens]
         )
     
@@ -932,8 +992,9 @@ cdef class Ship:
             self.hull, self.shield,
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
-            self.attack_count, self.attack_history, 
+            self.attack_count, self.attack_history,
             self.engineer_budget, self.engineer_spent, self.repaired_hull, self.reduced_hull,
+            self.damage_cards,
             defense_tokens_state
         ) = snapshot
 

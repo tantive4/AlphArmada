@@ -16,6 +16,7 @@ from obstacle cimport Obstacle
 from attack_info cimport AttackInfo
 from armada_game.helpers.enum_class import *
 from armada_game.helpers.dice import *
+from armada_game.helpers.damage_deck import *
 from armada_game.helpers.measurement import *
 from armada_game.helpers import cache_function as cache
 from defense_token cimport DefenseToken
@@ -46,6 +47,11 @@ cdef class Armada:
         self.attack_info : AttackInfo | None = None
         self.squad_activation_count = 0
 
+        # Pending faceup damage card draws (Phase.DRAW_DAMAGE_CARD chance node)
+        self.damage_draw_ship_id = -1
+        self.damage_draw_count = 0
+        self.damage_draw_source = DAMAGE_SOURCE_NONE
+
         self.winner = 0.0
         self.image_counter = 0
         self.debuging_visual = <bint>False
@@ -66,19 +72,15 @@ cdef class Armada:
 
     
         while self.winner == 0.0:
-            if self.phase == Phase.ATTACK_ROLL_DICE : # chance node case
-                if self.attack_info is None :
-                    raise ValueError("No attack info for the current game phase.")
-                dice_roll = roll_dice(self.attack_info.dice_to_roll)
-                action = ('roll_dice_action', dice_roll)
+            if self.decision_player == 0 : # chance node case
+                action : ActionType = self.sample_chance_action()
 
-            elif self.decision_player == 1 : 
+            elif self.decision_player == 1 :
                 action : ActionType = player1()
-            elif self.decision_player == -1 :
-                action : ActionType = player2()
             else :
-                action : ActionType = self.get_valid_actions()[0]
-            
+                action : ActionType = player2()
+
+
             # print(get_action_str(self, action))
             
             self.apply_action(action)
@@ -114,7 +116,7 @@ cdef class Armada:
 
         # if self.phase in (Phase.SHIP_REVEAL_COMMAND_DIAL, Phase.ATTACK_ROLL_DICE):
         # Simplified
-        if self.phase in (Phase.ATTACK_ROLL_DICE,) :
+        if self.phase in (Phase.ATTACK_ROLL_DICE, Phase.DRAW_DAMAGE_CARD) :
             self.decision_player = 0
         elif self.phase in (Phase.ATTACK_SPEND_DEFENSE_TOKENS, Phase.CHOOSE_DEFEND_DICE, Phase.ATTACK_RESOLVE_DAMAGE): #, Phase.SHIP_PLACE_SQUAD):
             self.decision_player = -self.current_player
@@ -135,6 +137,7 @@ cdef class Armada:
             bint dial, token
             int hull, from_hull, to_hull, attack_hull, defend_hull
             int token_contribution, headroom
+            int card_index
             bint repair_hull_legal, recover_shield_legal, forced
             DefenseToken defense_token
 
@@ -184,9 +187,17 @@ cdef class Armada:
             token_contribution = (Command.REPAIR in active_ship.command_token) * (active_ship.engineer_value + 1) // 2
             headroom = active_ship.engineer_budget - token_contribution
 
+            # Repair Hull discards one damage card of the ship's choice: any
+            # faceup type it holds, or an anonymous facedown card.  hull <
+            # max_hull guarantees at least one card exists, so this always
+            # offers at least one action when it is legal at all.
             repair_hull_legal = active_ship.engineer_budget >= 3 and active_ship.hull < active_ship.max_hull
             if repair_hull_legal :
-                actions.append(('repair_hull_action', None))
+                for card_index in range(DAMAGE_CARD_TYPES) :
+                    if active_ship.damage_cards[card_index] > 0 :
+                        actions.append(('repair_hull_action', card_index))
+                if active_ship.facedown_damage_count() > 0 :
+                    actions.append(('repair_hull_action', FACEDOWN_CARD_INDEX))
 
             recover_shield_legal = False
             if active_ship.engineer_budget >= 2 :
@@ -235,7 +246,7 @@ cdef class Armada:
             else:
                 actions = [('gather_dice_action', (0, 0, 0))]
         
-        elif phase == Phase.ATTACK_ROLL_DICE :
+        elif phase == Phase.ATTACK_ROLL_DICE or phase == Phase.DRAW_DAMAGE_CARD :
             raise NotImplementedError("This is a chance node. No player action available.")
 
         elif phase == Phase.ATTACK_RESOLVE_EFFECTS :
@@ -427,6 +438,8 @@ cdef class Armada:
             bint dial, token
             list dice_pool = []
             list dice_result_color = []
+            int card_index, cards_dealt, asteroid_count, source
+            bint has_crit
         
         if self.active_ship is not None : active_ship = self.active_ship
         if self.defend_ship is not None : defend_ship = self.defend_ship
@@ -510,10 +523,10 @@ cdef class Armada:
 
 
         elif action_type == 'repair_hull_action':
-            _ = action_data
+            card_index = action_data
             active_ship.engineer_budget -= 3
             active_ship.engineer_spent += 3
-            active_ship.hull += 1
+            active_ship.discard_damage_card(card_index)
 
         elif action_type == 'recover_shield_action':
             hull= action_data
@@ -766,33 +779,61 @@ cdef class Armada:
                 defend_ship.shield = tuple(shield_list)
                 total_damage -= damage
 
+            # Standard critical effect: "If the defender is dealt at least one
+            # damage card by this attack, deal the first damage card faceup."
+            # It adds no damage - it only turns one of the cards this attack
+            # already deals faceup, so count them before defend() applies them.
+            cards_dealt = total_damage - min(total_damage, defend_ship.shield[<int>attack_info.defend_hull])
+            has_crit = <bint>False
+            for dice_type in DICE :
+                if attack_info.attack_pool_result[dice_type][CRIT_INDEX[dice_type]] :
+                    has_crit = <bint>True
+                    break
+
             defend_ship.defend(<int>attack_info.defend_hull, total_damage, attack_info.critical)
             for defense_token in defend_ship.defense_tokens :
                 defense_token.accuracy = False
 
-            self.attack_info = None
-            self.defend_ship = None
-
-            if attack_info.is_attacker_ship :
-                if active_ship.attack_count < 2 : self.phase = Phase.SHIP_CHOOSE_TARGET_SHIP
-                else : self.phase = Phase.SHIP_DETERMINE_COURSE
-            else :
+            if not attack_info.is_attacker_ship :
                 raise NotImplementedError(f"simplified {action_type}")
-                if active_squad.can_move and not active_squad.is_engaged() :
-                    self.phase = Phase.SQUAD_MOVE
+
+            if has_crit and cards_dealt > 0 and not defend_ship.destroyed :
+                # attack_info / defend_ship stay set: finish_attack() needs them
+                # once the chance node resolves.
+                self.damage_draw_ship_id = defend_ship.id
+                self.damage_draw_count = 1
+                self.damage_draw_source = DAMAGE_SOURCE_ATTACK
+                self.phase = Phase.DRAW_DAMAGE_CARD
+            else :
+                self.finish_attack()
+
+        elif action_type == 'draw_damage_card_action':
+            card_index = action_data
+            if self.damage_draw_count <= 0 :
+                raise ValueError('No pending damage card draw')
+            ship = self.ships[self.damage_draw_ship_id]
+
+            if self.damage_draw_source == DAMAGE_SOURCE_ATTACK :
+                # The card was already dealt by defend(); only turn it faceup.
+                ship.flip_damage_card_faceup(card_index)
+            else :
+                # Asteroid overlap deals a brand new faceup card.
+                ship.deal_faceup_damage_card(card_index)
+
+            self.damage_draw_count -= 1
+
+            if self.damage_draw_count > 0 and not ship.destroyed :
+                pass # stay in Phase.DRAW_DAMAGE_CARD for the next draw
+            else :
+                source = self.damage_draw_source
+                self.damage_draw_ship_id = -1
+                self.damage_draw_count = 0
+                self.damage_draw_source = DAMAGE_SOURCE_NONE
+
+                if source == DAMAGE_SOURCE_ATTACK :
+                    self.finish_attack()
                 else :
-                    active_squad.end_activation()
-                    if self.squad_activation_count > 0 and self.get_valid_squad_activation(self.current_player) : self.phase = Phase.SQUAD_ACTIVATE
-                    elif self.active_ship is not None : self.phase = Phase.SHIP_RESOLVE_REPAIR
-                    elif self.get_valid_squad_activation(- self.current_player) :
-                        self.current_player *= -1
-                        self.squad_activation_count = 2
-                        self.phase = Phase.SQUAD_ACTIVATE
-                    elif self.get_valid_squad_activation(self.current_player) :
-                        self.squad_activation_count = 2
-                        self.phase = Phase.SQUAD_ACTIVATE
-                    else :
-                        self.status_phase()
+                    self.end_ship_activation()
 
         elif action_type == 'declare_additional_squad_target_action':
             raise NotImplementedError(f"simplified {action_type}")
@@ -824,39 +865,26 @@ cdef class Armada:
             active_ship.speed = len(course)
             active_ship.execute_maneuver(course, placement)
 
-            # for obstacle in self.obstacles:
-            #     if active_ship.check_overlap(obstacle) :
-            #         active_ship.overlap_obstacle(obstacle)
-
+            # Obstacle overlap: only the asteroid effect is live.  It deals one
+            # faceup damage card per overlapped asteroid, which needs the
+            # DRAW_DAMAGE_CARD chance node, so it cannot go through
+            # Ship.overlap_obstacle().  Station and debris stay disabled.
+            asteroid_count = 0
+            if not active_ship.destroyed :
+                for obstacle in self.obstacles:
+                    if obstacle.type == ObstacleType.ASTEROID and active_ship.check_overlap(obstacle) :
+                        asteroid_count += 1
 
             if active_ship.is_overlap_squad() :
                 raise NotImplementedError(f"simplified {action_type}")
                 self.phase = Phase.SHIP_PLACE_SQUAD
+            elif asteroid_count :
+                self.damage_draw_ship_id = active_ship.id
+                self.damage_draw_count = asteroid_count
+                self.damage_draw_source = DAMAGE_SOURCE_OBSTACLE
+                self.phase = Phase.DRAW_DAMAGE_CARD
             else :
-                active_ship.end_activation()
-
-                if self.get_valid_ship_activation(- self.current_player) :
-                    # if opponent has ships left
-                    self.current_player *= -1
-                    self.phase = Phase.SHIP_ACTIVATE
-                
-                elif self.get_valid_ship_activation(self.current_player) :
-                    # elif current player has ships left
-                    self.phase = Phase.SHIP_ACTIVATE
-                
-                else :
-                    if self.get_valid_squad_activation(self.first_player) :
-                        raise NotImplementedError(f"simplified {action_type}")
-                        self.current_player = self.first_player
-                        self.squad_activation_count = 2
-                        self.phase = Phase.SQUAD_ACTIVATE
-                    elif self.get_valid_squad_activation(- self.first_player) :
-                        raise NotImplementedError(f"simplified {action_type}")
-                        self.current_player = - self.first_player
-                        self.squad_activation_count = 2
-                        self.phase = Phase.SQUAD_ACTIVATE
-                    else :
-                        self.status_phase()
+                self.end_ship_activation()
 
         elif action_type == 'place_squad_action':
             raise NotImplementedError(f"simplified {action_type}")
@@ -1000,6 +1028,85 @@ cdef class Armada:
 
         # decision player for NEXT PHASE (after applying action)
         self.update_decision_player()
+
+    cdef void finish_attack(self) :
+        """
+        Tail of the Resolve Damage step: clear the attack context and hand the
+        attacker its next step.  Reached either directly or after the standard
+        critical's faceup card is drawn.
+        """
+        cdef Ship active_ship = self.active_ship
+
+        self.attack_info = None
+        self.defend_ship = None
+
+        if active_ship.attack_count < 2 : self.phase = Phase.SHIP_CHOOSE_TARGET_SHIP
+        else : self.phase = Phase.SHIP_DETERMINE_COURSE
+
+    cdef void end_ship_activation(self) :
+        """
+        Tail of the Execute Maneuver step: end the active ship's activation and
+        pass to the next activation, or to the Status Phase.  Reached either
+        directly or after asteroid overlap damage cards are drawn.
+        """
+        cdef Ship active_ship = self.active_ship
+
+        active_ship.end_activation()
+
+        if self.get_valid_ship_activation(- self.current_player) :
+            # if opponent has ships left
+            self.current_player *= -1
+            self.phase = Phase.SHIP_ACTIVATE
+
+        elif self.get_valid_ship_activation(self.current_player) :
+            # elif current player has ships left
+            self.phase = Phase.SHIP_ACTIVATE
+
+        else :
+            if self.get_valid_squad_activation(self.first_player) or self.get_valid_squad_activation(- self.first_player) :
+                raise NotImplementedError("simplified squadron phase")
+            self.status_phase()
+
+    cpdef tuple sample_chance_action(self) :
+        """
+        Samples the outcome of the current chance node.  Every driver loop
+        (rollout, self-play, evaluation, MCTS selection) routes chance phases
+        through here so they all sample identically.
+        """
+        cdef AttackInfo attack_info
+        cdef Ship ship
+
+        if self.phase == Phase.ATTACK_ROLL_DICE :
+            if (attack_info := self.attack_info) is None :
+                raise ValueError("No attack info for the current game phase.")
+            return ('roll_dice_action', roll_dice(attack_info.dice_to_roll))
+
+        if self.phase == Phase.DRAW_DAMAGE_CARD :
+            if self.damage_draw_count <= 0 :
+                raise ValueError("No pending damage card draw for the current game phase.")
+            ship = self.ships[self.damage_draw_ship_id]
+            return ('draw_damage_card_action', draw_damage_card(self.get_dealt_damage_counts(ship.team)))
+
+        raise ValueError(f'{Phase(self.phase)} is not a chance node')
+
+    cpdef tuple get_dealt_damage_counts(self, int player) :
+        """
+        Per-type count of the faceup damage cards held by `player`'s surviving
+        ships.  Each player draws from their own deck, so this is exactly what
+        is missing from that deck.  Facedown cards are ignored, and a destroyed
+        ship's cards return to circulation.
+        """
+        cdef:
+            list counts = [0] * DAMAGE_CARD_TYPES
+            Ship ship
+            int card_index
+
+        for ship in self.ships:
+            if ship.team != player or ship.destroyed :
+                continue
+            for card_index in range(DAMAGE_CARD_TYPES) :
+                counts[card_index] += <int>ship.damage_cards[card_index]
+        return tuple(counts)
 
     cpdef void visualize_action(self, object action) :
         """
@@ -1237,6 +1344,7 @@ cdef class Armada:
             (<Squad>self.active_squad).id if self.active_squad is not None else None,
             self.squad_activation_count,
             (<AttackInfo>self.attack_info).get_snapshot() if self.attack_info is not None else None,
+            (self.damage_draw_ship_id, self.damage_draw_count, self.damage_draw_source),
             tuple(ship_snapshots),
             tuple(squad_snapshots)
         )
@@ -1245,8 +1353,9 @@ cdef class Armada:
         """Restores the entire game state from a snapshot."""
         (self.winner, self.round, self.phase, self.current_player, self.decision_player,
          active_ship_id, defend_ship_id, active_squad_id, self.squad_activation_count, attack_info_snapshot,
-         ship_states, squad_states) = snapshot
+         damage_draw_state, ship_states, squad_states) = snapshot
         self.attack_info = AttackInfo.from_snapshot(attack_info_snapshot) if attack_info_snapshot is not None else None
+        (self.damage_draw_ship_id, self.damage_draw_count, self.damage_draw_source) = damage_draw_state
 
         self.active_ship = self.ships[<int>active_ship_id] if active_ship_id is not None else None
         self.defend_ship = self.ships[<int>defend_ship_id] if defend_ship_id is not None else None  

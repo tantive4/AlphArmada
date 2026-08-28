@@ -7,7 +7,6 @@ from action_manager import ActionManager
 from shared_mcts import MCTS
 from armada_game.helpers.setup_game import setup_game
 from armada_game.helpers.action_phase import Phase, get_action_str
-from armada_game.helpers.dice import roll_dice
 
 def print_separator():
     print("\n" + "="*50 + "\n")
@@ -40,12 +39,11 @@ def main():
     # --- MAIN GAME LOOP ---
     while game.winner == 0.0:
 
-        # 1. Chance Node (Automatic Dice Roll)
-        if game.phase == Phase.ATTACK_ROLL_DICE:
-            dice_roll = roll_dice(game.attack_info.dice_to_roll)
-            action = ('roll_dice_action', dice_roll)
+        # 1. Chance Node (Automatic Dice Roll / Damage Card Draw)
+        if not game.decision_player:
+            action = game.sample_chance_action()
 
-            print(f"[DICE] {get_action_str(game, action)}")
+            print(f"[CHANCE] {get_action_str(game, action)}")
 
         else:
             print(f"\n--- MODEL'S TURN (Phase: {game.phase.name}) ---")

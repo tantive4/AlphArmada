@@ -13,7 +13,9 @@ DICE_CHOICE_1 = ((1,0,0),
                  (0,1,0),
                  (0,0,1))
 
-CRIT_INDEX = {Dice.BLACK: 1, Dice.BLUE: 1, Dice.RED: 2}
+# Index into ICON_INDICES of each color's critical-bearing face: black's
+# "hit_crit" (index 2, not the plain "hit" at 1), blue's "crit", red's "crit".
+CRIT_INDEX = {Dice.BLACK: 2, Dice.BLUE: 1, Dice.RED: 2}
 ACCURACY_INDEX = {Dice.BLUE: 2, Dice.RED: 4}
 ACCURACY_DICE_1 = ((0,0,0),
                    (0,0,1),

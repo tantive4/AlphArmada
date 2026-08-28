@@ -12,6 +12,7 @@ import cython
 from learning.params.configs import Config
 from armada_game.helpers.action_phase import phase_type
 from armada_game.helpers.dice import *
+from armada_game.helpers.damage_deck import *
 from armada_game.helpers.enum_class import *
 from armada_game.helpers.measurement import *
 from armada_game.helpers import cache_function as cache
@@ -30,6 +31,7 @@ cdef:
     int c_critical_type = critical_type
     int c_hull_type = hull_type
     int c_obstacle_type = obstacle_type
+    int c_damage_card_types = DAMAGE_CARD_TYPES
     int max_ships = <int>Config.MAX_SHIPS
     int max_squads = <int>Config.MAX_SQUADS
     int max_command_stack = <int>Config.MAX_COMMAND_STACK
@@ -207,7 +209,7 @@ cdef void encode_ship_entity_features(Armada game,
     cdef cnp.float32_t[:] single_def_token_view
     cdef float[:, :] static_stats_view = game.ship_static_encode_array
     # Indices and iterators
-    cdef int offset, stack_idx, defense_start_idx, hull, command
+    cdef int offset, stack_idx, defense_start_idx, hull, command, card_index
 
     # Booleans
     cdef bint is_attack = False
@@ -308,6 +310,13 @@ cdef void encode_ship_entity_features(Armada game,
                 # offset + c_hull_type * 2 .. + c_hull_type * 3 previously encoded is_redirecting_hull;
                 # redirect hull is no longer pre-chosen at token-spend time, so that slot stays zero.
         offset += 12 # Advance offset by block size
+
+        # --- Faceup Damage Cards (DAMAGE_CARD_TYPES = 22 features) ---
+        # Facedown cards are not encoded here: ship.hull is already encoded
+        # above and makes the count redundant.
+        for card_index in range(c_damage_card_types):
+            single_ship_view[offset + card_index] = ship.damage_cards[card_index] / 2.0
+        offset += c_damage_card_types
 
 
 

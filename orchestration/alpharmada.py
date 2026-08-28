@@ -23,7 +23,6 @@ from game_encoder import encode_game_state, get_terminal_value
 from para_mcts import MCTS
 from action_manager import ActionManager
 from armada_game.helpers.action_phase import Phase
-from armada_game.helpers.dice import roll_dice
 
 class AlphArmadaWorker:
     def __init__(
@@ -115,12 +114,9 @@ class AlphArmadaWorker:
                 if game.decision_player :
                     action = mcts.get_random_best_action(para_index, game.round)
 
-                # Chance Node
-                elif game.phase == Phase.ATTACK_ROLL_DICE:
-                    if game.attack_info is None:
-                        raise ValueError("No attack info for the current game phase.")
-                    dice_roll = roll_dice(game.attack_info.dice_to_roll)
-                    action = ('roll_dice_action', dice_roll)
+                # Chance Node (dice roll or damage card draw)
+                else:
+                    action = game.sample_chance_action()
 
                 game.apply_action(action)
                 mcts.advance_tree(para_index, action, game.get_snapshot())

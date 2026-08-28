@@ -14,6 +14,7 @@ cdef class Ship:
         public dict battery, battery_range, anti_squad_range, nav_chart, max_shield, _course_cache
         public bint destroyed, activated
         public tuple base_size, token_size, shield, defense_tokens, command_stack, command_dial, command_token, resolved_command, attack_history, repaired_hull, reduced_hull, anti_squad
+        public tuple damage_cards
         public object template_base_vertices, template_token_vertices, template_targeting_points_and_maneuver_tool_insert, template_hull_vertices
         public cnp.ndarray rotation_matrix
     cdef object get_snapshot(self)
@@ -53,3 +54,7 @@ cdef class Ship:
     cpdef tuple repair_command_used(self)
     cpdef bint check_overlap(self, object obstacle)
     cpdef void overlap_obstacle(self, Obstacle obstacle)
+    cpdef int facedown_damage_count(self)
+    cpdef void flip_damage_card_faceup(self, int card_index)
+    cpdef void deal_faceup_damage_card(self, int card_index)
+    cpdef void discard_damage_card(self, int card_index)

@@ -8,6 +8,7 @@ cdef class Armada:
         public int first_player, second_player, current_player, decision_player, simulation_player, first_faction, second_faction
         public int round, squad_activation_count, image_counter, para_index
         public int phase
+        public int damage_draw_ship_id, damage_draw_count, damage_draw_source
         public float player_edge, short_edge, winner
         public list ships, squads, obstacles
         public Ship active_ship, defend_ship
@@ -31,3 +32,7 @@ cdef class Armada:
     cdef list get_valid_squad_activation(self, int player)
     cdef void status_phase(self)
     cpdef Ship get_next_command_ship(self, int player)
+    cdef void finish_attack(self)
+    cdef void end_ship_activation(self)
+    cpdef tuple sample_chance_action(self)
+    cpdef tuple get_dealt_damage_counts(self, int player)
