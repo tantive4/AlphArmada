@@ -182,6 +182,33 @@
   ],
   "SHIP_RESOLVE_REPAIR": [
     [
+      "resolve_repair_command_action",
+      [
+        true,
+        true
+      ]
+    ],
+    [
+      "resolve_repair_command_action",
+      [
+        true,
+        false
+      ]
+    ],
+    [
+      "resolve_repair_command_action",
+      [
+        false,
+        true
+      ]
+    ],
+    [
+      "pass_repair_command",
+      null
+    ]
+  ],
+  "SHIP_REPAIR_EFFECT": [
+    [
       "repair_hull_action",
       0
     ],
@@ -539,6 +566,27 @@
     ]
   ],
   "SHIP_DETERMINE_COURSE": [
+    [
+      "resolve_nav_command_action",
+      [
+        true,
+        true
+      ]
+    ],
+    [
+      "resolve_nav_command_action",
+      [
+        true,
+        false
+      ]
+    ],
+    [
+      "resolve_nav_command_action",
+      [
+        false,
+        true
+      ]
+    ],
     [
       "determine_course_action",
       [

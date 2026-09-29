@@ -1906,6 +1906,8 @@ struct __pyx_obj_4ship_Ship {
   PyObject *_course_cache;
   int destroyed;
   int activated;
+  int nav_dial_granted;
+  int nav_token_granted;
   PyObject *base_size;
   PyObject *token_size;
   PyObject *shield;
@@ -2092,15 +2094,12 @@ struct __pyx_vtabstruct_4ship_Ship {
   int (*out_of_board)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   PyObject *(*get_valid_speed)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   PyObject *(*get_valid_yaw)(struct __pyx_obj_4ship_Ship *, int, int, int __pyx_skip_dispatch);
-  PyObject *(*nav_command_used)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
-  int (*is_standard_course)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_all_possible_courses)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   PyObject *(*get_valid_placement)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   void (*discard_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   void (*discard_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   void (*gain_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   void (*gain_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
-  PyObject *(*repair_command_used)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   int (*check_overlap)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   void (*overlap_obstacle)(struct __pyx_obj_4ship_Ship *, struct __pyx_obj_8obstacle_Obstacle *, int __pyx_skip_dispatch);
   int (*facedown_damage_count)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
@@ -10450,7 +10449,7 @@ __Pyx_RefNannySetupContext("PyInit_obstacle", 0);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
   /*--- Execution code ---*/
-  __Pyx_TraceStartFunc("PyInit_obstacle", __pyx_f[0], 1, 2, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceStartFunc("PyInit_obstacle", __pyx_f[0], 1, 1, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
   /* "obstacle.pyx":1
  * import numpy as np             # <<<<<<<<<<<<<<
@@ -10603,7 +10602,7 @@ __Pyx_RefNannySetupContext("PyInit_obstacle", 0);
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_TraceReturnValue(Py_None, 2, 0, __PYX_ERR(0, 1, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 1, 0, __PYX_ERR(0, 1, __pyx_L1_error));
   __Pyx_PyMonitoring_ExitScope(0);
 
   /*--- Wrapped vars code ---*/
@@ -10613,7 +10612,7 @@ __Pyx_RefNannySetupContext("PyInit_obstacle", 0);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_TraceException(__pyx_lineno, 0, 0);
-  __Pyx_TraceExceptionUnwind(2, 0);
+  __Pyx_TraceExceptionUnwind(1, 0);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init obstacle", __pyx_clineno, __pyx_lineno, __pyx_filename);

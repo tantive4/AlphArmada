@@ -60,6 +60,10 @@ def generate_all_maps():
             #     actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
 
             case Phase.SHIP_RESOLVE_REPAIR :
+                actions = [('resolve_repair_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token]
+                actions.append(('pass_repair_command', None))
+
+            case Phase.SHIP_REPAIR_EFFECT :
                 # one action per faceup damage card type, plus FACEDOWN_CARD_INDEX
                 actions = [('repair_hull_action', card_index) for card_index in range(DAMAGE_CARD_TYPES + 1)]
                 actions.extend([('recover_shield_action', hull) for hull in HullSection])
@@ -77,7 +81,8 @@ def generate_all_maps():
 
             # Execute Maneuver
             case Phase.SHIP_DETERMINE_COURSE :
-                actions = [('determine_course_action', ((), 0))]
+                actions = [('resolve_nav_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token]
+                actions.append(('determine_course_action', ((), 0)))
                 for speed in range(1, 5):
                     # All possible yaw combinations (-2 to 2 for each joint)
                     yaw_options = range(-2, 3)

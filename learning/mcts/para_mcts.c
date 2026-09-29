@@ -2044,6 +2044,8 @@ struct __pyx_obj_4ship_Ship {
   PyObject *_course_cache;
   int destroyed;
   int activated;
+  int nav_dial_granted;
+  int nav_token_granted;
   PyObject *base_size;
   PyObject *token_size;
   PyObject *shield;
@@ -2365,15 +2367,12 @@ struct __pyx_vtabstruct_4ship_Ship {
   int (*out_of_board)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   PyObject *(*get_valid_speed)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   PyObject *(*get_valid_yaw)(struct __pyx_obj_4ship_Ship *, int, int, int __pyx_skip_dispatch);
-  PyObject *(*nav_command_used)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
-  int (*is_standard_course)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_all_possible_courses)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   PyObject *(*get_valid_placement)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   void (*discard_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   void (*discard_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   void (*gain_command_dial)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
   void (*gain_command_token)(struct __pyx_obj_4ship_Ship *, int, int __pyx_skip_dispatch);
-  PyObject *(*repair_command_used)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);
   int (*check_overlap)(struct __pyx_obj_4ship_Ship *, PyObject *, int __pyx_skip_dispatch);
   void (*overlap_obstacle)(struct __pyx_obj_4ship_Ship *, struct __pyx_obj_8obstacle_Obstacle *, int __pyx_skip_dispatch);
   int (*facedown_damage_count)(struct __pyx_obj_4ship_Ship *, int __pyx_skip_dispatch);

@@ -21,6 +21,7 @@ class Phase(IntEnum):
     SHIP_GAIN_COMMAND_TOKEN = auto()
     # SHIP_RESOLVE_SQUAD = auto()
     SHIP_RESOLVE_REPAIR = auto()
+    SHIP_REPAIR_EFFECT = auto()
 
     # Ship Phase -> Attack
     SHIP_CHOOSE_TARGET_SHIP = auto()
@@ -65,7 +66,9 @@ ActionType: TypeAlias = (
     tuple[Literal['gain_command_token_action'], Command] |
     tuple[Literal['gain_and_discard_command_token_action'], tuple[Command, Command]] |
     tuple[Literal['resolve_confire_command_action',
+                  'resolve_nav_command_action',
                   'resolve_squad_command_action'], tuple[bool, bool]] |
+    tuple[Literal['resolve_repair_command_action'], tuple[bool, bool]] |
 
     # card index 0..21, or FACEDOWN_CARD_INDEX (22) to discard a facedown card
     tuple[Literal['repair_hull_action'], int] |
@@ -108,8 +111,9 @@ ActionType: TypeAlias = (
     # None action
     tuple[Literal['initialize_game',
                   'pass_command_token',
+                  'pass_repair_command',
                   'pass_repair',
-                  'pass_attack', 
+                  'pass_attack',
                   'pass_attack_effect', 
                   'pass_additional_squad_target',
                   'pass_defense_token', 
@@ -141,10 +145,14 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
         case 'gain_and_discard_command_token_action', (gain_command, discard_command) :
             action_str = f'{game.active_ship} discards {Command(discard_command)} Token to gain {Command(gain_command)} Token'
 
+        case 'resolve_repair_command_action', (dial, token) :
+            action_str = f'Resolve Repair Command:{" (Dial Spent)" if dial else ""}{" (Token Spent)" if token else ""}'
+
+        case 'pass_repair_command', None :
+            action_str = 'Pass Repair Command'
+
         case 'pass_repair', None :
-            if game.active_ship is None : raise ValueError('Need active ship to resolve repair')
-            dial_used, token_used = game.active_ship.repair_command_used()
-            action_str = f'Pass Repair{" (Dial Spent)" if dial_used else ""}{" (Token Spent)" if token_used else ""}'
+            action_str = 'Pass Repair'
 
         case 'repair_hull_action', card_index :
             card_str = 'Facedown' if card_index == FACEDOWN_CARD_INDEX else f'Faceup #{card_index}'
@@ -182,6 +190,9 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
 
         case 'use_confire_token_action', dice :
             action_str = f'Use Confire Token to Reroll {dice_icon(dice)}'
+
+        case 'resolve_nav_command_action', (dial, token) :
+            action_str = f'Resolve Nav Command:{" (Dial Spent)" if dial else ""}{" (Token Spent)" if token else ""}'
 
         case 'roll_dice_action', dice :
             dice_result = dice_icon(dice)
@@ -222,9 +233,7 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
 
 
         case 'determine_course_action', (course, placement) :
-            if game.active_ship is None : raise ValueError('Need active ship to determine course')
-            dial_used, token_used = game.active_ship.nav_command_used(course)
-            action_str = f'Determine Course: {course}, Placement: {("Right" if placement == 1 else "Left")} {" (Dial Spent)" if dial_used else ""} {" (Token Spent)" if token_used else ""}'
+            action_str = f'Determine Course: {course}, Placement: {("Right" if placement == 1 else "Left")}'
 
 
         case 'activate_squad_move_action' | 'activate_squad_attack_action', squad_id :

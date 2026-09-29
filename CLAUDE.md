@@ -24,14 +24,41 @@ Damage cards are tracked per type but have no faceup effects yet. Command stacks
 `COMMAND_PHASE` (FIFO queue sized to `command_value`, fixed assignment order —
 highest point cost first, tie-break by hull then id) and reveal the top of the stack
 at the start of their own activation. All three live commands resolve fully,
-from a dial and/or a held token: nav (`Ship.nav_command_used()`), repair
-(`Ship.repair_command_used()` + `Phase.SHIP_RESOLVE_REPAIR`) and con-fire
-(`resolve_confire_command_action` + `use_confire_dial_action` /
-`use_confire_token_action` in `ATTACK_RESOLVE_EFFECTS`). Nav and repair derive
-which resources were spent *post-hoc* from what the ship actually did;
-con-fire instead pre-commits via an explicit resolve action and is one-shot
-per activation — see `TODO.md` for why that asymmetry is deliberate. Squad
-command remains stubbed, blocked on squadrons.
+from a dial and/or a held token, and all three now share **one shape**: an explicit
+`resolve_*_command_action` carrying `(use_dial, use_token)` that discards the chosen
+resources, appends to `Ship.resolved_command`, and stores the resulting *grant* —
+then separate actions spend that grant. Squad command remains stubbed, blocked on
+squadrons.
+
+| Command | Resolve action (phase) | Grant stored on | Spend action (phase) |
+|---|---|---|---|
+| Nav | `resolve_nav_command_action` (`SHIP_DETERMINE_COURSE`) | `Ship.nav_dial_granted` / `nav_token_granted` | `determine_course_action` (same phase) |
+| Repair | `resolve_repair_command_action` (`SHIP_RESOLVE_REPAIR`) | `Ship.engineer_budget` | `repair_hull_action` / `recover_shield_action` / `move_shield_action` (`SHIP_REPAIR_EFFECT`) |
+| Con-fire | `resolve_confire_command_action` (`ATTACK_RESOLVE_EFFECTS`) | `AttackInfo.confire_dial` / `confire_token` | `use_confire_dial_action` / `use_confire_token_action` (same phase) |
+
+This pre-commit shape is what the RRG actually prescribes — "A ship must decide
+whether it is spending the dial, the token, or both **before** resolving that
+command's effects" (RRG *Commands*) — so do not reintroduce the old post-hoc
+derivation (`Ship.nav_command_used()` / `Ship.repair_command_used()`, both deleted)
+that inferred the spend from the course or from `engineer_spent` after the fact.
+Each command is one-shot per activation, gated by `Command.X not in
+resolved_command`, which `end_activation()` clears; a ship activates once per round,
+so that is also the RRG's "cannot resolve the same command more than once per round".
+
+Two structural consequences worth knowing:
+
+- **Repair needed a phase split** (`SHIP_RESOLVE_REPAIR` → `SHIP_REPAIR_EFFECT`)
+  because the budget must exist before the spend menu can be enumerated. Nav and
+  con-fire did **not**: their resolve action deliberately leaves `self.phase`
+  untouched, so the ship re-enters the same phase with a wider menu and the resolve
+  option gone. That is the cheap way to add a pre-commit step — reach for a new
+  phase only when the follow-up menu depends on the grant.
+- **Nav grant flags are cleared by `determine_course_action`**, not by
+  `end_activation()`. Every path out of `SHIP_DETERMINE_COURSE` runs that action
+  (including the asteroid `DRAW_DAMAGE_CARD` detour, which clears before suspending),
+  and `destroy()` clears them too, so they cannot leak into another activation. This
+  is correct by reachability rather than by construction; it is a deliberate choice,
+  verified, and not something to "fix".
 
 ## Commands
 
@@ -182,7 +209,8 @@ while rebuilding the Redirect and Evade defense-token flows:
   canonical menu — hull section, dice color/face, damage amount. Example:
   `resolve_damage_action`'s `(hull, damage)` grid in `ATTACK_RESOLVE_DAMAGE`, or
   `declare_target_action`'s `(attack_hull, defend_hull)` grid. Cost is just output
-  width, which is cheap (`SHIP_DETERMINE_COURSE`'s course space alone is ~937 wide).
+  width, which is cheap (`SHIP_DETERMINE_COURSE` is 940 wide and sets
+  `Config.MAX_ACTION_SPACE`'s static term on its own).
 - **Use a pointer** when one axis selects among objects whose identity/order isn't
   canonical — which of up to 4 defense tokens, which of up to 10 ships. A fixed
   "slot 2" doesn't mean the same thing across two different ships' token loadouts,
@@ -203,6 +231,117 @@ legal action's index via `action_manager.get_action_index()` and zero out everyt
 else before normalizing. Getting a new action into `get_valid_actions()` correctly is
 what actually gates legality; getting it into `action_space.py` correctly just gates
 whether the model has a slot to put a useful prior in.
+
+**`get_valid_actions()` must never return the same `(name, payload)` twice.** Nothing
+downstream deduplicates, and all three consumers break differently: `_expand` appends
+one child per list entry, so identical children each carry the *full* prior for that
+one `action_index` and collectively get N× the PUCT weight; `_add_root_noise` sizes
+`alpha = DIRICHLET_ALPHA_SCALE / num_children` off the inflated count and draws
+independent noise per copy; and `_get_final_action_probs` does
+`action_probs[child.action_index] = child.visits` — an *assignment*, so copies
+overwrite each other and the policy target keeps only the last one's share of visits
+while the search split them across all of them. The easy way to introduce this is a
+nested loop whose outer variable isn't in the payload — `SHIP_CHOOSE_TARGET_SHIP`
+iterates attacking hull zones but its payload is only the target ship id, so it needs
+an explicit `seen_target_ids` guard (the attacking hull is chosen later, in
+`SHIP_DECLARE_TARGET`). When adding a phase shaped that way, assert
+`len(actions) == len(set(actions))` in the rollout harness.
+
+## The state chain, and where it deliberately leaves the RRG
+
+The whole game is one graph over `Phase`, and the full set of reachable edges is
+small enough to hold in your head. Every edge below is observed in random rollouts —
+there are no others:
+
+```
+COMMAND_PHASE --assign_command_action--> COMMAND_PHASE (loop over every ship of both
+    players, one dial at a time) --> SHIP_ACTIVATE
+
+SHIP_ACTIVATE --> SHIP_REVEAL_COMMAND_DIAL --> SHIP_GAIN_COMMAND_TOKEN
+    --{gain | gain_and_discard | pass}--> SHIP_RESOLVE_REPAIR
+    --{resolve_repair_command | pass_repair_command}--> SHIP_REPAIR_EFFECT
+    --{repair_hull | recover_shield | move_shield}--> SHIP_REPAIR_EFFECT (self-loop)
+    --pass_repair--> SHIP_CHOOSE_TARGET_SHIP
+
+SHIP_CHOOSE_TARGET_SHIP --choose_target_ship--> SHIP_DECLARE_TARGET --> ATTACK_GATHER_DICE
+                        --pass_attack--------> SHIP_DETERMINE_COURSE   (only when no target)
+
+ATTACK_GATHER_DICE --> ATTACK_ROLL_DICE [chance] --> attack_info.phase
+ATTACK_RESOLVE_EFFECTS --{spend_accuracy | resolve_confire_command}--> itself
+                       --{use_confire_dial | use_confire_token}-----> ATTACK_ROLL_DICE
+                       --pass_attack_effect------------------------> ATTACK_SPEND_DEFENSE_TOKENS
+ATTACK_SPEND_DEFENSE_TOKENS --spend_defense_token--> itself (brace/redirect)
+                            --spend_defense_token--> CHOOSE_DEFEND_DICE (evade)
+                            --pass_defense_token--> ATTACK_RESOLVE_DAMAGE
+CHOOSE_DEFEND_DICE --{spend_evade_dice | discard_evade_dice}--> ATTACK_ROLL_DICE (close/medium
+                       reroll) | ATTACK_SPEND_DEFENSE_TOKENS (long cancel)
+ATTACK_RESOLVE_DAMAGE --resolve_damage--> DRAW_DAMAGE_CARD [chance] | finish_attack()
+finish_attack() --> SHIP_CHOOSE_TARGET_SHIP (attack_count < 2) | SHIP_DETERMINE_COURSE
+
+SHIP_DETERMINE_COURSE --resolve_nav_command--> itself (phase deliberately unchanged)
+                      --determine_course----> DRAW_DAMAGE_CARD [chance, per asteroid]
+                                            | end_ship_activation()
+end_ship_activation() --> SHIP_ACTIVATE (opponent, else self) | status_phase()
+status_phase() --> COMMAND_PHASE (round+1) | game over
+```
+
+`DRAW_DAMAGE_CARD` resumes whichever tail suspended it via `damage_draw_source`, so
+it re-enters `finish_attack()` or `end_ship_activation()` — it is never a dead end.
+
+**Deliberate deviations from the RRG in this chain.** These are choices, not bugs;
+do not "fix" one without saying so:
+
+- **Attacking is mandatory whenever a legal target exists.** `pass_attack` is offered
+  only when `SHIP_CHOOSE_TARGET_SHIP` produced no target at all. The RRG says a ship
+  performs *up to* two attacks. Declining an attack is close to strictly dominated in
+  this simplified fleet (no salvo, no counter, no crit downside), and forcing it
+  prunes a large branch. One attack is still reachable: attack once, then the second
+  `SHIP_CHOOSE_TARGET_SHIP` visit offers `pass_attack` once the remaining hull zones
+  have no target.
+- **Repair spend is forced once the command is resolved.** `forced =
+  repair_hull_legal or recover_shield_legal`. The RRG permits resolving a command and
+  choosing to produce no effect. Since the dial/token commitment is now explicit and
+  already paid at that point, declining the spend is pure loss. Note `move_shield`
+  alone never forces, because `forced` is computed before those actions are appended
+  — so a 1-point budget still offers `pass_repair`.
+- **`repaired_hull` / `reduced_hull` block shield churn.** You cannot move a shield
+  out of a zone you just filled, or into a zone you just drained, and cannot recover
+  into a drained zone. The RRG has no such restriction ("A ship can pay for and
+  resolve each effect multiple times"); this exists purely to kill A→B→A loops.
+- **Redirect picks its hull zone at `ATTACK_RESOLVE_DAMAGE`, not at token spend.**
+  The RRG chooses the adjacent zone when the token is spent and only the amount later.
+  The engine defers both, which is strictly more permissive for the defender and
+  keeps the whole choice inside one static action. `game_encoder.pyx` has a matching
+  comment where the old pre-chosen-hull feature slot now stays zero.
+- **Spending a dial for a command token you already hold is not offered.** The RRG
+  allows it (you gain, then immediately discard the duplicate) purely as a way to
+  waste a dial.
+- **Game end is deferred to the Status Phase.** The RRG ends the game *immediately*
+  when a fleet is wiped out; here the round finishes first, so the surviving player's
+  remaining ships still activate. Mutual elimination also skips the score comparison
+  the RRG prescribes and simply awards the second player.
+- **No pass tokens.** A player only passes when they have no unactivated ships.
+- **Accuracy die color is not a choice** — red is spent first when both colors show
+  an accuracy icon. Spending removes the die either way, so damage is unaffected.
+- **Command dials are assigned sequentially and in the open**, not secretly and
+  simultaneously. This is the one parked information-set problem, not a simplification
+  to be papered over; it needs dual per-player MCTS.
+
+**RRG rules that *are* implemented faithfully**, and are easy to break by accident:
+the obstructed attack removes exactly one die before rolling regardless of how many
+obstacles are crossed; brace halves the total (round up) *before* redirect subtracts
+from it; the extra evade die against a larger attacker discards the spent token; the
+standard critical adds no damage and is skipped when the attack destroys the
+defender; `move_ship()`'s recursion implements the RRG's overlap speed-reduction loop
+and deals one facedown card to the mover and the closest ship overlapped; a ship
+whose base leaves the play area is destroyed; yaw `II` cannot be increased, which
+falls out of the `abs(modified_yaw) <= 2` cap in `get_all_possible_courses()`; and a
+tie after six rounds goes to the second player.
+
+There is **no `CONTAIN` or `SALVO` token type** in `TokenType`, and no ship in
+`ship_dict.json` carries `SCATTER` — the live loadouts are brace/redirect/evade only.
+So the RRG's contain-blocks-the-standard-critical interaction is genuinely out of
+scope, not a missing check.
 
 ## Guardrail: `big_deep.py` and `game_encoder.pyx`
 

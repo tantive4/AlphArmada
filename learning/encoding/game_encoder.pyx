@@ -301,6 +301,15 @@ cdef void encode_ship_entity_features(Armada game,
         single_ship_view[offset + 1] = ship.engineer_spent / global_max_engineer_value
         offset += 2
 
+        # --- Nav Grant (2 features) ---
+        # Mirrors confire_dial/confire_token: exposes the resolved-but-not-yet-
+        # acted-on NAV grant so MCTS can value the post-resolve,
+        # pre-determine_course_action state correctly (resolved_command alone
+        # only says NAV was resolved, not which combo).
+        single_ship_view[offset] = float(ship.nav_dial_granted)
+        single_ship_view[offset + 1] = float(ship.nav_token_granted)
+        offset += 2
+
         # --- Attack Role (8 features) ---
         if is_attack:
             if attack_info.is_attacker_ship and attack_info.attack_ship_id == ship.id:

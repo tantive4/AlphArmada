@@ -102,6 +102,8 @@ cdef class Ship:
         self.command_dial: tuple[Command, ...] = ()
         self.command_token: tuple[Command, ...] = ()
         self.resolved_command: tuple[Command, ...] = ()
+        self.nav_dial_granted: bool = False
+        self.nav_token_granted: bool = False
         self.engineer_budget: int = 0
         self.engineer_spent: int = 0
         self.attack_count: int = 0
@@ -144,18 +146,6 @@ cdef class Ship:
     cpdef void gain_command_token(self, int command) :
         self.command_token += (command,)
 
-    cpdef tuple repair_command_used(self) :
-        """
-        Returns:
-            tuple (repair_dial_used (bool), repair_token_used (bool))
-        """
-        cdef:
-            bint has_dial = Command.REPAIR in self.command_dial
-            bint has_token = Command.REPAIR in self.command_token
-            int dial_contribution = has_dial * self.engineer_value
-
-        return has_dial, has_token and self.engineer_spent > dial_contribution
-
     cpdef void destroy(self) :
         cdef DefenseToken token
 
@@ -165,6 +155,8 @@ cdef class Ship:
         self.attack_count = 0
         self.command_dial = ()
         self.resolved_command = ()
+        self.nav_dial_granted = False
+        self.nav_token_granted = False
 
         self.hull = 0
         self.shield = (0, 0, 0, 0)
@@ -786,7 +778,7 @@ cdef class Ship:
         """
         cdef:
             list valid_speed = []
-            int speed_change = int(Command.NAV in self.command_dial) + int(Command.NAV in self.command_token)
+            int speed_change = int(self.nav_dial_granted) + int(self.nav_token_granted)
             int speed
 
         for speed in range(5):
@@ -819,67 +811,6 @@ cdef class Ship:
             valid_yaw.append(yaw - 2)
 
         return valid_yaw
-    
-    cpdef tuple nav_command_used(self, tuple course) :
-        """
-        Args:
-            course (tuple[int, ...]): The maneuver course of the ship.
-        Returns:
-            tuple (nav_dial_used (bool), nav_token_used (bool))
-        """
-        cdef:
-            bint nav_dial_used = False
-            bint nav_token_used = False
-            int new_speed = len(course)
-            int speed_change = abs(new_speed - self.speed)
-            bint is_standard
-
-        # 1. SPEED CHANGE VALIDATION
-        if speed_change > 2:
-            raise ValueError(f"Invalid speed change of {speed_change}. Maximum is 2.")
-
-        if speed_change == 1:
-            # Must use one NAVIGATE command from either dial or token
-            if Command.NAV in self.command_dial:
-                nav_dial_used = True
-            elif Command.NAV in self.command_token:
-                nav_token_used = True
-            else:
-                raise ValueError("Speed change of 1 requires a NAVIGATE command from a dial or token.")
-
-        if speed_change == 2:
-            # Must use two NAVIGATE commands, one from each source
-            if Command.NAV in self.command_dial and Command.NAV in self.command_token:
-                nav_dial_used = True
-                nav_token_used = True
-            else:
-                raise ValueError("Speed change of 2 requires NAVIGATE commands from BOTH a dial and a token.")
-
-        # 2. COURSE VALIDITY CHECK (for extra clicks)
-        is_standard = self.is_standard_course(course)
-        
-        if not is_standard:
-            # This is a special course that requires an extra click from the command dial.
-            if Command.NAV in self.command_dial:
-                nav_dial_used = True
-            else:
-                raise ValueError("This course requires an extra click, which needs a NAVIGATE command from the dial.")
-        return nav_dial_used, nav_token_used
-    
-    cpdef bint is_standard_course(self, tuple course) :
-        """
-        Checks if a given course is a standard maneuver for a given speed,
-        without using any special abilities like adding a click.
-        """
-        cdef:
-            int speed = len(course)
-            int joint, yaw, max_yaw
-        if speed == 0 : return True
-
-        for joint, yaw in enumerate(course) :
-            max_yaw = self.nav_chart[speed][joint]
-            if abs(yaw) > max_yaw : return False
-        return True
 
     cpdef list get_all_possible_courses(self, int speed) :
         """
@@ -895,7 +826,7 @@ cdef class Ship:
             A list of all unique, valid course lists.
         """
         cdef:
-            bint has_nav_dial = Command.NAV in self.command_dial
+            bint has_nav_dial = self.nav_dial_granted
             tuple cache_key = (speed, has_nav_dial)
             list original_yaw_options
             set all_courses, standard_courses
@@ -917,7 +848,7 @@ cdef class Ship:
         all_courses = set(itertools.product(*original_yaw_options))
 
         # 3. If the special condition isn't met, return the standard courses.
-        if not Command.NAV in self.command_dial:
+        if not self.nav_dial_granted:
             return [course for course in all_courses]
 
         # 4. If the condition is met, generate new courses from the standard ones.
@@ -979,12 +910,13 @@ cdef class Ship:
             self.hull, self.shield,
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
+            self.nav_dial_granted, self.nav_token_granted,
             self.attack_count, self.attack_history,
             self.engineer_budget, self.engineer_spent, self.repaired_hull, self.reduced_hull,
             self.damage_cards,
             [(<DefenseToken>dt).get_snapshot() for dt in self.defense_tokens]
         )
-    
+
     cdef void revert_snapshot(self, object snapshot):
         """Restores the ship's state from a snapshot."""
         (
@@ -992,6 +924,7 @@ cdef class Ship:
             self.hull, self.shield,
             self.destroyed, self.activated,
             self.command_stack, self.command_dial, self.command_token, self.resolved_command,
+            self.nav_dial_granted, self.nav_token_granted,
             self.attack_count, self.attack_history,
             self.engineer_budget, self.engineer_spent, self.repaired_hull, self.reduced_hull,
             self.damage_cards,

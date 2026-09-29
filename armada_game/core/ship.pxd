@@ -12,7 +12,7 @@ cdef class Ship:
         public str name
         public int size_class
         public dict battery, battery_range, anti_squad_range, nav_chart, max_shield, _course_cache
-        public bint destroyed, activated
+        public bint destroyed, activated, nav_dial_granted, nav_token_granted
         public tuple base_size, token_size, shield, defense_tokens, command_stack, command_dial, command_token, resolved_command, attack_history, repaired_hull, reduced_hull, anti_squad
         public tuple damage_cards
         public object template_base_vertices, template_token_vertices, template_targeting_points_and_maneuver_tool_insert, template_hull_vertices
@@ -43,15 +43,12 @@ cdef class Ship:
     cpdef bint out_of_board(self)
     cpdef list get_valid_speed(self)
     cpdef list get_valid_yaw(self, int speed, int joint)
-    cpdef tuple nav_command_used(self, tuple course)
-    cpdef bint is_standard_course(self, tuple course)
     cpdef list get_all_possible_courses(self, int speed)
     cpdef list get_valid_placement(self, tuple course)
     cpdef void discard_command_dial(self, int command)
     cpdef void discard_command_token(self, int command)
     cpdef void gain_command_dial(self, int command)
     cpdef void gain_command_token(self, int command)
-    cpdef tuple repair_command_used(self)
     cpdef bint check_overlap(self, object obstacle)
     cpdef void overlap_obstacle(self, Obstacle obstacle)
     cpdef int facedown_damage_count(self)

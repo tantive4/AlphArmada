@@ -24,7 +24,7 @@ class Config:
     DEF_TOKEN_FEATURE_SIZE = 8
     SQUAD_ENTITY_FEATURE_SIZE = 30
     SCALAR_FEATURE_SIZE = 48
-    MAX_ACTION_SPACE = MAX_SHIPS + MAX_DEFENSE_TOKENS + 937
+    MAX_ACTION_SPACE = MAX_SHIPS + MAX_DEFENSE_TOKENS + 940  # SHIP_DETERMINE_COURSE's dominant static width
 
     # Hardware
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
@@ -58,7 +58,7 @@ class Config:
     # Optimization
     LEARNING_RATE = 5e-5
     L2_LAMBDA = 1e-4
-    RAW_POINT_LOSS_WIEGHT = 0.1
+    RAW_POINT_LOSS_WEIGHT = 0.1
     HULL_LOSS_WEIGHT = 0.05
     SQUAD_LOSS_WEIGHT = 0.05
     GAME_LENGTH_LOSS_WEIGHT = 0.05

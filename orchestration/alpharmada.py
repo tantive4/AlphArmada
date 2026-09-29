@@ -330,7 +330,7 @@ class AlphArmadaTrainer:
         total_loss = (
             policy_loss +
             value_loss +
-            Config.RAW_POINT_LOSS_WIEGHT * raw_point_loss +
+            Config.RAW_POINT_LOSS_WEIGHT * raw_point_loss +
             Config.HULL_LOSS_WEIGHT * hull_loss +
             Config.GAME_LENGTH_LOSS_WEIGHT * game_len_loss
         )
