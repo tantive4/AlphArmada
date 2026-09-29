@@ -813,7 +813,7 @@ cdef class Armada:
                     has_crit = <bint>True
                     break
 
-            defend_ship.defend(<int>attack_info.defend_hull, total_damage, attack_info.critical)
+            defend_ship.defend(<int>attack_info.defend_hull, total_damage)
             for defense_token in defend_ship.defense_tokens :
                 defense_token.accuracy = False
 

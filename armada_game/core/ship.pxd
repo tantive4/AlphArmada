@@ -31,7 +31,7 @@ cdef class Ship:
     cpdef bint is_obstruct_s2s(self, int from_hull, Ship to_ship, int to_hull)
     cpdef bint is_obstruct_s2q(self, int from_hull, Squad to_squad)
     cpdef tuple gather_dice(self, int attack_hull, int attack_range, bint is_ship)
-    cpdef void defend(self, int defend_hull, int total_damage, object critical)
+    cpdef void defend(self, int defend_hull, int total_damage)
     cpdef list get_valid_ship_target(self, int attack_hull)
     cpdef list get_valid_target_hull(self, int attack_hull, Ship target_ship)
     cpdef list get_valid_squad_target(self, int attack_hull)

@@ -306,7 +306,7 @@ cdef class Ship:
                 if self.shield[hull] == max_shield:
                     selected_hull = hull
                     break
-            self.defend(selected_hull,2,None)
+            self.defend(selected_hull,2)
 
 
 # sub method for ship dimension
@@ -472,7 +472,7 @@ cdef class Ship:
         else :
             return self.anti_squad_range[attack_range]
 
-    cpdef void defend(self, int defend_hull, int total_damage, object critical) :
+    cpdef void defend(self, int defend_hull, int total_damage) :
         cdef:
             int shield_damage = min(total_damage, self.shield[defend_hull])
             list shield_list = list(self.shield)
