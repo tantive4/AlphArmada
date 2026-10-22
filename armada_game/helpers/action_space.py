@@ -5,8 +5,24 @@ from armada_game.helpers.action_phase import Phase, ActionType
 from armada_game.helpers.enum_class import *
 from armada_game.helpers.dice import dice_single_choice, FULL_DICE_POOL
 from armada_game.helpers.damage_deck import DAMAGE_CARD_TYPES
+from armada_game.helpers.measurement import DISTANCE, SQUAD_MOVE_GRID, SQUAD_MOVE_CENTER, SQUAD_MOVE_PITCH, SQUAD_PLACEMENT_SLOTS
 from learning.params.configs import Config
 from armada_game.helpers.paths import data_path
+
+def squad_move_offsets() -> list[tuple[int, int]]:
+    """
+    Every cell of the absolute squadron move grid reachable at the fastest
+    squadron speed (TODO D2): 861 offsets for a 33x33 grid at speed 5.  Must
+    match the speed-5 disk Armada.squad_move_actions() masks against.
+    """
+    reach = DISTANCE[5] / SQUAD_MOVE_PITCH
+    offsets = []
+    for i in range(SQUAD_MOVE_GRID):
+        for j in range(SQUAD_MOVE_GRID):
+            di, dj = i - SQUAD_MOVE_CENTER, j - SQUAD_MOVE_CENTER
+            if di * di + dj * dj <= reach * reach + 1e-9:
+                offsets.append((di, dj))
+    return offsets
 
 def _make_hashable(action_value):
     """
@@ -29,8 +45,7 @@ def generate_all_maps():
     MAX_SHIPS = Config.MAX_SHIPS
     MAX_SQUADS = Config.MAX_SQUADS
     MAX_DEFENSE_TOKENS_PER_TYPE = 2
-    SQUAD_PLACEMENT_RESOLUTION = 22
-    
+
     for phase in Phase:
         actions : list[ActionType] = []
         # Use simple loops to generate every possible action combination
@@ -56,8 +71,9 @@ def generate_all_maps():
                                  for gain in Command for discard in Command if gain != discard])
                 actions.append(('pass_command_token', None))
 
-            # case Phase.SHIP_RESOLVE_SQUAD:
-            #     actions = [('resolve_squad_command_action', (dial, token)) for dial in (True, False) for token in (True, False)]
+            case Phase.SHIP_RESOLVE_SQUAD :
+                actions = [('resolve_squad_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token]
+                actions.append(('pass_squad_command', None))
 
             case Phase.SHIP_RESOLVE_REPAIR :
                 actions = [('resolve_repair_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token]
@@ -74,10 +90,12 @@ def generate_all_maps():
             case Phase.SHIP_CHOOSE_TARGET_SHIP:
                 actions = [('choose_target_ship_action', ship_id) for ship_id in range(MAX_SHIPS)]
                 actions.append(('pass_attack', None))
+                actions.extend([('choose_target_squad_action', squad_id) for squad_id in range(MAX_SQUADS)])
 
             case Phase.SHIP_DECLARE_TARGET :
-                actions = [('declare_target_action', (attack_hull, defend_hull)) 
+                actions = [('declare_target_action', (attack_hull, defend_hull))
                            for attack_hull, defend_hull in itertools.product(HullSection, HullSection)]
+                actions.extend([('declare_squad_target_action', attack_hull) for attack_hull in HullSection])
 
             # Execute Maneuver
             case Phase.SHIP_DETERMINE_COURSE :
@@ -94,35 +112,26 @@ def generate_all_maps():
                             if course[-1] * placement < 0: continue 
                             actions.append(('determine_course_action', (course, placement)))
 
-            # case Phase.SHIP_PLACE_SQUAD :
-            #     for squad_id in range(MAX_SQUADS) :
-            #         actions.extend([('place_squad_action', (squad_id, coord_index)) for coord_index in range(SQUAD_PLACEMENT_RESOLUTION)])
-            #         actions.append(('place_squad_action', (squad_id, None)))
+            case Phase.SHIP_PLACE_SQUAD :
+                # Overlapped squadrons are placed one at a time in id order, so
+                # the payload is only the touching slot (TODO, placement).
+                actions = [('place_squad_action', slot) for slot in range(SQUAD_PLACEMENT_SLOTS)]
 
+            # === SQUADRON_PHASE ===
+            case Phase.SQUAD_ACTIVATE:
+                actions = [('activate_squad_move_action', squad_id) for squad_id in range(MAX_SQUADS)]
+                actions.extend([('activate_squad_attack_action', squad_id) for squad_id in range(MAX_SQUADS)])
+                actions.append(('pass_activate_squad', None))
 
-            # # === SQUADRON_PHASE ===
-            # case Phase.SQUAD_ACTIVATE:
-            #     actions = [('activate_squad_move_action', squad_id) for squad_id in range(MAX_SQUADS)] 
-            #     actions.extend([('activate_squad_attack_action', squad_id) for squad_id in range(MAX_SQUADS)])
-            #     actions.append(('pass_activate_squad', None))
-                
-            # case Phase.SQUAD_DECLARE_TARGET :
-            #     actions = [('declare_squad_target_action', (defend_ship_id, defend_hull))
-            #                for defend_ship_id, defend_hull in itertools.product(range(MAX_SHIPS), HullSection)]
-            #     actions.extend([('declare_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)])
-            #     actions.append(('pass_attack_squad', None))
+            case Phase.SQUAD_MOVE :
+                # No pass: the centre cell is "remain in place".
+                actions = [('move_squad_action', offset) for offset in squad_move_offsets()]
 
-            # case Phase.SQUAD_MOVE :
-            #     moves : list[tuple[int, float]] = []
-            #     for speed in range(6) :
-            #         if speed == 0 :
-            #             moves.append((0, 0))
-            #             continue
-            #         for angle in range(0, 360, 90 // speed) :
-            #             moves.append((speed, angle))
-
-            #     actions = [('move_squad_action', move) for move in moves]
-            #     actions.append(('pass_move_squad', None))
+            case Phase.SQUAD_DECLARE_TARGET :
+                actions = [('squad_attack_squad_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)]
+                actions.extend([('squad_attack_ship_action', (defend_ship_id, defend_hull))
+                                for defend_ship_id, defend_hull in itertools.product(range(MAX_SHIPS), HullSection)])
+                actions.append(('pass_attack_squad', None))
 
 
             # === Attack Step ===
@@ -145,7 +154,7 @@ def generate_all_maps():
                 actions.extend([('resolve_confire_command_action', (use_dial, use_token)) for use_dial, use_token in itertools.product((True, False), repeat=2) if use_dial or use_token])
                 actions.extend([('use_confire_dial_action', tuple(1 if i == dice else 0 for i in range(3))) for dice in DICE])
                 actions.extend([('use_confire_token_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
-                # actions.extend([('swarm_reroll_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
+                actions.extend([('swarm_reroll_action', dice) for dice in dice_single_choice(FULL_DICE_POOL)])
                 actions.append(('pass_attack_effect', None))
 
             case Phase.ATTACK_SPEND_DEFENSE_TOKENS :
@@ -173,13 +182,17 @@ def generate_all_maps():
                 actions = [('resolve_damage_action', (hull, damage)) for hull in HullSection for damage in range(1, 5)]
                 actions.append(('resolve_damage_action', None))
 
-            # case Phase.ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET :
-            #     actions = [('declare_additional_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)]
-            #     actions.append(('pass_additional_squad_target', None))
+            case Phase.ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET :
+                actions = [('declare_additional_squad_target_action', defend_squad_id) for defend_squad_id in range(MAX_SQUADS)]
+                actions.append(('pass_additional_squad_target', None))
 
             case _:
                 print(f"Warning: No action generation logic defined for phase {phase.name}")
 
+        # Duplicate (name, payload) entries would collide in action_manager's
+        # index map; the canonical space must be a set.
+        if len(actions) != len(set(actions)):
+            raise ValueError(f"Duplicate actions generated for phase {phase.name}")
 
         all_maps_raw[phase.name] = actions
             

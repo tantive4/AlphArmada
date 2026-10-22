@@ -374,21 +374,20 @@ def attack_range_s2s_numba(
 
 @numba.njit(cache=True)
 def attack_range_s2q_numba(
-    attacker_arc_pts, attacker_tgt_pts, attacker_orientation_vec,
+    attacker_arc_pts,
     squad_center,
-    attacker_hulls, 
+    attacker_hulls,
     extension_factor,
 ):
+    # No orientation pre-filter: a "targeting point faces the squadron" test is
+    # not conservative here.  The firing-arc wedge starts on the token edge up to
+    # ~20 mm behind the hull's targeting point (VSD, CR90, GSD front/rear), so it
+    # would reject a squadron whose base pokes into the arc there.  The clip
+    # below is the exact test (Rule Reference, Measuring Firing Arc and Range).
     measure_results = np.full(4, -1, dtype=np.int32)
 
     for from_hull_idx in range(4):
-        # 1. Attack hull orientation check (same as your original)
-        attack_orientation_vector = ROTATION_MATRICES[from_hull_idx] @ attacker_orientation_vec
-        hull_target_vector = squad_center - attacker_tgt_pts[from_hull_idx]
-        if np.dot(attack_orientation_vector, hull_target_vector) < 0:
-            continue
-
-        # 2. Build the arc polygon
+        # 1. Build the arc polygon
         if from_hull_idx == 0: # FRONT
             arc_p1_center = attacker_arc_pts[0]
             arc_p1 = attacker_arc_pts[1] # front_left
@@ -422,17 +421,20 @@ def attack_range_s2q_numba(
         # Use np.stack to combine the arrays into a single (4, 2) array
         arc_polygon = np.stack((p1, p2, p3, p4))
         
-        # 3. Check if defender hull is in the arc by clipping
-        to_hull_poly = SQUAD_TOKEN_POLY + squad_center
+        # 2. Check if any portion of the squadron's base is in the arc by
+        # clipping.  The base, not the cardboard disk: range is measured to the
+        # closest point of the squadron's base (Rule Reference, Measuring Firing
+        # Arc and Range), ignoring only the activation slider.
+        to_hull_poly = SQUAD_BASE_POLY + squad_center
         to_hull_in_arc = sutherland_hodgman_clip(to_hull_poly, arc_polygon)
         if len(to_hull_in_arc) < 3:
             continue # not in arc (result is not a valid polygon)
-        
-        # 4. Range measurement
+
+        # 3. Range measurement, to the portion of the base inside the arc
         from_hull_poly = attacker_hulls[from_hull_idx]
         distance = polygon_polygon_nearest_points(from_hull_poly, to_hull_in_arc)[0]
 
-        # 5. Set results based on distance
+        # 4. Set results based on distance
         attack_range = distance_to_range(distance)
         measure_results[from_hull_idx] = attack_range
 
@@ -490,7 +492,11 @@ def attack_range_q2s_numba(
         if is_blocked: 
             continue
 
-        if attack_range < Q2S_RANGE :
+        # Centre-to-hull-zone against distance 1 plus the base radius is the
+        # closest-point measurement exactly (TODO G3).  Inclusive: a band's
+        # boundary line belongs to the closer band (Rule Reference, Range and
+        # Distance).
+        if attack_range <= Q2S_RANGE :
             target_results[to_hull_idx] = True
     return target_results
 

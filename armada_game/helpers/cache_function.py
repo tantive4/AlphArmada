@@ -30,10 +30,8 @@ def delete_cache():
     is_obstruct_ship.cache_clear()
     is_obstruct_obstacle.cache_clear()
     is_overlap_s2s.cache_clear()
-    is_overlap_s2q.cache_clear()
     is_overlap_s2o.cache_clear()
     distance_s2s.cache_clear()
-    range_s2q.cache_clear()
     maneuver_tool.cache_clear()
     _ship_presence_indices.cache_clear()
     _ship_threat_indices.cache_clear()
@@ -65,7 +63,7 @@ def _ship_coordinate(ship_state : tuple[str, int, int, int]) -> dict[str|tuple[i
         'token_corners' : current_vertices[6:10],
         'base_corners' : current_vertices[15:19],
         'tool_insert_points' : current_vertices[19:21],
-        'squad_placement_points' : current_vertices[21:43], 
+        'squad_placement_points' : current_vertices[21:21 + SQUAD_PLACEMENT_SLOTS],
         
     }
     current_threat_vertices = np.split(threat_zone_vertices @ rotation_matrix.T + translation_vector, split_index)
@@ -136,11 +134,10 @@ def attack_range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple
 
     ship_coords = _ship_coordinate(ship_state)
     squad_coords = np.array(squad_state, dtype=np.float32)*HASH_PRECISION_INV
-    attacker_orientation_vector : np.ndarray = np.array([np.sin(ship_state[3]*HASH_PRECISION_INV), np.cos(ship_state[3]*HASH_PRECISION_INV)], dtype=np.float32)
     attacker_hulls = jit.create_hull_arrays(ship_coords['arc_points'])
 
     measure_results = jit.attack_range_s2q_numba(
-        ship_coords['arc_points'], ship_coords['targeting_points'], attacker_orientation_vector,
+        ship_coords['arc_points'],
         squad_coords,
         attacker_hulls,
         extension_factor
@@ -273,15 +270,6 @@ def is_overlap_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[st
     return jit.SAT_overlapping_check(self_coordinate, other_coordinate)
 
 @lru_cache(maxsize=CACHE_SIZE)
-def is_overlap_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int]) -> bool :
-    ship_base : np.ndarray = _ship_coordinate(ship_state)['base_corners']
-    squad_center: np.ndarray = np.array([squad_state], dtype=np.float32)*HASH_PRECISION_INV
-    if jit.SAT_overlapping_check(ship_base, squad_center) :
-        return True
-
-    return jit.polygon_polygon_nearest_points(ship_base, squad_center)[0] <= SQUAD_BASE_RADIUS
-
-@lru_cache(maxsize=CACHE_SIZE)
 def is_overlap_s2o(ship_state : tuple[str, int, int, int], obstacle_state : tuple[int, float, float, float, bool]) -> bool :
     ship_base: Path = Path(_ship_coordinate(ship_state)['base_corners'])
     obstacle_poly: Path = Path(_obstacle_coordinate(obstacle_state))
@@ -292,18 +280,6 @@ def distance_s2s(self_state : tuple[str, int, int, int], ship_state : tuple[str,
     self_poly : np.ndarray = _ship_coordinate(self_state)['base_corners']
     ship_poly : np.ndarray = _ship_coordinate(ship_state)['base_corners']
     return jit.polygon_polygon_nearest_points(self_poly, ship_poly)[0]
-
-@lru_cache(maxsize=CACHE_SIZE)
-def range_s2q(ship_state : tuple[str, int, int, int], squad_state : tuple[int, int]) -> int:
-    """
-    Returns:
-        AttackRange : The best range from the ship to the squad, used for squad command activation
-    """
-    ship_token :np.ndarray = _ship_coordinate(ship_state)['token_corners']
-    squad_center :np.ndarray = np.array([squad_state], dtype=np.float32)*HASH_PRECISION_INV
-    distance = jit.polygon_polygon_nearest_points(ship_token,squad_center)[0] - SQUAD_TOKEN_RADIUS
-
-    return jit.distance_to_range(distance)                                                                                                                                                                                                                                                        
 
 @lru_cache(maxsize=CACHE_SIZE)
 def maneuver_tool(size_class :SizeClass, course : tuple[int, ...], placement : int) -> tuple[np.ndarray, float]:

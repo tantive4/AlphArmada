@@ -31,7 +31,6 @@ cdef class AttackInfo :
             self.is_attacker_ship : bool= False
             attack_squad = attacker
             self.attack_squad_id : int = attack_squad.id
-            attack_squad.can_attack = False
 
         if isinstance(defender, tuple) :
             self.is_defender_ship : bool = True
@@ -69,16 +68,23 @@ cdef class AttackInfo :
 
 
         else :
+            # A squadron attacks at distance 1, which lies inside close range,
+            # so evade resolves its close/medium effect (RRG Defense Tokens).
             self.attack_range : AttackRange = AttackRange.CLOSE
             self.dice_to_roll : tuple[int, ...] = attack_squad.gather_dice(is_ship=self.is_defender_ship, is_counter=is_counter)
-            
+
             self.bomber : bool = attack_squad.bomber
 
             if self.is_defender_ship :
                 self.obstructed : bool = attack_squad.is_obstruct_q2s(defend_ship, defend_hull)
             else :
                 self.obstructed : bool = attack_squad.is_obstruct_q2q(defend_squad)
-                self.swarm : bool = attack_squad.swarm
+                # Swarm: "While attacking a squadron engaged with another
+                # squadron, you may reroll 1 die" (RRG Squadron Keywords).
+                # "Another" means other than the attacker; heavy squadrons
+                # still engage, so they count.
+                self.swarm : bool = attack_squad.swarm and \
+                    attack_squad.game.squad_engaged_with_other(defend_squad, attack_squad)
 
 
     cpdef void declare_additional_squad_target(self, tuple attacker, Squad defend_squad) :

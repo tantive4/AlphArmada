@@ -3,8 +3,7 @@ import torch
 class Config:
     # Game
     MAX_SHIPS = 10
-    # MAX_SQUADS = 16
-    MAX_SQUADS = 0
+    MAX_SQUADS = 16
     MAX_COMMAND_STACK = 3
     MAX_DEFENSE_TOKENS = 4
     MAX_SQUAD_DEFENSE_TOKENS = 2
@@ -23,7 +22,9 @@ class Config:
     SHIP_STATIC_OFFSET = 36
     DEF_TOKEN_FEATURE_SIZE = 8
     SQUAD_ENTITY_FEATURE_SIZE = 30
-    SCALAR_FEATURE_SIZE = 48
+    # 26 + len(Phase) slots are written today (22 phases -> 48); the rest is
+    # zero padding, so a new phase cannot overrun the unchecked encoder writes.
+    SCALAR_FEATURE_SIZE = 64
     MAX_ACTION_SPACE = MAX_SHIPS + MAX_DEFENSE_TOKENS + 940  # SHIP_DETERMINE_COURSE's dominant static width
 
     # Hardware

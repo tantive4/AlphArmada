@@ -18,6 +18,7 @@ from armada_game.helpers import cache_function as cache
 from armada cimport Armada
 from squad cimport Squad
 from obstacle cimport Obstacle
+from squad_geometry cimport Rect, rect_dist_sq
 
 
 cdef class Ship:
@@ -47,6 +48,13 @@ cdef class Ship:
             attack_range : tuple(self.anti_squad[dice_type] if dice_type >= attack_range else 0 for dice_type in DICE)
             for attack_range in ATTACK_RANGES if attack_range != AttackRange.INVALID
         }
+        # Farthest range at which the anti-squadron armament still gathers a die
+        # (RRG Attack Range: black close, blue medium, red long), or -1 with no
+        # dice.  Bounds ship-to-squadron target scans before any arc clipping.
+        if self.anti_squad[Dice.RED] : self.anti_squad_reach = LONG_RANGE
+        elif self.anti_squad[Dice.BLUE] : self.anti_squad_reach = MEDIUM_RANGE
+        elif self.anti_squad[Dice.BLACK] : self.anti_squad_reach = CLOSE_RANGE
+        else : self.anti_squad_reach = -1.0
         
         self.defense_tokens: tuple[DefenseToken, ...] = tuple(
             DefenseToken(token_type_str, id) 
@@ -164,6 +172,11 @@ cdef class Ship:
         self.damage_cards = EMPTY_DAMAGE_CARDS
         for token in self.defense_tokens :
             if not token.discarded : token.discard()
+        # It no longer obstructs, and its fleet may now be wiped out, which ends
+        # the game immediately (RRG Winning and Losing); Armada checks once the
+        # current action has finished.
+        self.game.invalidate_geometry()
+        self.game.fleet_check_pending = True
         self.game.visualize(f'{self} is destroyed!')
 
     cpdef void status_phase(self) :
@@ -183,6 +196,8 @@ cdef class Ship:
         self.resolved_command = ()
 
     cpdef void execute_maneuver(self, tuple course, int placement) :
+        # Ships obstruct squadron line of sight, so moving one stales engagement.
+        self.game.invalidate_geometry()
         cdef set overlap_ships = self.move_ship(course, placement, set())
         self.overlap_damage(overlap_ships)
         if self.out_of_board() :
@@ -231,51 +246,6 @@ cdef class Ship:
             overlap_ships = overlap_ships.union(new_overlap)
 
         return overlap_ships
-
-    cpdef bint is_overlap_squad(self) :
-        """
-        determines which squad overlaps to this ship at current location
-        
-        Returns:
-            is_overlap(bool): A set indicating which squads were overlapped.
-        """
-        cdef: 
-            Squad squad
-            bint is_overlap = False
-
-        if self.destroyed : return False
-        for squad in self.game.squads:
-            if squad.destroyed :
-                continue
-
-            if cache.is_overlap_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state()):
-                is_overlap = True
-                squad.overlap_ship_id = self.id
-        return is_overlap
-
-    cpdef list get_valid_squad_placement(self, Squad squad) :
-        """
-        Get a list of valid placements for a squad at the current ship location.
-        """
-        cdef:
-            list valid_placements = []
-            tuple original_coords = squad.coords
-            cnp.ndarray[cnp.float32_t, ndim=2] squad_placement_points = cache._ship_coordinate(self.get_ship_hash_state())['squad_placement_points']
-            int index
-            cnp.ndarray[cnp.float32_t, ndim=1] point
-            tuple coords
-
-        for index, point in enumerate(squad_placement_points):
-            coords = tuple(point.tolist())
-            squad.coords = coords
-            if squad.out_of_board() or squad.is_overlap():
-                continue
-
-            valid_placements.append(index)
-        squad.coords = original_coords
-        if not valid_placements:
-            valid_placements = [None]
-        return valid_placements
 
     cpdef bint check_overlap(self, object obstacle) :
         """
@@ -594,25 +564,47 @@ cdef class Ship:
 
         return valid_target_hulls
 
+    cpdef bint is_valid_squad_target(self, int attack_hull, Squad squad) :
+        """
+        Can `attack_hull` declare an anti-squadron attack on `squad`?  The
+        squadron must have a portion of its base inside the hull zone's firing
+        arc, at a range where the anti-squadron armament still gathers a die by
+        colour (RRG Attack, Attack Range).  A ship may attack an engaged
+        squadron (RRG FAQ), so engagement plays no part here.
+        """
+        cdef:
+            Rect token
+            double reach
+            int attack_range, dice_count
+
+        if squad.team == self.team or squad.destroyed : return False
+        if self.anti_squad_reach < 0.0 : return False
+
+        # Exact pre-reject.  Hull zones lie inside the ship token, so the
+        # token's distance to the base bounds every hull zone's range from
+        # below; beyond the armament's reach no hull can attack (TODO G3).
+        token = self.game.ship_token_rect(self.id)
+        reach = self.anti_squad_reach + SQUAD_BASE_RADIUS
+        if rect_dist_sq(&token, <double>squad.coords[0], <double>squad.coords[1]) > reach * reach :
+            return False
+
+        attack_range = cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())[attack_hull]
+        if attack_range == AttackRange.INVALID or attack_range == AttackRange.EXTREME : return False
+        dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=False))
+        if dice_count == 0 : return False
+        # Simplified training policy, as for ship targets: do not declare an
+        # attack that obstruction would cancel by removing its only die.
+        if dice_count == 1 and self.is_obstruct_s2q(attack_hull, squad) : return False
+        return True
+
     cpdef list get_valid_squad_target(self, int attack_hull) :
         cdef:
             list valid_squad_targets = []
             Squad squad
-            list range_dict
-            int attack_range
-            int dice_count
 
         for squad in self.game.squads:
-            if squad.team == self.team or squad.destroyed : continue
-
-            range_dict =  cache.attack_range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state())
-            attack_range = range_dict[attack_hull]
-            if attack_range in (AttackRange.INVALID, AttackRange.EXTREME): continue
-            dice_count = sum(self.gather_dice(attack_hull, attack_range, is_ship=False))
-            if dice_count == 0 : continue
-            elif dice_count == 1:
-                if self.is_obstruct_s2q(attack_hull, squad) : continue
-            valid_squad_targets.append(squad)
+            if self.is_valid_squad_target(attack_hull, squad) :
+                valid_squad_targets.append(squad)
 
         return valid_squad_targets
 
@@ -638,22 +630,6 @@ cdef class Ship:
         if black_crit or blue_crit or red_crit :
             critical_list.append(Critical.STANDARD)
         return critical_list
-
-    cpdef list get_squad_activation(self) :
-        """
-        Get the number of squads that can be activated by this ship.
-
-        Returns:
-            list[Squad]: A list of squads that can be activated.
-        """
-        cdef:
-            Squad squad
-            list valid_squads = []
-        for squad in self.game.squads:
-            if squad.team == self.team and not squad.activated and not squad.destroyed \
-               and cache.range_s2q(self.get_ship_hash_state(), squad.get_squad_hash_state()) <= AttackRange.MEDIUM:
-                valid_squads.append(squad)
-        return valid_squads
 
 # sub method for execute maneuver
     def _tool_coordination(self, course : tuple[int, ...], placement : int) -> tuple[list[tuple[float, float]], list[float]]:

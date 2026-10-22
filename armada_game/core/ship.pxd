@@ -15,6 +15,7 @@ cdef class Ship:
         public bint destroyed, activated, nav_dial_granted, nav_token_granted
         public tuple base_size, token_size, shield, defense_tokens, command_stack, command_dial, command_token, resolved_command, attack_history, repaired_hull, reduced_hull, anti_squad
         public tuple damage_cards
+        public double anti_squad_reach
         public object template_base_vertices, template_token_vertices, template_targeting_points_and_maneuver_tool_insert, template_hull_vertices
         public cnp.ndarray rotation_matrix
     cdef object get_snapshot(self)
@@ -26,18 +27,16 @@ cdef class Ship:
     cpdef void end_activation(self)
     cpdef void execute_maneuver(self, tuple course, int placement)
     cpdef set move_ship(self, tuple course, int placement, set overlap_ships)
-    cpdef bint is_overlap_squad(self)
-    cpdef list get_valid_squad_placement(self, Squad squad)
     cpdef bint is_obstruct_s2s(self, int from_hull, Ship to_ship, int to_hull)
     cpdef bint is_obstruct_s2q(self, int from_hull, Squad to_squad)
     cpdef tuple gather_dice(self, int attack_hull, int attack_range, bint is_ship)
     cpdef void defend(self, int defend_hull, int total_damage)
     cpdef list get_valid_ship_target(self, int attack_hull)
     cpdef list get_valid_target_hull(self, int attack_hull, Ship target_ship)
+    cpdef bint is_valid_squad_target(self, int attack_hull, Squad squad)
     cpdef list get_valid_squad_target(self, int attack_hull)
     cpdef list get_valid_attack_hull(self)
     cpdef list get_critical_effect(self, bint black_crit, bint blue_crit, bint red_crit)
-    cpdef list get_squad_activation(self)
     cpdef set is_overlap(self)
     cpdef void overlap_damage(self, set overlap_list)
     cpdef bint out_of_board(self)

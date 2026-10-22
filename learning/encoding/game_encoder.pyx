@@ -96,7 +96,9 @@ cpdef tuple encode_game_state(Armada game,
     encode_spatial_mask(game, spatial_buffer)
     encode_relation_matrix(game, relation_buffer)
 
-    cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
+    # The opponent also decides SHIP_PLACE_SQUAD, where there is no defending
+    # ship; fall through to the moving ship rather than read None as a Ship.
+    cdef int active_id = (<Ship>game.defend_ship).id if (game.decision_player != game.current_player and game.defend_ship is not None) else (<Ship>game.active_ship).id if game.active_ship is not None else max_ships
     cdef int target_id = (<Ship>game.defend_ship).id if game.defend_ship is not None else max_ships
     cdef int phase = <int>game.phase
 

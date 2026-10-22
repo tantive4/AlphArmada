@@ -19,7 +19,7 @@ class Phase(IntEnum):
     # Ship Phase -> Reveal Dial
     SHIP_REVEAL_COMMAND_DIAL = auto()
     SHIP_GAIN_COMMAND_TOKEN = auto()
-    # SHIP_RESOLVE_SQUAD = auto()
+    SHIP_RESOLVE_SQUAD = auto()
     SHIP_RESOLVE_REPAIR = auto()
     SHIP_REPAIR_EFFECT = auto()
 
@@ -29,12 +29,12 @@ class Phase(IntEnum):
 
     # Ship Phase -> Execute Maneuver
     SHIP_DETERMINE_COURSE = auto()
-    # SHIP_PLACE_SQUAD = auto()
+    SHIP_PLACE_SQUAD = auto()
 
-    # === SQUADRON_PHASE ===
-    # SQUAD_ACTIVATE = auto() 
-    # SQUAD_DECLARE_TARGET = auto()
-    # SQUAD_MOVE = auto()
+    # === SQUADRON_PHASE === (also a ship's squadron command)
+    SQUAD_ACTIVATE = auto()
+    SQUAD_MOVE = auto()
+    SQUAD_DECLARE_TARGET = auto()
 
     # === Attack Step ===
     ATTACK_GATHER_DICE = auto()
@@ -44,7 +44,7 @@ class Phase(IntEnum):
     CHOOSE_DEFEND_DICE = auto()
     # ATTACK_USE_CRITICAL_EFFECT = auto()
     ATTACK_RESOLVE_DAMAGE = auto()
-    # ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET = auto()
+    ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET = auto()
 
     # === Damage Card Draw === (chance node, like ATTACK_ROLL_DICE)
     DRAW_DAMAGE_CARD = auto()
@@ -76,8 +76,9 @@ ActionType: TypeAlias = (
     tuple[Literal['move_shield_action'], tuple[HullSection, HullSection]] |
 
     # Attack Step
-    tuple[Literal['choose_target_ship_action'], int] |
-    tuple[Literal['declare_target_action'], tuple[HullSection, HullSection]] | 
+    tuple[Literal['choose_target_ship_action', 'choose_target_squad_action'], int] |
+    tuple[Literal['declare_target_action'], tuple[HullSection, HullSection]] |
+    tuple[Literal['declare_squad_target_action'], HullSection] |
     tuple[Literal['gather_dice_action'], tuple[int, ...]] |
     tuple[Literal['roll_dice_action'], tuple[tuple[int, ...],...]] | 
 
@@ -99,29 +100,30 @@ ActionType: TypeAlias = (
     tuple[Literal['draw_damage_card_action'], int] |
 
     # Maneuver Step
-    tuple[Literal['determine_course_action'], tuple[tuple[int, ...], int]] | # course, placement 
-    tuple[Literal['place_squad_action'], tuple[int, int|None]] |
+    tuple[Literal['determine_course_action'], tuple[tuple[int, ...], int]] | # course, placement
+    tuple[Literal['place_squad_action'], int] | # touching slot 0..SQUAD_PLACEMENT_SLOTS-1
 
 
     # === Squad Phase ===
     tuple[Literal['activate_squad_move_action', 'activate_squad_attack_action'], int] |
-    tuple[Literal['move_squad_action'], tuple[int, float]] |
-    tuple[Literal['declare_squad_target_action'], int | tuple[int, HullSection]] |
+    tuple[Literal['move_squad_action'], tuple[int, int]] | # (di, dj) cells on the absolute move grid
+    tuple[Literal['squad_attack_squad_action'], int] |
+    tuple[Literal['squad_attack_ship_action'], tuple[int, HullSection]] |
 
     # None action
     tuple[Literal['initialize_game',
                   'pass_command_token',
+                  'pass_squad_command',
                   'pass_repair_command',
                   'pass_repair',
                   'pass_attack',
-                  'pass_attack_effect', 
+                  'pass_attack_effect',
                   'pass_additional_squad_target',
-                  'pass_defense_token', 
+                  'pass_defense_token',
                   'pass_critical',
                   'pass_activate_squad',
-                  'pass_move_squad',
                   'pass_attack_squad'
-                  ], None] 
+                  ], None]
 )
 
 
@@ -168,8 +170,20 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             defend_ship = game.ships[defend_ship_id]
             action_str = f'Choose Target Ship: {defend_ship}'
 
+        case 'choose_target_squad_action', defend_squad_id :
+            action_str = f'Choose Target Squad: {game.squads[defend_squad_id]}'
+
         case 'declare_target_action', (attack_hull, defend_hull):
             action_str = f'Declare Attack: from {game.active_ship} {HullSection(attack_hull)} to {game.defend_ship} {HullSection(defend_hull)}'
+
+        case 'declare_squad_target_action', attack_hull :
+            action_str = f'Declare Anti-Squad Attack: from {game.active_ship} {HullSection(attack_hull)} to {game.defend_squad}'
+
+        case 'resolve_squad_command_action', (dial, token) :
+            action_str = f'Resolve Squad Command:{" (Dial Spent)" if dial else ""}{" (Token Spent)" if token else ""}'
+
+        case 'swarm_reroll_action', dice :
+            action_str = f'Swarm: Reroll {dice_icon(dice)}'
 
 
         case 'declare_additional_squad_target_action', squad_id :
@@ -240,27 +254,18 @@ def get_action_str(game : Armada, action : ActionType) -> str | None:
             squad = game.squads[squad_id]
             action_str = f'Activate Squad: {squad} to {"Move" if action[0]=="activate_squad_move_action" else "Attack"}'
 
-        case 'move_squad_action', (squad_id, distance) :
-            action_str = f'Move Squad: {game.active_squad} Distance: {distance}'
+        case 'move_squad_action', (di, dj) :
+            action_str = f'Move Squad: {game.active_squad} by ({di}, {dj}) cells'
 
-        case 'place_squad_action', (squad_id, coords_index) :
-            squad = game.squads[squad_id]
-            if coords_index is None :
-                action_str = f'Place Squad: {squad} (Destroy)'
-            else :
-                index_to_placement = lambda x: (x * 2 + 1) // 11
-                place_hull : HullSection = HullSection(index_to_placement(coords_index))
-                action_str = f'Place Squad: {squad} at {game.active_ship} {place_hull}'
+        case 'place_squad_action', slot :
+            squad = game.squads[game.pending_placement[0]]
+            action_str = f'Place Squad: {squad} at {game.active_ship} slot {slot}'
 
-        case 'declare_squad_target_action', defender :
-            if isinstance(defender, tuple) :
-                defend_ship_id, defend_hull = defender
-                defend_ship = game.ships[defend_ship_id]
-                action_str = f'Declare Squad Attack: from {game.active_squad} to {defend_ship} {HullSection(defend_hull)}'
-            else :
-                defend_squad_id = defender
-                defend_squad = game.squads[defend_squad_id]
-                action_str = f'Declare Squad Attack: from {game.active_squad} to {defend_squad}'
+        case 'squad_attack_squad_action', defend_squad_id :
+            action_str = f'Declare Squad Attack: from {game.active_squad} to {game.squads[defend_squad_id]}'
+
+        case 'squad_attack_ship_action', (defend_ship_id, defend_hull) :
+            action_str = f'Declare Squad Attack: from {game.active_squad} to {game.ships[defend_ship_id]} {HullSection(defend_hull)}'
 
         
         case _:

@@ -13,8 +13,12 @@ breadth. This file focuses on the parts that aren't obvious from either: the
 cross-file contract you must maintain when touching the game's phase/action-space
 machinery, since that's where the sharp edges are.
 
-Squadrons are present in the code but disabled in the active config
-(`Config.MAX_SQUADS = 0`). Many of their handlers in `armada.pyx` are stubbed with
+Squadron **rules** are live (Stage 1 of the squadron plan in `TODO.md`): the Squadron
+Phase, the squadron command, ship/squadron attacks in every combination, swarm,
+escort, heavy, bomber, overlap placement and the 33x33 move grid. Counter is Stage 2,
+and `setup_game()` still deploys no squadrons (`max_squad_points=0`, Stage 3), so real
+self-play is squadron-free until then; the encoder and model do not see squadrons yet
+(Stages 5-6). A few unrelated handlers in `armada.pyx` remain stubbed with
 `raise NotImplementedError(f"simplified ...")` guarding otherwise-dead code — see the
 Cython gotcha below before touching anything near those. Obstacles are live: all six
 are placed at setup and they obstruct line of sight; of their overlap effects only
@@ -23,18 +27,21 @@ Damage cards are tracked per type but have no faceup effects yet. Command stacks
 (`Config.MAX_COMMAND_STACK = 3`) are live: ships assign a command dial per round in
 `COMMAND_PHASE` (FIFO queue sized to `command_value`, fixed assignment order —
 highest point cost first, tie-break by hull then id) and reveal the top of the stack
-at the start of their own activation. All three live commands resolve fully,
-from a dial and/or a held token, and all three now share **one shape**: an explicit
+at the start of their own activation. All four commands resolve fully,
+from a dial and/or a held token, and all four share **one shape**: an explicit
 `resolve_*_command_action` carrying `(use_dial, use_token)` that discards the chosen
 resources, appends to `Ship.resolved_command`, and stores the resulting *grant* —
-then separate actions spend that grant. Squad command remains stubbed, blocked on
-squadrons.
+then separate actions spend that grant.
 
 | Command | Resolve action (phase) | Grant stored on | Spend action (phase) |
 |---|---|---|---|
 | Nav | `resolve_nav_command_action` (`SHIP_DETERMINE_COURSE`) | `Ship.nav_dial_granted` / `nav_token_granted` | `determine_course_action` (same phase) |
+| Squad | `resolve_squad_command_action` (`SHIP_RESOLVE_SQUAD`) | `Armada.squad_activation_count` | `activate_squad_*_action` (`SQUAD_ACTIVATE`) |
 | Repair | `resolve_repair_command_action` (`SHIP_RESOLVE_REPAIR`) | `Ship.engineer_budget` | `repair_hull_action` / `recover_shield_action` / `move_shield_action` (`SHIP_REPAIR_EFFECT`) |
 | Con-fire | `resolve_confire_command_action` (`ATTACK_RESOLVE_EFFECTS`) | `AttackInfo.confire_dial` / `confire_token` | `use_confire_dial_action` / `use_confire_token_action` (same phase) |
+
+Squad and Repair both "resolve after revealing the ship's command dial"; the engine
+fixes squad first. They never interact, so the order cannot change an outcome.
 
 This pre-commit shape is what the RRG actually prescribes — "A ship must decide
 whether it is spending the dial, the token, or both **before** resolving that
@@ -166,11 +173,13 @@ valid actions available` crash mid-rollout — not a compile error.
      of legal `(action_name, payload)` tuples for the current state.
    - `apply_action()` (~line 413): mutates state for one chosen action and sets
      `self.phase` to whatever comes next.
-   - `update_decision_player()` (~line 112): most phases are decided by
+   - `update_decision_player()`: most phases are decided by
      `self.current_player` (the active player); attack-defense phases
      (`ATTACK_SPEND_DEFENSE_TOKENS`, `CHOOSE_DEFEND_DICE`, `ATTACK_RESOLVE_DAMAGE`)
-     are decided by the *defender* — if you add a new defender-side phase, it must be
-     added to that tuple or turns will silently go to the wrong player. Chance
+     are decided by the *defender*, and `SHIP_PLACE_SQUAD` by the player who is not
+     moving the ship (RRG Overlapping) — if you add a new phase decided by the
+     non-active player, it must be added to that tuple or turns will silently go to
+     the wrong player. Chance
      phases (`ATTACK_ROLL_DICE`, `DRAW_DAMAGE_CARD`) set `decision_player = 0`;
      every driver loop treats a falsy `decision_player` as "call
      `sample_chance_action()`", so that is the only place a new chance phase
@@ -250,43 +259,74 @@ an explicit `seen_target_ids` guard (the attacking hull is chosen later, in
 ## The state chain, and where it deliberately leaves the RRG
 
 The whole game is one graph over `Phase`, and the full set of reachable edges is
-small enough to hold in your head. Every edge below is observed in random rollouts —
-there are no others:
+small enough to hold in your head. These are the natural edges; every one was observed
+in random rollouts with squadrons deployed (153 distinct post-action transitions over
+120 games, all consistent with this graph):
 
 ```
 COMMAND_PHASE --assign_command_action--> COMMAND_PHASE (loop over every ship of both
     players, one dial at a time) --> SHIP_ACTIVATE
 
 SHIP_ACTIVATE --> SHIP_REVEAL_COMMAND_DIAL --> SHIP_GAIN_COMMAND_TOKEN
-    --{gain | gain_and_discard | pass}--> SHIP_RESOLVE_REPAIR
+    --{gain | gain_and_discard | pass}--> SHIP_RESOLVE_SQUAD
+    --resolve_squad_command--> SQUAD_ACTIVATE (squadron command, see below)
+    --pass_squad_command-----> SHIP_RESOLVE_REPAIR
     --{resolve_repair_command | pass_repair_command}--> SHIP_REPAIR_EFFECT
     --{repair_hull | recover_shield | move_shield}--> SHIP_REPAIR_EFFECT (self-loop)
     --pass_repair--> SHIP_CHOOSE_TARGET_SHIP
 
-SHIP_CHOOSE_TARGET_SHIP --choose_target_ship--> SHIP_DECLARE_TARGET --> ATTACK_GATHER_DICE
+SHIP_CHOOSE_TARGET_SHIP --choose_target_ship--> SHIP_DECLARE_TARGET --declare_target-------> ATTACK_GATHER_DICE
+                        --choose_target_squad-> SHIP_DECLARE_TARGET --declare_squad_target-> ATTACK_GATHER_DICE
                         --pass_attack--------> SHIP_DETERMINE_COURSE   (only when no target)
 
 ATTACK_GATHER_DICE --> ATTACK_ROLL_DICE [chance] --> attack_info.phase
 ATTACK_RESOLVE_EFFECTS --{spend_accuracy | resolve_confire_command}--> itself
-                       --{use_confire_dial | use_confire_token}-----> ATTACK_ROLL_DICE
-                       --pass_attack_effect------------------------> ATTACK_SPEND_DEFENSE_TOKENS
+                       --{use_confire_dial | use_confire_token | swarm_reroll}--> ATTACK_ROLL_DICE
+                       --pass_attack_effect--> ATTACK_SPEND_DEFENSE_TOKENS
 ATTACK_SPEND_DEFENSE_TOKENS --spend_defense_token--> itself (brace/redirect)
                             --spend_defense_token--> CHOOSE_DEFEND_DICE (evade)
                             --pass_defense_token--> ATTACK_RESOLVE_DAMAGE
 CHOOSE_DEFEND_DICE --{spend_evade_dice | discard_evade_dice}--> ATTACK_ROLL_DICE (close/medium
                        reroll) | ATTACK_SPEND_DEFENSE_TOKENS (long cancel)
-ATTACK_RESOLVE_DAMAGE --resolve_damage--> DRAW_DAMAGE_CARD [chance] | finish_attack()
-finish_attack() --> SHIP_CHOOSE_TARGET_SHIP (attack_count < 2) | SHIP_DETERMINE_COURSE
+ATTACK_RESOLVE_DAMAGE --resolve_damage--> DRAW_DAMAGE_CARD [chance] | after_attack_damage()
+after_attack_damage() --> ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET (a ship attacked a squadron)
+                        | finish_ship_attack() | finish_squad_attack()
+ATTACK_SHIP_ADDITIONAL_SQUADRON_TARGET --declare_additional_squad_target--> ATTACK_GATHER_DICE
+                                       --pass_additional_squad_target----> finish_ship_attack()
+finish_ship_attack()  --> SHIP_CHOOSE_TARGET_SHIP (attack_count < 2) | SHIP_DETERMINE_COURSE
+finish_squad_attack() --> SQUAD_MOVE (command, move step left, not restricted) | end_squad_activation()
 
 SHIP_DETERMINE_COURSE --resolve_nav_command--> itself (phase deliberately unchanged)
-                      --determine_course----> DRAW_DAMAGE_CARD [chance, per asteroid]
+                      --determine_course----> SHIP_PLACE_SQUAD (it overlapped squadrons)
+                                            | DRAW_DAMAGE_CARD [chance, per asteroid]
                                             | end_ship_activation()
-end_ship_activation() --> SHIP_ACTIVATE (opponent, else self) | status_phase()
-status_phase() --> COMMAND_PHASE (round+1) | game over
+SHIP_PLACE_SQUAD --place_squad--> SHIP_PLACE_SQUAD (next overlapped squadron)
+                                | DRAW_DAMAGE_CARD [asteroids] | end_ship_activation()
+end_ship_activation() --> SHIP_ACTIVATE (opponent, else self) | start_squadron_phase()
+
+SQUAD_ACTIVATE --activate_squad_move----> SQUAD_MOVE --move_squad--> SQUAD_DECLARE_TARGET (command)
+                                                                   | end_squad_activation()
+               --activate_squad_attack--> SQUAD_DECLARE_TARGET
+               --pass_activate_squad----> SHIP_RESOLVE_REPAIR   (squadron command only)
+SQUAD_DECLARE_TARGET --{squad_attack_squad | squad_attack_ship}--> ATTACK_GATHER_DICE
+                     --pass_attack_squad--> SQUAD_MOVE | end_squad_activation()
+end_squad_activation() --> SQUAD_ACTIVATE (command count left) | SHIP_RESOLVE_REPAIR (command over)
+                         | next_squadron_turn()
+start_squadron_phase(), next_squadron_turn() --> SQUAD_ACTIVATE | status_phase()
+status_phase() --> COMMAND_PHASE (round+1) | game over (after round 6)
+any action destroying a fleet's last ship --> game over at once (check_fleet_elimination)
 ```
 
 `DRAW_DAMAGE_CARD` resumes whichever tail suspended it via `damage_draw_source`, so
-it re-enters `finish_attack()` or `end_ship_activation()` — it is never a dead end.
+it re-enters `after_attack_damage()` or `end_ship_activation()` — it is never a dead
+end. `SHIP_PLACE_SQUAD` stashes pending asteroid draws in the same `damage_draw_*`
+fields and resumes them once the last squadron is placed.
+
+**Observed transitions usually skip edges.** A step whose only legal action is a
+pass-like no-op is never visited: `apply_action()` resolves it inline (see *Forced
+single-action steps* below), so `declare_target_action` typically lands straight on
+`ATTACK_ROLL_DICE`, and one `reveal_command_action` can run through four forced steps
+to `SHIP_DETERMINE_COURSE`.
 
 **Deliberate deviations from the RRG in this chain.** These are choices, not bugs;
 do not "fix" one without saying so:
@@ -316,10 +356,25 @@ do not "fix" one without saying so:
 - **Spending a dial for a command token you already hold is not offered.** The RRG
   allows it (you gain, then immediately discard the duplicate) purely as a way to
   waste a dial.
-- **Game end is deferred to the Status Phase.** The RRG ends the game *immediately*
-  when a fleet is wiped out; here the round finishes first, so the surviving player's
-  remaining ships still activate. Mutual elimination also skips the score comparison
-  the RRG prescribes and simply awards the second player.
+- **Squadron attacks stay optional** (a Squadron Phase activation is move *or*
+  attack, and forcing the attack would delete repositioning), but the mandatory
+  ship-attack rule above now covers squadron targets too: counter never triggers on a
+  ship, so declining an anti-squadron attack is still dominated.
+- **The one-die obstructed pruning applies to squadron attacks as well**, ship or
+  squadron target, for the same reason as for ships.
+- **Squadron moves that leave the play area are not offered.** The RRG allows them
+  and destroys the squadron; that is strictly dominated by staying put.
+- **Squadron move destinations are grid cells** (33x33 absolute grid, 18.47 mm
+  pitch). The reach bound itself is exact (TODO.md G1).
+- **Overlapped squadrons are placed in squadron-id order** (RRG: any order), into 28
+  discrete slots touching the ship. Ring 1 is filled greedily, so the RRG's global
+  "as many as possible touching" is not guaranteed when the ring is congested. A
+  squadron with no touching slot is placed automatically, touching a squadron that
+  touches the ship, nearest to where it was; with no legal spot at all it is
+  destroyed.
+- **Two dominance prunes for the squadron command**: resolving it is offered only
+  when a friendly squadron is eligible, and `COMMAND_PHASE` offers no squadron dial
+  to a player with no squadrons left.
 - **No pass tokens.** A player only passes when they have no unactivated ships.
 - **Accuracy die color is not a choice** — red is spent first when both colors show
   an accuracy icon. Spending removes the die either way, so damage is unaffected.
@@ -336,12 +391,87 @@ defender; `move_ship()`'s recursion implements the RRG's overlap speed-reduction
 and deals one facedown card to the mover and the closest ship overlapped; a ship
 whose base leaves the play area is destroyed; yaw `II` cannot be increased, which
 falls out of the `abs(modified_yaw) <= 2` cap in `get_all_possible_courses()`; and a
-tie after six rounds goes to the second player.
+tie after six rounds goes to the second player. The game ends **immediately** when a
+fleet's last ship is destroyed, and if both fleets' last ships go in the same action
+the higher score wins, tie to the second player (`check_fleet_elimination()`, run at
+the end of any action in which a ship was destroyed).
+
+Squadron rules that are easy to break: engagement is distance 1 **and** unobstructed
+line of sight, and heavy squadrons still engage (they only waive the move/attack
+restriction); a squadron may attack any enemy squadron at distance 1, engaged or not
+(FAQ); escort restricts only squadrons *engaged with* it; swarm needs the defender
+engaged with a squadron other than the attacker; criticals for squadrons come only
+from bomber against a ship; a ship attacks a squadron with its anti-squadron dice
+filtered by range colour, exactly as against a ship; touching is not overlapping
+(FAQ); and a squadron sitting on an obstacle traces line of sight from a point inside
+it, so it is always obstructed and can never be engaged.
 
 There is **no `CONTAIN` or `SALVO` token type** in `TokenType`, and no ship in
 `ship_dict.json` carries `SCATTER` — the live loadouts are brace/redirect/evade only.
 So the RRG's contain-blocks-the-standard-critical interaction is genuinely out of
 scope, not a missing check.
+
+## Forced single-action steps
+
+MCTS spends a full network evaluation on every decision node, including one with a
+single legal action, and `_expand` applies *every* legal action to build child
+snapshots. So `apply_action()` ends by asking `forced_pass_action()` whether the
+new step's only legal action is a pass-like no-op (`FORCEABLE_ACTIONS` in
+`armada.pyx`: the `pass_*` actions plus `('gather_dice_action', (0, 0, 0))` and
+`('resolve_damage_action', None)`), and if so applies it recursively. The chain stops
+at a chance node, a real choice, or the end of the game. Such states never reach the
+encoder or the replay buffer.
+
+The contract when you touch a phase:
+
+- `get_valid_actions()` and `forced_pass_action()` share the per-phase list builders
+  (`repair_effect_actions()`, `attack_effect_actions()`, ...), so they cannot drift.
+  Where a cheap test stands in for a builder (a held-token membership check, or "no
+  eligible squadron" for the squadron command), its equivalence is argued in a
+  comment.
+- **`forced_pass_action()` runs inside `_expand` once per child.** Keep each check
+  cheap. Never call `get_valid_actions()` from it for a phase that can have hundreds
+  of children — a `SQUAD_MOVE` node expands up to 861.
+- A new phase whose pass can be the only legal action must get a branch in
+  `forced_pass_action()`, or it silently costs MCTS a network evaluation.
+- `Armada.verify_forced = True` (testing only) cross-checks every decision against
+  `get_valid_actions()` in both directions. Run the rollout harness with it on after
+  touching any of this.
+
+Forced steps that are *not* pass-like stay visible on purpose: the always-single
+`SHIP_REVEAL_COMMAND_DIAL`, and a lone `CHOOSE_DEFEND_DICE`, `SHIP_DECLARE_TARGET` or
+`SHIP_PLACE_SQUAD` option.
+
+## Squadrons: geometry and the per-state cache
+
+Every squadron rule reduces to exact closed forms, proven and numerically checked in
+`TODO.md` (G1-G19). The core is `armada_game/core/squad_geometry.pxd`, a
+header-only set of `nogil` inline functions with no `.pyx`. It holds a ship base or
+token as a rotated rectangle centred on the ship's hashed pose, which matches
+`_ship_coordinate()` to ~5e-5 mm. Disk-vs-rectangle overlap is a clamped local
+distance, and segment tests use Liang-Barsky or orientation predicates. All
+squadron↔ship overlap goes through it, with one tolerance (`SQUAD_TOUCH_EPS`), because
+touching is not overlapping.
+
+`Armada` caches derived geometry per game state, never snapshotted:
+
+- per-ship rectangles (`ensure_ship_geometry()`);
+- per-squadron bitmask rows of "enemies at distance 1" and "enemies engaged"
+  (`ensure_squad_row()`, built lazily, one row at a time);
+- a pair line-of-sight dict shared by both rows of a pair.
+
+**Any code that moves or destroys a ship or squadron must call
+`game.invalidate_geometry()`**: `Squad.move_by_cells/place/destroy`, `Ship.destroy`,
+`Ship.execute_maneuver`, `deploy_*`, `place_obstacle` and `revert_snapshot` all do. A
+missed call means stale engagement, not a crash. The rollout harness checks
+engagement against a shapely reference on every state, so run it after any such
+change.
+
+Squadron *activation* state lives on `Armada`, not `Squad`: `active_squad`,
+`squad_can_move`, `squad_can_attack`, `squad_activation_count`, plus
+`pending_placement` for overlapped squadrons. A `Squad` snapshot is only
+`(hull, coords, activated)`; `destroyed` is derived from the hull. Keep it that lean:
+`_expand` snapshots every child.
 
 ## Guardrail: `big_deep.py` and `game_encoder.pyx`
 
@@ -390,7 +520,9 @@ type 6 has 4 copies, type 21 has 8, the rest 2, summing to 52).
 **Two sources deal a faceup card, and they are not the same operation:**
 
 - **Standard critical** (`resolve_damage_action`): any crit icon in the *final*
-  attack pool, when the attack deals at least one card. It adds **no** damage —
+  attack pool, when the attack deals at least one card and the attacker is a ship or
+  a squadron with bomber (squadrons cannot otherwise resolve critical effects, RRG
+  Critical Effects). It adds **no** damage —
   it only reclassifies one card the attack already dealt, so
   `flip_damage_card_faceup()` must not touch `hull`. (The old
   `if critical == Critical.STANDARD: self.hull -= 1` in `Ship.defend()` was a
@@ -411,10 +543,11 @@ repaired and destroyed-ship cards silently return to circulation.
 an empty list so `BigDeep` skips the phase automatically. `Armada` carries
 `damage_draw_ship_id` / `damage_draw_count` / `damage_draw_source` (all in the
 snapshot) because the draw suspends a step that must be resumed — hence the two
-extracted tails `finish_attack()` and `end_ship_activation()`, which the draw
+extracted tails `after_attack_damage()` and `end_ship_activation()`, which the draw
 handler dispatches to on `damage_draw_source`. The attack case deliberately keeps
-`attack_info` and `defend_ship` alive across the chance node so `finish_attack()`
-can still read them.
+`attack_info` and `defend_ship` alive across the chance node so
+`after_attack_damage()` can still read them (and route a bomber squadron's attack
+back to its activation).
 
 `Armada.sample_chance_action()` is the single sampler for *every* chance phase;
 `rollout()`, `alpharmada.py`, both `evaluation/` drivers, the matchup notebook, and
@@ -502,6 +635,19 @@ raises on a stale file, so purge `replay_buffers/` and the remote chunks.
   attribute breaks every reference to it, live or dead — Cython still type-checks
   code Python would never execute. Check `attack_info.pxd`/`ship.pxd`/etc. before
   assuming a "dead" branch is safe to leave alone.
+- **numba's `cache=True` freezes module globals at compile time** and invalidates
+  only when its *own* source file changes. A constant imported from another module
+  (`Q2S_RANGE`, `SQUAD_BASE_POLY` from `measurement.py`) can stay stale on disk.
+  After changing such a constant, delete `armada_game/helpers/__pycache__/*.nbi`
+  and `*.nbc`.
+- **Fixed-size C arrays need a compile-time size.** Use a `cdef enum` constant and
+  assert it against the `measurement.py` value at import — `armada.pyx` does this for
+  the 33x33 move grid (`MOVE_GRID_N`).
+- **Squadron masks are `long long` bitmasks**, so `deploy_squad()` refuses a 64th
+  squadron rather than silently overflowing.
+- **The scalar encoding writes `26 + len(Phase)` slots with `boundscheck(False)`.**
+  `SCALAR_FEATURE_SIZE = 64` leaves headroom (48 used at 22 phases). Adding phases
+  past it overruns the buffer silently.
 - The IDE's inline Cython diagnostics flag a lot of `cdef public object` /
   `cdef public bint` operator/assignment "errors" that are pre-existing noise (the
   linter doesn't model Cython's Python-object fallback for `object`-typed

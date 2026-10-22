@@ -21,9 +21,27 @@ TOOL_LENGTH : float= 46.13
 TOOL_PART_LENGTH : float = 22.27
 
 SQUAD_BASE_RADIUS : float = 17
+# The cardboard disk.  Rendering only: every rules measurement uses the base,
+# because range and distance are measured to the closest point of the
+# squadron's base and only the activation slider is ignored (RRG 693, 701, 705).
 SQUAD_TOKEN_RADIUS : float = 15.5
-Q2S_RANGE = DISTANCE[1] + SQUAD_TOKEN_RADIUS
-Q2Q_RANGE = DISTANCE[1] + SQUAD_TOKEN_RADIUS * 2
+# Distance 1 from a squadron, as a centre radius.  Closest-point measurement
+# against a disk collapses exactly onto its centre plus the radius (TODO G2/G3).
+Q2S_RANGE = DISTANCE[1] + SQUAD_BASE_RADIUS
+Q2Q_RANGE = DISTANCE[1] + SQUAD_BASE_RADIUS * 2
+# Touching is not overlapping (RRG FAQ: a ship exactly touching a squadron did
+# not overlap it), so overlap tests are strict, with this tolerance absorbing
+# float32 rounding in the cached ship geometry (measured at ~5e-5 mm).
+SQUAD_TOUCH_EPS : float = 1e-3
+
+# Squadron move grid (TODO D2): a 33x33 grid of absolute offsets centred on the
+# squadron, spanning the largest speed's reach.  Odd, so the centre cell is
+# "remain in its current position" (RRG Squadron Movement).
+SQUAD_MOVE_GRID : int = 33
+SQUAD_MOVE_CENTER : int = SQUAD_MOVE_GRID // 2
+SQUAD_MOVE_PITCH : float = 2 * DISTANCE[5] / SQUAD_MOVE_GRID
+# Touching slots around a ship for overlapped squadrons (RRG Overlapping).
+SQUAD_PLACEMENT_SLOTS : int = 28
 
 ERROR_EPSILON = 1e-9
 ROTATION_MATRICES = np.stack([
@@ -129,10 +147,28 @@ def create_template_polygons(ship_dict):
     base_size : tuple[float, float] = SHIP_BASE_SIZE[SizeClass[ship_dict['size_class']]]
     base_half_w = base_size[0] / 2
     base_token_offset = (base_size[1]-token_size[1])/2
+    base_rear = base_token_offset - base_size[1]
 
-    squad_on_side = base_half_w + SQUAD_BASE_RADIUS
-    squad_on_front = base_token_offset + SQUAD_BASE_RADIUS
-    squad_on_rear = base_token_offset - base_size[1] - SQUAD_BASE_RADIUS
+    # Overlapped-squadron placement slots, each centre exactly SQUAD_BASE_RADIUS
+    # from the base so the squadron touches it (RRG Overlapping).  Clockwise
+    # from the front-left: front edge x5, front-right corner, right edge x7,
+    # rear-right corner, rear edge x5, rear-left corner, left edge x7,
+    # front-left corner.  A fixed count per edge keeps each slot index on the
+    # same relative spot of every ship; corner slots sit on the rounded part of
+    # the touching locus, at 45 degrees from the base corner.
+    r = SQUAD_BASE_RADIUS
+    d = SQUAD_BASE_RADIUS / np.sqrt(2)
+    placement_slots = (
+        [[-base_half_w + k * base_half_w / 2, base_token_offset + r] for k in range(5)]
+        + [[base_half_w + d, base_token_offset + d]]
+        + [[base_half_w + r, base_token_offset - k * base_size[1] / 6] for k in range(7)]
+        + [[base_half_w + d, base_rear - d]]
+        + [[base_half_w - k * base_half_w / 2, base_rear - r] for k in range(5)]
+        + [[-base_half_w - d, base_rear - d]]
+        + [[-base_half_w - r, base_rear + k * base_size[1] / 6] for k in range(7)]
+        + [[-base_half_w - d, base_token_offset + d]]
+    )
+    assert len(placement_slots) == SQUAD_PLACEMENT_SLOTS
 
     template_vertices = np.array([
     [0, -front_arc[0]],                 # front_arc_center_pt 0
@@ -161,37 +197,8 @@ def create_template_polygons(ship_dict):
     [ (base_half_w + TOOL_WIDTH_HALF), base_token_offset],   # right tool insert 19
     [-(base_half_w + TOOL_WIDTH_HALF), base_token_offset],   # left tool insert 20
 
-    # overlapped squad placing position 21 ~ 42
-    [-base_half_w,     squad_on_front], 
-    [-base_half_w*0.5, squad_on_front],
-    [ 0,               squad_on_front],
-    [ base_half_w*0.5, squad_on_front],
-    [ base_half_w,     squad_on_front],
-
-    [ squad_on_side, base_token_offset],
-    [ squad_on_side, base_token_offset - base_size[1]*0.2],
-    [ squad_on_side, base_token_offset - base_size[1]*0.4],
-    [ squad_on_side, base_token_offset - base_size[1]*0.6],
-    [ squad_on_side, base_token_offset - base_size[1]*0.8],
-    [ squad_on_side, base_token_offset - base_size[1]],
-
-    [-base_half_w,     squad_on_rear], 
-    [-base_half_w*0.5, squad_on_rear],
-    [ 0,               squad_on_rear],
-    [ base_half_w*0.5, squad_on_rear],
-    [ base_half_w,     squad_on_rear],
-
-    [-squad_on_side, base_token_offset],
-    [-squad_on_side, base_token_offset - base_size[1]*0.2],
-    [-squad_on_side, base_token_offset - base_size[1]*0.4],
-    [-squad_on_side, base_token_offset - base_size[1]*0.6],
-    [-squad_on_side, base_token_offset - base_size[1]*0.8],
-    [-squad_on_side, base_token_offset - base_size[1]],
-
-    # 43 ~ 45 : FRONT CLOSE, MEDIUM, LONG RANGE THREAT ZONES
-    # 46 ~ 48 : RIGHT CLOSE, MEDIUM, LONG RANGE THREAT ZONES
-    # 49 ~ 51 : REAR CLOSE, MEDIUM, LONG RANGE THREAT ZONES
-    # 52 ~ 54 : LEFT CLOSE, MEDIUM, LONG RANGE THREAT ZONES
+    # 21 ~ 48 : overlapped squadron placement slots (see placement_slots)
+    *placement_slots,
 
     ], dtype=np.float32)
     template_vertices += np.array([0, token_size[1]/2], dtype=np.float32)
