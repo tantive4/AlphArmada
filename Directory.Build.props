@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Console tools run through dotnet, so failed test assertions cannot leave an
+         apphost executable waiting on a Windows crash dialog. -->
+    <UseAppHost>false</UseAppHost>
+    <UseSharedCompilation>false</UseSharedCompilation>
+  </PropertyGroup>
+</Project>

@@ -1,234 +1,73 @@
 # AlphArmada
 
-AlphArmada is an AlphaZero-style self-play project for a simplified
-Star Wars: Armada environment. It combines a Cython rules engine, a
-PyTorch neural network, batched Monte Carlo Tree Search, disk-backed replay
-storage, and Vessl-based multi-worker orchestration.
+Headless Star Wars: Armada rules engine and search infrastructure, based on the
+fan-made SWArmada 0.2.7 implementation with additional squadron, objective,
+movement and tournament rules. It runs without Unity or a game window.
 
-The goal of the project is to learn tactical ship activation, attack,
-defense-token, repair, and maneuver decisions directly from self-play rather
-than from scripted heuristics.
+## Repository layout
 
-## Results
+- `src/Swarmada.Headless`: rules, geometry, deterministic state recovery and MCTS.
+- `src/Swarmada.Headless.Cli`: persistent JSON worker and diagnostic CLI.
+- `python/swarmada_headless`: Python client for the worker.
+- `data`: five runtime catalogs required by the engine.
 
-The reported training run used 20 GTX1080 workers in a Vessl environment to
-generate 512k self-play game replays, about 40M encoded states, over roughly
-10 days. Training ran in parallel on a MacBook Pro and advanced the model to
-iteration 1000. The relative Elo estimate rose from 1000 at initialization to
-1312 at model version 1000.
+The previous Python/Cython AlphArmada project is preserved on the
+[`alpharmada_v1` branch](https://github.com/tantive4/AlphArmada/tree/alpharmada_v1).
+In the original working copy it is also archived locally in `alpharmada_v1/`.
+Local tests, benchmarks, reference files, test data and planning notes are kept
+in `.local/`; those folders and the original SWArmada distribution are not
+published on `main`.
 
-![AlphArmada Elo progression](result/Elo_score.png)
+## Build and use
 
-The final human matchup video is available at
-[result/game_visual.mp4](result/game_visual.mp4).
+Requires the .NET 9 SDK. The Python client uses the Python standard library.
+No Unity installation or external NuGet packages are required.
 
-## What Is Implemented
-
-AlphArmada models a ship-focused version of Armada:
-
-- Rebel and Empire fleets are generated from JSON ship data.
-- Fleets are randomly deployed on a 3ft x 3ft board coordinate system.
-- Ships have hull zones, shields, hull points, speed, navigation charts,
-  attack dice, command dials, and defense tokens.
-- The active game phases include ship activation, command reveal, repair,
-  target choice, target declaration, dice rolling, attack effects, defense
-  tokens, damage resolution, and maneuver execution.
-- Dice rolls are treated as chance nodes instead of player decisions.
-- Legal actions are generated from the current game state and masked against a
-  global phase-aware action space.
-- The game engine, encoder, MCTS, and hot loops are implemented in Cython for
-  speed.
-
-The current training setup intentionally simplifies parts of the full tabletop
-game. Squadrons are disabled (`MAX_SQUADS = 0`), and squadron command resolution
-remains present in the codebase but stubbed. Randomized setup places all six
-ordinary obstacles and they obstruct line of sight, but the effects of a ship
-overlapping an obstacle are still disabled.
-
-## Model Structure
-
-The main neural network is `BigDeep` in `learning/model/big_deep.py`.
-It receives a structured encoding of the current game state:
-
-![BigDeep model structure](result/model%20structure.png)
-
-- `scalar`: 48 global features including round, score, factions, player,
-  phase, attack range, obstruction, and dice-pool context.
-- `ship_entities`: up to 10 ships, each with 128 static and dynamic features.
-- `ship_coords`: normalized ship position and orientation.
-- `ship_def_tokens`: up to 4 defense tokens per ship, with readiness,
-  accuracy-lock, spendability, and token type.
-- `spatial`: bit-packed 64 x 64 ship presence, threat, and type-separated
-  station/debris/asteroid occupancy planes.
-- `relations`: 10 x 10 pairwise ship relation features, including hull-zone
-  ranges and relative geometry.
-
-The architecture is a transformer-centric "sandwich" model:
-
-1. A scalar token and per-ship tokens are embedded into a 256-dimensional token
-   space.
-2. Defense tokens are separately embedded and fused into ship embeddings.
-3. Fourier coordinate features and learned geometric relation bias inform
-   multi-head attention.
-4. A first 3-layer transformer block reasons over global and ship tokens.
-5. Ship tokens are scattered into spatial presence/threat maps, combined with
-   the obstacle-occupancy map, processed by a 6-block ResNet with global-pooling
-   bias, then gathered back into the token stream.
-6. A second 3-layer transformer block performs tactical reasoning with the
-   spatial context fused back in.
-
-The network has multiple heads:
-
-- Policy head: phase-specific action logits, with pointer-style heads for
-  choosing ships or defense tokens and static MLP heads for fixed action sets.
-- Value head: scalar win/loss value in `[-1, 1]`.
-- Auxiliary heads: raw point prediction, per-ship remaining hull prediction,
-  and game-length prediction.
-
-## MCTS and AlphaZero Loop
-
-The self-play policy is produced by Cython MCTS implementations in
-`learning/mcts/para_mcts.pyx` and `learning/mcts/shared_mcts.pyx`.
-
-At each decision state:
-
-1. The game state is encoded into the model input buffers.
-2. `BigDeep` predicts a value and policy prior.
-3. The prior is masked to legal actions from the current phase.
-4. MCTS expands children using the masked prior and backs up model values.
-5. Selection uses a PUCT-style score with visit counts, value estimates, and
-   policy priors.
-6. Dirichlet noise is mixed into root priors during self-play for exploration.
-7. Dice rolls are sampled as chance nodes.
-8. The final policy target is the normalized root visit-count distribution.
-
-The default search settings are:
-
-- 200 simulations for deep search states.
-- 50 simulations for fast search states.
-- 25% deep-search sampling ratio for replay saving.
-- Temperature decays by game round (`TEMPERATURE / round`).
-- Root Dirichlet noise uses `epsilon = 0.25`.
-
-Only deep-search decision states are stored as replay targets, so the trainer
-learns from higher-quality MCTS distributions while workers still advance games
-quickly.
-
-## Training Workflow
-
-The distributed workflow has three long-running roles.
-
-### Worker
-
-```bash
-python worker.py --worker_id 01
+```powershell
+dotnet build AlphArmada.sln -c Release
+dotnet src/Swarmada.Headless.Cli/bin/Release/net9.0/Swarmada.Headless.Cli.dll status --data data
 ```
 
-A worker downloads the latest model from the Vessl `BigDeep` model repository,
-runs 128 parallel self-play games per batch (`16` diverse setups x `8` copies),
-saves replay arrays to disk-backed `.npy` memmaps, trims them to the exact
-number of generated states, and uploads the result plus a timestamp commit flag.
-Worker MCTS and batch-size defaults can be overridden with
-`--deep_mcts_iteration`, `--standard_mcts_iteration`, and
-`--batched_game_size`.
+Use the persistent Python client after building:
 
-### Downloader
-
-```bash
-python downloader.py --num_worker 20
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'python')
+python -c "from swarmada_headless import HeadlessClient; c = HeadlessClient(); print(c.status); c.close()"
 ```
 
-The downloader polls worker timestamp flags, downloads new worker buffers into
-`staging/`, aggregates every 8 worker outputs, shuffles the merged samples, and
-writes chunk folders under `replay_buffers/`.
+The native library exposes `GameSession.GetDecision()`, `Apply()`,
+`SampleChance()`, `DeepClone()`, `CopyFrom()` and typed snapshots. Player choices
+and chance outcomes are explicit. Coordinates are millimetres; players are 1
+and 2. The Python worker exposes the same game operations over JSON.
 
-### Trainer
+MCTS uses caller-owned finite action domains, conditional static/pointer choices,
+root-copy-and-replay recovery, cached decision descriptors, compatible subtree
+reuse, and independent environment/CPU/inference scheduling. Unknown enemy dials
+use the accepted deferred-reveal UCT approximation. The included encoder and
+model are diagnostic mocks; production encoding, BigDeep and training integration
+remain unfinished.
 
-```bash
-python trainer.py
-```
+## Rules and coverage limits
 
-The trainer waits for at least 4 replay chunks, keeps a sliding window of up to
-40 chunks, loads the latest checkpoint, trains with AdamW, writes
-`model_iter_XXX.pth`, and uploads the newest checkpoint back to Vessl.
+Each standard match takes exactly one supplied objective. All 36 official
+objectives have executable handlers. The default `static-map-v1` training
+variant disables obstacle and existing map-token relocation, including Strategic,
+Ezra and Grav Shift Reroute. Setup remains caller-owned. Token pickup, scoring,
+ordinary unit movement and reserve deployment remain available. Explicitly enable
+`mapMovementEnabled` to use retained relocation rules.
 
-The training loss combines:
+The additional 20 unique squadron abilities, Cloak, offboard destruction,
+tournament scoring and Mercy Mission corrections are implemented. Fighter-group
+cards are excluded. The 13 obstacle silhouettes support reflected placement;
+small source-to-physical calibration differences remain.
 
-- Policy cross entropy against MCTS visit distributions.
-- Value MSE against terminal game outcome.
-- Raw point, ship hull, and game-length auxiliary losses.
+Damage-deck initialization and exhaustion deliberately retain the source behavior:
+the order derives from `matchId`, and an exhausted deck draws Structural Damage.
+The user's reduced-endpoint ram, retryable blocked Fleet Ambush, persistent
+initial exogorth host and no late-round Rieekan rulings remain applied.
 
-## Repository Layout
-
-```text
-armada_game/
-  core/         Cython game engine: Armada, Ship, Squad, tokens, attacks, actions
-  helpers/      setup, phases, dice, geometry, measurement, visualization
-  data/         ship data, squad data, generated action-space JSON
-  assets/       fonts and obstacle images
-
-learning/
-  model/        BigDeep neural network
-  mcts/         parallel and shared-tree Cython MCTS
-  encoding/     Cython game-state encoder
-  replay/       disk replay buffer and iterable dataset
-  params/       training, model, action-space, and hardware config
-
-orchestration/
-  alpharmada.py self-play worker and trainer classes
-  storage_*     Vessl model and replay transfer helpers
-  vessl/        worker launch YAML
-
-worker.py       self-play worker entrypoint
-downloader.py   replay downloader entrypoint
-trainer.py      trainer entrypoint
-
-evaluation/
-  evaluation.py model-vs-model evaluation
-  matchup_self.py model gameplay / visualization helper
-  notebooks/    Elo and matchup notebooks
-
-result/
-  Elo_score.png
-  model structure.png
-  game_visual.mp4
-```
-
-## Setup
-
-Install dependencies:
-
-```bash
-python -m pip install -r requirements.txt
-python -m pip install torch
-```
-
-Build the Cython extensions in place:
-
-```bash
-python tools/cython_setup.py build_ext --inplace
-```
-
-The active extension modules are built as top-level imports:
-
-```text
-armada, ship, squad, obstacle, defense_token, attack_info,
-action_manager, game_encoder, para_mcts, shared_mcts
-```
-
-## Evaluation
-
-Compare two uploaded model versions:
-
-```bash
-python -m evaluation.evaluation --versions 1000 800
-```
-
-Run the local model matchup/visualization helper:
-
-```bash
-python -m evaluation.matchup_self
-```
-
-Generated visual frames are written under `game_visuals/` when visualization is
-enabled.
+Full official interaction parity is not claimed. Some private card interactions
+raise explicit search coverage errors, and the full before/when/after timing and
+per-card policy registry remain incomplete. The status flags `fullGameReady` and
+`trainingReady` remain conservative. Tests and replay checks do not establish
+exhaustive correctness for every card combination.

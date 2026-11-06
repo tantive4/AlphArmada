@@ -1,0 +1,7513 @@
+[
+  {
+    "id": "aggressor-assault-fighter",
+    "displayName": "Aggressor Assault Fighter",
+    "factionId": "empire",
+    "craftType": "aggressor-assault-fighter",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8613
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1507
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 352
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8613",
+    "definitionFields": {
+      "squadronId": "aggressor-assault-fighter",
+      "displayName": "Aggressor Assault Fighter",
+      "faction": 1,
+      "points": 15,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "COUNTER 1",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 254
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "ahsoka-tano-delta-7-aethersprite-squadron",
+    "displayName": "Ahsoka Tano",
+    "factionId": "republic",
+    "craftType": "delta-7-aethersprite-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Ahsoka Tano"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8699
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2072
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 577
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8699",
+    "definitionFields": {
+      "squadronId": "ahsoka-tano-delta-7-aethersprite-squadron",
+      "displayName": "Ahsoka Tano",
+      "faction": 2,
+      "points": 23,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 1",
+        "COUNTER 2",
+        "GRIT"
+      ],
+      "abilityText": "After you move, you may choose another friendly squadron at distance 1. That squadron performs an attack against an enemy squadron at distance 1 with an anti-squadron armament of 2 blue dice.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 577
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "anakin-skywalker-btl-b-y-wing-squadron",
+    "displayName": "Anakin Skywalker",
+    "factionId": "republic",
+    "craftType": "btl-b-y-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Anakin Skywalker"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8697
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3494
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 550
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8697",
+    "definitionFields": {
+      "squadronId": "anakin-skywalker-btl-b-y-wing-squadron",
+      "displayName": "Anakin Skywalker",
+      "faction": 2,
+      "points": 18,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 2",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "During your activation, you may spend 1 defense token to ignore engagement until the end of your activation.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 550
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "anakin-skywalker-delta-7-aethersprite-squadron",
+    "displayName": "Anakin Skywalker",
+    "factionId": "republic",
+    "craftType": "delta-7-aethersprite-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Anakin Skywalker"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8700
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2072
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 322
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8700",
+    "definitionFields": {
+      "squadronId": "anakin-skywalker-delta-7-aethersprite-squadron",
+      "displayName": "Anakin Skywalker",
+      "faction": 2,
+      "points": 24,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 2",
+        "COUNTER 2",
+        "DODGE 1"
+      ],
+      "abilityText": "While attacking a squadron during your activation, at the end of the Resolve Damage step, you may choose up to 2 enemy squadrons at distance 1 of the defender. If the defender was damaged, the chosen squadrons suffer 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 322
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "arc-170-starfighter-squadron",
+    "displayName": "ARC-170 Starfighter Squadron",
+    "factionId": "republic",
+    "craftType": "arc-170-starfighter-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8611
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2314
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 548
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8611",
+    "definitionFields": {
+      "squadronId": "arc-170-starfighter-squadron",
+      "displayName": "ARC-170 Starfighter Squadron",
+      "faction": 2,
+      "points": 15,
+      "hull": 7,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER",
+        "COUNTER 1"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 548
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "a-wing-squadron",
+    "displayName": "A-wing Squadron",
+    "factionId": "rebel",
+    "craftType": "a-wing-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8612
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2972
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 618
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8612",
+    "definitionFields": {
+      "squadronId": "a-wing-squadron",
+      "displayName": "A-wing Squadron",
+      "faction": 0,
+      "points": 11,
+      "hull": 4,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "COUNTER 2"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 705
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "axe-v-19-torrent-squadron",
+    "displayName": "Axe",
+    "factionId": "republic",
+    "craftType": "v-19-torrent-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Axe"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8704
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2119
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 738
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 1,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8704",
+    "definitionFields": {
+      "squadronId": "axe-v-19-torrent-squadron",
+      "displayName": "Axe",
+      "faction": 2,
+      "points": 17,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ESCORT",
+        "SWARM"
+      ],
+      "abilityText": "Before another friendly squadron at distance 1 suffers damage during an attack, you may spend 1 defense token to reduce the total damage by 1.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 738
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "baktoid-prototypes-hyena-class-droid-bomber-squadron",
+    "displayName": "Baktoid Prototypes",
+    "factionId": "separatist",
+    "craftType": "hyena-class-droid-bomber-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Baktoid Prototypes"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8711
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1259
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 269
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8711",
+    "definitionFields": {
+      "squadronId": "baktoid-prototypes-hyena-class-droid-bomber-squadron",
+      "displayName": "Baktoid Prototypes",
+      "faction": 3,
+      "points": 16,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "AI BATTERY 1",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "While attacking a ship, if another friendly squadron with bomber is at distance 1 of the defender, you may change 1 die to a face with a Accuracy icon.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 269
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "belbullab-22-starfighter-squadron",
+    "displayName": "Belbullab-22 Starfighter Squadron",
+    "factionId": "separatist",
+    "craftType": "belbullab-22-starfighter-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8616
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3510
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 683
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8616",
+    "definitionFields": {
+      "squadronId": "belbullab-22-starfighter-squadron",
+      "displayName": "Belbullab-22 Starfighter Squadron",
+      "faction": 3,
+      "points": 15,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "RELAY 1",
+        "SCREEN"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 683
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "biggs-darklighter-x-wing-squadron",
+    "displayName": "Biggs Darklighter",
+    "factionId": "rebel",
+    "craftType": "x-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Biggs Darklighter"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8686
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 984
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 581
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8686",
+    "definitionFields": {
+      "squadronId": "biggs-darklighter-x-wing-squadron",
+      "displayName": "Biggs Darklighter",
+      "faction": 0,
+      "points": 19,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "ESCORT"
+      ],
+      "abilityText": "Before a friendly squadron with ESCORT at distance 1 suffers damage during an attack, you may reduce the total damage by 1. If you do, choose a frienly squadron with ESCORT at distance 1. That squadron suffers 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 581
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "black-squadron-tie-fighter-squadron",
+    "displayName": "Black Squadron",
+    "factionId": "empire",
+    "craftType": "tie-fighter-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Black Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8662
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2889
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 387
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8662",
+    "definitionFields": {
+      "squadronId": "black-squadron-tie-fighter-squadron",
+      "displayName": "Black Squadron",
+      "faction": 1,
+      "points": 9,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "COUNTER 1",
+        "ESCORT"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 387
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "boba-fett-slave-i",
+    "displayName": "Boba Fett",
+    "factionId": "empire",
+    "craftType": "firespray-31",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Slave I",
+      "Boba Fett"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8648
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2027
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 388
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8648",
+    "definitionFields": {
+      "squadronId": "boba-fett-slave-i",
+      "displayName": "Boba Fett",
+      "faction": 1,
+      "points": 24,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "ROGUE"
+      ],
+      "abilityText": "When you activate, choose 1 enemy ship or squadron at distance 1. That ship or squadron suffers 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 388
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "bossk-hounds-tooth",
+    "displayName": "Bossk",
+    "factionId": "empire",
+    "craftType": "yv-666",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Hound's Tooth",
+      "Bossk"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8670
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2900
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 753
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8670",
+    "definitionFields": {
+      "squadronId": "bossk-hounds-tooth",
+      "displayName": "Bossk",
+      "faction": 1,
+      "points": 23,
+      "hull": 7,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 4
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking, if you have 6 or fewer hull points remaining, you may add 1 blue die set to the :accuracy: icon to your attack pool.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 753
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "btl-b-y-wing-squadron",
+    "displayName": "BTL-B Y-wing Squadron",
+    "factionId": "republic",
+    "craftType": "btl-b-y-wing-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8614
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3494
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 697
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8614",
+    "definitionFields": {
+      "squadronId": "btl-b-y-wing-squadron",
+      "displayName": "BTL-B Y-wing Squadron",
+      "faction": 2,
+      "points": 10,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 697
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "b-wing-squadron",
+    "displayName": "B-Wing Squadron",
+    "factionId": "rebel",
+    "craftType": "b-wing-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8615
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2252
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 181
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8615",
+    "definitionFields": {
+      "squadronId": "b-wing-squadron",
+      "displayName": "B-Wing Squadron",
+      "faction": 0,
+      "points": 14,
+      "hull": 5,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 582
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "captain-jonus-tie-bomber-squadron",
+    "displayName": "Captain Jonus",
+    "factionId": "empire",
+    "craftType": "tie-bomber-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Captain Jonus"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8609
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1021
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 546
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8609",
+    "definitionFields": {
+      "squadronId": "captain-jonus",
+      "displayName": "Captain Jonus",
+      "faction": 1,
+      "points": 16,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT",
+        "HEAVY"
+      ],
+      "abilityText": "While a friendly ship is attacking a ship at distance 1 of you, it may change 1 die to a face with an :accuracy: icon.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 803
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "ciena-ree-tie-interceptor-squadron",
+    "displayName": "Ciena Ree",
+    "factionId": "empire",
+    "craftType": "tie-interceptor-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Ciena Ree"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8610
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1742
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 265
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8610",
+    "definitionFields": {
+      "squadronId": "ciena-ree",
+      "displayName": "Ciena Ree",
+      "faction": 1,
+      "points": 17,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 2",
+        "SWARM"
+      ],
+      "abilityText": "While you are defending, the attack is treated as obstructed.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 338
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "colonel-jendon-lambda-class-shuttle",
+    "displayName": "Colonel Jendon",
+    "factionId": "empire",
+    "craftType": "lambda-class-shuttle",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Colonel Jendon"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8652
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1158
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 296
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8652",
+    "definitionFields": {
+      "squadronId": "colonel-jendon-lambda-class-shuttle",
+      "displayName": "Colonel Jendon",
+      "faction": 1,
+      "points": 23,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "HEAVY",
+        "RELAY 2"
+      ],
+      "abilityText": "During your activation, instead of attacking, you may choose 1 friendly squadron at distance 1-2. That squadron may perform an attack (even if it has already activated).",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 296
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "corran-horn-e-wing-squadron",
+    "displayName": "Corran Horn",
+    "factionId": "rebel",
+    "craftType": "e-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Corran Horn"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8678
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2236
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 284
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8678",
+    "definitionFields": {
+      "squadronId": "corran-horn-e-wing-squadron",
+      "displayName": "Corran Horn",
+      "faction": 0,
+      "points": 22,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "ROGUE",
+        "SNIPE 4"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 284
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dagger-squadron-b-wing-squadron",
+    "displayName": "Dagger Squadron",
+    "factionId": "rebel",
+    "craftType": "b-wing-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Dagger Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8675
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2252
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 184
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8675",
+    "definitionFields": {
+      "squadronId": "dagger-squadron-b-wing-squadron",
+      "displayName": "Dagger Squadron",
+      "faction": 0,
+      "points": 15,
+      "hull": 5,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 184
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "darth-vader-tie-advanced-squadron",
+    "displayName": "Darth Vader",
+    "factionId": "empire",
+    "craftType": "tie-advanced-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Darth Vader"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8654
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3214
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 650
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8654",
+    "definitionFields": {
+      "squadronId": "darth-vader-tie-advanced-squadron",
+      "displayName": "Darth Vader",
+      "faction": 1,
+      "points": 21,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ESCORT"
+      ],
+      "abilityText": "While attacking, each of your :crit: icons adds 1 damage to the damage total.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 650
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "darth-vader-tie-defender-squadron",
+    "displayName": "Darth Vader",
+    "factionId": "empire",
+    "craftType": "tie-defender-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Darth Vader"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8660
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2156
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 314
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 1,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8660",
+    "definitionFields": {
+      "squadronId": "darth-vader-tie-defender-squadron",
+      "displayName": "Darth Vader",
+      "faction": 1,
+      "points": 25,
+      "hull": 6,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 1,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 2,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 2",
+        "BOMBER",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking a unique squadron, each of your :crit: icons adds 1 damage to the damage total.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 314
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dash-rendar-outrider",
+    "displayName": "Dash Rendar",
+    "factionId": "rebel",
+    "craftType": "yt-2400",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Dash Rendar",
+      "Outrider"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8693
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3568
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 449
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8693",
+    "definitionFields": {
+      "squadronId": "dash-rendar-outrider",
+      "displayName": "Dash Rendar",
+      "faction": 0,
+      "points": 24,
+      "hull": 6,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking, you may reroll 1 die for each enemy squadron or enemy ship at distance 1.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 449
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dbs-404-hyena-class-droid-bomber-squadron",
+    "displayName": "DBS-404",
+    "factionId": "separatist",
+    "craftType": "hyena-class-droid-bomber-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "DBS-404"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8712
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1259
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 389
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8712",
+    "definitionFields": {
+      "squadronId": "dbs-404-hyena-class-droid-bomber-squadron",
+      "displayName": "DBS-404",
+      "faction": 3,
+      "points": 17,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "AI BATTERY 1",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "While attacking, if you are touching the defender, you may suffer 1 damage to add 1 die to your attack pool of a color that is already in your attack pool.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 389
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "delta-7-aethersprite-squadron",
+    "displayName": "Delta-7 Aethersprite Squadron",
+    "factionId": "republic",
+    "craftType": "delta-7-aethersprite-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8617
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2072
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 405
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8617",
+    "definitionFields": {
+      "squadronId": "delta-7-aethersprite-squadron",
+      "displayName": "Delta-7 Aethersprite Squadron",
+      "faction": 2,
+      "points": 17,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ADEPT 1",
+        "COUNTER 2",
+        "DODGE 1"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 405
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dengar-punishing-one",
+    "displayName": "Dengar",
+    "factionId": "empire",
+    "craftType": "jumpmaster-5000",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Dengar",
+      "Punishing One"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8650
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2230
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 598
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8650",
+    "definitionFields": {
+      "squadronId": "dengar-punishing-one",
+      "displayName": "Dengar",
+      "faction": 1,
+      "points": 20,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "INTEL",
+        "SWARM"
+      ],
+      "abilityText": "While another friendly squadron is at distance 1-2, it has COUNTER 1 or increases its COUNTER value by 1.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 598
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dfs-311-vulture-class-droid-fighter-squadron",
+    "displayName": "DFS-311",
+    "factionId": "separatist",
+    "craftType": "vulture-class-droid-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "DFS-311"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8713
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1905
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 287
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8713",
+    "definitionFields": {
+      "squadronId": "dfs-311-vulture-class-droid-fighter-squadron",
+      "displayName": "DFS-311",
+      "faction": 3,
+      "points": 16,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "AI ANTISQUADRON 1",
+        "INTEL",
+        "SWARM"
+      ],
+      "abilityText": "While you are defending, if the attack is obstructed, you may force the attacker to reroll 1 die of your choice.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 287
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dis-t81-droid-tri-fighter-squadron",
+    "displayName": "DIS-T81",
+    "factionId": "separatist",
+    "craftType": "droid-tri-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "DIS-T81"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8708
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2112
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 123
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8708",
+    "definitionFields": {
+      "squadronId": "dis-t81-droid-tri-fighter-squadron",
+      "displayName": "DIS-T81",
+      "faction": 3,
+      "points": 17,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "AI ANTISQUADRON 1",
+        "COUNTER 2",
+        "SNIPE 3",
+        "SWARM"
+      ],
+      "abilityText": "Your attacks cannot be obstructed.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 123
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "droid-tri-fighter-squadron",
+    "displayName": "Droid Tri-Fighter Squadron",
+    "factionId": "separatist",
+    "craftType": "droid-tri-fighter-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8618
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2112
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 223
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8618",
+    "definitionFields": {
+      "squadronId": "droid-tri-fighter-squadron",
+      "displayName": "Droid Tri-Fighter Squadron",
+      "faction": 3,
+      "points": 11,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "AI ANTISQUADRON 1",
+        "COUNTER 2",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 223
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "dutch-vander-y-wing-squadron",
+    "displayName": "Dutch Vander",
+    "factionId": "rebel",
+    "craftType": "y-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Dutch Vander"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8641
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1844
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 686
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8641",
+    "definitionFields": {
+      "squadronId": "dutch-vander",
+      "displayName": "Dutch Vander",
+      "faction": 0,
+      "points": 16,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "When a squadron you attack suffers at least 1 damage, you may toggle its activation slider to the activated side. If it was already activated, it suffers 1 additional damage instead.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 306
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "e-wing-squadron",
+    "displayName": "E-wing Squadron",
+    "factionId": "rebel",
+    "craftType": "e-wing-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8619
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2236
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 565
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8619",
+    "definitionFields": {
+      "squadronId": "e-wing-squadron",
+      "displayName": "E-wing Squadron",
+      "faction": 0,
+      "points": 14,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER",
+        "SNIPE 3"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 764
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "fenn-rau-mandalorian-gauntlet-fighter",
+    "displayName": "Fenn Rau",
+    "factionId": "rebel",
+    "craftType": "mandalorian-gauntlet-fighter",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Fenn Rau"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8682
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2829
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 444
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8682",
+    "definitionFields": {
+      "squadronId": "fenn-rau-mandalorian-gauntlet-fighter",
+      "displayName": "Fenn Rau",
+      "faction": 0,
+      "points": 24,
+      "hull": 7,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ASSAULT",
+        "ESCORT"
+      ],
+      "abilityText": "When you are chosen to activate by a Squadron command, after the activation is resolved, choose up to 2 non-unique squadrons at Distance 1. The chosen squads may activate as if they were chosen by the Squadron command.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 444
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "firespray-31",
+    "displayName": "Firespray-31",
+    "factionId": "empire",
+    "craftType": "firespray-31",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8620
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2027
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 151
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8620",
+    "definitionFields": {
+      "squadronId": "firespray-31",
+      "displayName": "Firespray-31",
+      "faction": 1,
+      "points": 18,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 460
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "gamma-squadron-tie-bomber-squadron",
+    "displayName": "Gamma Squadron",
+    "factionId": "empire",
+    "craftType": "tie-bomber-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Gamma Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8657
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1021
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 680
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8657",
+    "definitionFields": {
+      "squadronId": "gamma-squadron-tie-bomber-squadron",
+      "displayName": "Gamma Squadron",
+      "faction": 1,
+      "points": 10,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "GRIT"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 680
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "gar-saxon-mandalorian-gauntlet-fighter",
+    "displayName": "Gar Saxon",
+    "factionId": "empire",
+    "craftType": "mandalorian-gauntlet-fighter",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Gar Saxon"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8653
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2756
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 438
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8653",
+    "definitionFields": {
+      "squadronId": "gar-saxon-mandalorian-gauntlet-fighter",
+      "displayName": "Gar Saxon",
+      "faction": 1,
+      "points": 20,
+      "hull": 7,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ASSAULT",
+        "ROGUE"
+      ],
+      "abilityText": "When an enemy squadron with INTEL or RELAY at distance 1 activates, it suffers 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 438
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "general-grievous-belbullab-22-starfighter-squadron",
+    "displayName": "General Grievous",
+    "factionId": "separatist",
+    "craftType": "belbullab-22-starfighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "General Grievous"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8706
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3510
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 566
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8706",
+    "definitionFields": {
+      "squadronId": "general-grievous-belbullab-22-starfighter-squadron",
+      "displayName": "General Grievous",
+      "faction": 3,
+      "points": 22,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "RELAY 2",
+        "SCREEN"
+      ],
+      "abilityText": "While attacking a ship or squadron with no readied defense tokens, each of your Crit adds 1 damage to the total.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 566
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "gold-squadron-y-wing-squadron",
+    "displayName": "Gold Squadron",
+    "factionId": "rebel",
+    "craftType": "y-wing-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Gold Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8642
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1844
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 425
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8642",
+    "definitionFields": {
+      "squadronId": "gold-squadron",
+      "displayName": "Gold Squadron",
+      "faction": 0,
+      "points": 12,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 270
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "green-squadron-a-wing-squadron",
+    "displayName": "Green Squadron",
+    "factionId": "rebel",
+    "craftType": "a-wing-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Green Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8672
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2972
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 669
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8672",
+    "definitionFields": {
+      "squadronId": "green-squadron-a-wing-squadron",
+      "displayName": "Green Squadron",
+      "faction": 0,
+      "points": 12,
+      "hull": 4,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "COUNTER 1"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 669
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "han-solo-millennium-falcon",
+    "displayName": "Han Solo",
+    "factionId": "rebel",
+    "craftType": "yt-1300",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Han Solo",
+      "Millennium Falcon"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8691
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1461
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 114
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8691",
+    "definitionFields": {
+      "squadronId": "han-solo-millennium-falcon",
+      "displayName": "Han Solo",
+      "faction": 0,
+      "points": 26,
+      "hull": 7,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "At the start of the Ship Phase, you may activate as if you were activated by a :squadron: command.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 114
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "haor-chall-prototypes-vulture-class-droid-fighter-squadron",
+    "displayName": "Haor Chall Prototypes",
+    "factionId": "separatist",
+    "craftType": "vulture-class-droid-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Haor Chall Prototypes"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8714
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1905
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 623
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8714",
+    "definitionFields": {
+      "squadronId": "haor-chall-prototypes-vulture-class-droid-fighter-squadron",
+      "displayName": "Haor Chall Prototypes",
+      "faction": 3,
+      "points": 16,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "AI ANTISQUADRON 1",
+        "SWARM"
+      ],
+      "abilityText": "Before an enemy ship or squadron at distance 1 moves, you may perform an attack against that ship or squadron even if you are engaged.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 623
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "hera-syndulla-ghost",
+    "displayName": "Hera Syndulla",
+    "factionId": "rebel",
+    "craftType": "vcx-100-freighter",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Hera Syndulla",
+      "Ghost"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8685
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3000
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 109
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8685",
+    "definitionFields": {
+      "squadronId": "hera-syndulla-ghost",
+      "displayName": "Hera Syndulla",
+      "faction": 0,
+      "points": 28,
+      "hull": 8,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "At the start of the Squadron Phase, choose up to 2 friendly squadrons at distance 1-2. Those squadrons gain ROGUE until the end of the round.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 109
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "hera-syndulla-x-wing-squadron",
+    "displayName": "Hera Syndulla",
+    "factionId": "rebel",
+    "craftType": "x-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Hera Syndulla"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8687
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 984
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 720
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8687",
+    "definitionFields": {
+      "squadronId": "hera-syndulla-x-wing-squadron",
+      "displayName": "Hera Syndulla",
+      "faction": 0,
+      "points": 23,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "DODGE 1"
+      ],
+      "abilityText": "While a friendly squadron that has ESCORT is at distnace 1-2, it has ADEPT 1",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 720
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "hondo-ohnaka-slave-i",
+    "displayName": "Hondo Ohnaka",
+    "factionId": "empire",
+    "craftType": "firespray-31",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Slave I",
+      "Hondo Ohnaka"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8649
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2027
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 549
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8649",
+    "definitionFields": {
+      "squadronId": "hondo-ohnaka-slave-i",
+      "displayName": "Hondo Ohnaka",
+      "faction": 1,
+      "points": 24,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "During your activation, instead of attacking, you may toggle the activation slider of 1 squadron at distance 1 to the activated side. If it was already activated, you may place it anywhere at distance 1 of you.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 549
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "howlrunner-tie-fighter-squadron",
+    "displayName": "Howlrunner",
+    "factionId": "empire",
+    "craftType": "tie-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Howlrunner"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8643
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2889
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 752
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8643",
+    "definitionFields": {
+      "squadronId": "howlrunner",
+      "displayName": "Howlrunner",
+      "faction": 1,
+      "points": 16,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "SWARM"
+      ],
+      "abilityText": "While another friendly squadron with SWARM at distance 1 is attacking a squadron, it may add 1 blue die to its attack pool.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 792
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "hwk-290",
+    "displayName": "HWK-290",
+    "factionId": "rebel",
+    "craftType": "hwk-290",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8622
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3360
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 194
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8622",
+    "definitionFields": {
+      "squadronId": "hwk-290",
+      "displayName": "HWK-290",
+      "faction": 0,
+      "points": 12,
+      "hull": 4,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "COUNTER 2",
+        "INTEL"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 339
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "hyena-class-droid-bomber-squadron",
+    "displayName": "Hyena-class Droid Bomber Squadron",
+    "factionId": "separatist",
+    "craftType": "hyena-class-droid-bomber-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8623
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1259
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 765
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8623",
+    "definitionFields": {
+      "squadronId": "hyena-class-droid-bomber-squadron",
+      "displayName": "Hyena-class Droid Bomber Squadron",
+      "faction": 3,
+      "points": 11,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "AI BATTERY 1",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 765
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "ig-88b-ig-2000b",
+    "displayName": "IG-88B",
+    "factionId": "empire",
+    "craftType": "aggressor-assault-fighter",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "IG-88B",
+      "IG-2000B"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8647
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1507
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 619
+    },
+    "braceTokens": 0,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8647",
+    "definitionFields": {
+      "squadronId": "ig-88b-ig-2000b",
+      "displayName": "IG-88B",
+      "faction": 1,
+      "points": 19,
+      "hull": 5,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 1",
+        "ROGUE"
+      ],
+      "abilityText": "At the start of the Squadron Phase, you may toggle your activation slider to the activated side. If you do, you may perform an anti-squadron attack against each enemy squadron at distance 1. Treat these attacks as obstructed.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 0,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 619
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "ig-88-ig-2000",
+    "displayName": "IG-88",
+    "factionId": "empire",
+    "craftType": "aggressor-assault-fighter",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "IG-88",
+      "IG-2000"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8646
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1507
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 239
+    },
+    "braceTokens": 0,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8646",
+    "definitionFields": {
+      "squadronId": "ig-88-ig-2000",
+      "displayName": "IG-88",
+      "faction": 1,
+      "points": 19,
+      "hull": 5,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 2",
+        "ROGUE"
+      ],
+      "abilityText": "You ignore the escort and counter keywords on enemy squadrons.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 0,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 239
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "jango-fett-slave-i",
+    "displayName": "Jango Fett",
+    "factionId": "separatist",
+    "craftType": "firespray-31",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Jango Fett",
+      "Slave I"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8710
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2027
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 448
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8710",
+    "definitionFields": {
+      "squadronId": "jango-fett-slave-i",
+      "displayName": "Jango Fett",
+      "faction": 3,
+      "points": 22,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 2,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking a unique squadron during your activation, you may deal 1 damage to another friendly squadron at distance 1 of the defender. If you do, you may change 1 die to any face.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 448
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "jan-ors-moldy-crow",
+    "displayName": "Jan Ors",
+    "factionId": "rebel",
+    "craftType": "hwk-290",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Jan Ors",
+      "Moldy Crow"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8679
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3360
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 446
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8679",
+    "definitionFields": {
+      "squadronId": "jan-ors-moldy-crow",
+      "displayName": "Jan Ors",
+      "faction": 0,
+      "points": 19,
+      "hull": 4,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 2",
+        "INTEL"
+      ],
+      "abilityText": "While a friendly squadron at distance 1-2 is defending, it can spend your defense tokens.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 446
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "jumpmaster-5000",
+    "displayName": "JumpMaster 5000",
+    "factionId": "empire",
+    "craftType": "jumpmaster-5000",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8624
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2230
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 208
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8624",
+    "definitionFields": {
+      "squadronId": "jumpmaster-5000",
+      "displayName": "JumpMaster 5000",
+      "faction": 1,
+      "points": 12,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "INTEL",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 357
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "kanan-jarrus-hwk-290",
+    "displayName": "Kanan Jarrus",
+    "factionId": "rebel",
+    "craftType": "hwk-290",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Kanan Jarrus"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8680
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3360
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 350
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8680",
+    "definitionFields": {
+      "squadronId": "kanan-jarrus-hwk-290",
+      "displayName": "Kanan Jarrus",
+      "faction": 0,
+      "points": 19,
+      "hull": 4,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ASSAULT",
+        "CLOAK",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking a ship, you may spend 1 die with a :crit: icon. If you do, the defender gains 1 raid token of your choice.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 350
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "ketsu-onyo-shadow-caster",
+    "displayName": "Ketsu Onyo",
+    "factionId": "rebel",
+    "craftType": "lancer-class-pursuit-craft",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Ketsu Onyo",
+      "Shadow Caster"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8681
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2547
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 743
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8681",
+    "definitionFields": {
+      "squadronId": "ketsu-onyo-shadow-caster",
+      "displayName": "Ketsu Onyo",
+      "faction": 0,
+      "points": 22,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "While an enemy squadron is at distance 1, its speed is reduced by 2 to a minimum of 1.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 743
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "keyan-farlander-b-wing-squadron",
+    "displayName": "Keyan Farlander",
+    "factionId": "rebel",
+    "craftType": "b-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Keyan Farlander"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8676
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2252
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 101
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8676",
+    "definitionFields": {
+      "squadronId": "keyan-farlander-b-wing-squadron",
+      "displayName": "Keyan Farlander",
+      "faction": 0,
+      "points": 18,
+      "hull": 5,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 2
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER"
+      ],
+      "abilityText": "While attacking a ship, if the defending hull zone has no shields, you may reroll any number of dice in your attack pool.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 101
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "kickback-v-19-torrent-squadron",
+    "displayName": "Kickback",
+    "factionId": "republic",
+    "craftType": "v-19-torrent-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Kickback"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8705
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2119
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 807
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8705",
+    "definitionFields": {
+      "squadronId": "kickback-v-19-torrent-squadron",
+      "displayName": "Kickback",
+      "faction": 2,
+      "points": 16,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ESCORT",
+        "SWARM"
+      ],
+      "abilityText": "After you perform an attack, you may move up to distance 1, even if you are engaged.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 807
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "kit-fisto-delta-7-aethersprite-squadron",
+    "displayName": "Kit Fisto",
+    "factionId": "republic",
+    "craftType": "delta-7-aethersprite-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Kit Fisto"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8701
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2072
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 153
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8701",
+    "definitionFields": {
+      "squadronId": "kit-fisto-delta-7-aethersprite-squadron",
+      "displayName": "Kit Fisto",
+      "faction": 2,
+      "points": 24,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 2",
+        "COUNTER 2",
+        "INTEL"
+      ],
+      "abilityText": "When you spend a defense token, you may discard it. If you do, reduce the total damage by 3 instead of resolving that token's effect.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 153
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "lambda-class-shuttle",
+    "displayName": "Lambda-class Shuttle",
+    "factionId": "empire",
+    "craftType": "lambda-class-shuttle",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8625
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1158
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 736
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8625",
+    "definitionFields": {
+      "squadronId": "lambda-class-shuttle",
+      "displayName": "Lambda-class Shuttle",
+      "faction": 1,
+      "points": 15,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "HEAVY",
+        "RELAY 2",
+        "STRATEGIC"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 150
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "lancer-class-pursuit-craft",
+    "displayName": "Lancer-class Pursuit Craft",
+    "factionId": "rebel",
+    "craftType": "lancer-class-pursuit-craft",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8626
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2547
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 341
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8626",
+    "definitionFields": {
+      "squadronId": "lancer-class-pursuit-craft",
+      "displayName": "Lancer-class Pursuit Craft",
+      "faction": 0,
+      "points": 14,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 759
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "lando-calrissian-millennium-falcon",
+    "displayName": "Lando Calrissian",
+    "factionId": "rebel",
+    "craftType": "yt-1300",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Lando Calrissian",
+      "Millennium Falcon"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8692
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1461
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 788
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8692",
+    "definitionFields": {
+      "squadronId": "lando-calrissian-millennium-falcon",
+      "displayName": "Lando Calrissian",
+      "faction": 0,
+      "points": 24,
+      "hull": 7,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking, you may discard a defense token to set 1 die to any face. That die cannot be modified again.\nWhile defending you may spend 1 of your defense tokens to force the attacker to reroll 1 or more dice of your choice.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 788
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "lieutenant-blount-z-95-headhunter-squadron",
+    "displayName": "Lieutenant Blount",
+    "factionId": "rebel",
+    "craftType": "z-95-headhunter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Lieutenant Blount"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8695
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2264
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 392
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8695",
+    "definitionFields": {
+      "squadronId": "lieutenant-blount-z-95-headhunter-squadron",
+      "displayName": "Lieutenant Blount",
+      "faction": 0,
+      "points": 14,
+      "hull": 3,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 3,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "SWARM"
+      ],
+      "abilityText": "While another friendly squadron with swarm at distance 1 is attacking a squadron, it may reroll 1 die (in addition to any dice rerolled from swarm).",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 392
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "luke-skywalker-x-wing-squadron",
+    "displayName": "Luke Skywalker",
+    "factionId": "rebel",
+    "craftType": "x-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Luke Skywalker"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8644
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 984
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 382
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8644",
+    "definitionFields": {
+      "squadronId": "luke-skywalker",
+      "displayName": "Luke Skywalker",
+      "faction": 0,
+      "points": 20,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "ESCORT"
+      ],
+      "abilityText": "When attacking a ship, treat the defender as having no shields.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 355
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "luminara-unduli-delta-7-aethersprite-squadron",
+    "displayName": "Luminara Unduli",
+    "factionId": "republic",
+    "craftType": "delta-7-aethersprite-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Luminara Unduli"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8702
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2072
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 679
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8702",
+    "definitionFields": {
+      "squadronId": "luminara-unduli-delta-7-aethersprite-squadron",
+      "displayName": "Luminara Unduli",
+      "faction": 2,
+      "points": 23,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 1",
+        "COUNTER 2"
+      ],
+      "abilityText": "While an enemy squadron at distance 1 is attacking an non-unique, friendly squadron, the attack is treated as obstructed.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 679
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "maarek-stele-tie-defender-squadron",
+    "displayName": "Maarek Stele",
+    "factionId": "empire",
+    "craftType": "tie-defender-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Maarek Stele"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8661
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2156
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 761
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8661",
+    "definitionFields": {
+      "squadronId": "maarek-stele-tie-defender-squadron",
+      "displayName": "Maarek Stele",
+      "faction": 1,
+      "points": 21,
+      "hull": 6,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT"
+      ],
+      "abilityText": "While attacking, you may change 1 die to a face with a :crit: icon.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 761
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "major-rhymer-tie-bomber-squadron",
+    "displayName": "Major Rhymer",
+    "factionId": "empire",
+    "craftType": "tie-bomber-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Major Rhymer"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8658
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1021
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 630
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8658",
+    "definitionFields": {
+      "squadronId": "major-rhymer-tie-bomber-squadron",
+      "displayName": "Major Rhymer",
+      "faction": 1,
+      "points": 16,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "Friendly squadrons at distance 1 can attack enemy ships at close range using all dice in their battery armament.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 630
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "malee-hurra-scurrg-h-6-bomber",
+    "displayName": "Malee Hurra",
+    "factionId": "rebel",
+    "craftType": "scurrg-h-6-bomber",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Malee Hurra"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8683
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2364
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 96
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8683",
+    "definitionFields": {
+      "squadronId": "malee-hurra-scurrg-h-6-bomber",
+      "displayName": "Malee Hurra",
+      "faction": 0,
+      "points": 21,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT"
+      ],
+      "abilityText": "Once per activation, while a friendly ship is attacking a ship at distance 1 of you and you are engaged by 1 or fewer squadrons, the attacker may spend 1 die to change 1 die to a face with a :crit: icon.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 96
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "mandalorian-gauntlet-fighter",
+    "displayName": "Mandalorian Gauntlet Fighter",
+    "factionId": "empire",
+    "craftType": "mandalorian-gauntlet-fighter",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8621
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2756
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 365
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8621",
+    "definitionFields": {
+      "squadronId": "mandalorian-gauntlet-fighter",
+      "displayName": "Mandalorian Gauntlet Fighter",
+      "faction": 1,
+      "points": 18,
+      "hull": 7,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ASSAULT",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 676
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "mart-mattin-satos-hammer",
+    "displayName": "Mart Mattin",
+    "factionId": "rebel",
+    "craftType": "yt-2400",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Mart Mattin",
+      "Sato's Hammer"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8694
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3568
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 443
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8694",
+    "definitionFields": {
+      "squadronId": "mart-mattin-satos-hammer",
+      "displayName": "Mart Mattin",
+      "faction": 0,
+      "points": 22,
+      "hull": 6,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "At the start of the Squadron Phase, you may toggle your activation slider to the activated side. If you do, you may place 1 proximity mine token at distance 1.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 443
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "matchstick-btl-b-y-wing-squadron",
+    "displayName": "Matchstick",
+    "factionId": "republic",
+    "craftType": "btl-b-y-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Matchstick"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8698
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3494
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 172
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8698",
+    "definitionFields": {
+      "squadronId": "matchstick-btl-b-y-wing-squadron",
+      "displayName": "Matchstick",
+      "faction": 2,
+      "points": 16,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "When a friendly ship resolves a squadron command, if you are in range to be activated, up to 3 of the squadrons with BOMBER it activates can be at distance 1-3 of you.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 172
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "mauler-mithel-tie-fighter-squadron",
+    "displayName": "Mauler Mithel",
+    "factionId": "empire",
+    "craftType": "tie-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Mauler Mithel"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8645
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2889
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 380
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8645",
+    "definitionFields": {
+      "squadronId": "mauler-mithel",
+      "displayName": "Mauler Mithel",
+      "faction": 1,
+      "points": 15,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "SWARM"
+      ],
+      "abilityText": "After you move, each squadron engaged with you suffers 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 218
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "moralo-eval-yv-666",
+    "displayName": "Moralo Eval",
+    "factionId": "empire",
+    "craftType": "yv-666",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Moralo Eval"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8671
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2900
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 802
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8671",
+    "definitionFields": {
+      "squadronId": "moralo-eval-yv-666",
+      "displayName": "Moralo Eval",
+      "faction": 1,
+      "points": 22,
+      "hull": 7,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "When an objective token at distance 1-2 and not on an obstacle is moved or removed from the play area, you may move up to distance 1 and attack as if you were activated.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 802
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "morna-kee-vt-49-decimator",
+    "displayName": "Morna Kee",
+    "factionId": "empire",
+    "craftType": "vt-49-decimator",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Morna Kee"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8669
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1822
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 351
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8669",
+    "definitionFields": {
+      "squadronId": "morna-kee-vt-49-decimator",
+      "displayName": "Morna Kee",
+      "faction": 1,
+      "points": 27,
+      "hull": 8,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 3
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 1",
+        "ROGUE"
+      ],
+      "abilityText": "While attacking, you may spend 1 defense token to reroll any number of dice in your attack pool. When you activate, you may recover 1 of your discarded defense tokens.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 351
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "norra-wexley-y-wing-squadron",
+    "displayName": "Norra Wexley",
+    "factionId": "rebel",
+    "craftType": "y-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Norra Wexley"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8689
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1844
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 791
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8689",
+    "definitionFields": {
+      "squadronId": "norra-wexley-y-wing-squadron",
+      "displayName": "Norra Wexley",
+      "faction": 0,
+      "points": 17,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER"
+      ],
+      "abilityText": "Friendly squadrons with Bomber at distance 1 gain: \":crit:: The defending hull zone loses 1 shield.\"",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 791
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "nym-havoc",
+    "displayName": "Nym",
+    "factionId": "rebel",
+    "craftType": "scurrg-h-6-bomber",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Nym",
+      "Havoc"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8684
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2364
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 295
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8684",
+    "definitionFields": {
+      "squadronId": "nym-havoc",
+      "displayName": "Nym",
+      "faction": 0,
+      "points": 21,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "GRIT"
+      ],
+      "abilityText": "Blue :crit: : If the defender is a ship, you may choose and discard 1 of its defense tokens.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 295
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "odd-ball-arc-170-starfighter-squadron",
+    "displayName": "Odd Ball",
+    "factionId": "republic",
+    "craftType": "arc-170-starfighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Odd Ball"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8696
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2314
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 531
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 1,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8696",
+    "definitionFields": {
+      "squadronId": "odd-ball-arc-170-starfighter-squadron",
+      "displayName": "Odd Ball",
+      "faction": 2,
+      "points": 20,
+      "hull": 7,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "COUNTER 1"
+      ],
+      "abilityText": "While attacking, if you moved during this activation, you may reroll up to 2 dice.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 531
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "phlac-arphocc-prototypes-droid-tri-fighter-squadron",
+    "displayName": "Phlac-Arphocc Prototypes",
+    "factionId": "separatist",
+    "craftType": "droid-tri-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Phlac-Arphocc Prototypes"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8709
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2112
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 161
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8709",
+    "definitionFields": {
+      "squadronId": "phlac-arphocc-prototypes-droid-tri-fighter-squadron",
+      "displayName": "Phlac-Arphocc Prototypes",
+      "faction": 3,
+      "points": 18,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "AI ANTISQUADRON 1",
+        "COUNTER 2",
+        "SWARM"
+      ],
+      "abilityText": "After an enemy squadron ends its activation at distance 1, that squadron suffers 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 161
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "plo-koon-delta-7-aethersprite-squadron",
+    "displayName": "Plo Koon",
+    "factionId": "republic",
+    "craftType": "delta-7-aethersprite-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Plo Koon"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8703
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2072
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 236
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8703",
+    "definitionFields": {
+      "squadronId": "plo-koon-delta-7-aethersprite-squadron",
+      "displayName": "Plo Koon",
+      "faction": 2,
+      "points": 24,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "ADEPT 2",
+        "COUNTER 2"
+      ],
+      "abilityText": "Non-unique, friendly squadrons without counter at distance 1 gain counter 1.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 236
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "rogue-squadron-x-wing-squadron",
+    "displayName": "Rogue Squadron",
+    "factionId": "rebel",
+    "craftType": "x-wing-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Rogue Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8688
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 984
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 347
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8688",
+    "definitionFields": {
+      "squadronId": "rogue-squadron-x-wing-squadron",
+      "displayName": "Rogue Squadron",
+      "faction": 0,
+      "points": 14,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 347
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "saber-squadron-tie-interceptor-squadron",
+    "displayName": "Saber Squadron",
+    "factionId": "empire",
+    "craftType": "tie-interceptor-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Saber Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8664
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1742
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 216
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8664",
+    "definitionFields": {
+      "squadronId": "saber-squadron-tie-interceptor-squadron",
+      "displayName": "Saber Squadron",
+      "faction": 1,
+      "points": 12,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "SNIPE 4",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 216
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "scurrg-h-6-bomber",
+    "displayName": "Scurrg H-6 Bomber",
+    "factionId": "rebel",
+    "craftType": "scurrg-h-6-bomber",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8627
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2364
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 411
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8627",
+    "definitionFields": {
+      "squadronId": "scurrg-h-6-bomber",
+      "displayName": "Scurrg H-6 Bomber",
+      "faction": 0,
+      "points": 16,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "GRIT",
+        "HEAVY"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 617
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "shara-bey-a-wing-squadron",
+    "displayName": "Shara Bey",
+    "factionId": "rebel",
+    "craftType": "a-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Shara Bey"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8673
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2972
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 636
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8673",
+    "definitionFields": {
+      "squadronId": "shara-bey-a-wing-squadron",
+      "displayName": "Shara Bey",
+      "faction": 0,
+      "points": 17,
+      "hull": 4,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 3"
+      ],
+      "abilityText": "While performing a counter attack, each :crit: icon adds 1 damage to the damage total.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 636
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "soontir-fel-tie-interceptor-squadron",
+    "displayName": "Soontir Fel",
+    "factionId": "empire",
+    "craftType": "tie-interceptor-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Soontir Fel"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8665
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1742
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 234
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8665",
+    "definitionFields": {
+      "squadronId": "soontir-fel-tie-interceptor-squadron",
+      "displayName": "Soontir Fel",
+      "faction": 1,
+      "points": 18,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 2",
+        "SWARM"
+      ],
+      "abilityText": "After a squadron you are engaged with performs a non-COUNTER attack, it suffers 1 damage if it did not attack you.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 234
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tel-trevura-jumpmaster-5000",
+    "displayName": "Tel Trevura",
+    "factionId": "empire",
+    "craftType": "jumpmaster-5000",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Tel Trevura"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8651
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2230
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 601
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8651",
+    "definitionFields": {
+      "squadronId": "tel-trevura-jumpmaster-5000",
+      "displayName": "Tel Trevura",
+      "faction": 1,
+      "points": 17,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "GRIT",
+        "ROGUE"
+      ],
+      "abilityText": "While you have a readied defense token, you gain ESCORT.\nAfter defending against an attack, if you discarded a defense token, you may recover up to 3 hull (even if you would be destroyed).",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 601
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tempest-squadron-tie-advanced-squadron",
+    "displayName": "Tempest Squadron",
+    "factionId": "empire",
+    "craftType": "tie-advanced-squadron",
+    "unique": true,
+    "singleCraft": false,
+    "uniqueClasses": [
+      "Tempest Squadron"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8655
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3214
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 688
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8655",
+    "definitionFields": {
+      "squadronId": "tempest-squadron-tie-advanced-squadron",
+      "displayName": "Tempest Squadron",
+      "faction": 1,
+      "points": 13,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "ESCORT"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 688
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "ten-numb-b-wing-squadron",
+    "displayName": "Ten Numb",
+    "factionId": "rebel",
+    "craftType": "b-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Ten Numb"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8677
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2252
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 468
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8677",
+    "definitionFields": {
+      "squadronId": "ten-numb-b-wing-squadron",
+      "displayName": "Ten Numb",
+      "faction": 0,
+      "points": 19,
+      "hull": 5,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER"
+      ],
+      "abilityText": "While attacking a squadron, you may spend 1 blue die with a :crit: icon. If you do, each other enemy squadron at distance 1 of the defender suffers 1 damage.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 468
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tie-advanced-squadron",
+    "displayName": "TIE Advanced Squadron",
+    "factionId": "empire",
+    "craftType": "tie-advanced-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8628
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3214
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 699
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8628",
+    "definitionFields": {
+      "squadronId": "tie-advanced-squadron",
+      "displayName": "TIE Advanced Squadron",
+      "faction": 1,
+      "points": 12,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ESCORT"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 524
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tie-bomber-squadron",
+    "displayName": "TIE Bomber Squadron",
+    "factionId": "empire",
+    "craftType": "tie-bomber-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8659
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1021
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 770
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8659",
+    "definitionFields": {
+      "squadronId": "tie-bomber-squadron",
+      "displayName": "TIE Bomber Squadron",
+      "faction": 1,
+      "points": 9,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 770
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tie-defender-squadron",
+    "displayName": "TIE Defender Squadron",
+    "factionId": "empire",
+    "craftType": "tie-defender-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8629
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2156
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 474
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8629",
+    "definitionFields": {
+      "squadronId": "tie-defender-squadron",
+      "displayName": "TIE Defender Squadron",
+      "faction": 1,
+      "points": 16,
+      "hull": 6,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 343
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tie-fighter-squadron",
+    "displayName": "TIE Fighter Squadron",
+    "factionId": "empire",
+    "craftType": "tie-fighter-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8631
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2889
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 769
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8631",
+    "definitionFields": {
+      "squadronId": "tie-fighter-squadron",
+      "displayName": "TIE Fighter Squadron",
+      "faction": 1,
+      "points": 8,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 714
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tie-interceptor-squadron",
+    "displayName": "TIE Interceptor Squadron",
+    "factionId": "empire",
+    "craftType": "tie-interceptor-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8666
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1742
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 497
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8666",
+    "definitionFields": {
+      "squadronId": "tie-interceptor-squadron",
+      "displayName": "TIE Interceptor Squadron",
+      "faction": 1,
+      "points": 11,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "COUNTER 2",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 497
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tie-phantom-squadron",
+    "displayName": "TIE Phantom Squadron",
+    "factionId": "empire",
+    "craftType": "tie-phantom-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8630
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1538
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 298
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8630",
+    "definitionFields": {
+      "squadronId": "tie-phantom-squadron",
+      "displayName": "TIE Phantom Squadron",
+      "faction": 1,
+      "points": 14,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 2,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "CLOAK"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 404
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "tycho-celchu-a-wing-squadron",
+    "displayName": "Tycho Celchu",
+    "factionId": "rebel",
+    "craftType": "a-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Tycho Celchu"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8674
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2972
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 121
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8674",
+    "definitionFields": {
+      "squadronId": "tycho-celchu-a-wing-squadron",
+      "displayName": "Tycho Celchu",
+      "faction": 0,
+      "points": 16,
+      "hull": 4,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 2"
+      ],
+      "abilityText": "You are not prevented from moving or attacking ships while you are engaged.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 121
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "v-19-torrent-squadron",
+    "displayName": "V-19 Torrent Squadron",
+    "factionId": "republic",
+    "craftType": "v-19-torrent-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8632
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2119
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 394
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8632",
+    "definitionFields": {
+      "squadronId": "v-19-torrent-squadron",
+      "displayName": "V-19 Torrent Squadron",
+      "faction": 2,
+      "points": 12,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 1,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ESCORT",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 394
+      },
+      "tacticalColor": {
+        "r": 0.18000000715255737,
+        "g": 0.550000011920929,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "valen-rudor-tie-fighter-squadron",
+    "displayName": "Valen Rudor",
+    "factionId": "empire",
+    "craftType": "tie-fighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Valen Rudor"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8663
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2889
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 578
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8663",
+    "definitionFields": {
+      "squadronId": "valen-rudor-tie-fighter-squadron",
+      "displayName": "Valen Rudor",
+      "faction": 1,
+      "points": 13,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 3
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "SWARM"
+      ],
+      "abilityText": "While an enemy squadron is engaged with another squadron, it cannot attack you.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 578
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "vcx-100-freighter",
+    "displayName": "VCX-100 Freighter",
+    "factionId": "rebel",
+    "craftType": "vcx-100-freighter",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8633
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3000
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 534
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8633",
+    "definitionFields": {
+      "squadronId": "vcx-100-freighter",
+      "displayName": "VCX-100 Freighter",
+      "faction": 0,
+      "points": 15,
+      "hull": 8,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "HEAVY",
+        "RELAY 1",
+        "STRATEGIC"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 147
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "vt-49-decimator",
+    "displayName": "VT-49 Decimator",
+    "factionId": "empire",
+    "craftType": "vt-49-decimator",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8634
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1822
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 701
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8634",
+    "definitionFields": {
+      "squadronId": "vt-49-decimator",
+      "displayName": "VT-49 Decimator",
+      "faction": 1,
+      "points": 22,
+      "hull": 8,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 3
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "keywords": [
+        "COUNTER 1",
+        "HEAVY",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 376
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "vult-skerris-tie-interceptor-squadron",
+    "displayName": "Vult Skerris",
+    "factionId": "empire",
+    "craftType": "tie-interceptor-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Vult Skerris"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8667
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1742
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 690
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8667",
+    "definitionFields": {
+      "squadronId": "vult-skerris-tie-interceptor-squadron",
+      "displayName": "Vult Skerris",
+      "faction": 1,
+      "points": 18,
+      "hull": 3,
+      "speed": 5,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "COUNTER 4",
+        "SWARM"
+      ],
+      "abilityText": "During the squadron phase, you cannot attack unless you are performing a COUNTER attack.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 690
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "vulture-class-droid-fighter-squadron",
+    "displayName": "Vulture-class Droid Fighter Squadron",
+    "factionId": "separatist",
+    "craftType": "vulture-class-droid-fighter-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8635
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1905
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 467
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8635",
+    "definitionFields": {
+      "squadronId": "vulture-class-droid-fighter-squadron",
+      "displayName": "Vulture-class Droid Fighter Squadron",
+      "faction": 3,
+      "points": 8,
+      "hull": 3,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 1
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "AI ANTISQUADRON 1",
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 467
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "wat-tambor-belbullab-22-starfighter-squadron",
+    "displayName": "Wat Tambor",
+    "factionId": "separatist",
+    "craftType": "belbullab-22-starfighter-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Wat Tambor"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8707
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3510
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 135
+    },
+    "braceTokens": 1,
+    "scatterTokens": 0,
+    "evadeTokens": 1,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8707",
+    "definitionFields": {
+      "squadronId": "wat-tambor-belbullab-22-starfighter-squadron",
+      "displayName": "Wat Tambor",
+      "faction": 3,
+      "points": 18,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ESCORT",
+        "RELAY 1",
+        "SCREEN"
+      ],
+      "abilityText": "",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 135
+      },
+      "tacticalColor": {
+        "r": 0.8199999928474426,
+        "g": 0.47999998927116394,
+        "b": 0.18000000715255737,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "wedge-antilles-x-wing-squadron",
+    "displayName": "Wedge Antilles",
+    "factionId": "rebel",
+    "craftType": "x-wing-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Wedge Antilles"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8715
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 984
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 469
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8715",
+    "definitionFields": {
+      "squadronId": "wedge-antilles",
+      "displayName": "Wedge Antilles",
+      "faction": 0,
+      "points": 19,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "BOMBER",
+        "ESCORT"
+      ],
+      "abilityText": "While attacking an activated squadron, you may add 2 blue dice to your attack pool.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 228
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "whisper-tie-phantom-squadron",
+    "displayName": "Whisper",
+    "factionId": "empire",
+    "craftType": "tie-phantom-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Whisper"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8668
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1538
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 235
+    },
+    "braceTokens": 1,
+    "scatterTokens": 1,
+    "evadeTokens": 0,
+    "sourceTeam": "AMG",
+    "sourceAlias": "AMG",
+    "definitionObject": "resources.assets:8668",
+    "definitionFields": {
+      "squadronId": "whisper-tie-phantom-squadron",
+      "displayName": "Whisper",
+      "faction": 1,
+      "points": 18,
+      "hull": 4,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 2,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "ACE",
+        "CLOAK"
+      ],
+      "abilityText": "After defending against an attack, if you spent a defense token, you may move up to distance 1, even if you are engaged.",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 1,
+      "scatterTokens": 1,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 235
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "x-wing-squadron",
+    "displayName": "X-wing Squadron",
+    "factionId": "rebel",
+    "craftType": "x-wing-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8636
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 984
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 523
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8636",
+    "definitionFields": {
+      "squadronId": "x-wing-squadron",
+      "displayName": "X-wing Squadron",
+      "faction": 0,
+      "points": 13,
+      "hull": 5,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "BOMBER",
+        "ESCORT"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 220
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "yt-1300",
+    "displayName": "YT-1300",
+    "factionId": "rebel",
+    "craftType": "yt-1300",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8637
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1461
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 729
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8637",
+    "definitionFields": {
+      "squadronId": "yt-1300",
+      "displayName": "YT-1300",
+      "faction": 0,
+      "points": 13,
+      "hull": 7,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 3,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "COUNTER 1",
+        "ESCORT"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 703
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "yt-2400",
+    "displayName": "YT-2400",
+    "factionId": "rebel",
+    "craftType": "yt-2400",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8638
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3568
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 108
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8638",
+    "definitionFields": {
+      "squadronId": "yt-2400",
+      "displayName": "YT-2400",
+      "faction": 0,
+      "points": 16,
+      "hull": 6,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 4,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 695
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "yv-666",
+    "displayName": "YV-666",
+    "factionId": "empire",
+    "craftType": "yv-666",
+    "unique": false,
+    "singleCraft": true,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8639
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2900
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 583
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8639",
+    "definitionFields": {
+      "squadronId": "yv-666",
+      "displayName": "YV-666",
+      "faction": 1,
+      "points": 15,
+      "hull": 7,
+      "speed": 2,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 2
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 1,
+        "blackDice": 0
+      },
+      "keywords": [
+        "GRIT",
+        "HEAVY",
+        "ROGUE"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 116
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "y-wing-squadron",
+    "displayName": "Y-Wing Squadron",
+    "factionId": "rebel",
+    "craftType": "y-wing-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8690
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 1844
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 595
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8690",
+    "definitionFields": {
+      "squadronId": "y-wing-squadron",
+      "displayName": "Y-Wing Squadron",
+      "faction": 0,
+      "points": 10,
+      "hull": 6,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 0,
+        "blueDice": 2,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "BOMBER",
+        "HEAVY"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 595
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "z-95-headhunter-squadron",
+    "displayName": "Z-95 Headhunter Squadron",
+    "factionId": "rebel",
+    "craftType": "z-95-headhunter-squadron",
+    "unique": false,
+    "singleCraft": false,
+    "uniqueClasses": [],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8640
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 2264
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 574
+    },
+    "braceTokens": 0,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8640",
+    "definitionFields": {
+      "squadronId": "z-95-headhunter-squadron",
+      "displayName": "Z-95 Headhunter Squadron",
+      "faction": 0,
+      "points": 7,
+      "hull": 3,
+      "speed": 3,
+      "antiSquadronArmament": {
+        "redDice": 3,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 1,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "keywords": [
+        "SWARM"
+      ],
+      "abilityText": "",
+      "unique": false,
+      "singleCraft": false,
+      "braceTokens": 0,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 668
+      },
+      "tacticalColor": {
+        "r": 0.11999999731779099,
+        "g": 0.6800000071525574,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  },
+  {
+    "id": "zertik-strom-tie-advanced-squadron",
+    "displayName": "Zertik Strom",
+    "factionId": "empire",
+    "craftType": "tie-advanced-squadron",
+    "unique": true,
+    "singleCraft": true,
+    "uniqueClasses": [
+      "Zertik Strom"
+    ],
+    "definition": {
+      "m_FileID": 0,
+      "m_PathID": 8656
+    },
+    "presentationPrefab": {
+      "m_FileID": 0,
+      "m_PathID": 3214
+    },
+    "cardArt": {
+      "m_FileID": 0,
+      "m_PathID": 106
+    },
+    "braceTokens": 2,
+    "scatterTokens": 0,
+    "evadeTokens": 0,
+    "sourceTeam": "FFG",
+    "sourceAlias": "FFG",
+    "definitionObject": "resources.assets:8656",
+    "definitionFields": {
+      "squadronId": "zertik-strom-tie-advanced-squadron",
+      "displayName": "Zertik Strom",
+      "faction": 1,
+      "points": 15,
+      "hull": 5,
+      "speed": 4,
+      "antiSquadronArmament": {
+        "redDice": 3,
+        "blueDice": 0,
+        "blackDice": 0
+      },
+      "antiShipArmament": {
+        "redDice": 0,
+        "blueDice": 0,
+        "blackDice": 1
+      },
+      "keywords": [
+        "ACE",
+        "ESCORT"
+      ],
+      "abilityText": "While attacking, you may choose another friendly squadron at distance 1. If you do, that squadron suffers 1 damage and you may reroll any number of attack dice",
+      "unique": true,
+      "singleCraft": true,
+      "braceTokens": 2,
+      "scatterTokens": 0,
+      "gameplayFootprint": {
+        "x": 1.1811039447784424,
+        "y": 1.1811039447784424
+      },
+      "cardArt": {
+        "m_FileID": 0,
+        "m_PathID": 106
+      },
+      "tacticalColor": {
+        "r": 1.0,
+        "g": 0.23999999463558197,
+        "b": 0.14000000059604645,
+        "a": 1.0
+      }
+    }
+  }
+]

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Swarmada.Headless", "src\Swarmada.Headless\Swarmada.Headless.csproj", "{F8F32533-91B5-4938-A3BE-53BA9BE94863}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Swarmada.Headless.Cli", "src\Swarmada.Headless.Cli\Swarmada.Headless.Cli.csproj", "{B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}"
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {F8F32533-91B5-4938-A3BE-53BA9BE94863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {F8F32533-91B5-4938-A3BE-53BA9BE94863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {F8F32533-91B5-4938-A3BE-53BA9BE94863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {F8F32533-91B5-4938-A3BE-53BA9BE94863}.Release|Any CPU.Build.0 = Release|Any CPU
+        {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Release|Any CPU.Build.0 = Release|Any CPU
+    EndGlobalSection
+EndGlobal

@@ -1,0 +1,216 @@
+using Armada.Core;
+using Armada.Rules;
+using Swarmada.Headless.Engine;
+using Swarmada.Headless.Runtime;
+
+namespace Swarmada.Headless.Search;
+
+public sealed record KnownDamageCard(int Ship, int Index, CriticalDamageCard Card);
+public sealed record KnownDeckPrefix(int Deck, CriticalDamageCard[] Cards);
+public sealed record SearchKnowledgeSnapshot(int Observer, ShipCommand?[][] EnemyCommands,
+    KnownDamageCard[] DamageCards, KnownDeckPrefix[] DeckPrefixes);
+public sealed record VisibleCommandStack(int Ship, int Owner, ShipCommand?[] Commands,
+    ShipCommand[] Tokens, ShipCommand[] RaidTokens);
+
+/// <summary>Legally remembered information, separate from authoritative recovery state.
+/// Own commands are read directly; other stacks contain only explicitly learned slots.
+/// This is an initial command/deck-knowledge boundary, not a full card-privacy encoder.</summary>
+public sealed class SearchKnowledge
+{
+    private readonly ShipCommand?[][] enemyCommands;
+    private readonly Dictionary<(int Ship, int Index), CriticalDamageCard> damageCards = new();
+    private readonly Dictionary<int, CriticalDamageCard[]> deckPrefixes = new();
+    public int Observer { get; }
+    public long Version { get; private set; }
+
+    private SearchKnowledge(int observer, ShipCommand?[][] commands)
+    {
+        if (observer is not (1 or 2)) throw new ArgumentOutOfRangeException(nameof(observer));
+        Observer = observer; enemyCommands = commands;
+    }
+
+    public static SearchKnowledge For(GameSession position, int observer)
+    {
+        ArgumentNullException.ThrowIfNull(position);
+        var result = new SearchKnowledge(observer,
+            position.Context.State.Commands.Select(stack => new ShipCommand?[stack.Count]).ToArray());
+        result.ObserveCurrentDamagePeek(position);
+        return result;
+    }
+
+    /// <summary>Register information legally exposed by a settled decision.
+    /// Call before computing traversal keys or model input, including windows
+    /// reached inside a simulation. This never settles or mutates the game.
+    /// Only the actual chooser learns a private looked-at damage-card prefix.</summary>
+    public void ObserveDecision(GameSession position, GameDecision decision)
+    {
+        ArgumentNullException.ThrowIfNull(position); ArgumentNullException.ThrowIfNull(decision); Validate(position);
+        if (decision.Kind == DecisionKind.Player && decision.Player == Observer && decision.Phase == GamePhase.ChooseDamageCard)
+            ObserveCurrentDamagePeek(position);
+    }
+
+    private void ObserveCurrentDamagePeek(GameSession position)
+    {
+        // Dodonna's current choice legally exposes the looked-at prefix to the chooser.
+        // It must be retained, whereas the rest of the actual future pile is never copied.
+        var flow = position.Context.Flow;
+        if (flow.Phase == GamePhase.ChooseDamageCard && flow.Attacks.Count > 0)
+        {
+            var attack = flow.Attacks[^1];
+            if (!attack.IncomingDamageCard.HasValue && attack.Attacker >= 0 &&
+                position.Context.State.Owners[attack.Attacker] == Observer)
+            {
+                bool faceup = attack.HullCardsDealt < Math.Max(attack.FirstHullCardFaceup ? 1 : 0,
+                    attack.EffectFlags.GetValueOrDefault("faceup.limit"));
+                bool dodonna = Enumerable.Range(0, position.Context.State.Ships.Length).Any(ship =>
+                    !position.Context.IsDestroyed(ship) && !position.Context.IsReserved(ship) &&
+                    position.Context.State.Owners[ship] == Observer && position.Context.HasUpgrade(ship, "general-dodonna-commander"));
+                int deck = position.Context.State.Owners[attack.Defender] - 1;
+                int look = Math.Min(4, position.Context.State.Decks[deck].Remaining);
+                if (faceup && dodonna && look > 1)
+                {
+                    RememberDeckPrefix(deck, position.Context.State.Decks[deck].PeekTop(look));
+                }
+            }
+        }
+    }
+
+    public ShipCommand?[] CommandsFor(GameSession position, int ship)
+    {
+        Validate(position); CheckShip(ship);
+        var stack = position.Context.State.Commands[ship];
+        if (position.Context.State.Owners[ship] == Observer)
+            return stack.Stack.Select(command => (ShipCommand?)command).ToArray();
+        var result = new ShipCommand?[stack.Count];
+        Array.Copy(enemyCommands[ship], result, Math.Min(result.Length, enemyCommands[ship].Length));
+        return result;
+    }
+
+    public VisibleCommandStack[] ProjectCommands(GameSession position)
+    {
+        Validate(position);
+        return position.Context.State.Commands.Select((stack, ship) => new VisibleCommandStack(ship,
+            position.Context.State.Owners[ship], CommandsFor(position, ship), stack.TokenInstances.ToArray(), stack.RaidTokens.ToArray())).ToArray();
+    }
+
+    /// <summary>Call only following a legally observed reveal/change/look effect.</summary>
+    public void RememberCommand(int ship, int slot, ShipCommand command)
+    {
+        CheckShip(ship);
+        if ((uint)slot >= (uint)enemyCommands[ship].Length) throw new ArgumentOutOfRangeException(nameof(slot));
+        if (!Enum.IsDefined(command)) throw new ArgumentOutOfRangeException(nameof(command));
+        enemyCommands[ship][slot] = command;
+        Version++;
+    }
+    public void RememberStack(int ship, IReadOnlyList<ShipCommand> commands)
+    {
+        CheckShip(ship); ArgumentNullException.ThrowIfNull(commands);
+        enemyCommands[ship] = commands.Select(command => (ShipCommand?)command).ToArray();
+        Version++;
+    }
+    public void RememberDamageCard(int ship, int index, CriticalDamageCard card)
+    {
+        CheckShip(ship); if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
+        damageCards[(ship, index)] = card;
+        Version++;
+    }
+    public void RememberDeckPrefix(int deck, IReadOnlyList<CriticalDamageCard> cards)
+    {
+        if (deck is < 0 or > 1) throw new ArgumentOutOfRangeException(nameof(deck));
+        ArgumentNullException.ThrowIfNull(cards);
+        if (deckPrefixes.TryGetValue(deck, out var previous) && previous.Length == cards.Count)
+        {
+            bool same = true;
+            for (int i = 0; i < previous.Length; i++) if (previous[i] != cards[i]) { same = false; break; }
+            if (same) return;
+        }
+        deckPrefixes[deck] = cards.ToArray(); Version++;
+    }
+    internal bool TryKnownDamage(int ship, int index, out CriticalDamageCard card)
+        => damageCards.TryGetValue((ship, index), out card);
+    internal IReadOnlyList<CriticalDamageCard> KnownDeckPrefix(int deck)
+        => deckPrefixes.TryGetValue(deck, out var cards) ? cards : Array.Empty<CriticalDamageCard>();
+
+    /// <summary>Update from an actual or simulated committed transition. Never compares unknown
+    /// command values. Call after forced settlement as well as explicit player actions.
+    /// Unregistered private look effects must call RememberStack explicitly.</summary>
+    public void ObserveTransition(GameSession before, GameAction action, GameSession after)
+    {
+        ArgumentNullException.ThrowIfNull(before); ArgumentNullException.ThrowIfNull(action); Validate(after);
+        Version++;
+        for (int ship = 0; ship < enemyCommands.Length; ship++)
+        {
+            int oldCount = before.Context.State.Commands[ship].Count, newCount = after.Context.State.Commands[ship].Count;
+            var prior = enemyCommands[ship]; var next = new ShipCommand?[newCount];
+            // Native command removals consume from the top; newly programmed dials append.
+            int removed = Math.Max(0, oldCount - newCount);
+            if (prior.Length == oldCount)
+                Array.Copy(prior, removed, next, 0, Math.Min(prior.Length - removed, newCount));
+            enemyCommands[ship] = next;
+
+            var oldCards = before.Context.State.Ships[ship].DamageCards;
+            var newCards = after.Context.State.Ships[ship].DamageCards;
+            if (oldCards.Count != newCards.Count)
+                foreach (var key in damageCards.Keys.Where(key => key.Ship == ship).ToArray()) damageCards.Remove(key);
+            for (int i = 0; i < newCards.Count; i++)
+                if (newCards[i].FaceUp && newCards[i].CriticalCard is { } faceup) damageCards[(ship, i)] = faceup;
+                else if (oldCards.Count == newCards.Count && oldCards[i].FaceUp && oldCards[i].CriticalCard is { } flipped)
+                    damageCards[(ship, i)] = flipped;
+        }
+        // These choices reveal a replacement's identity without exposing the old dial.
+        bool noise = before.Context.Flow.Attacks.LastOrDefault()?.PendingDamageCard == CriticalDamageCard.CommNoise;
+        if (action.Target >= 0 && action.Target < enemyCommands.Length && enemyCommands[action.Target].Length > 0 &&
+            (action.AbilityId is "reveal.leia" or "slicer.command" || noise && action.Kind == GameActionKind.ChooseCommand))
+            enemyCommands[action.Target][0] = action.Command;
+        if (action.AbilityId.StartsWith("boarding.command", StringComparison.Ordinal) && action.Target >= 0 &&
+            action.Target < enemyCommands.Length && action.Index >= 0 && action.Index < enemyCommands[action.Target].Length)
+            enemyCommands[action.Target][action.Index] = action.Command;
+        // Fixed pre-reveal officers encode their publicly selected command in the
+        // semantic ID; the native GameAction.Command field is not populated for them.
+        if (action.AbilityId.StartsWith(UnitAbilityEngine.CommandChangeActionPrefix, StringComparison.Ordinal) &&
+            action.Source >= 0 && action.Source < enemyCommands.Length && enemyCommands[action.Source].Length > 0)
+        {
+            string encoded = action.AbilityId[UnitAbilityEngine.CommandChangeActionPrefix.Length..].Split('.', 2)[0];
+            if (int.TryParse(encoded, out int command) && Enum.IsDefined((ShipCommand)command))
+                enemyCommands[action.Source][0] = (ShipCommand)command;
+        }
+        if (action.Kind == GameActionKind.AssignCommand && action.Source >= 0 && action.Source < enemyCommands.Length &&
+            before.Context.UpgradesFor(action.Source).Any(card => card.Active && card.Definition.id == "tikkes-officer" &&
+                card.GetTypedCommandTokenCount(action.Command) > 0) && enemyCommands[action.Source].Length > 0)
+            enemyCommands[action.Source][^1] = action.Command;
+        // A draw can consume, discard or reorder looked-at cards. Only keep a prefix
+        // while its deck has not changed; future look effects can establish a new one.
+        foreach (int deck in deckPrefixes.Keys.ToArray())
+            if (before.Context.State.Decks[deck].Remaining != after.Context.State.Decks[deck].Remaining ||
+                before.Context.State.Decks[deck].Discarded != after.Context.State.Decks[deck].Discarded)
+                deckPrefixes.Remove(deck);
+        // Settlement may enter another private look after the deck changed.
+        // Register that new current prefix after invalidating the old one.
+        // The phase/chooser guard uses flow only and never queries/settles again.
+        ObserveCurrentDamagePeek(after);
+    }
+
+    public SearchKnowledgeSnapshot CaptureSnapshot() => new(Observer,
+        enemyCommands.Select(commands => commands.ToArray()).ToArray(),
+        damageCards.OrderBy(entry => entry.Key.Ship).ThenBy(entry => entry.Key.Index)
+            .Select(entry => new KnownDamageCard(entry.Key.Ship, entry.Key.Index, entry.Value)).ToArray(),
+        deckPrefixes.OrderBy(entry => entry.Key).Select(entry => new KnownDeckPrefix(entry.Key, entry.Value.ToArray())).ToArray());
+    public SearchKnowledge DeepClone() => FromSnapshot(CaptureSnapshot());
+    public static SearchKnowledge FromSnapshot(SearchKnowledgeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var result = new SearchKnowledge(snapshot.Observer, snapshot.EnemyCommands.Select(commands => commands.ToArray()).ToArray());
+        foreach (var card in snapshot.DamageCards) result.RememberDamageCard(card.Ship, card.Index, card.Card);
+        foreach (var prefix in snapshot.DeckPrefixes) result.RememberDeckPrefix(prefix.Deck, prefix.Cards);
+        return result;
+    }
+    internal void Validate(GameSession position)
+    {
+        if (position.Context.State.Commands.Length != enemyCommands.Length)
+            throw new ArgumentException("Knowledge belongs to another entity layout.", nameof(position));
+    }
+    private void CheckShip(int ship)
+    {
+        if ((uint)ship >= (uint)enemyCommands.Length) throw new ArgumentOutOfRangeException(nameof(ship));
+    }
+}
