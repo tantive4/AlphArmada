@@ -1,4 +1,4 @@
-// Finite semantic identifier registry for state-encoder.v1.
+// Finite semantic identifier registry for state-encoder.v5.
 // Generated from reviewed native rule literals and the current runtime catalog.
 // Numeric suffixes use integer reference columns. Changing entries changes Schema.Fingerprint.
 namespace Swarmada.Headless.Learning;
@@ -7,6 +7,41 @@ internal static class StateEncoderSymbols
 {
     internal static readonly string[] Values =
     [
+        "after-command-resolved",
+        "after-command-reveal",
+        "command-reveal-prelude",
+        "activation.reveal-keep-native",
+        "activation.reveal-bank-native",
+        "activation.reveal-keep-extra",
+        "activation.reveal-bank-extra",
+        "activation.additional-first",
+        "activation.next-dial",
+        "activation.bail-use-navigate",
+        "activation.bail-use-engineering",
+        "activation.bail-use-both",
+        "token.replace",
+        "token.replace.pending",
+        "token.replace.discard",
+        "token.replace.discard-incoming",
+        "commander.draven-look",
+        "commander.draven-no-look",
+        "commander.draven-token",
+        "commander.draven-token-pair",
+        "commander.draven-skip-tokens",
+        "commander.draven-raid",
+        "commander.draven-pass-raid",
+        "command.concentrate-fire.finish",
+        "command.concentrate-fire.begin",
+        "command.cf-started",
+        "command.cf-mode",
+        "activation.cf-mode",
+        "attack.dice.director-krennic.dial",
+        "attack.dice.director-krennic.token",
+        "activation.draven-pending",
+        "draven.tokens",
+        "draven.raid",
+        "draven-token-selection",
+        "draven-raid-card",
         "#",
         "#entity",
         "#integer",

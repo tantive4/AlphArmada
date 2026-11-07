@@ -8,7 +8,7 @@ namespace Swarmada.Headless.Search;
 public sealed record KnownDamageCard(int Ship, int Index, CriticalDamageCard Card);
 public sealed record KnownDeckPrefix(int Deck, CriticalDamageCard[] Cards);
 public sealed record SearchKnowledgeSnapshot(int Observer, ShipCommand?[][] EnemyCommands,
-    KnownDamageCard[] DamageCards, KnownDeckPrefix[] DeckPrefixes);
+    KnownDamageCard[] DamageCards, KnownDeckPrefix[] DeckPrefixes, int[]? MaterializedCommanderInventories = null);
 public sealed record VisibleCommandStack(int Ship, int Owner, ShipCommand?[] Commands,
     ShipCommand[] Tokens, ShipCommand[] RaidTokens);
 
@@ -20,8 +20,17 @@ public sealed class SearchKnowledge
     private readonly ShipCommand?[][] enemyCommands;
     private readonly Dictionary<(int Ship, int Index), CriticalDamageCard> damageCards = new();
     private readonly Dictionary<int, CriticalDamageCard[]> deckPrefixes = new();
+    // Used only by the search world's materialization overlay. This is not a
+    // private look: it lets the simulated owner read its fixed hypothetical store.
+    private readonly HashSet<int> materializedCommanderInventories = [];
     public int Observer { get; }
     public long Version { get; private set; }
+    internal bool HasMaterializedCommanderInventory(int upgradeIndex) => materializedCommanderInventories.Contains(upgradeIndex);
+    internal void MaterializeCommanderInventory(int upgradeIndex)
+    {
+        if (upgradeIndex < 0) throw new ArgumentOutOfRangeException(nameof(upgradeIndex));
+        if (materializedCommanderInventories.Add(upgradeIndex)) Version++;
+    }
 
     private SearchKnowledge(int observer, ShipCommand?[][] commands)
     {
@@ -171,6 +180,7 @@ public sealed class SearchKnowledge
             foreach (var command in stack)
                 hash = SearchHash.Add(hash, command.HasValue ? (ulong)(int)command.Value + 1 : 0);
         }
+        foreach (int upgrade in materializedCommanderInventories.Order()) hash = SearchHash.Add(hash, (ulong)upgrade + 1);
         return hash;
     }
 
@@ -225,7 +235,7 @@ public sealed class SearchKnowledge
             before.Context.UpgradesFor(action.Source).Any(card => card.Active && card.Definition.id == "tikkes-officer" &&
                 card.GetTypedCommandTokenCount(action.Command) > 0) && enemyCommands[action.Source].Length > 0)
             enemyCommands[action.Source][^1] = action.Command;
-        if (observePrivateCommandLook && action.AbilityId == CommandRevealEffects.IsardAction &&
+        if (observePrivateCommandLook && (action.AbilityId is CommandRevealEffects.IsardAction or DravenAbilityEffects.DravenLookAction) &&
             action.Source >= 0 && action.Source < enemyCommands.Length &&
             after.Context.State.Owners[action.Source] == Observer &&
             action.Target >= 0 && action.Target < enemyCommands.Length)
@@ -247,7 +257,8 @@ public sealed class SearchKnowledge
         enemyCommands.Select(commands => commands.ToArray()).ToArray(),
         damageCards.OrderBy(entry => entry.Key.Ship).ThenBy(entry => entry.Key.Index)
             .Select(entry => new KnownDamageCard(entry.Key.Ship, entry.Key.Index, entry.Value)).ToArray(),
-        deckPrefixes.OrderBy(entry => entry.Key).Select(entry => new KnownDeckPrefix(entry.Key, entry.Value.ToArray())).ToArray());
+        deckPrefixes.OrderBy(entry => entry.Key).Select(entry => new KnownDeckPrefix(entry.Key, entry.Value.ToArray())).ToArray(),
+        materializedCommanderInventories.Order().ToArray());
     public SearchKnowledge DeepClone() => FromSnapshot(CaptureSnapshot());
     // An inactive opponent's private card identities are hidden from this acting
     // information set. Retain their knowledge shape, plus command memory (which
@@ -284,6 +295,7 @@ public sealed class SearchKnowledge
         var result = new SearchKnowledge(snapshot.Observer, snapshot.EnemyCommands.Select(commands => commands.ToArray()).ToArray());
         foreach (var card in snapshot.DamageCards) result.RememberDamageCard(card.Ship, card.Index, card.Card);
         foreach (var prefix in snapshot.DeckPrefixes) result.RememberDeckPrefix(prefix.Deck, prefix.Cards);
+        foreach (int upgrade in snapshot.MaterializedCommanderInventories ?? []) result.MaterializeCommanderInventory(upgrade);
         return result;
     }
     internal void Validate(GameSession position)

@@ -107,10 +107,7 @@ public sealed partial class SourceCombatEffects
             if (attack.Dice.Any(die => die.Color == AttackDieColor.Blue) && other.Loadout.HasActive("toryn-farr-officer") && !attack.EffectFlags.ContainsKey("toryn.ship.used"))
                 yield return Ability("remaining.attack-dice.toryn-farr." + other.RuntimeId.Value, "toryn-farr-officer", "Toryn reroll one blue die");
         }
-        if (ship.Loadout.HasActive("director-krennic-officer") && attack.Range is RangeBand.Medium or RangeBand.Long
-            && (game.Flow.ShipActivations[ship.Index].ResolvedCommands & (1 << (int)ShipCommand.ConcentrateFire)) != 0
-            && attack.Dice.Any(die => die.Color == AttackDieColor.Red))
-            yield return Ability("attack.dice.director-krennic", "director-krennic-officer", "Krennic reroll red dice");
+        foreach (var action in KrennicActions(game, attack)) yield return action;
         if (ship.Loadout.HasActive("point-defense-reroute") && attack.Range == RangeBand.Close && attack.Dice.Any(die => die.Face is DieFace.Critical or DieFace.HitCritical))
             yield return Ability("attack.dice.point-defense-reroute", "point-defense-reroute", "Reroll critical flak dice");
         if (TitleRules.FlakRerolls(ship, null, null, out string source) > 0)

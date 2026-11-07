@@ -35,7 +35,7 @@ public sealed class StateEncoderSchema
 {
     private static readonly ConditionalWeakTable<FleetData, StateEncoderSchema> Cache = new();
     public static StateEncoderSchema For(FleetData data) => Cache.GetValue(data, static value => new(value));
-    public const string Version = "swarmada-headless.state-encoder.v4";
+    public const string Version = "swarmada-headless.state-encoder.v5";
     public EncoderVocabulary Ships { get; }
     public EncoderVocabulary Squadrons { get; }
     public EncoderVocabulary Upgrades { get; }
@@ -49,14 +49,14 @@ public sealed class StateEncoderSchema
         new EncoderField("Global",0,256,"match","round/6; own-first, actor/current-player; map relocation; board metres; objective37; phase27; VP/400; counts; actor3; victory tokens/20; squadron phase progress; terminal/outcome; deck remaining/discarded; movement summary"),
         new EncoderField("Ships",0,68,"printed.identity","ship one-hot including unknown; fixed vocabulary slots, see schema.Ships"),
         new EncoderField("Ships",68,76,"printed.stats","faction4; points/400,hull/32,command/4,engineering/8,squadron/8; footprint metres; hull-zone existence and battery dice/10; flak/10; maneuver chart and availability"),
-        new EncoderField("Ships",144,238,"visible.mutable","entity flags/coordinates/heading/objective; current/max hull and shields; first four queue slots6 (absent,unknown,4 commands); token+raid counts/4; full activation state; critical counts/4. All queue slots also have Commands rows."),
+        new EncoderField("Ships",144,238,"visible.mutable","entity flags/coordinates/heading/objective; current/max hull and shields; first four queue slots6 (absent,unknown,4 commands); token+raid counts/4; activation state; critical counts/4. All queue slots also have Commands rows. Public actual-revealed-command and five banking/window-progress flags use a sparse command-reveal-prelude Effects row, preserving this fixed ship width."),
         new EncoderField("Ships",382,2,"scenario.kind","IsStation, IsScenarioUnit; explicit even for generated definitions outside the fleet catalog"),
         new EncoderField("Squads",0,109,"printed.identity","squadron one-hot including unknown"),
         new EncoderField("Squads",109,51,"printed.stats","faction4; cost,hull,speed,diameter,unique; battery/flak; keyword levels/5"),
         new EncoderField("Squads",160,96,"visible.mutable","entity flags/coordinates (no heading); hull,activation,command and each temporary flag; activation progress and pending destination"),
         new EncoderField("Cards",0,294,"printed.identity","printed upgrade one-hot including unknown"),
         new EncoderField("Cards",294,294,"effective.identity","effective upgrade one-hot including unknown; linked to physical card instance by row"),
-        new EncoderField("Cards",588,52,"mutable","ready/exhausted/discarded; untyped+typed command counters/8; usage; focus zone; assigned-command visibility; stored die; scheduled rounds visibility. Private/public stores are separate linked rows."),
+        new EncoderField("Cards",588,52,"mutable","ready/exhausted/discarded; total command count/8; typed counters/8 (Thrawn/Trench inventories private to the owner, public Draven/Bail tokens visible to both); usage; focus zone; assigned-command visibility; stored die; scheduled rounds. Simulated inventory values appear only for the owning player after UCT materialization. Private/public stores are separate linked rows."),
         new EncoderField("Pieces",0,64,"map-piece","presence/active; kind8 indexes StateEncoder.SpatialKinds (native0,1,2,3,100,101,102,10001); owner2; observer-relative pose; size; flip; objective hull/destroyed; payload codec mask. Identity/shape symbols and source/host indices are integer columns."),
         new EncoderField("Tokens",0,16,"physical-defense-slot","type6; present,ready,exhausted,discarded,locked,spent-this-attack; owner/physical slot in integer columns"),
         new EncoderField("Dice",0,24,"die","present; red/blue/black one-hot3 (native None is all zero); face6 only after roll; rolled/pending/effect-selected/effect-eligible; parent attack and physical slot in integer columns"),
@@ -64,7 +64,7 @@ public sealed class StateEncoderSchema
         new EncoderField("Commands",0,8,"queued-dial","present,known,command4,own,enemy-seen (known and enemy-owned after placeholder masking); ship/queue-slot in integer columns. Search materialization/boundary status is never an input feature. An encoder-only boundary overlay may allow a materialized hypothetical owner's dial without marking it legally seen by the root observer."),
         new EncoderField("KnownDeckPeeks",0,24,"remembered-deck-prefix","present; 22-card identity; deck/position in integer columns. Unseen draw order/RNG is never read."),
         new EncoderField("Attacks",0,192,"attack-stack","complete public attack scalars, flags, categorical phases/ranges/zones; pending faceup damage identities; redirects/locks/dice have linked rows. Internal effect payloads have typed side rows or explicit coverage issues."),
-        new EncoderField("Effects",0,32,"effect-record","kind one-hot16; visibility/known flags; scalar/categorical payload only where codec is registered. Rule/text vocabulary, source/target/slot/parent integer columns retain semantic bindings, never raw float IDs."),
+        new EncoderField("Effects",0,32,"effect-record","kind one-hot16; visibility/known flags; scalar/categorical payload only where codec is registered. Revealed round-command effects and publicly gained additional dials (including banking-decision status) are visible to both players. Draven pending command masks expand to four bits; CF effective spend modes use three-way one-hot; Draven reaction command is one-hot and its upgrade pointer is an explicit card index. Token replacement payloads encode recipient/command and relative pending order, never allocation serials; replacement/Tantive frame Target is a command rather than an entity. Rule/text vocabulary, source/target/slot/parent integer columns retain semantic bindings, never raw float IDs."),
         new EncoderField("Objective",0,64,"objective","victory tokens, invalid-setup status; entity/piece data is in linked rows; named flags and timing continuations are effect records"),
         new EncoderField("Stores",0,16,"card-store","kind4; known/present; command4 or round/6; card/entity/owner/slot integer columns. Opponent private command values are masked."),
     });

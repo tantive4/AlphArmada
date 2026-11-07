@@ -53,6 +53,8 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         if (effects.HasPendingChoice(game, a))
             return new(DecisionKind.Player, effects.DecisionPlayer(game, a) ?? owner, game.Flow.Phase,
                 effects.GetActions(game, a, a.Window).ToArray());
+        if (game.Flow.Phase == GamePhase.ModifyAttack && a.Rolled && a.EffectFlags.ContainsKey(ConcentrateFireStarted))
+            return ConcentrateFireDecision(game, a);
         switch (game.Flow.Phase)
         {
             case GamePhase.RollAttack:
@@ -78,14 +80,15 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
                     if (a.Rolled && game.IsShip(a.Attacker) && !a.IsSalvoAttack)
                     {
                         var activation = game.Flow.ShipActivations[a.Attacker];
-                        if (activation.ConcentrateFireDie)
-                            foreach (var color in a.Dice.Select(die => die.Color).Distinct())
-                                options.Add(Option(new(GameActionKind.UseAbility, a.Attacker, a.Defender,
-                                    Amount: (int)color, AbilityId: "command.concentrate-fire.add-die"), "Add " + color + " die"));
-                        if (activation.ConcentrateFireReroll)
-                            for (int i = 0; i < a.Dice.Length; i++)
-                                options.Add(Option(new(GameActionKind.UseAbility, a.Attacker, a.Defender,
-                                    DiceIndices: [i], AbilityId: "command.concentrate-fire.reroll"), "Reroll die " + i));
+                        AddConcentrateFireCoreOptions(game, a, options);
+                        if (HasConcentrateFireGrant(game, a))
+                        {
+                            options.Add(Option(new(GameActionKind.Pass, a.Attacker, a.Defender, AbilityId: FinishConcentrateFireAction),
+                                "Resolve Concentrate Fire without changing dice"));
+                            if (NeedsConcentrateFireEntry(game, a))
+                                options.Add(Option(new(GameActionKind.UseAbility, a.Attacker, a.Defender, AbilityId: BeginConcentrateFireAction),
+                                    "Resolve Concentrate Fire with optional Krennic effects"));
+                        }
                         if (ActivationAbilityEffects.CanUseBeck(game, ShipCommand.ConcentrateFire, true))
                             for (int i = 0; i < a.Dice.Length; i++)
                                 options.Add(Option(new(GameActionKind.UseAbility, a.Attacker, a.Defender, DiceIndices: [i],
@@ -242,6 +245,8 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         { if (!verified) RequireOffered(game, action); a.EffectFlags.Remove("completion.resume"); CompleteAttack(game, a); return; }
         if (game.Flow.Phase == GamePhase.RollAttack) { ApplyRoll(game, a, action); return; }
         if (!verified) RequireOffered(game, action);
+        if (action.AbilityId == BeginConcentrateFireAction) { StartConcentrateFire(game, a); return; }
+        if (action.AbilityId == FinishConcentrateFireAction) { StartConcentrateFire(game, a); FinishConcentrateFire(game, a); return; }
         if (action.AbilityId == "core.thermal-before-obstruction")
         {
             if (!effects.TryFinishWindow(game, a, CombatWindow.BeforeRoll)) a.EffectFlags["thermal-window.offered"] = 1;
@@ -267,11 +272,14 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
                 ActivationAbilityEffects.CommitBeckCommand(game, ShipCommand.ConcentrateFire);
                 var activation = game.Flow.ShipActivations[a.Attacker];
                 activation.ResolvedCommands |= 1 << (int)ShipCommand.ConcentrateFire; activation.ConcentrateFireReroll = false;
+                StartConcentrateFire(game, a, CommandSpendMode.Token);
+                DravenAbilityEffects.ArmDeferred(game, a.Attacker, ShipCommand.ConcentrateFire);
                 game.Flow.Flags[$"round.resolved-command.{a.Attacker}"] = game.State.Round;
                 a.PendingRollIndices = action.DiceIndices!.ToArray(); a.AfterRollPhase = GamePhase.ModifyAttack; game.Flow.Phase = GamePhase.RollAttack; return;
             }
             if (action.AbilityId is "command.concentrate-fire.add-die" or "command.concentrate-fire.reroll")
             {
+                StartConcentrateFire(game, a);
                 var activation = game.Flow.ShipActivations[a.Attacker];
                 if (action.AbilityId.EndsWith("add-die", StringComparison.Ordinal))
                 {
@@ -284,6 +292,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
                 { activation.ConcentrateFireDie = false; activation.ConcentrateFireReroll = false; activation.ConcentrateFireRavagerChoice = false; }
                 a.AfterRollPhase = GamePhase.ModifyAttack; game.Flow.Phase = GamePhase.RollAttack; return;
             }
+            if (IsConcentrateFireUpgrade(action)) StartConcentrateFire(game, a);
             if (!effects.TryApply(game, a, a.Window, action))
                 throw new NotSupportedException("Unimplemented combat effect action: " + action.AbilityId);
             return;
@@ -1209,7 +1218,8 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
     }
     private void AddEffectOptions(GameContext game, AttackState a, List<GameActionOption> options)
     {
-        options.AddRange(effects.GetActions(game, a, a.Window));
+        options.AddRange(effects.GetActions(game, a, a.Window).Where(option => !IsConcentrateFireUpgrade(option.Template) ||
+            a.EffectFlags.ContainsKey(ConcentrateFireStarted) || HasConcentrateFireGrant(game, a)));
     }
     private void ValidateUpgrades(GameContext game, int attacker, int defender)
     {

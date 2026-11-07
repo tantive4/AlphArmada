@@ -43,7 +43,7 @@ public sealed class PolicyEncoding
 
 public static class PolicyEncoder
 {
-    public const string Version = "conditional-policy-v4";
+    public const string Version = "conditional-policy-v5";
     private static readonly string[] heads = ["activation", "command_programming", "command_window", "attack_declaration",
         "defense", "damage", "maneuver", "squadron", "timing_window", "boundary_window", "ship_pointer", "squadron_pointer",
         "entity_pointer", "command", "payment", "zone", "token_pointer", "amount", "speed", "spatial", "heading", "face",
@@ -184,6 +184,21 @@ public static class PolicyEncoder
     {
         bool Has(PolicyActionFields field) => (descriptor.KnownFields & field) != 0;
         var action = descriptor.Example;
+        if (Has(PolicyActionFields.Ability) && action.AbilityId == DravenAbilityEffects.PairAction)
+        {
+            // Kind 4 is a command pair, not a quantity or entity reference.
+            // Both masks are necessary: a conditional first-command candidate
+            // can still represent several as-yet unselected second commands.
+            references.AddRange([candidate, 4, -1, -1]);
+            var pair = new float[12];
+            if (Has(PolicyActionFields.Command)) { pair[0] = 1; pair[1 + (int)action.Command] = 1; }
+            if (Has(PolicyActionFields.Amount))
+            {
+                if (action.Amount is < 1 or > 4) throw new SearchCoverageException("Draven second command is not a command category.");
+                pair[5] = 1; pair[6 + action.Amount - 1] = 1;
+            }
+            values.AddRange(pair);
+        }
         if (descriptor.Provider is { } provider)
         {
             // Kind 3 uses an explicit provider reference, distinct from native
@@ -252,7 +267,7 @@ public static class PolicyEncoder
             row[72] = MathF.Sin(angle); row[73] = MathF.Cos(angle);
         }
         if (Has(PolicyActionFields.Speed) && a.Speed >= 0) { row[74] = 1; row[75] = a.Speed / 4f; }
-        if (Has(PolicyActionFields.Amount)) { row[76] = 1; row[77] = a.Amount / 16f; }
+        if (Has(PolicyActionFields.Amount) && a.AbilityId != DravenAbilityEffects.PairAction) { row[76] = 1; row[77] = a.Amount / 16f; }
         if (Has(PolicyActionFields.Flipped)) row[78] = a.Flipped ? 1 : 0;
         if (Has(PolicyActionFields.Course) && a.Course is { } course)
         {

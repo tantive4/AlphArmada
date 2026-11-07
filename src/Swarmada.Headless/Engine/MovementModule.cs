@@ -134,6 +134,7 @@ public sealed class MovementModule : IGameplayModule
         var execution = game.Flow.Movement;
         if (execution.Stage == 0)
         {
+            if (DravenAbilityEffects.CompleteDeferred(game, ship, ShipCommand.Navigate, GamePhase.SelectCourse)) return;
             execution.Stage = 1;
             if (EngineEffects.BeginWindow(game, "before-maneuver", ship, resumePhase: GamePhase.SelectCourse)) return;
         }

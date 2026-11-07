@@ -22,6 +22,6 @@ public static class PortStatus
         "Obstacle and map-token relocation defaults off. Initial setup and newly placed mine/ignition markers remain separate spatial choices; no universal candidate-count cap is claimed.",
         "Obstacle minimum progress and fallback preferences are caller policy under an explicit rules variation; continuous destination optimization and its proof cache are removed.",
         "Native MCTS, structured visible-state/spatial/policy tensors, batched random-model validation and lossless replay transport are implemented. BigDeep, optimizer/trainer and the complete per-card policy registry remain unfinished.",
-        "Pre-reveal command-dependent officers use first-dependency UCT without exposing hypothetical assignments to the other player. Search still rejects unsupported private commander stores (Thrawn, Trench, Draven, Bail). Encoder coverage errors are explicit; full unrestricted self-play readiness is not claimed."
+        "Pre-reveal command-dependent officers, Isard and the user-selected Draven private look use first-dependency UCT and remembered seen dials. Thrawn/Trench card inventories use canonical non-neural UCT hypotheses fixed for each continuation; Bail uses public token choices. Hypothesis nodes are not neural requests or policy targets. Encoder coverage errors remain explicit; full unrestricted self-play readiness is not claimed."
     ];
 }

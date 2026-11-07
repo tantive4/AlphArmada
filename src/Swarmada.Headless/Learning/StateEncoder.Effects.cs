@@ -71,10 +71,48 @@ public sealed partial class StateEncoder
     {
         // These are purely allocator counters. Their identity has no gameplay meaning.
         if (key is "effects.serial" or "token.next-id" or "activation.serial") return;
+        if (key == "command.cf-mode")
+        {
+            if (value is < 0 or > 2)
+            { issues.Add(new("unregistered-flag-payload", key, "Concentrate Fire requires a valid effective spend mode.")); return; }
+            var mode = Effect(kind, key, parent: parent);
+            mode.B(true); mode.Hot(3, (int)value); return;
+        }
+        if (key.StartsWith("activation.cf-mode.", StringComparison.Ordinal))
+        {
+            string entity = key["activation.cf-mode.".Length..];
+            if (!int.TryParse(entity, NumberStyles.None, CultureInfo.InvariantCulture, out int ship) ||
+                !game.IsShip(ship) || value is < 0 or > 2)
+            { issues.Add(new("unregistered-flag-payload", key, "Concentrate Fire requires a ship and effective spend mode.")); return; }
+            var mode = Effect(kind, "activation.cf-mode", source: ship, parent: parent);
+            mode.B(true); mode.Hot(3, (int)value); return;
+        }
+        if (key.StartsWith("activation.draven-pending.", StringComparison.Ordinal))
+        {
+            string entity = key["activation.draven-pending.".Length..];
+            if (!int.TryParse(entity, NumberStyles.None, CultureInfo.InvariantCulture, out int ship) ||
+                !game.IsShip(ship) || value is < 0 or > 15)
+            { issues.Add(new("unregistered-flag-payload", key, "Draven pending commands require a ship and four-command mask.")); return; }
+            var pending = Effect(kind, "activation.draven-pending", source: ship, parent: parent);
+            pending.B(true);
+            for (int command = 0; command < 4; command++) pending.B((value & (1L << command)) != 0);
+            return;
+        }
+        if (key.StartsWith("token.replace.pending.", StringComparison.Ordinal))
+        {
+            int source = (int)(value >> 4), command = (int)(value & 15);
+            if (value < 0 || value >> 4 > int.MaxValue || !game.IsShip(source) || command > 3 || !TryTokenSerial(key, out _))
+            { issues.Add(new("unregistered-flag-payload", key, "Incoming token replacement requires a ship, command and pending queue identity.")); return; }
+            var token = Effect(kind, "token.replace.pending", source: source, slot: TokenPendingOrdinal(game, key), aux: command, parent: parent);
+            token.B(true); token.Hot(4, command); return;
+        }
         if (key.StartsWith("token.pending.", StringComparison.Ordinal))
         {
             int source = (int)(value >> 4), command = (int)((value >> 1) & 7); bool stored = (value & 1) != 0;
-            var token = Effect(kind, "token.pending", source: source, aux: command, parent: parent); token.B(true); token.B(stored); return;
+            if (value < 0 || value >> 4 > int.MaxValue || !game.IsShip(source) || command > 3 || !TryTokenSerial(key, out _))
+            { issues.Add(new("unregistered-flag-payload", key, "Tantive token assignment requires a ship, command and pending queue identity.")); return; }
+            var token = Effect(kind, "token.pending", source: source, slot: TokenPendingOrdinal(game, key), aux: command, parent: parent);
+            token.B(true); token.B(stored); token.Hot(4, command); return;
         }
         if (key.StartsWith("used.", StringComparison.Ordinal)
             && PublicProviderArguments.TryResolve(game, key[5..], out var provider))
@@ -110,14 +148,45 @@ public sealed partial class StateEncoder
     private static bool HasDigit(string value)
     { foreach (char character in value) if (char.IsAsciiDigit(character)) return true; return false; }
 
+    private static bool TryTokenSerial(string key, out long serial)
+    {
+        int prefix = key.StartsWith("token.replace.pending.", StringComparison.Ordinal) ? "token.replace.pending.".Length :
+            key.StartsWith("token.pending.", StringComparison.Ordinal) ? "token.pending.".Length : -1;
+        serial = 0;
+        return prefix >= 0 && long.TryParse(key.AsSpan(prefix), NumberStyles.None, CultureInfo.InvariantCulture, out serial);
+    }
+    private static int TokenPendingOrdinal(GameContext game, string key)
+    {
+        TryTokenSerial(key, out long selected); int ordinal = 0;
+        foreach (string other in game.Flow.Flags.Keys)
+            if (TryTokenSerial(other, out long serial) && serial < selected) ordinal++;
+        return ordinal; // Relative queue order is meaningful; allocation serials are not model features.
+    }
+
     private void EncodeEffects(GameContext game, int observer, SearchKnowledge? boundary)
     {
         var flow = game.Flow;
-        foreach (var flag in flow.Flags) Flag(EncodedEffectKind.FlowFlag, flag.Key, flag.Value, game, observer);
+        List<KeyValuePair<string, long>>? pendingTokens = null;
+        foreach (var flag in flow.Flags)
+        {
+            if (flag.Key.StartsWith("token.pending.", StringComparison.Ordinal) || flag.Key.StartsWith("token.replace.pending.", StringComparison.Ordinal))
+                (pendingTokens ??= []).Add(flag);
+            else Flag(EncodedEffectKind.FlowFlag, flag.Key, flag.Value, game, observer);
+        }
+        if (pendingTokens is not null)
+        {
+            // Dictionary free-slot reuse is not queue order. Emit pending tokens
+            // in native sequence order, while exporting only relative ordinals.
+            pendingTokens.Sort(static (first, second) =>
+            { TryTokenSerial(first.Key, out long a); TryTokenSerial(second.Key, out long b); return a.CompareTo(b); });
+            foreach (var flag in pendingTokens) Flag(EncodedEffectKind.FlowFlag, flag.Key, flag.Value, game, observer);
+        }
         for (int i = 0; i < flow.Continuations.Count; i++) Continuation(game, flow.Continuations[i], observer, boundary, i);
         if (game.State.Frames.Count > 0) issues.Add(new("low-level-rule-frames", "battle.frames", "Low-level RuleFrame payloads require a registered handler encoder."));
         var round = flow.SourceRules;
-        RoundCommands(round.TrenchCommands, "trench-command", observer, boundary); RoundCommands(round.DravenCommands, "draven-command", observer, boundary); RoundCommands(round.ThrawnCommands, "thrawn-command", observer, boundary); RoundCommands(round.AdmiralTarkinDials, "tarkin-dial", observer, boundary);
+        RoundCommands(round.TrenchCommands, "trench-command", observer); RoundCommands(round.ThrawnCommands, "thrawn-command", observer); RoundCommands(round.AdmiralTarkinDials, "tarkin-dial", observer);
+        // DravenCommands survives only for legacy engine-snapshot compatibility.
+        // The selected Draven rule never activates it; it is not an observation.
         foreach (var entry in round.PalpatineTokens) { var e = Effect(EncodedEffectKind.PalpatineToken, "palpatine-token", source: entry.Key == observer ? 1 : 2, aux: (int)entry.Value); e.B(true); }
         foreach (var entry in round.PalpatineRemaining) foreach (var token in entry.Value.Order()) { var e = Effect(EncodedEffectKind.PalpatineRemaining, "palpatine-remaining", source: entry.Key == observer ? 1 : 2, aux: (int)token); e.B(true); }
         if (game.State.Objective is OfficialObjectiveState objective)
@@ -161,10 +230,12 @@ public sealed partial class StateEncoder
         for (int i = 0; i < flow.PendingMoraloTriggers.Count; i++) { var item = flow.PendingMoraloTriggers[i]; var e = Effect(EncodedEffectKind.ArrayItem, "moralo-trigger", source: item.Squadron, slot: i); Point(game, observer, item.TokenPosition, ref e); }
     }
 
-    private void RoundCommands(Dictionary<int, ShipCommand> commands, string rule, int observer, SearchKnowledge? boundary)
+    private void RoundCommands(Dictionary<int, ShipCommand> commands, string rule, int observer)
     {
+        // The inventory before a reveal may be private. An active round effect
+        // is the result of a public reveal/choice and is known to both players.
         foreach (var entry in commands)
-        { bool visible = entry.Key == observer && (boundary is null || boundary.Observer == observer); var e = Effect(EncodedEffectKind.RoundCommand, rule, source: entry.Key == observer ? 1 : 2); e.B(true); e.B(visible); e.Hot(4, visible ? (int)entry.Value : -1); }
+        { var e = Effect(EncodedEffectKind.RoundCommand, rule, source: entry.Key == observer ? 1 : 2); e.B(true); e.B(true); e.Hot(4, (int)entry.Value); }
     }
 
     private void Continuation(GameContext game, GameContinuation frame, int observer, SearchKnowledge? boundary, int ordinal, int parent = -1)
@@ -178,10 +249,36 @@ public sealed partial class StateEncoder
             else { issues.Add(new("continuation-payload", frame.Rule, "Packed 64-bit continuation payload requires an explicit codec.")); value = -1; }
         }
         if (frame.Rule == "general.reveal.passel") value = game.Flow.Continuations.FindIndex(candidate => candidate.Rule == "effects.window" && candidate.Value == frame.Value);
-        var e = Effect(EncodedEffectKind.Continuation, frame.Rule, visible ? frame.Text : "", frame.Source, frame.Target, ordinal, parent, value); e.B(true); e.B(visible); e.N(frame.Stage / 32f);
+        bool tokenAssignment = frame.Rule is "token.replace" or "token.tantive";
+        if (tokenAssignment) value = frame.Target;
+        var e = Effect(EncodedEffectKind.Continuation, frame.Rule, visible ? frame.Text : "", frame.Source,
+            tokenAssignment ? -1 : frame.Target, ordinal, parent, value); e.B(true); e.B(visible); e.N(frame.Stage / 32f);
+        if (tokenAssignment)
+        {
+            e.Hot(4, frame.Target);
+            if (frame.Rule == "token.tantive") e.B(frame.Value != 0);
+        }
+        if (frame.Rule == "draven.raid") e.Hot(4, visible ? checked((int)frame.Value) : -1);
         if (frame.Rule is "objective.creature.ship-obstacles" or "objective.creature.ship-overlap")
         { var flags = Effect(EncodedEffectKind.ArrayItem, "ship-obstacle-flags", source: frame.Source, parent: ordinal); flags.B((frame.Value & 1) != 0); flags.B((frame.Value & 2) != 0); flags.N((frame.Value >> 2) / 4f); }
-        if (visible && frame.Indices is not null) for (int i = 0; i < frame.Indices.Length; i++) { var index = Effect(EncodedEffectKind.ArrayItem, "continuation-index", source: frame.Indices[i], slot: i, parent: ordinal); index.B(true); }
+        if (visible && frame.Indices is not null) for (int i = 0; i < frame.Indices.Length; i++)
+        {
+            if (frame.Rule == "draven.tokens")
+            {
+                // The first selected token is a command type, not an entity ID.
+                var selected = Effect(EncodedEffectKind.ArrayItem, "draven-token-selection", source: frame.Source,
+                    target: frame.Target, slot: i, parent: ordinal, aux: frame.Indices[i]);
+                selected.B(true); selected.Hot(4, frame.Indices[i]);
+            }
+            else if (frame.Rule == "draven.raid")
+            {
+                // This is the physical upgrade-card row, not a ship/squadron ID.
+                var card = Effect(EncodedEffectKind.ArrayItem, "draven-raid-card", source: frame.Source,
+                    target: frame.Target, slot: i, parent: ordinal, aux: frame.Indices[i]);
+                card.B(true);
+            }
+            else { var index = Effect(EncodedEffectKind.ArrayItem, "continuation-index", source: frame.Indices[i], slot: i, parent: ordinal); index.B(true); }
+        }
     }
 
     private void Movement(GameContext game, MovementExecution m, int observer, string rule, int parent = -1)

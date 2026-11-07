@@ -51,7 +51,20 @@ use non-neural UCT at reveal, their first simulated private look, or the first
 pre-reveal step whose legal effects depend on the dial. Simulated assignments
 stay separate from each player's legally seen dials. Already resolved dials stay
 fixed until an actual queue change; discarded tops expose a new slot rather than
-reusing the old value. The structured encoder is available through
+reusing the old value. Thrawn and Trench use search-only, canonical unordered
+inventory hypotheses, fixed before the simulated owner sees its legal choices.
+Their revealed round effects are public; Bail's token inventory is public.
+Draven follows the user's selected command-look / two different tokens / matching
+raid rule, including private-look memory and reactions after command completion.
+The reveal prelude separates when-reveal effects, dial/token conversion, raid
+cleanup and after-reveal effects. Bail/Thrawn gained dials can become tokens
+before Comms Net; full token capacity produces an explicit discard choice.
+Draven's two-token pair is one native action with two buffered command arguments,
+and Bail's optional dial grants use an atomic subset choice. Actual private looks
+and dice rolls remain state transitions with their own subsequent decisions.
+Concentrate Fire stays within one attack, including optional Krennic rerolls,
+before Draven reacts; Navigate reactions follow Determine Course choices.
+The structured encoder is available through
 `ProductionSearchEncoder`; BigDeep and the optimizer/trainer remain separate
 work. `TensorRandomSearchModel` consumes real padded tensors and supplies
 untrained random policy/value outputs.
@@ -110,10 +123,11 @@ and deployment configuration. The worker test path contains no trainer.
 
 Search keeps simulated command assignments separate from legal observations.
 The eight-column command row ends with an explicit known-enemy-dial flag;
-internal materialization status is never a model feature (state schema v4).
+internal materialization status is never a model feature (state schema v5).
 `SearchRecovery` checkpoints actual roots. Capturing a worker-managed simulation
 as a complete recovery checkpoint is rejected because its private continuation
 and materialization overlay are wrapper state; MCTS continues using root replay.
+Recovery schema v2 rejects earlier command/reveal checkpoints explicitly.
 
 ## Rules and coverage limits
 

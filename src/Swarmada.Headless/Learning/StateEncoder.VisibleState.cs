@@ -28,7 +28,28 @@ public sealed partial class StateEncoder
         var a = game.Flow.ShipActivations[ship]; bool privateVisible = game.State.Owners[ship] == observer && (boundary is null || boundary.Observer == observer);
         w.B(a.NavigateDial); w.B(a.NavigateToken); w.N(a.ManeuversExecuted / 4f); w.B(a.NavigateManeuverConsumed); w.N(a.NavigateTokenUse / 4f); w.B(a.ConcentrateFireRavagerChoice); w.N(a.NavigateSpeedLimit / 4f); w.B(a.CommandResolutionCompleted);
         w.Hot(6, a.PendingCommand.HasValue ? 2 + (int)a.PendingCommand.Value : 0); w.N(a.ResolvedDialCommands / 4f); w.N(a.CommandRevealStep / 8f); w.B(a.RapidLaunchReleaseChecked); for (int command = 0; command < 4; command++) w.B(privateVisible && (a.BailDialSelection & (1 << command)) != 0); w.B(a.ThrawnDialQueued); w.B(a.AdditionalDialActive); w.B(a.CurrentCommandResolved); w.Hot(5, a.CurrentResolvedCommand.HasValue ? 1 + (int)a.CurrentResolvedCommand.Value : 0); w.B(a.CommandCompletionPending); w.N(a.CommandCompletionStep / 8f); w.Hot(27, (int)a.CommandCompletionReturnPhase); w.B(a.VantoOffered); w.N(a.SquadronCommandPreludeStep / 8f); w.B(a.RaidInterferenceResolved); w.B(a.NativeDialConsumedBeforePrelude); w.N(a.DeferredSquadronActivations / 8f); w.Hot(3, (int)a.DeferredSquadronSpendMode); w.N(a.BeckCommands / 4f); w.B(a.UncommittedMatchstick); w.B(a.ShieldsToMaximumChecked);
-        for (int i = 0; i < a.AdditionalCommandDials.Count; i++) { var dial = a.AdditionalCommandDials[i]; var e = Effect(EncodedEffectKind.AdditionalDial, "additional-command-dial", dial.Source, ship, slot: i); e.B(privateVisible || a.AdditionalDialActive); e.Hot(4, privateVisible || a.AdditionalDialActive ? (int)dial.Command : -1); }
+        if (a.ActualRevealedCommand.HasValue || a.RevealPreludeActive || a.RevealWhenWindowOpened ||
+            a.RevealAfterWindowOpened || a.RevealBankingClosed || a.NativeBankingDecided)
+        {
+            // Public reveal history is separate from whichever gained dial is
+            // currently being resolved. Sparse side rows keep ShipWidth stable.
+            var reveal = Effect(EncodedEffectKind.Sequence, "command-reveal-prelude", source: ship);
+            reveal.B(true); reveal.B(a.ActualRevealedCommand.HasValue);
+            reveal.Hot(4, a.ActualRevealedCommand.HasValue ? (int)a.ActualRevealedCommand.Value : -1);
+            reveal.B(a.RevealPreludeActive); reveal.B(a.RevealWhenWindowOpened); reveal.B(a.RevealAfterWindowOpened);
+            reveal.B(a.RevealBankingClosed); reveal.B(a.NativeBankingDecided);
+        }
+        for (int i = 0; i < a.AdditionalCommandDials.Count; i++)
+        {
+            var dial = a.AdditionalCommandDials[i];
+            // These dials were gained from a public reveal, spent public card token,
+            // or committed public choice. Their type is already known before the
+            // additional dial becomes the command currently being resolved.
+            bool visible = privateVisible || a.AdditionalDialActive || dial.Source is
+                "Grand Admiral Thrawn" or "Bail Organa" or "Admiral Tarkin" or "Passel Argente" or "Revealed Command";
+            var e = Effect(EncodedEffectKind.AdditionalDial, "additional-command-dial", dial.Source, ship, slot: i);
+            e.B(visible); e.Hot(4, visible ? (int)dial.Command : -1); e.B(visible && dial.BankingDecided);
+        }
         for (int i = 0; i < a.CommandedSquadrons.Count; i++) Link("commanded-squadron", ship, a.CommandedSquadrons[i], i);
         for (int i = 0; i < a.AttackedShips.Length; i++) Link("attacked-ship", ship, a.AttackedShips[i], i);
         Link("relay-keyword", ship, a.UncommittedRelayKeyword); Link("relay-title", ship, a.UncommittedRelayTitle); Link("relay-target", ship, a.UncommittedRelayTarget);
@@ -42,12 +63,18 @@ public sealed partial class StateEncoder
             var card = state.Upgrades[i]; var w = new Writer(output.Cards.AsSpan(i * CardWidth, CardWidth)); w.Hot(294, Schema.Upgrades.Index(card.Definition.id)); w.Hot(294, Schema.Upgrades.Index(card.EffectiveDefinitionId));
             int host = checked((int)state.Registers[upgradeOwners[i]] - 1); output.CardHosts[i] = host; bool own = host >= 0 && host < state.Owners.Length && state.Owners[host] == observer;
             bool boundaryVisible = boundary is null || boundary.Observer == observer;
-            bool privateAssigned = card.Definition.id is "grand-admiral-thrawn-commander" or "admiral-trench-commander" or "general-draven-commander";
-            bool assignmentKnown = !privateAssigned || own && boundaryVisible;
+            bool privateAssigned = card.Definition.id is "grand-admiral-thrawn-commander" or "admiral-trench-commander";
+            // A simulated owner's inventory may be a fixed UCT hypothesis. Its
+            // materialization marker permits that owner to observe it; it never
+            // makes an enemy's unrevealed inventory visible to the other player.
+            bool assignmentKnown = !privateAssigned || own && (boundaryVisible || boundary!.HasMaterializedCommanderInventory(i));
             w.B(true); w.B(!card.Exhausted && !card.Discarded); w.B(card.Exhausted); w.B(card.Discarded); w.N(card.CommandTokens / 8f); w.N(card.UsesThisActivation / 4f); w.N(card.UsesThisAttack / 4f); w.N(card.LastUsedRound / 6f);
             for (int c = 0; c < 4; c++) w.N(privateAssigned && !assignmentKnown ? 0 : card.TypedCommandTokens.GetValueOrDefault((ShipCommand)c) / 8f);
             w.Hot(7, card.FocusZone.HasValue ? 1 + (int)card.FocusZone.Value : 0); w.B(own); w.Hot(6, !assignmentKnown ? 1 : card.AssignedCommandToken.HasValue ? 2 + (int)card.AssignedCommandToken.Value : 0); w.B(card.SetupInitialized); w.B(card.HasStoredDie); w.Hot(3, card.HasStoredDie ? (int)card.StoredDieColor - 1 : -1); w.Hot(6, card.HasStoredDie ? (int)card.StoredDieFace : -1);
-            w.N(card.StoredUnitIds.Count / 16f); bool scheduledKnown = card.Definition.id != "bail-organa-commander" || own && boundaryVisible; w.N(card.ScheduledRounds.Count / 6f); for (int round = 1; round <= 6; round++) w.B(scheduledKnown && card.ScheduledRounds.Contains(round));
+            // Republic Bail commander has public fixed command tokens, not the
+            // round-selection mechanic of the separate Rebel Bail officer.
+            const bool scheduledKnown = true;
+            w.N(card.StoredUnitIds.Count / 16f); w.N(card.ScheduledRounds.Count / 6f); for (int round = 1; round <= 6; round++) w.B(card.ScheduledRounds.Contains(round));
             for (int slot = 0; slot < card.StoredUnitIds.Count; slot++)
             {
                 string value = card.StoredUnitIds[slot];

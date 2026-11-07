@@ -23,7 +23,6 @@ public sealed record PreparedWorkerGame(GameSession Game, MatchConfigDto Match, 
 public sealed class ProductionGameSetup(WorkerOptions options, FleetData data)
 {
     private readonly IFleetContentCatalog content = data.BuildFleetCatalog();
-    private static readonly string[] UnsupportedPrivateCommanders = ["grand-admiral-thrawn-commander", "admiral-trench-commander", "general-draven-commander", "bail-organa-commander"];
     public PreparedWorkerGame Create(string gameId, ulong seed, CancellationToken cancellationToken)
     {
         Exception? last = null;
@@ -37,7 +36,6 @@ public sealed class ProductionGameSetup(WorkerOptions options, FleetData data)
             if (!OfficialObjectives.SupportedIds.Contains(match.objectiveId, StringComparer.Ordinal))
                 throw new ArgumentException("The worker needs one supported objective: " + match.objectiveId);
             if (match.mapMovementEnabled) throw new ArgumentException("The production worker uses the agreed static-map variant. Set mapMovementEnabled=false.");
-            RejectUnsupported(match);
             bool official = match.ruleset == FleetRuleset.OfficialStandard400.Id;
             var validator = new FleetLegalityValidator(content, official ? FleetRuleset.OfficialStandard400 : FleetRuleset.Sandbox,
                 new FleetValidationOptions(reportGameplayCoverage: false));
@@ -144,13 +142,5 @@ public sealed class ProductionGameSetup(WorkerOptions options, FleetData data)
             if (deployment.unitKind == RuntimeUnitKind.Squadron) deployment.positionZ += deployment.ownerPlayerId == 1 ? 2 : -2;
         }
         return match;
-    }
-    private static void RejectUnsupported(MatchConfigDto match)
-    {
-        foreach (var slot in match.players)
-            foreach (var ship in slot.fleet.ships)
-                foreach (string upgrade in ship.upgradeIds)
-                    if (UnsupportedPrivateCommanders.Contains(upgrade, StringComparer.Ordinal))
-                        throw new SearchCoverageException("Worker search does not support this private commander store: " + upgrade);
     }
 }

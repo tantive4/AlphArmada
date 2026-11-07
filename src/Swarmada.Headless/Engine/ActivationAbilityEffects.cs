@@ -7,7 +7,7 @@ using Swarmada.Headless.Runtime;
 namespace Swarmada.Headless.Engine;
 
 /// <summary>Additional command dials and the choices that complete an individual command.</summary>
-public static class ActivationAbilityEffects
+public static partial class ActivationAbilityEffects
 {
     public static bool SupportsUpgrade(string id) => id is "bail-organa-commander" or "commander-vanto-officer" or
         "san-hill-officer" or "adar-tallon-officer" or "resolute-title" or "leia-organa-commander" or
@@ -136,13 +136,21 @@ public static class ActivationAbilityEffects
     public static void EnqueueDial(GameContext game, ShipCommand command, string source) =>
         game.Flow.ShipActivations[game.Flow.ActiveShip].AdditionalCommandDials.Add(new(command, source));
 
-    public static void BeginReveal(GameContext game)
+    public static void BeginReveal(GameContext game, bool hasNativeReveal = true)
     {
         var state = Active(game); state.CommandRevealStep = 0; state.BailDialSelection = 0;
         state.ThrawnDialQueued = false; state.AdditionalDialActive = false; state.CurrentCommandResolved = false;
         state.RaidInterferenceResolved = false;
         state.NativeDialConsumedBeforePrelude = false;
         state.RapidLaunchReleaseChecked = false;
+        state.ActualRevealedCommand = hasNativeReveal ? state.RevealedCommand : null;
+        state.RevealPreludeActive = true; state.RevealWhenWindowOpened = false;
+        state.RevealAfterWindowOpened = false; state.RevealBankingClosed = false; state.NativeBankingDecided = false;
+        if (!hasNativeReveal)
+        {
+            state.CommandRevealStep = 2; state.RevealedCommand = null; state.RevealedDialAvailable = false;
+            state.NativeBankingDecided = true; state.NativeDialConsumedBeforePrelude = true;
+        }
     }
 
     public static GameDecision? GetCommandDecision(GameContext game)
@@ -157,12 +165,16 @@ public static class ActivationAbilityEffects
             {
                 var bail = FindFleetCard(game, ship, "bail-organa-commander");
                 if (bail is not null)
-                    foreach (var command in Enum.GetValues<ShipCommand>())
-                        if (bail.GetTypedCommandTokenCount(command) > 0 && (state.BailDialSelection & (1 << (int)command)) == 0)
-                            Add(options, new(GameActionKind.ChooseCommand, ship, Command: command, AbilityId: "activation.bail-add"), "Add Bail's " + command + " dial");
-                if (options.Count > 0 || state.BailDialSelection != 0)
                 {
-                    Add(options, new(GameActionKind.Pass, ship, AbilityId: "activation.bail-finish"), state.BailDialSelection == 0 ? "Skip Bail Organa" : "Confirm selected Bail dials");
+                    bool navigate = bail.GetTypedCommandTokenCount(ShipCommand.Navigate) > 0;
+                    bool engineering = bail.GetTypedCommandTokenCount(ShipCommand.Engineering) > 0;
+                    if (navigate) Add(options, new(GameActionKind.UseAbility, ship, Command: ShipCommand.Navigate, AbilityId: "activation.bail-use-navigate"), "Gain Bail's Navigate dial");
+                    if (engineering) Add(options, new(GameActionKind.UseAbility, ship, Command: ShipCommand.Engineering, AbilityId: "activation.bail-use-engineering"), "Gain Bail's Engineering dial");
+                    if (navigate && engineering) Add(options, new(GameActionKind.UseAbility, ship, AbilityId: "activation.bail-use-both"), "Gain both Bail dials");
+                }
+                if (options.Count > 0)
+                {
+                    Add(options, new(GameActionKind.Pass, ship, AbilityId: "activation.bail-finish"), "Skip Bail Organa");
                     return Decision(game, options);
                 }
                 state.CommandRevealStep++; continue;
@@ -185,11 +197,31 @@ public static class ActivationAbilityEffects
                     state.ThrawnDialQueued = true;
                     if (game.Flow.SourceRules.ThrawnCommands.TryGetValue(game.State.Owners[ship], out var thrawn)) EnqueueDial(game, thrawn, "Grand Admiral Thrawn");
                 }
-                if (game.State.Commands[ship].RaidTokenCount > 0 && !state.RaidInterferenceResolved) return null;
                 state.CommandRevealStep++; continue;
             }
             if (state.CommandRevealStep == 3)
             {
+                if (state.RevealPreludeActive)
+                {
+                    if (!state.RevealWhenWindowOpened)
+                    {
+                        state.RevealWhenWindowOpened = true;
+                        if (state.ActualRevealedCommand.HasValue && EngineEffects.BeginWindow(game, "command-reveal", ship, resumePhase: GamePhase.ResolveCommand))
+                            return new(DecisionKind.Forced, 0, game.Flow.Phase, []);
+                    }
+                    if (!state.RevealBankingClosed)
+                    {
+                        if (RevealBankingDecision(game) is { } banking) return banking;
+                        state.RevealBankingClosed = true;
+                    }
+                    if (NeedsRevealRaidDecision(game)) return null;
+                    if (!state.RevealAfterWindowOpened)
+                    {
+                        state.RevealAfterWindowOpened = true;
+                        if (state.ActualRevealedCommand.HasValue && EngineEffects.BeginWindow(game, "after-command-reveal", ship, resumePhase: GamePhase.ResolveCommand))
+                            return new(DecisionKind.Forced, 0, game.Flow.Phase, []);
+                    }
+                }
                 if (!state.RapidLaunchReleaseChecked)
                 {
                     state.RapidLaunchReleaseChecked = true;
@@ -198,15 +230,10 @@ public static class ActivationAbilityEffects
                 }
                 state.CommandRevealStep++; continue;
             }
-            var extra = state.AdditionalCommandDials.FirstOrDefault(x => x.Source == "Grand Admiral Thrawn");
-            if (!state.NativeDialConsumedBeforePrelude && extra.Source is not null && extra.Command != state.RevealedCommand && CommandModule.CommandAllowed(game, ship, extra.Command))
-            {
-                Add(options, new(GameActionKind.UseAbility, ship, Command: state.RevealedCommand!.Value, AbilityId: "activation.native-first"), "Present the ship's revealed dial first");
-                Add(options, new(GameActionKind.UseAbility, ship, Command: extra.Command, AbilityId: "activation.thrawn-first"), "Present Thrawn's additional dial first");
-                return Decision(game, options);
-            }
+            if (RevealDialOrderDecision(game) is { } order) return order;
             state.CommandRevealStep++;
         }
+        state.RevealPreludeActive = false;
         if (state.NativeDialConsumedBeforePrelude)
         {
             state.NativeDialConsumedBeforePrelude = false;
@@ -225,6 +252,17 @@ public static class ActivationAbilityEffects
         var state = Active(game); int ship = game.Flow.ActiveShip, owner = game.State.Owners[ship];
         switch (action.AbilityId)
         {
+            case "activation.reveal-keep-native": state.NativeBankingDecided = true; return true;
+            case "activation.reveal-bank-native":
+                state.NativeBankingDecided = true; state.RevealedDialAvailable = false; state.NativeDialConsumedBeforePrelude = true;
+                if (!TokenAssignments.TryAssign(game, ship, action.Command)) throw new InvalidOperationException("The revealed command token cannot be gained.");
+                return true;
+            case "activation.reveal-keep-extra":
+                state.AdditionalCommandDials[action.Index] = state.AdditionalCommandDials[action.Index] with { BankingDecided = true }; return true;
+            case "activation.reveal-bank-extra":
+                state.AdditionalCommandDials.RemoveAt(action.Index);
+                if (!TokenAssignments.TryAssign(game, ship, action.Command)) throw new InvalidOperationException("The gained command token cannot be gained.");
+                return true;
             case "activation.rex-raid":
                 game.UpgradesFor(ship).First(x => x.Active && x.Definition.id == "captain-rex-officer").TryUseThisActivation();
                 game.State.Commands[action.Target].TryGainRaidToken(action.Command); state.SquadronCommandPreludeStep = 1;
@@ -237,7 +275,17 @@ public static class ActivationAbilityEffects
                 state.CommandedSquadronsRemaining = 0; state.SquadronCommandPreludeStep = 4;
                 state.CurrentCommandResolved = false; state.CurrentResolvedCommand = null;
                 CompleteCommand(game); return true;
-            case "activation.bail-add": state.BailDialSelection |= 1 << (int)action.Command; return true;
+            case "activation.bail-use-navigate":
+            case "activation.bail-use-engineering":
+            case "activation.bail-use-both":
+                var bailCard = FindFleetCard(game, ship, "bail-organa-commander")!;
+                foreach (var selected in action.AbilityId == "activation.bail-use-both"
+                    ? new[] { ShipCommand.Navigate, ShipCommand.Engineering } : new[] { action.Command })
+                {
+                    if (!bailCard.TrySpendTypedCommandToken(selected)) throw new InvalidOperationException("Bail's selected token is unavailable.");
+                    EnqueueDial(game, selected, "Bail Organa");
+                }
+                state.CommandRevealStep = 1; return true;
             case "activation.bail-finish":
                 var bail = FindFleetCard(game, ship, "bail-organa-commander");
                 foreach (var command in Enum.GetValues<ShipCommand>())
@@ -250,10 +298,9 @@ public static class ActivationAbilityEffects
             case "activation.tarkin-save": state.CommandRevealStep = 2; return true;
             case "activation.native-first": state.CommandRevealStep = 5; return true;
             case "activation.thrawn-first":
-                int index = state.AdditionalCommandDials.FindIndex(x => x.Source == "Grand Admiral Thrawn");
-                var thrawn = state.AdditionalCommandDials[index]; state.AdditionalCommandDials.RemoveAt(index);
-                state.AdditionalCommandDials.Insert(0, new(state.RevealedCommand!.Value, "Revealed Command"));
-                state.RevealedCommand = thrawn.Command; state.AdditionalDialActive = true; state.CommandRevealStep = 5; return true;
+            case "activation.additional-first":
+                SelectAdditionalDial(game, action.Index, retainNative: state.RevealedDialAvailable && !state.NativeDialConsumedBeforePrelude); return true;
+            case "activation.next-dial": SelectAdditionalDial(game, action.Index, retainNative: false); return true;
             case "activation.adar-ready":
                 game.UpgradesFor(ship).First(x => x.Active && x.Definition.id == "adar-tallon-officer").Exhaust();
                 game.State.Squadrons[game.SquadronIndex(action.Target)].ReadyActivation();
@@ -284,8 +331,20 @@ public static class ActivationAbilityEffects
     private static GameDecision? CompletionDecision(GameContext game)
     {
         int ship = game.Flow.ActiveShip; var state = Active(game);
-        while (state.CommandCompletionStep < 3)
+        while (state.CommandCompletionStep < 4)
         {
+            if (state.CommandCompletionStep == 3)
+            {
+                // Engineering and Squadron remain unresolved while their nested
+                // choices run. Enter this window only at actual completion and
+                // advance first so resuming the window cannot trigger it twice.
+                state.CommandCompletionStep++;
+                if (state.CurrentCommandResolved && state.CurrentResolvedCommand is { } completed &&
+                    !DravenAbilityEffects.DeferCompletion(game, ship, completed) &&
+                    DravenAbilityEffects.BeginReaction(game, ship, completed, GamePhase.ResolveCommand))
+                    return new(DecisionKind.Forced, 0, game.Flow.Phase, []);
+                continue;
+            }
             var options = new List<GameActionOption>();
             if (state.CurrentCommandResolved)
             {
@@ -309,17 +368,11 @@ public static class ActivationAbilityEffects
         }
         if (state.CurrentResolvedCommand == ShipCommand.Squadron)
             foreach (string key in game.Flow.Flags.Keys.Where(x => x.StartsWith($"wolffe.{ship}.", StringComparison.Ordinal) || x.StartsWith($"ahsoka.{ship}.", StringComparison.Ordinal)).ToArray()) game.Flow.Flags.Remove(key);
-        state.CommandCompletionPending = false; state.CurrentCommandResolved = false; state.CurrentResolvedCommand = null; state.CommandedSquadrons.Clear();
+        state.CurrentCommandResolved = false; state.CurrentResolvedCommand = null; state.CommandedSquadrons.Clear();
         state.CommandResolutionCompleted = true;
         if (state.CommandCompletionReturnPhase == GamePhase.SelectAttack)
-            while (state.AdditionalCommandDials.Count > 0)
-            {
-                var next = state.AdditionalCommandDials[0]; state.AdditionalCommandDials.RemoveAt(0);
-                if (!CommandModule.CommandAllowed(game, ship, next.Command)) continue;
-                state.RevealedCommand = next.Command; state.RevealedDialAvailable = true;
-                state.AdditionalDialActive = true; state.CommandResolutionCompleted = false;
-                game.Flow.Phase = GamePhase.ResolveCommand; return null;
-            }
+            if (NextAdditionalDialDecision(game) is { } next) return next;
+        state.CommandCompletionPending = false;
         game.Flow.Phase = state.CommandCompletionReturnPhase;
         return null;
     }

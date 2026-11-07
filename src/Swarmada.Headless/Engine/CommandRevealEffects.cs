@@ -14,9 +14,15 @@ public static class CommandRevealEffects
     public static bool SupportsUpgrade(string id) => Cards.Contains(id);
     public static IEnumerable<GameActionOption> GetActions(GameContext game, string timing, int source, int target)
     {
-        if (timing != "command-reveal" || !game.IsShip(source)) yield break;
+        if (!game.IsShip(source)) yield break;
+        if (timing == "after-command-reveal")
+        {
+            foreach (var option in AfterRevealActions(game, source)) yield return option;
+            yield break;
+        }
+        if (timing != "command-reveal") yield break;
         var ship = game.ShipViews[source]; var activation = game.Flow.ShipActivations[source];
-        if (activation.RevealedCommand is not { } command) yield break;
+        if ((activation.ActualRevealedCommand ?? activation.RevealedCommand) is not { } command) yield break;
         if (ship.Loadout.HasActive("director-isard-officer"))
             foreach (var enemy in game.SceneShipViews.Where(other => other.OwnerId != ship.OwnerId))
                 yield return new(new(GameActionKind.UseAbility, source, enemy.Index, AbilityId: IsardAction),
@@ -40,6 +46,12 @@ public static class CommandRevealEffects
             foreach (var friend in friends.Where(friend => friend.Index != source && Enum.GetValues<ShipCommand>().Any(token => CanStore(game, source, token)
                 && (friend.Commands.HasToken(token) || ship.Loadout.Find("rune-haako-officer")!.GetTypedCommandTokenCount(token) > 0))))
                 yield return Option("reveal.rune", source, friend.Index, command, "Transfer command tokens from " + friend.Definition.DisplayName + " or Rune Haako");
+    }
+
+    private static IEnumerable<GameActionOption> AfterRevealActions(GameContext game, int source)
+    {
+        var ship = game.ShipViews[source];
+        var friends = game.SceneShipViews.Where(other => other.OwnerId == ship.OwnerId && RaidRules.FootprintDistance(ship, other) <= 13.260394f).ToArray();
         if (ship.Loadout.HasActive("comms-net"))
             foreach (var token in ship.Commands.Tokens)
                 foreach (var friend in friends.Where(friend => friend.Index != source && CanStore(game, friend.Index, token)))
@@ -64,10 +76,10 @@ public static class CommandRevealEffects
             case "reveal.leia": game.State.Commands[action.Target].ReplaceTop(action.Command); return true;
             case "reveal.aresko": game.ShipViews[action.Target].Loadout.Find("commandant-aresko-officer")!.Exhaust(); TokenAssignments.TryAssign(game, action.Target, action.Command); return true;
             case "reveal.tikkes":
-                var tikkes = ship.Loadout.Find("tikkes-officer")!; tikkes.ClearTypedCommandTokens(); tikkes.AddTypedCommandToken(activation.RevealedCommand!.Value);
+                var tikkes = ship.Loadout.Find("tikkes-officer")!; tikkes.ClearTypedCommandTokens(); tikkes.AddTypedCommandToken((activation.ActualRevealedCommand ?? activation.RevealedCommand)!.Value);
                 TokenAssignments.TryAssign(game, action.Source, action.Command); return true;
             case "reveal.passel-store":
-                var passel = ship.Loadout.Find("passel-argente-officer")!; passel.AddTypedCommandToken(activation.RevealedCommand!.Value);
+                var passel = ship.Loadout.Find("passel-argente-officer")!; passel.AddTypedCommandToken((activation.ActualRevealedCommand ?? activation.RevealedCommand)!.Value);
                 if (Enum.GetValues<ShipCommand>().All(command => passel.GetTypedCommandTokenCount(command) > 0))
                     Push(game, new("general.reveal.passel", action.Source, Value: window.Value));
                 return true;

@@ -302,7 +302,7 @@ public sealed partial class SetupModule : IGameplayModule
                     "kyrsta-agate-commander" => "setup.gain-token", "taskmaster-grint-officer" => "setup.assign-command",
                     "admiral-titus-officer" => "setup.enemy-speed",
                     "aspiration-title" => "setup.aspiration", "gunnery-chief-varnillian" => "setup.varnillian",
-                    "admiral-tarkin-commander" or "admiral-trench-commander" or "count-dooku-commander" or "general-draven-commander" or
+                    "admiral-tarkin-commander" or "admiral-trench-commander" or "count-dooku-commander" or
                         "grand-admiral-thrawn-commander" or "rune-haako-officer" or "resolute-title" => "setup.store-commands",
                     _ => null
                 };

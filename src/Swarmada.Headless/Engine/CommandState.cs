@@ -37,6 +37,13 @@ public sealed partial class ShipActivationState
     public int UncommittedRelayTarget { get; set; } = -1;
     public bool UncommittedMatchstick { get; set; }
     public bool ShieldsToMaximumChecked { get; set; }
+    /// <summary>The ship's actual revealed dial, independent of gained-dial resolution order.</summary>
+    public ShipCommand? ActualRevealedCommand { get; set; }
+    public bool RevealPreludeActive { get; set; }
+    public bool RevealWhenWindowOpened { get; set; }
+    public bool RevealAfterWindowOpened { get; set; }
+    public bool RevealBankingClosed { get; set; }
+    public bool NativeBankingDecided { get; set; }
     partial void CopyCommandStateFrom(ShipActivationState other)
     {
         ConcentrateFireDie = other.ConcentrateFireDie; ConcentrateFireReroll = other.ConcentrateFireReroll;
@@ -60,10 +67,13 @@ public sealed partial class ShipActivationState
         UncommittedRelayKeyword = other.UncommittedRelayKeyword; UncommittedRelayTitle = other.UncommittedRelayTitle;
         UncommittedRelayTarget = other.UncommittedRelayTarget; UncommittedMatchstick = other.UncommittedMatchstick;
         ShieldsToMaximumChecked = other.ShieldsToMaximumChecked;
+        ActualRevealedCommand = other.ActualRevealedCommand; RevealPreludeActive = other.RevealPreludeActive;
+        RevealWhenWindowOpened = other.RevealWhenWindowOpened; RevealAfterWindowOpened = other.RevealAfterWindowOpened;
+        RevealBankingClosed = other.RevealBankingClosed; NativeBankingDecided = other.NativeBankingDecided;
     }
 }
 
-public readonly record struct AdditionalCommandDial(ShipCommand Command, string Source);
+public readonly record struct AdditionalCommandDial(ShipCommand Command, string Source, bool BankingDecided = false);
 
 public sealed partial class GameFlowState
 {

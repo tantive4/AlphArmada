@@ -49,6 +49,7 @@ public static class EngineEffects
     {
         var frame = Current(game);
         if (frame.Rule != "effects.window") return TokenAssignments.Handles(frame.Rule) ? TokenAssignments.GetDecision(game, frame)
+            : DravenAbilityEffects.Handles(frame.Rule) ? DravenAbilityEffects.GetDecision(game, frame)
             : OfficialObjectives.Handles(frame.Rule) ? OfficialObjectives.GetDecision(game, frame)
             : StrategicEffects.Handles(frame.Rule) ? StrategicEffects.GetDecision(game, frame)
             : MissingSquadronLifecycleEffects.Handles(frame.Rule) ? MissingSquadronLifecycleEffects.GetDecision(game, frame)
@@ -72,6 +73,7 @@ public static class EngineEffects
         if (frame.Rule != "effects.window")
         {
             if (TokenAssignments.Handles(frame.Rule)) TokenAssignments.Apply(game, frame, action);
+            else if (DravenAbilityEffects.Handles(frame.Rule)) DravenAbilityEffects.Apply(game, frame, action);
             else if (OfficialObjectives.Handles(frame.Rule)) OfficialObjectives.Apply(game, frame, action);
             else if (StrategicEffects.Handles(frame.Rule)) StrategicEffects.Apply(game, frame, action);
             else if (MissingSquadronLifecycleEffects.Handles(frame.Rule)) MissingSquadronLifecycleEffects.Apply(game, frame, action);
@@ -97,7 +99,7 @@ public static class EngineEffects
             CloseWindow(game, frame); return;
         }
         if (!GetOptions(game, frame).Any(x => GameSession.Matches(x, action))) throw new ArgumentException("Ability is no longer available.", nameof(action));
-        if (SetupTimingEffects.TryApply(game, frame, action) || OfficialObjectives.TryApply(game, frame, action) || StrategicEffects.TryApply(game, frame, action) || MissingSquadronLifecycleEffects.TryApply(game, frame, action) || ActivationAbilityEffects.TryWindowApply(game, frame, action) || MapAbilityEffects.TryApply(game, frame, action) || MovementAbilityEffects.TryApply(game, frame, action)
+        if (SetupTimingEffects.TryApply(game, frame, action) || DravenAbilityEffects.TryApply(game, frame, action) || OfficialObjectives.TryApply(game, frame, action) || StrategicEffects.TryApply(game, frame, action) || MissingSquadronLifecycleEffects.TryApply(game, frame, action) || ActivationAbilityEffects.TryWindowApply(game, frame, action) || MapAbilityEffects.TryApply(game, frame, action) || MovementAbilityEffects.TryApply(game, frame, action)
             || RoundAbilityEffects.TryApply(game, frame, action) || GeneralAbilityEffects.TryApply(game, frame, action))
         { game.Flow.Flags[UsedKey(frame, action)] = 1; return; }
         throw new NotSupportedException("Source ability has not been ported: " + action.AbilityId);
@@ -125,7 +127,9 @@ public static class EngineEffects
                     .OrderBy(x => x.Owner == game.Topology.FirstPlayer ? 0 : 1).Select(x => x.EntityIndex).ToArray();
             foreach (int source in sources)
             {
-                var context = new AbilityQueryContext(timing, revealedCommand: game.Flow.ShipActivations[source].RevealedCommand);
+                var activation = game.Flow.ShipActivations[source];
+                var context = new AbilityQueryContext(timing, revealedCommand: window.Text == "command-reveal"
+                    ? activation.ActualRevealedCommand ?? activation.RevealedCommand : activation.RevealedCommand);
                 foreach (var action in UnitAbilityEngine.GetActions(game.ShipViews[source], context))
                 {
                     // The recovered Ahsoka offer assumes free capacity before its
@@ -138,6 +142,7 @@ public static class EngineEffects
             }
         }
         foreach (var option in MovementAbilityEffects.GetActions(game, window.Text, window.Source, window.Target)
+            .Concat(DravenAbilityEffects.GetActions(game, window.Text, window.Source, window.Target))
             .Concat(OfficialObjectives.GetActions(game, window.Text, window.Source, window.Target))
             .Concat(StrategicEffects.GetActions(game, window.Text, window.Source, window.Target))
             .Concat(MissingSquadronLifecycleEffects.GetActions(game, window.Text, window.Source, window.Target))
@@ -167,6 +172,8 @@ public static class EngineEffects
         // copy, or this same card at a later trigger, remains independent.
         string effect = action.AbilityId.StartsWith("reveal.comms-net.", StringComparison.Ordinal)
             ? "reveal.comms-net" : action.AbilityId;
+        if (action.AbilityId is DravenAbilityEffects.DravenLookAction or DravenAbilityEffects.NoLookAction)
+            effect = DravenAbilityEffects.DravenLookAction;
         return $"effects.used.{window.Value}.{action.Source}.{effect}"
             + (action.AbilityId.StartsWith("round.ready-", StringComparison.Ordinal) ? "." + action.Index : "");
     }

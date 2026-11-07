@@ -333,7 +333,12 @@ public sealed class DecisionAdapter
         Add("zone/select_target_zone", a => a.ToZone, a => "to_zone:" + (int)a.ToZone);
         int Token(GameAction action) => providers?.GetValueOrDefault(action)?.TokenType is { } token ? (int)token : (int)action.Token;
         Add("token_pointer/select_token_type", Token, a => "token:" + Token(a));
-        Add("amount/select_amount", a => a.Amount, a => "amount:" + a.Amount);
+        // Draven's unordered two-token effect is one native action. Its second
+        // type is transported as Amount=command+1, but uses the same conditional
+        // command head as the first type, rather than a numeric amount head.
+        bool commandPair = actions.Any(a => a.AbilityId == DravenAbilityEffects.PairAction);
+        Add(commandPair ? "command/select_command" : "amount/select_amount", a => a.Amount,
+            a => commandPair && a.AbilityId == DravenAbilityEffects.PairAction ? "command:" + (a.Amount - 1) : "amount:" + a.Amount);
         Add("speed/select_speed", a => a.Speed, a => "speed:" + a.Speed);
         Add("spatial/select_destination", a => a.Position, a => "position:" + Position(a.Position));
         Add("heading/select_heading", a => a.YawDegrees, a => "heading:" + F(a.YawDegrees));
@@ -387,7 +392,8 @@ public sealed class DecisionAdapter
     {
         var frame = Game.Context.Flow.Continuations.LastOrDefault();
         if (frame is null) throw new SearchCoverageException("AbilityChoice has no recoverable timing context.");
-        if (frame.Rule.StartsWith("general.reveal.", StringComparison.Ordinal) || frame.Text == "command-reveal") return "command_window";
+        if (frame.Rule.StartsWith("general.reveal.", StringComparison.Ordinal) ||
+            frame.Text is "before-reveal-command" or "before-command-reveal" or "command-reveal" or "after-command-reveal") return "command_window";
         if (frame.Rule.StartsWith("death.", StringComparison.Ordinal) || DamageEvents.Handles(frame.Rule)) return "damage";
         if (frame.Rule.StartsWith("movement.", StringComparison.Ordinal)) return "maneuver";
         if (frame.Rule.StartsWith("round.", StringComparison.Ordinal) || frame.Text is "start-round" or "start-ship-phase" or "start-squadron-phase" or "end-phase" or "status") return "boundary_window";

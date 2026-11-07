@@ -87,7 +87,7 @@ public sealed partial class RoundModule
                 foreach (var ship in LiveShips(game).Where(x => x.Owner == game.State.Owners[entry.Source])) Add("round.tagge", entry.Source, entry.Index, ship.EntityIndex);
         }
         foreach (var entry in cards.Where(x => x.Card.Definition.id == "sovereign-title")) Add("round.sovereign", entry.Source, entry.Index, value: 3);
-        foreach (var entry in cards.Where(x => x.Card.Definition.id is "admiral-tarkin-commander" or "admiral-trench-commander" or "general-draven-commander" or "grand-admiral-thrawn-commander" or "count-dooku-commander"))
+        foreach (var entry in cards.Where(x => x.Card.Definition.id is "admiral-tarkin-commander" or "admiral-trench-commander" or "grand-admiral-thrawn-commander" or "count-dooku-commander"))
             if (entry.Card.TypedCommandTokens.Count > 0) Add("round.stored", entry.Source, entry.Index, text: entry.Card.Definition.id);
         foreach (var entry in cards.Where(x => x.Card.Definition.id == "grand-moff-tarkin-commander")) Add("round.tarkin", entry.Source, entry.Index);
         foreach (var entry in cards.Where(x => x.Card.Definition.id == "emperor-palpatine-commander")) Add("round.palpatine", entry.Source, entry.Index);
@@ -217,7 +217,6 @@ public sealed partial class RoundModule
                         if (action.AbilityId == "round.tarkin-dial") RemainingUpgradeRules.ActivateAdmiralTarkinDial(owner, action.Command);
                         else IssueFleetTokens(game, owner, action.Command); break;
                     case "admiral-trench-commander": RemainingUpgradeRules.ActivateTrench(owner, action.Command); break;
-                    case "general-draven-commander": RemainingUpgradeRules.ActivateDraven(owner, action.Command); break;
                     case "grand-admiral-thrawn-commander": RemainingUpgradeRules.ActivateThrawn(owner, action.Command); break;
                     case "count-dooku-commander": foreach (var ship in LiveShips(game).Where(x => x.Owner != owner)) game.State.Commands[ship.EntityIndex].TryGainRaidToken(action.Command); break;
                 } break;

@@ -274,10 +274,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
             foreach (var other in anakinSources)
                 foreach (var type in Enum.GetValues<DefenseTokenType>().Where(other.State.HasDefenseToken))
                     yield return Ability("remaining.attack-dice.anakin." + other.RuntimeId.Value + "." + (int)type, "anakin-skywalker-commander", "Spend nearby ship's " + type + "; reroll up to three dice");
-        if (ship.Loadout.Find("director-krennic-officer") is { Active: true }
-            && (activation.ResolvedCommands & (1 << (int)ShipCommand.ConcentrateFire)) != 0
-            && a.Range is RangeBand.Medium or RangeBand.Long && a.Dice.Any(die => die.Color == AttackDieColor.Red))
-            yield return Ability("attack.dice.director-krennic", "director-krennic-officer", "Krennic reroll red dice");
+        foreach (var action in KrennicActions(game, a)) yield return action;
         if (CommanderRules.FleetHasCommander(ship, "darth-vader-commander"))
             foreach (var type in Enum.GetValues<DefenseTokenType>().Where(ship.State.HasDefenseToken))
                 yield return Ability("attack.dice.vader-commander." + (int)type, "darth-vader-commander", "Vader spend " + type + " and reroll dice");
@@ -419,9 +416,10 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                 Reroll(game, a, [a.Dice.Length - 1]); return true;
             case "attack.dice.governor-pryce": Begin(a, "face", id, owner, all, 1, 1); return true;
             case "attack.dice.kraken": Begin(a, "face", id, owner, all, 1, 1); return true;
-            case "attack.dice.director-krennic":
-                int maximum = (game.Flow.ShipActivations[a.Attacker].ResolvedDialCommands & (1 << (int)ShipCommand.ConcentrateFire)) != 0 ? all.Length : 2;
-                Begin(a, "reroll", id, owner, Indices(a, die => die.Color == AttackDieColor.Red), 1, maximum); return true;
+            case "attack.dice.director-krennic.dial":
+            case "attack.dice.director-krennic.token":
+                var red = Indices(a, die => die.Color == AttackDieColor.Red).ToArray();
+                Begin(a, "reroll", id, owner, red, 1, id.EndsWith(".dial", StringComparison.Ordinal) ? red.Length : 2); return true;
             case "attack.dice.shu-mai":
                 Begin(a, "reroll", id, owner, all, 1, CommanderRules.AttackRerollsFromSchedule(game.ShipViews[a.Attacker], game.State.Round)); return true;
             case "attack.dice.flak-title": Begin(a, "reroll", id, owner, all, 1, 1); return true;

@@ -44,6 +44,7 @@ public sealed partial class RoundModule : IGameplayModule
         game.Flow.Flags["activation.in-progress"] = ship + 1;
         OfficialObjectives.State(game)?.Flags.Remove("rift.used." + ship);
         game.Flow.ShipActivations[ship] = new();
+        DravenAbilityEffects.ResetActivation(game, ship);
         game.Flow.Flags.Remove($"crew-panic.{ship}");
         foreach (string key in game.Flow.Flags.Keys.Where(x => x.StartsWith($"wolffe.{ship}.", StringComparison.Ordinal) || x.StartsWith($"ahsoka.{ship}.", StringComparison.Ordinal)).ToArray()) game.Flow.Flags.Remove(key);
         foreach (var card in game.UpgradesFor(ship)) { card.ResetActivationUsage(); card.ResetAttackUsage(); }
@@ -67,6 +68,7 @@ public sealed partial class RoundModule : IGameplayModule
         int ship = game.Flow.ActiveShip;
         if (ship >= 0)
         {
+            DravenAbilityEffects.ResetActivation(game, ship);
             game.Flow.Flags.Remove("activation.in-progress");
             game.Flow.ActiveShip = -1;
             foreach (var squadron in game.State.Squadrons) squadron.ClearShipActivationMovementRestriction();

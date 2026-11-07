@@ -209,7 +209,7 @@ public sealed class MockSearchEncoder : ISearchObservationEncoder
     }
 }
 
-public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
+public sealed partial class NativeMctsEnvironment : ICachedMctsEnvironment
 {
     // A private look is resolved outside the native action/policy space. Each
     // unknown slot is selected once by pure UCT, then fixed for this continuation.
@@ -218,7 +218,7 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
     private sealed record ObserverKnowledgePattern(int Observer, bool[][] Commands,
         (int Ship, int Index)[] DamageSlots, (int Deck, int Count)[] DeckPrefixes);
     private sealed record CachedDecision(PolicyDecision Decision, DecisionAdapter.DecisionDescriptor? Native,
-        GameAction? Reveal, ShipCommand[]? Commands, PrivateCommandLook? Look);
+        GameAction? Reveal, ShipCommand[]? Commands, PrivateCommandLook? Look, PrivateCommanderInventory? Inventory);
     private readonly GameSession root, before;
     private readonly SearchKnowledge rootKnowledge;
     private readonly SearchInformationMode mode;
@@ -258,6 +258,8 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
         if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
         game.GetDecision(); this.root = game.DeepClone(); this.rootKnowledge = rootKnowledge.DeepClone();
         this.mode = mode; Position = game.DeepClone(); before = game.DeepClone(); Adapter = new(Position, profile);
+        privateCommanderCards = game.Context.Topology.Upgrades.Where(upgrade => CommanderInventoryRules.IsPrivate(upgrade.DefinitionId))
+            .Select(upgrade => upgrade.UpgradeIndex).ToArray();
         this.encoder = encoder ?? new MockSearchEncoder();
         if (observerKnowledge is not null)
         {
@@ -294,6 +296,12 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
                     look.LegallyObserved ? "hidden_command/uct_private_look" : "hidden_command/uct_pre_reveal",
                     choices, GamePhase.AbilityChoice);
             }
+            else if (pendingCommanderInventory is { } inventory)
+            {
+                var choices = InventoryCommands(inventory).Select(command =>
+                    new PolicyChoice("hidden_inventory:" + (int)command, command.ToString())).ToArray();
+                decision = new(DecisionKind.Player, inventory.Owner, "hidden_command/uct_commander_inventory", choices, GamePhase.AbilityChoice);
+            }
             else if (hypotheticalReveal is { } reveal)
             {
                 var choices = hypotheticalCommands!.Select(command =>
@@ -307,7 +315,7 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             catalogTicks += Stopwatch.GetTimestamp() - start; return current = decision;
         }
     }
-    public bool InBufferedPrefix => pendingPrivateLook is not null || Adapter.PrefixCount > 0;
+    public bool InBufferedPrefix => pendingPrivateLook is not null || pendingCommanderInventory is not null || Adapter.PrefixCount > 0;
     public NativeSearchTimings Timings => new(resets, Milliseconds(resetTicks), encodings, Milliseconds(encodeTicks),
         Milliseconds(catalogTicks), Milliseconds(applyTicks), Adapter.CandidatesValidated, Adapter.CatalogsBuilt,
         keyBuilds, Milliseconds(keyTicks), descriptorBindings);
@@ -322,6 +330,7 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
         materializedCommands = rootKnowledge.DeepClone();
         handledPreRevealWindows.Clear();
         pendingPrivateLook = null;
+        pendingCommanderInventory = null;
         Adapter.ResetPrefix(); Invalidate(); resets++; resetTicks += Stopwatch.GetTimestamp() - start;
     }
     private SearchKnowledge[] CreateKnowledge(bool bindOpponent = true)
@@ -391,6 +400,11 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             applyTicks += Stopwatch.GetTimestamp() - start;
             return false;
         }
+        if (pendingCommanderInventory is { } inventory)
+        {
+            ApplyCommanderInventoryHypothesis(inventory, InventoryCommands(inventory)[index]);
+            applyTicks += Stopwatch.GetTimestamp() - start; return false;
+        }
         if (hypotheticalReveal is { } reveal)
         {
             before.CopyFrom(Position);
@@ -405,7 +419,7 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             Invalidate(); GetSettled();
             foreach (var observer in knowledge) observer.ObserveTransition(before, action, Position,
                 observePrivateCommandLook: !Deferred);
-            if (Deferred && action.AbilityId == CommandRevealEffects.IsardAction)
+            if (Deferred && action.AbilityId is CommandRevealEffects.IsardAction or DravenAbilityEffects.DravenLookAction)
                 BeginPrivateLook(Position.Context.State.Owners[action.Source], action.Target,
                     Enumerable.Range(0, Position.Context.State.Commands[action.Target].Count).ToArray());
         }
@@ -452,20 +466,28 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             prefixKey = SearchHash.Add(prefixKey, look.LegallyObserved ? 1UL : 0UL);
             foreach (int slot in look.Slots) prefixKey = SearchHash.Add(prefixKey, (ulong)slot);
         }
-        var kind = pendingPrivateLook is not null ? DecisionKind.Player : hypotheticalReveal is null ? native.Kind :
+        if (pendingCommanderInventory is { } inventory)
+        {
+            prefixKey = SearchHash.Add(prefixKey, "private-commander-inventory-v1");
+            prefixKey = SearchHash.Add(prefixKey, (ulong)inventory.Upgrade);
+            prefixKey = SearchHash.Add(prefixKey, (ulong)inventory.Total);
+            foreach (int command in inventory.Selected) prefixKey = SearchHash.Add(prefixKey, (ulong)command + 1);
+        }
+        var kind = pendingPrivateLook is not null || pendingCommanderInventory is not null ? DecisionKind.Player : hypotheticalReveal is null ? native.Kind :
             mode == SearchInformationMode.DeferredUctReveal ? DecisionKind.Player : DecisionKind.Chance;
-        int actor = pendingPrivateLook is { } privateLook ? Position.Context.State.Owners[privateLook.Ship] : hypotheticalReveal is null ? native.Player :
+        int actor = pendingPrivateLook is { } privateLook ? Position.Context.State.Owners[privateLook.Ship] : pendingCommanderInventory is { } store ? store.Owner : hypotheticalReveal is null ? native.Player :
             mode == SearchInformationMode.DeferredUctReveal ? RevealOwner(hypotheticalReveal) : 0;
         return new(new(baseKey.Rules, prefixKey), kind, actor, native.Outcome);
     }
     public object CaptureDecision() => new CachedDecision(Current,
-        hypotheticalReveal is null && pendingPrivateLook is null ? Adapter.CaptureDescriptor() : null,
-        hypotheticalReveal, hypotheticalCommands, pendingPrivateLook);
+        hypotheticalReveal is null && pendingPrivateLook is null && pendingCommanderInventory is null ? Adapter.CaptureDescriptor() : null,
+        hypotheticalReveal, hypotheticalCommands, pendingPrivateLook, pendingCommanderInventory);
     public void BindDecision(object descriptor)
     {
         if (descriptor is not CachedDecision saved) throw new ArgumentException("Descriptor belongs to another environment type.", nameof(descriptor));
         current = saved.Decision; hypotheticalReveal = saved.Reveal; hypotheticalCommands = saved.Commands;
         pendingPrivateLook = saved.Look;
+        pendingCommanderInventory = saved.Inventory;
         if (saved.Native is not null) Adapter.BindDescriptor(saved.Native);
         descriptorBindings++;
     }
@@ -490,8 +512,12 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
         GetSettled();
         if (Deferred)
         {
-            if (pendingPrivateLook is not null) { prepared = true; return; }
+            if (pendingPrivateLook is not null || pendingCommanderInventory is not null) { prepared = true; return; }
             SettleDeferredProgramming();
+            // A simulated owner legally knows its own card inventory. Resolve the
+            // search world before building owner policy candidates or observations.
+            BeginCommanderInventory();
+            if (pendingCommanderInventory is not null) { prepared = true; return; }
             if (Position.Context.Flow.Continuations.LastOrDefault() is
                 { Rule: "movement-choice.slicer", Source: >= 0, Target: >= 0 } slicer &&
                 Position.Context.State.Commands[slicer.Target].Count > 0)

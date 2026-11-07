@@ -57,13 +57,15 @@ public sealed class CommandModule : IGameplayModule
         {
             if (ActivationAbilityEffects.GetCommandDecision(game) is { } commandChoice) return commandChoice;
             if (flow.Phase != GamePhase.ResolveCommand) return new(DecisionKind.Forced, 0, flow.Phase, []);
-            if (activation.RevealedCommand is not { } command) throw new InvalidOperationException("No revealed command is pending.");
-            if (activation.CommandRevealStep == 2 && game.State.Commands[ship].RaidTokenCount > 0 && !activation.RaidInterferenceResolved)
+            if (ActivationAbilityEffects.NeedsRevealRaidDecision(game) ||
+                !activation.RevealPreludeActive && activation.CommandRevealStep == 2 && game.State.Commands[ship].RaidTokenCount > 0 && !activation.RaidInterferenceResolved)
             {
-                AddRaidOptions(game, ship, command, options);
-                Add(options, new(GameActionKind.UseAbility, ship, Command: command, AbilityId: "raid.keep"), "Keep raid tokens and continue if this dial is unblocked");
+                var raidCommand = activation.RevealedCommand ?? activation.AdditionalCommandDials.FirstOrDefault().Command;
+                AddRaidOptions(game, ship, raidCommand, options);
+                Add(options, new(GameActionKind.UseAbility, ship, Command: raidCommand, AbilityId: "raid.keep"), "Keep raid tokens and continue if this dial is unblocked");
                 return new(DecisionKind.Player, owner, flow.Phase, options.AsReadOnly());
             }
+            if (activation.RevealedCommand is not { } command) throw new InvalidOperationException("No revealed command is pending.");
             bool resolved = (activation.ResolvedCommands & (1 << (int)command)) != 0;
             bool allowed = CommandAllowed(game, ship, command) && ActivationAbilityEffects.CanResolveCommand(game, ship) &&
                 !(activation.AdditionalDialActive && command == ShipCommand.Navigate && activation.PendingCommand == ShipCommand.Navigate);
@@ -82,7 +84,7 @@ public sealed class CommandModule : IGameplayModule
             if (!resolved && allowed && !raided && activation.RevealedDialAvailable && ActivationAbilityEffects.CanUseBeck(game, command, false) &&
                 (command is ShipCommand.Engineering or ShipCommand.Squadron || (command == ShipCommand.Navigate && flow.CommandReturnPhase == GamePhase.SelectCourse)))
                 Add(options, new(GameActionKind.UseAbility, ship, Command: command, AbilityId: "command.beck-combined"), "Resolve dial with Beck's supplied token and gain matching raid");
-            if (activation.RevealedDialAvailable && !raided && TokenAssignments.CanAssign(game, ship, command))
+            if (activation.RevealedDialAvailable && !activation.RevealBankingClosed && !raided && TokenAssignments.CanAssign(game, ship, command))
                 Add(options, new(GameActionKind.BankCommand, ship, Command: command), "Bank dial as " + command + " token");
             if (activation.RevealedDialAvailable && command == ShipCommand.Navigate && flow.CommandReturnPhase != GamePhase.SelectCourse)
                 Add(options, new(GameActionKind.SkipCommand, ship, Command: command, AbilityId: "command.hold-navigate"), "Hold Navigate dial until Determine Course");
@@ -139,15 +141,15 @@ public sealed class CommandModule : IGameplayModule
             {
                 flow.Flags[$"crew-panic.{ship}"] = game.State.Round;
                 if (action.AbilityId.EndsWith("discard", StringComparison.Ordinal))
-                { commands.TryDiscardTop(out _); FinishCommand(game); }
+                { commands.TryDiscardTop(out _); ActivationAbilityEffects.BeginReveal(game, hasNativeReveal: false); flow.Phase = GamePhase.ResolveCommand; }
                 else game.State.Ships[ship].DealFacedownDamageCard(game.State.Decks[game.State.Owners[ship] - 1].Draw());
                 return;
             }
-            if (!commands.TryRevealTop(out var revealed)) { FinishCommand(game); return; }
+            if (!commands.TryRevealTop(out var revealed))
+            { ActivationAbilityEffects.BeginReveal(game, hasNativeReveal: false); flow.Phase = GamePhase.ResolveCommand; return; }
             activation.RevealedCommand = revealed; activation.RevealedDialAvailable = true;
             ActivationAbilityEffects.BeginReveal(game);
-            activation.CommandResolutionCompleted = false; flow.Phase = GamePhase.ResolveCommand;
-            EngineEffects.BeginWindow(game, "command-reveal", ship, resumePhase: GamePhase.ResolveCommand); return;
+            activation.CommandResolutionCompleted = false; flow.Phase = GamePhase.ResolveCommand; return;
         }
         if (flow.Phase == GamePhase.Repair)
         { if (!RepairAbilityEffects.TryApply(game, action)) ApplyRepair(game, action); return; }
@@ -389,7 +391,6 @@ public sealed class CommandModule : IGameplayModule
         {
             mode = CommanderRules.UpgradeDialSpendMode(game.ShipViews[ship], mode);
             if (paidMode == CommandSpendMode.Token && RemainingUpgradeRules.TrenchUpgradesToken(game.State.Owners[ship], command)) mode = CommandSpendMode.DialAndToken;
-            if (CommandSpendRules.UsesDial(paidMode) && RemainingUpgradeRules.DravenDowngradesDial(game.State.Owners[ship], command)) mode = CommandSpendMode.Token;
         }
         game.Flow.EffectiveCommandSpendMode = mode;
         switch (command)
@@ -400,6 +401,7 @@ public sealed class CommandModule : IGameplayModule
                 activation.NavigateSpeedLimit = Math.Max(activation.NavigateSpeedLimit, CommandSpendRules.NavigateSpeedLimit(mode));
                 FinishCommand(game); break;
             case ShipCommand.ConcentrateFire:
+                game.Flow.Flags["activation.cf-mode." + ship] = (int)mode;
                 activation.ConcentrateFireDie |= CommandSpendRules.GrantsConcentrateFireDie(mode) || (mode == CommandSpendMode.Token && game.HasUpgrade(ship, "ravager-title"));
                 activation.ConcentrateFireReroll |= CommandSpendRules.GrantsConcentrateFireReroll(mode);
                 activation.ConcentrateFireRavagerChoice = mode == CommandSpendMode.Token && game.HasUpgrade(ship, "ravager-title");
@@ -558,6 +560,13 @@ public sealed class CommandModule : IGameplayModule
     private static int EffectiveMaximum(ShipRuntimeState ship, HullZone zone, bool auxiliary) => auxiliary && zone is HullZone.Left or HullZone.Right ? Math.Min(4, ship.GetMaximumShields(zone) + 1) : ship.GetMaximumShields(zone);
     private static void FinishCommand(GameContext game)
     {
+        var state = game.Flow.ShipActivations[game.Flow.ActiveShip];
+        if (state.RevealPreludeActive && !state.RevealAfterWindowOpened && !state.CurrentCommandResolved)
+        {
+            state.NativeDialConsumedBeforePrelude = true;
+            state.RevealedDialAvailable = false;
+            return;
+        }
         ActivationAbilityEffects.CompleteCommand(game);
     }
     private static void Add(List<GameActionOption> options, GameAction action, string label) => options.Add(new(action, label));

@@ -1106,7 +1106,7 @@
       "disabledSlots": [],
       "enabledSlots": [],
       "flagshipOnly": false,
-      "startCommandType": "token",
+      "startCommandType": "dial",
       "startCommandIcons": [
         "any"
       ],
@@ -7987,7 +7987,7 @@
         "rebel"
       ],
       "points": 20,
-      "ability": "Choose command dials for this card after deploying fleets.\nAt the start of each Ship Phase, you may reveal and discard 1 command dial from this card. If you do, until the end of the round, when an enemy ship spends a matching command dial, it resolves that dial as though it spent a token of the same type instead. .",
+      "ability": "At the end of each Command Phase, you may look at all command dials assigned to 1 enemy ship. Then you may place 2 command tokens, each of a different type, on this card.\nAfter an enemy ship resolves a command, you may discard a matching command token from this card. If you do, that enemy ship gains 1 matching raid token.",
       "unique": true,
       "uniqueClasses": [
         "General Draven"
@@ -8000,11 +8000,9 @@
       "disabledSlots": [],
       "enabledSlots": [],
       "flagshipOnly": false,
-      "startCommandType": "dial",
-      "startCommandIcons": [
-        "any"
-      ],
-      "startCommandAmount": 2,
+      "startCommandType": "",
+      "startCommandIcons": [],
+      "startCommandAmount": 0,
       "exhaustType": "",
       "readyTokens": [],
       "readyAmount": 0,

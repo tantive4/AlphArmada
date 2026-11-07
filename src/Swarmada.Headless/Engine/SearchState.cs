@@ -21,7 +21,7 @@ public interface IHiddenCommandSampler
 
 public static class SearchRecovery
 {
-    public const string Schema = "swarmada-headless.search-recovery.v1";
+    public const string Schema = "swarmada-headless.search-recovery.v2";
     public static SearchRecoverySnapshot Capture(GameSession position, SearchKnowledge knowledge, IEnumerable<string>? decisionPrefix = null)
     {
         ArgumentNullException.ThrowIfNull(position); ArgumentNullException.ThrowIfNull(knowledge); knowledge.Validate(position);
@@ -67,8 +67,6 @@ public static class SearchRecovery
 public static class SearchRootFactory
 {
     private static readonly CriticalDamageCard[] CanonicalCards = new DamageDeckState(0).CaptureSnapshot().DrawPile.Order().ToArray();
-    private static readonly string[] UnsupportedPrivateCards = ["grand-admiral-thrawn-commander", "admiral-trench-commander",
-        "general-draven-commander", "bail-organa-commander"];
     private static readonly string[] FixedCommandOfficers = ["navigation-officer", "engineering-captain-officer",
         "tactical-expert-officer", "wing-commander-officer"];
 
@@ -105,7 +103,7 @@ public static class SearchRootFactory
     {
         ArgumentNullException.ThrowIfNull(workspace); ArgumentNullException.ThrowIfNull(authority); ArgumentNullException.ThrowIfNull(knowledge);
         if (ReferenceEquals(workspace, authority)) throw new ArgumentException("Search workspace cannot be the authoritative game.", nameof(workspace));
-        knowledge.Validate(authority); RejectUnsupportedPrivateCards(authority);
+        knowledge.Validate(authority);
         workspace.CopyFrom(authority);
         var random = new DeterministicRandom(seed);
         for (int ship = 0; ship < workspace.Context.State.Commands.Length; ship++)
@@ -124,6 +122,20 @@ public static class SearchRootFactory
                 workspace.Context.State.Commands[ship].ReplaceAt(slot, command);
             }
         }
+        // Card dials are an unordered private inventory, separate from ship queues.
+        // Preserve only their public remaining count at a deferred root. Never let
+        // authoritative types enter legal options, traversal keys or model input.
+        foreach (var upgrade in workspace.Context.Topology.Upgrades)
+        {
+            var card = workspace.Context.State.Upgrades[upgrade.UpgradeIndex];
+            if (!CommanderInventoryRules.IsPrivate(card.Definition.id)) continue;
+            int host = checked((int)workspace.Context.State.Registers[workspace.Context.Topology.Registers.UpgradeOwner(upgrade.UpgradeIndex)] - 1);
+            if (!workspace.Context.IsShip(host) || workspace.Context.State.Owners[host] == knowledge.Observer) continue;
+            int remaining = card.CommandTokens;
+            card.ClearTypedCommandTokens();
+            for (int slot = 0; slot < remaining; slot++)
+                card.AddTypedCommandToken(deferUnknownCommands ? ShipCommand.Navigate : (ShipCommand)random.NextInt(4));
+        }
         if (OfficialObjectives.Is(workspace.Context, "surprise-attack") &&
             knowledge.Observer != OfficialObjectives.SecondPlayer(workspace.Context))
         {
@@ -138,12 +150,6 @@ public static class SearchRootFactory
         SampleDecks(workspace, authority, knowledge, ref random);
         // Actual game RNG is secret future information even if command/deck fields are hidden.
         workspace.Context.State.Random = new DeterministicRandom(random.NextUInt64());
-    }
-    private static void RejectUnsupportedPrivateCards(GameSession position)
-    {
-        foreach (var card in position.Context.State.Upgrades)
-            if (!card.Discarded && UnsupportedPrivateCards.Contains(card.Definition.id, StringComparer.Ordinal))
-                throw new NotSupportedException("Search belief coverage is not registered for private commander-card state: " + card.Definition.id);
     }
     /// <summary>Deferred dials are placeholders before reveal. Do not let an unregistered
     /// private look/replacement read a placeholder or overwrite a prior simulated choice.</summary>
