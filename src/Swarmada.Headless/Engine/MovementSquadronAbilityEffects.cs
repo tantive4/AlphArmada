@@ -14,7 +14,7 @@ public static partial class MovementAbilityEffects
         if (timing == "during-squadron-activation" && game.Flow.SquadronProgress is { } progress && progress.Entity == source)
         {
             var context = new AbilityQueryContext(AbilityTiming.DuringActivation, moveUsed: progress.Moved, attackUsed: progress.Attacked);
-            foreach (var action in SquadronAbilityEngine.GetActions(game.SquadronViews[game.SquadronIndex(source)], context, game.SquadronViews.Where(s => !game.IsReserved(s.Index))))
+            foreach (var action in SquadronAbilityEngine.GetActions(game.SquadronViews[game.SquadronIndex(source)], context, game.SceneSquadronViews))
                 yield return Option(source, action.AbilityId, action.Label);
         }
         if (timing == "after-squadron-move" && IsSquadron(game, source, CloneWarsSquadronRules.Ahsoka)
@@ -45,7 +45,7 @@ public static partial class MovementAbilityEffects
         using var scope = new GameScope(game);
         int owner = game.Flow.SquadronPhasePlayer;
         foreach (var ship in game.Topology.Ships)
-            if (ship.Owner == owner && !game.IsDestroyed(ship.EntityIndex) && !game.IsReserved(ship.EntityIndex)
+            if (ship.Owner == owner && game.IsOnBoard(ship.EntityIndex)
                 && Card(game, ship.EntityIndex, "hyperwave-signal-boost") is { Active: true, Exhausted: false }
                 && HyperwaveCandidates(game, ship.EntityIndex).Any())
                 yield return Option(ship.EntityIndex, "movement.hyperwave-batch.begin", "Choose Hyperwave Signal Boost squadron turn");
@@ -303,9 +303,9 @@ public static partial class MovementAbilityEffects
         if (frame.Rule == "movement-choice.fenn-offer" && game.Flow.Phase == GamePhase.SelectAttack) ActivationAbilityEffects.CompleteCommand(game);
     }
     private static bool IsSquadron(GameContext game, int entity, string id) => entity >= game.State.Ships.Length && entity < game.Topology.EntityCount
-        && !game.IsDestroyed(entity) && !game.IsReserved(entity) && game.Topology.Squadrons[game.SquadronIndex(entity)].CatalogEntry.Definition.SquadronId == id;
+        && game.IsOnBoard(entity) && game.Topology.Squadrons[game.SquadronIndex(entity)].CatalogEntry.Definition.SquadronId == id;
     private static IEnumerable<int> NearbySquadrons(GameContext game, int source, float distance, bool? friendly)
-        => game.Topology.Squadrons.Where(s => s.EntityIndex != source && !game.IsDestroyed(s.EntityIndex) && !game.IsReserved(s.EntityIndex)
+        => game.Topology.Squadrons.Where(s => s.EntityIndex != source && game.IsOnBoard(s.EntityIndex)
             && (friendly is null || (s.Owner == game.State.Owners[source]) == friendly.Value)
             && FootprintDistance(game, source, s.EntityIndex) <= distance).Select(s => s.EntityIndex);
     private static float FootprintDistance(GameContext game, int a, int b) => game.IsShip(b)
@@ -331,7 +331,7 @@ public static partial class MovementAbilityEffects
         .Where(s => !game.Topology.Squadrons[game.SquadronIndex(s)].CatalogEntry.Definition.IsUnique
             && !game.State.Squadrons[game.SquadronIndex(s)].Activated && !game.State.Activated[s]);
     private static int NextFennRecipient(GameContext game, GameContinuation frame) => (frame.Indices ?? []).Skip((int)frame.Value)
-        .FirstOrDefault(s => !game.IsDestroyed(s) && !game.IsReserved(s) && !game.State.Squadrons[game.SquadronIndex(s)].Activated && !game.State.Activated[s], -1);
+        .FirstOrDefault(s => game.IsOnBoard(s) && !game.State.Squadrons[game.SquadronIndex(s)].Activated && !game.State.Activated[s], -1);
     public static bool BeginAhsokaSnipeChoices(GameContext game, int ship)
     {
         if (!game.HasUpgrade(ship, "ahsoka-tano-officer-republic")) return false;
@@ -348,14 +348,14 @@ public static partial class MovementAbilityEffects
     }
     private static IEnumerable<int> AhsokaCandidates(GameContext game, int ship) => game.Topology.Squadrons.Select(s => s.EntityIndex)
         .Where(s => CanGrantSnipe(game, s) && CommandModule.CanCommandSquadron(game, ship, s));
-    private static bool CanGrantSnipe(GameContext game, int squad) => !game.IsDestroyed(squad) && !game.IsReserved(squad)
+    private static bool CanGrantSnipe(GameContext game, int squad) => game.IsOnBoard(squad)
         && !game.Topology.Squadrons[game.SquadronIndex(squad)].CatalogEntry.Definition.IsUnique
         && game.Topology.Squadrons[game.SquadronIndex(squad)].CatalogEntry.Definition.AntiSquadronArmament.TotalDice > 0;
     private static bool CanOfferFennSnipe(GameContext game, int ship, int squad) => game.HasUpgrade(ship, "ahsoka-tano-officer-republic")
         && CanGrantSnipe(game, squad) && !game.Flow.Flags.ContainsKey($"ahsoka.{ship}.{squad}")
         && game.Flow.Flags.Keys.Count(k => k.StartsWith($"ahsoka.{ship}.", StringComparison.Ordinal)) < 3;
     private static IEnumerable<int> HyperwaveCandidates(GameContext game, int ship) => game.Topology.Squadrons
-        .Where(s => s.Owner == game.State.Owners[ship] && !game.IsDestroyed(s.EntityIndex) && !game.IsReserved(s.EntityIndex)
+        .Where(s => s.Owner == game.State.Owners[ship] && game.IsOnBoard(s.EntityIndex)
             && !game.State.Squadrons[s.SquadronIndex].Activated && !game.State.Activated[s.EntityIndex]
             && Geometry2D.Distance(game.SquadronBase(s.EntityIndex), game.ShipBase(ship)) <= TabletopMeasurements.LongRange).Select(s => s.EntityIndex);
     private static IEnumerable<int> BatchCandidates(GameContext game, GameContinuation frame)

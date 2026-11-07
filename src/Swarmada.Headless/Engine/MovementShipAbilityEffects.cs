@@ -9,7 +9,7 @@ public static partial class MovementAbilityEffects
 {
     private static IEnumerable<GameActionOption> GetAdditionalShipActions(GameContext game, string timing, int source)
     {
-        if (!game.IsShip(source) || game.IsDestroyed(source) || game.IsReserved(source)) yield break;
+        if (!game.IsShip(source) || !game.IsOnBoard(source)) yield break;
         if (timing == "after-maneuver" && game.Flow.ShipActivations[source].DeferredSquadronActivations > 0)
             yield return Option(source, "remaining.after-maneuver.flight-commander", "Resolve held Squadron command after maneuver");
         if (timing == "end-attack-step")
@@ -25,7 +25,7 @@ public static partial class MovementAbilityEffects
             yield return Option(source, "slicer.use", "Exhaust Slicer Tools and interfere with an enemy command stack");
         if (timing == "end-activation" && game.State.Ships[source].CurrentSpeed > 0 && Card(game, source, "magnite-crystal-tractor-beam-array") is { Active: true, Exhausted: false })
             foreach (var target in game.Topology.Ships)
-                if (target.Owner != game.State.Owners[source] && !game.IsDestroyed(target.EntityIndex) && !game.IsReserved(target.EntityIndex)
+                if (target.Owner != game.State.Owners[source] && game.IsOnBoard(target.EntityIndex)
                     && Geometry2D.Distance(game.ShipBase(source), game.ShipBase(target.EntityIndex)) <= TabletopMeasurements.LongRange)
                     yield return new(new(GameActionKind.UseAbility, source, target.EntityIndex, AbilityId: "remaining.end-activation.magnite." + target.RuntimeId), "Exhaust Magnite and set enemy speed to this ship's speed");
         if (timing == "after-maneuver" && game.HasUpgrade(source, "demolisher-title")
@@ -119,9 +119,9 @@ public static partial class MovementAbilityEffects
         EngineEffects.ReturnFromChoice(game); return true;
     }
     private static IEnumerable<int> SlicerTargets(GameContext game, int source) => game.Topology.Ships
-        .Where(s => s.Owner != game.State.Owners[source] && !game.IsDestroyed(s.EntityIndex) && !game.IsReserved(s.EntityIndex)
+        .Where(s => s.Owner != game.State.Owners[source] && game.IsOnBoard(s.EntityIndex)
             && Geometry2D.Distance(game.ShipBase(source), game.ShipBase(s.EntityIndex)) <= TabletopMeasurements.MediumRange).Select(s => s.EntityIndex);
     private static IEnumerable<int> ExtraFlakTargets(GameContext game, int source, float range) => game.Topology.Squadrons
-        .Where(s => s.Owner != game.State.Owners[source] && !game.IsDestroyed(s.EntityIndex) && !game.IsReserved(s.EntityIndex)
+        .Where(s => s.Owner != game.State.Owners[source] && game.IsOnBoard(s.EntityIndex)
             && Geometry2D.Distance(game.SquadronBase(s.EntityIndex), game.ShipBase(source)) <= range).Select(s => s.EntityIndex);
 }

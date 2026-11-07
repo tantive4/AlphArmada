@@ -29,6 +29,13 @@ public static class EngineEffects
         game.Flow.Flags["effects.serial"] = serial;
         var frame = new GameContinuation("effects.window", source, target, (int)resumePhase, serial, timing);
         OfficialObjectives.PrepareTimingWindow(game, frame);
+        if (game.SuspendTimingWindow?.Invoke(frame) == true)
+        {
+            // Search must materialize a private rule input before even generating
+            // native offers: a placeholder can otherwise suppress a legal effect.
+            game.Flow.Continuations.Add(frame); game.Flow.PendingOptions = [];
+            game.Flow.Phase = GamePhase.AbilityChoice; return true;
+        }
         var options = GetOptions(game, frame).ToArray();
         bool optional = options.Length > 0;
         if (optional)
@@ -49,6 +56,8 @@ public static class EngineEffects
             : MapAbilityEffects.Handles(frame.Rule) ? MapAbilityEffects.GetDecision(game, frame)
             : MovementAbilityEffects.Handles(frame.Rule) ? MovementAbilityEffects.GetDecision(game, frame)
             : frame.Rule.StartsWith("round.", StringComparison.Ordinal) ? RoundAbilityEffects.GetDecision(game, frame) : GeneralAbilityEffects.GetDecision(game, frame);
+        if (game.SuspendTimingWindow?.Invoke(frame) == true)
+            return new(DecisionKind.Player, game.State.Owners[frame.Source], GamePhase.AbilityChoice, []);
         var options = GetOptions(game, frame).ToList();
         bool mandatory = options.Any(OfficialObjectives.IsMandatoryAction);
         if (!mandatory) options.Add(new(new(GameActionKind.Pass, frame.Source, frame.Target, AbilityId: "effects.finish"), "Finish timing window"));

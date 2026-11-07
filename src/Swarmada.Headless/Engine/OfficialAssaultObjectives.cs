@@ -12,6 +12,8 @@ namespace Swarmada.Headless.Engine;
 public static class OfficialAssaultObjectives
 {
     private const string Prefix = "objective.assault.";
+    public const string SurpriseRevealRule = Prefix + "surprise-reveal";
+    public const string SurpriseRevealAction = SurpriseRevealRule;
     private static OfficialObjectiveState State(GameContext game) => OfficialObjectives.State(game)!;
     public static bool Handles(string rule) => rule.StartsWith(Prefix, StringComparison.Ordinal);
     public static IEnumerable<GameContinuation> SetupChoices(GameContext game, bool afterDeployment)
@@ -155,8 +157,14 @@ public static class OfficialAssaultObjectives
                 foreach (int ship in MarkedTargets(game, frame.Source)) options.Add(new(new(GameActionKind.ChooseEntity, Target: ship), "Discard token and damage marked ship " + ship));
                 options.Add(new(new(GameActionKind.Pass), "Decline Marked for Destruction")); break;
             case Prefix + "rift-damage":
-            case Prefix + "surprise-reveal":
                 return new(DecisionKind.Forced, 0, GamePhase.AbilityChoice, [new(new(GameActionKind.Pass), "Resolve " + frame.Rule)]);
+            case SurpriseRevealRule:
+                // An explicit singleton exposes a legal search suspension point
+                // before this private dial becomes public. Real play advances it
+                // without a policy/model decision through ForcedActionAdvancer.
+                var revealCommand = (ShipCommand)State(game).Flags["surprise.dial." + (game.State.Round - 1)];
+                return new(DecisionKind.Player, OfficialObjectives.SecondPlayer(game), GamePhase.AbilityChoice,
+                    [new(new(GameActionKind.RevealCommand, Command: revealCommand, AbilityId: SurpriseRevealAction), "Reveal Surprise Attack command")]);
             default: throw new NotSupportedException("Unknown Assault objective continuation " + frame.Rule);
         }
         if (options.Count == 0) return new(DecisionKind.Forced, 0, GamePhase.AbilityChoice, [new(new(GameActionKind.Pass), "No eligible objective ship")]);
@@ -172,9 +180,9 @@ public static class OfficialAssaultObjectives
             case Prefix + "surprise-dials":
                 State(game).Flags["surprise.dial." + frame.Stage] = (int)action.Command;
                 if (frame.Stage < 2) { game.Flow.Continuations[^1] = frame with { Stage = frame.Stage + 1 }; return; } break;
-            case Prefix + "surprise-reveal":
-                var command = (ShipCommand)State(game).Flags["surprise.dial." + (game.State.Round - 1)];
-                foreach (int ship in OfficialObjectives.LiveShips(game, OfficialObjectives.FirstPlayer(game))) game.State.Commands[ship].TryGainRaidToken(command); break;
+            case SurpriseRevealRule:
+                State(game).Flags["surprise.revealed." + (game.State.Round - 1)] = 1;
+                foreach (int ship in OfficialObjectives.LiveShips(game, OfficialObjectives.FirstPlayer(game))) game.State.Commands[ship].TryGainRaidToken(action.Command); break;
             case Prefix + "beacons":
                 RequireSetupPosition(game, action.Position, new Vector2(25.4f), action.YawDegrees);
                 OfficialObjectives.PlaceToken(game, action.Position!.Value, id: "targeting-beacon");

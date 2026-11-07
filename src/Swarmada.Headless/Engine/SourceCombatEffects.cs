@@ -89,7 +89,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
         if (a.MineSpatialIndex < 0 && game.IsShip(a.Attacker) && !game.IsShip(a.Defender) && !a.EffectFlags.ContainsKey("flak-bonuses.offered"))
         {
             a.EffectFlags["flak-bonuses.offered"] = 1;
-            int count = SquadronAbilityEngine.FlakDieBonusSources(game.ShipViews[a.Attacker], game.SquadronViews[game.SquadronIndex(a.Defender)], game.SquadronViews).Count;
+            int count = SquadronAbilityEngine.FlakDieBonusSources(game.ShipViews[a.Attacker], game.SquadronViews[game.SquadronIndex(a.Defender)], game.SceneSquadronViews).Count;
             if (count > 0)
             { Begin(a, "flak-color", "flak.add-die-color", game.State.Owners[a.Attacker], [], 1, count); return true; }
         }
@@ -168,7 +168,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                     yield return Ability("fleet-command.attack.intensify-firepower", "intensify-firepower", "Change one die to a single hit");
                 if (!game.IsShip(a.Defender))
                 {
-                    int rerolls = TitleRules.FlakRerolls(ship, game.SquadronViews[game.SquadronIndex(a.Defender)], game.SquadronViews, out string source);
+                    int rerolls = TitleRules.FlakRerolls(ship, game.SquadronViews[game.SquadronIndex(a.Defender)], game.SceneSquadronViews, out string source);
                     if (rerolls > 0 && a.Dice.Length > 0) yield return Ability("attack.dice.flak-title", source, "Reroll one anti-squadron die with " + source);
                     if (a.Range == RangeBand.Close && ship.Loadout.HasActive("point-defense-reroute") && a.Dice.Any(die => die.Face is DieFace.Critical or DieFace.HitCritical))
                         yield return Ability("attack.dice.point-defense-reroute", "point-defense-reroute", "Reroll critical results against squadron");
@@ -202,11 +202,11 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                 foreach (var action in AdditionalSquadronActions(game, a)) yield return action;
                 foreach (var action in SquadronAbilityEngine.GetActions(source, new(AbilityTiming.ModifyAttackDice, a.Range,
                     moveUsed: !a.Counter && game.Flow.SquadronProgress is { Moved: true } progress && progress.Entity == a.Attacker,
-                    isCounterAttack: a.Counter), game.SquadronViews,
+                    isCounterAttack: a.Counter), game.SceneSquadronViews,
                     game.IsShip(a.Defender) ? game.ShipViews[a.Defender] : null,
                     game.IsShip(a.Defender) ? null : game.SquadronViews[game.SquadronIndex(a.Defender)])) yield return action;
                 if (!game.IsShip(a.Defender) && SquadronAbilityEngine.HasSwarmRerollOpportunity(source,
-                    game.SquadronViews[game.SquadronIndex(a.Defender)], game.SquadronViews))
+                    game.SquadronViews[game.SquadronIndex(a.Defender)], game.SceneSquadronViews))
                     yield return Ability("keyword.swarm.reroll", "swarm", "Reroll one die with Swarm");
                 if (SquadronAbilityEngine.GetDashRerollCount(source) > 0)
                     yield return Ability("squadron.dash-rendar.reroll", source.Definition.SquadronId, "Reroll a Dash Rendar die");
@@ -237,7 +237,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                 if (!MissingSquadronCombatEffects.HasModifiableDice(a)) yield break;
                 foreach (var action in SquadronAbilityEngine.GetDefenseActions(game.SquadronViews[game.SquadronIndex(a.Defender)],
                     a.LockedTokens.ToHashSet(), a.SpentTokenTypes.ToHashSet(), Used(a, "keyword.dodge.force-reroll"),
-                    a.Attacker < 0 || game.IsShip(a.Attacker) ? null : game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SquadronViews))
+                    a.Attacker < 0 || game.IsShip(a.Attacker) ? null : game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SceneSquadronViews))
                     if (action.AbilityId == "keyword.dodge.force-reroll") yield return action;
                 var defender = game.SquadronViews[game.SquadronIndex(a.Defender)];
                 if (CloneWarsSquadronRules.CanUseDfs311(defender, a.Obstructed))
@@ -245,7 +245,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                 if (CloneWarsSquadronRules.Is(defender, CloneWarsSquadronRules.KitFisto)
                     && Enum.GetValues<DefenseTokenType>().Any(type => defender.State.GetAvailableDefenseTokenCount(type) > 0))
                     yield return Ability("clone-wars.kit-fisto.discard-token", defender.Definition.SquadronId, "Discard a token to reduce damage by three");
-                foreach (var axe in CloneWarsSquadronRules.AxeProtectors(defender, game.SquadronViews))
+                foreach (var axe in CloneWarsSquadronRules.AxeProtectors(defender, game.SceneSquadronViews))
                     yield return Ability("clone-wars.axe." + axe.RuntimeId.Value, axe.Definition.SquadronId, "Axe spend a token to reduce damage");
             }
         }
@@ -434,7 +434,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
             case "clone-wars.kit-fisto.discard-token":
                 Begin(a, "squad-defense-token", id, owner, [], 1, 1); a.EffectValue = a.Defender; return true;
             case "keyword.adept.reroll":
-                Begin(a, "reroll", id, owner, all, 1, SquadronAbilityEngine.GetEffectiveAdept(game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SquadronViews)); return true;
+                Begin(a, "reroll", id, owner, all, 1, SquadronAbilityEngine.GetEffectiveAdept(game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SceneSquadronViews)); return true;
             case "keyword.swarm.reroll":
             case "squadron-upgrade-reroll.woldar":
             case "squadron-upgrade-reroll.bomber-command-center":
@@ -444,7 +444,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                 Begin(a, "reroll", id, owner, all, 1, SquadronAbilityEngine.GetDashRerollCount(game.SquadronViews[game.SquadronIndex(a.Attacker)])); return true;
             case "keyword.dodge.force-reroll":
                 Begin(a, "reroll", id, owner, all, 1, SquadronAbilityEngine.GetDodgeValue(game.SquadronViews[game.SquadronIndex(a.Defender)],
-                    game.IsShip(a.Attacker) ? null : game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SquadronViews)); return true;
+                    game.IsShip(a.Attacker) ? null : game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SceneSquadronViews)); return true;
             case "defense.upgrade.point-defense-ion-cannons": Begin(a, "reroll", id, owner, all, 1, 1); return true;
             case "defense.upgrade.targeting-scrambler": Begin(a, "reroll", id, owner, all, 1, 4); return true;
             case "defense.upgrade.lando-calrissian": Begin(a, "reroll", id, owner, all, 1, all.Length); return true;
@@ -564,7 +564,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
         if (a.EffectRule == "jango-ally")
         {
             foreach (var ally in CloneWarsSquadronRules.JangoSacrifices(game.SquadronViews[game.SquadronIndex(a.Attacker)],
-                game.SquadronViews[game.SquadronIndex(a.Defender)], game.SquadronViews))
+                game.SquadronViews[game.SquadronIndex(a.Defender)], game.SceneSquadronViews))
                 yield return new(new(GameActionKind.ChooseEntity, a.Attacker, ally.Index, AbilityId: "combat.effect.jango-ally"), "Damage " + ally.Definition.DisplayName);
             yield break;
         }
@@ -1013,7 +1013,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
             case "wide-area-barrage":
                 for (int entity = 0; entity < game.Topology.EntityCount; entity++)
                 {
-                    if (entity == a.Defender || game.IsDestroyed(entity) || game.IsReserved(entity)) continue;
+                    if (entity == a.Defender || !game.IsOnBoard(entity)) continue;
                     float distance = EntityGeometry.Distance(game, entity, a.Defender);
                     if (distance > TabletopMeasurements.CloseRange) continue;
                     foreach (var zone in CombatModule.TargetZones(game, entity))

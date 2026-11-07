@@ -25,6 +25,8 @@ public static class SearchRecovery
     public static SearchRecoverySnapshot Capture(GameSession position, SearchKnowledge knowledge, IEnumerable<string>? decisionPrefix = null)
     {
         ArgumentNullException.ThrowIfNull(position); ArgumentNullException.ThrowIfNull(knowledge); knowledge.Validate(position);
+        if (position.Context.SuspendTimingWindow is not null)
+            throw new InvalidOperationException("A managed search workspace also owns materialized commands and pending hypothesis steps. Capture the actual root and replay its selected path; SearchRecovery cannot checkpoint wrapper-only state.");
         return new(Schema, TopologyStamp(position), position.CaptureSnapshot(), knowledge.CaptureSnapshot(), decisionPrefix?.ToArray() ?? []);
     }
     /// <summary>The returned prefix must be restored by the policy adapter against the restored position.</summary>
@@ -58,7 +60,8 @@ public static class SearchRecovery
 /// <summary>Root-sampling boundary for the current mock-search implementation.
 /// Diagnostic roots can sample unknown enemy commands uniformly over legal commands.
 /// Deferred-reveal roots instead use neutral legal placeholders until the search
-/// wrapper explicitly resolves a hidden dial at its reveal event. Neither is a learned belief.
+/// wrapper explicitly resolves a hidden dial at reveal or a legal private-look event.
+/// Neither is a learned belief.
 /// Future decks and hidden facedown damage identities are sampled independently of
 /// authoritative order/RNG. This does not solve strategy fusion or opponent-safe ISMCTS.</summary>
 public static class SearchRootFactory
@@ -68,6 +71,29 @@ public static class SearchRootFactory
         "general-draven-commander", "bail-organa-commander"];
     private static readonly string[] FixedCommandOfficers = ["navigation-officer", "engineering-captain-officer",
         "tactical-expert-officer", "wing-commander-officer"];
+
+    /// <summary>Read no command value here: this predicate runs before native
+    /// pre-reveal offers are generated, including offers hidden by placeholders.</summary>
+    internal static bool HasPreRevealCommandDependency(GameContext game, GameContinuation window)
+    {
+        int ship = window.Source;
+        if (window.Rule != "effects.window" || window.Text is not ("start-activation" or "before-command-reveal" or "before-reveal-command") ||
+            !game.IsShip(ship) || game.Flow.ShipActivations[ship].RevealedCommand.HasValue || game.State.Commands[ship].Count == 0) return false;
+        foreach (var card in game.UpgradesFor(ship))
+        {
+            if (!card.Active) continue;
+            ShipCommand? fixedCommand = card.Definition.id switch
+            {
+                "navigation-officer" => ShipCommand.Navigate, "engineering-captain-officer" => ShipCommand.Engineering,
+                "tactical-expert-officer" => ShipCommand.ConcentrateFire, "wing-commander-officer" => ShipCommand.Squadron, _ => null
+            };
+            string? effect = fixedCommand.HasValue ? UnitAbilityEngine.CommandChangeActionPrefix + (int)fixedCommand.Value + "." + card.Definition.id :
+                (card.Definition.id is "skilled-first-officer" or "fb-88-title") && card.UsesThisActivation == 0
+                    ? UnitAbilityEngine.DiscardTopCommandActionPrefix + card.Definition.id : null;
+            if (effect is not null && !game.Flow.Flags.ContainsKey($"effects.used.{window.Value}.{ship}.{effect}")) return true;
+        }
+        return false;
+    }
 
     public static GameSession Create(GameSession authority, SearchKnowledge knowledge, ulong seed,
         IHiddenCommandSampler? commandSampler = null, bool deferUnknownCommands = false)
@@ -98,6 +124,17 @@ public static class SearchRootFactory
                 workspace.Context.State.Commands[ship].ReplaceAt(slot, command);
             }
         }
+        if (OfficialObjectives.Is(workspace.Context, "surprise-attack") &&
+            knowledge.Observer != OfficialObjectives.SecondPlayer(workspace.Context))
+        {
+            var objective = OfficialObjectives.State(workspace.Context)!;
+            for (int slot = 0; slot < 3; slot++)
+            {
+                string key = "surprise.dial." + slot;
+                if (objective.Flags.ContainsKey(key) && !objective.Flags.ContainsKey("surprise.revealed." + slot))
+                    objective.Flags[key] = (int)(deferUnknownCommands ? ShipCommand.Navigate : Enum.GetValues<ShipCommand>()[random.NextInt(4)]);
+            }
+        }
         SampleDecks(workspace, authority, knowledge, ref random);
         // Actual game RNG is secret future information even if command/deck fields are hidden.
         workspace.Context.State.Random = new DeterministicRandom(random.NextUInt64());
@@ -110,11 +147,10 @@ public static class SearchRootFactory
     }
     /// <summary>Deferred dials are placeholders before reveal. Do not let an unregistered
     /// private look/replacement read a placeholder or overwrite a prior simulated choice.</summary>
-    public static void ValidateDeferredDecision(GameSession position, SearchKnowledge rootKnowledge, GameDecision? settledDecision = null)
+    public static void ValidateDeferredDecision(GameSession position, SearchKnowledge rootKnowledge, GameDecision? settledDecision = null,
+        bool preRevealWindowHandled = false)
     {
         ArgumentNullException.ThrowIfNull(position); ArgumentNullException.ThrowIfNull(rootKnowledge);
-        bool UnknownEnemy(int ship) => ship >= 0 && ship < position.Context.State.Commands.Length &&
-            position.Context.State.Owners[ship] != rootKnowledge.Observer && rootKnowledge.CommandsFor(position, ship).Any(command => command is null);
         bool UnknownEnemyTop(int ship)
         {
             if (ship < 0 || ship >= position.Context.State.Commands.Length || position.Context.State.Owners[ship] == rootKnowledge.Observer) return false;
@@ -132,9 +168,9 @@ public static class SearchRootFactory
         // offered actions, before the unknown dial is turned into a reveal hypothesis.
         var flow = position.Context.Flow;
         if (flow.Phase == GamePhase.RevealCommand && flow.ActiveShip >= 0 &&
-            !flow.ShipActivations[flow.ActiveShip].RevealedCommand.HasValue) CheckFixedOfficer(flow.ActiveShip);
+            !flow.ShipActivations[flow.ActiveShip].RevealedCommand.HasValue && !preRevealWindowHandled) CheckFixedOfficer(flow.ActiveShip);
         if (flow.Continuations.LastOrDefault() is { Rule: "effects.window" } window &&
-            window.Text is "start-activation" or "before-command-reveal" or "before-reveal-command") CheckFixedOfficer(window.Source);
+            HasPreRevealCommandDependency(position.Context, window)) CheckFixedOfficer(window.Source);
         var decision = settledDecision ?? position.GetDecision();
         foreach (var option in decision.Actions)
         {
@@ -142,10 +178,9 @@ public static class SearchRootFactory
             bool commandChange = id.StartsWith(UnitAbilityEngine.CommandChangeActionPrefix, StringComparison.Ordinal) && UnknownEnemyTop(action.Source);
             bool liaisonBeforeReveal = id.StartsWith(UnitAbilityEngine.LiaisonActionPrefix, StringComparison.Ordinal) && UnknownEnemyTop(action.Source) &&
                 !position.Context.Flow.ShipActivations[action.Source].RevealedCommand.HasValue;
-            bool privateBoarding = id == "boarding.command" && UnknownEnemy(action.Target);
-            bool privateLook = id.Contains("isard", StringComparison.OrdinalIgnoreCase) &&
-                Enumerable.Range(0, position.Context.State.Commands.Length).Any(UnknownEnemy);
-            if (commandChange || liaisonBeforeReveal || privateBoarding || privateLook)
+            // Cham freely selects each replacement command; its legal choices do
+            // not inspect the old dial, so unknown old slots need no hypotheses.
+            if (commandChange || liaisonBeforeReveal)
                 throw new SearchCoverageException("Deferred-reveal command knowledge needs a registered private look/replacement interaction: " + id);
         }
     }

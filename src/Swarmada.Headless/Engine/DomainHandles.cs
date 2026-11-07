@@ -23,6 +23,16 @@ public sealed partial class GameContext
     private SquadronView[]? squadronViews;
     private ShipView[]? sceneShipViews;
     private SquadronView[]? sceneSquadronViews;
+    private int[]? placedRegisterIndices;
+    /// <summary>Only deployed, nonreserved, surviving entities participate in
+    /// battlefield geometry, engagement and aura queries.</summary>
+    public bool IsOnBoard(int entity)
+    {
+        if ((uint)entity >= (uint)Topology.EntityCount || IsReserved(entity) || IsDestroyed(entity)) return false;
+        placedRegisterIndices ??= Enumerable.Range(0, Topology.EntityCount)
+            .Select(index => Topology.Registers[$"entity.{index}.placed"]).ToArray();
+        return State.Registers[placedRegisterIndices[entity]] != 0;
+    }
     public ShipView[] ShipViews => shipViews ??= Topology.Ships.Select(x => new ShipView(this, x.EntityIndex)).ToArray();
     public SquadronView[] SquadronViews => squadronViews ??= Topology.Squadrons.Select(x => new SquadronView(this, x.EntityIndex)).ToArray();
     public ShipView[] SceneShipViews
@@ -31,11 +41,11 @@ public sealed partial class GameContext
         {
             var all = ShipViews; int count = 0; bool same = sceneShipViews is not null;
             for (int i = 0; i < all.Length; i++)
-                if (!IsReserved(all[i].Index) && !all[i].IsDestroyed)
+                if (IsOnBoard(all[i].Index))
                 { same &= sceneShipViews is not null && count < sceneShipViews.Length && ReferenceEquals(sceneShipViews[count], all[i]); count++; }
             if (same && sceneShipViews!.Length == count) return sceneShipViews;
             var result = new ShipView[count]; count = 0;
-            for (int i = 0; i < all.Length; i++) if (!IsReserved(all[i].Index) && !all[i].IsDestroyed) result[count++] = all[i];
+            for (int i = 0; i < all.Length; i++) if (IsOnBoard(all[i].Index)) result[count++] = all[i];
             return sceneShipViews = result;
         }
     }
@@ -45,11 +55,11 @@ public sealed partial class GameContext
         {
             var all = SquadronViews; int count = 0; bool same = sceneSquadronViews is not null;
             for (int i = 0; i < all.Length; i++)
-                if (!IsReserved(all[i].Index) && !all[i].IsDestroyed)
+                if (IsOnBoard(all[i].Index))
                 { same &= sceneSquadronViews is not null && count < sceneSquadronViews.Length && ReferenceEquals(sceneSquadronViews[count], all[i]); count++; }
             if (same && sceneSquadronViews!.Length == count) return sceneSquadronViews;
             var result = new SquadronView[count]; count = 0;
-            for (int i = 0; i < all.Length; i++) if (!IsReserved(all[i].Index) && !all[i].IsDestroyed) result[count++] = all[i];
+            for (int i = 0; i < all.Length; i++) if (IsOnBoard(all[i].Index)) result[count++] = all[i];
             return sceneSquadronViews = result;
         }
     }

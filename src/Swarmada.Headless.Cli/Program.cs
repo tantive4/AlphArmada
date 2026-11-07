@@ -52,6 +52,7 @@ internal static class Program
     {
         protocolVersion = 1, upstreamVersion = PortStatus.UpstreamVersion,
         headlessMatchReady = PortStatus.HeadlessMatchReady, branchReplayReady = PortStatus.BranchReplayReady,
+        structuredEncoderReady = PortStatus.StructuredEncoderReady,
         fullGameReady = PortStatus.FullGameReady, trainingReady = PortStatus.TrainingReady,
         portableComponents = new[] { "deployment", "commands", "rounds", "combat", "damage-cards", "upgrade-timings",
             "movement", "squadrons", "reserves", "source-scenarios", "deterministic-chance", "reusable-search-positions" },

@@ -7,6 +7,7 @@ namespace Swarmada.Headless.Engine;
 /// <summary>Additional source command-reveal officers and fleet-support transfers.</summary>
 public static class CommandRevealEffects
 {
+    public const string IsardAction = "reveal.isard";
     private static readonly HashSet<string> Cards = new(StringComparer.Ordinal)
     { "clone-navigation-officer", "leia-organa-officer", "commandant-aresko-officer", "tikkes-officer",
         "passel-argente-officer", "rune-haako-officer", "comms-net", "munitions-resupply", "parts-resupply", "director-isard-officer" };
@@ -16,6 +17,10 @@ public static class CommandRevealEffects
         if (timing != "command-reveal" || !game.IsShip(source)) yield break;
         var ship = game.ShipViews[source]; var activation = game.Flow.ShipActivations[source];
         if (activation.RevealedCommand is not { } command) yield break;
+        if (ship.Loadout.HasActive("director-isard-officer"))
+            foreach (var enemy in game.SceneShipViews.Where(other => other.OwnerId != ship.OwnerId))
+                yield return new(new(GameActionKind.UseAbility, source, enemy.Index, AbilityId: IsardAction),
+                    "Look at " + enemy.Definition.DisplayName + " command dials with Director Isard");
         var friends = game.SceneShipViews.Where(other => other.OwnerId == ship.OwnerId && RaidRules.FootprintDistance(ship, other) <= 13.260394f).ToArray();
         if (command != ShipCommand.Engineering && Ready(ship, "clone-navigation-officer"))
             foreach (var friend in friends.Where(friend => CanStore(game, friend.Index, command)))
@@ -52,6 +57,9 @@ public static class CommandRevealEffects
         var ship = game.ShipViews[action.Source]; var activation = game.Flow.ShipActivations[action.Source];
         switch (id)
         {
+            // The engine validates and records use of the timing effect. The private
+            // observation belongs to SearchKnowledge, not to public flow/labels.
+            case IsardAction: return true;
             case "reveal.clone-navigation": ship.Loadout.Find("clone-navigation-officer")!.Exhaust(); TokenAssignments.TryAssign(game, action.Target, action.Command); return true;
             case "reveal.leia": game.State.Commands[action.Target].ReplaceTop(action.Command); return true;
             case "reveal.aresko": game.ShipViews[action.Target].Loadout.Find("commandant-aresko-officer")!.Exhaust(); TokenAssignments.TryAssign(game, action.Target, action.Command); return true;

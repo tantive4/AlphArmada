@@ -9,8 +9,9 @@ using Swarmada.Headless.Runtime;
 namespace Swarmada.Headless.Search;
 
 /// <summary>Internal rule/knowledge discriminator, never a neural feature or a
-/// persisted ID. Unlike the mock encoder hash this covers the complete mutable
-/// rules graph, including private continuations and card counters.</summary>
+/// persisted ID. It covers the mutable rules graph and root/acting knowledge;
+/// inactive opponent private card identities use knowledge patterns until that
+/// opponent chooses. This remains an approximate information-set tree.</summary>
 public readonly record struct SearchTraversalKey(ulong Rules, ulong Knowledge);
 
 /// <summary>Hashes storage directly, without snapshots, JSON or feature tensors.
@@ -21,12 +22,14 @@ public readonly record struct SearchTraversalKey(ulong Rules, ulong Knowledge);
 internal static class SearchRuleKey
 {
     public static SearchTraversalKey Create(GameSession game, IReadOnlyList<SearchKnowledge> knowledge,
-        int observer, IReadOnlyList<string> prefix)
+        int observer, IReadOnlyList<string> prefix, int actingObserver = 0)
     {
         ulong rules = Add(game.Context.State, SearchHash.Initial);
         rules = Add(game.Context.Flow, rules);
         ulong information = SearchHash.Add(SearchHash.Initial, (ulong)observer);
-        foreach (var view in knowledge) information = Add(view, information);
+        foreach (var view in knowledge)
+            information = view.Observer == observer || view.Observer == actingObserver
+                ? Add(view, information) : view.AddInactivePrivatePatternHash(information);
         for (int i = 0; i < prefix.Count; i++) information = SearchHash.Add(information, prefix[i]);
         return new(rules, information);
     }

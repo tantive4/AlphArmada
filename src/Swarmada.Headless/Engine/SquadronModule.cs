@@ -17,7 +17,7 @@ public sealed class SquadronModule : IGameplayModule
     public static bool CanActivate(GameContext game, int entity, int owner, bool commanded)
     {
         if (entity < game.State.Ships.Length || entity >= game.Topology.EntityCount || game.State.Owners[entity] != owner
-            || game.IsDestroyed(entity) || game.IsReserved(entity)) return false;
+            || !game.IsOnBoard(entity)) return false;
         var state = game.State.Squadrons[game.SquadronIndex(entity)];
         return !state.Activated && !game.State.Activated[entity];
     }
@@ -47,7 +47,7 @@ public sealed class SquadronModule : IGameplayModule
     }
     public static void BeginStandaloneActivation(GameContext game, int entity, GamePhase returnPhase, bool preserveActivation = false, float maximumMoveDistance = -1)
     {
-        if (entity < game.State.Ships.Length || entity >= game.Topology.EntityCount || game.IsDestroyed(entity) || game.IsReserved(entity)
+        if (entity < game.State.Ships.Length || entity >= game.Topology.EntityCount || !game.IsOnBoard(entity)
             || !preserveActivation && !CanActivate(game, entity, game.State.Owners[entity], false)) throw new ArgumentException("Squadron cannot activate.");
         var state = game.State.Squadrons[game.SquadronIndex(entity)];
         game.Flow.StandaloneSquadronActivations.Add(new()
@@ -245,7 +245,7 @@ public sealed class SquadronModule : IGameplayModule
     public static bool IsPreventedFromMoving(GameContext game, int entity)
     {
         using var scope = new GameScope(game);
-        return SquadronAbilityEngine.IsPreventedFromMoving(View(game, entity), ActiveViews(game));
+        return game.IsOnBoard(entity) && SquadronAbilityEngine.IsPreventedFromMoving(View(game, entity), ActiveViews(game));
     }
     public static int EffectiveSpeed(GameContext game, int entity)
     {
@@ -258,7 +258,7 @@ public sealed class SquadronModule : IGameplayModule
     public static SquadronMoveLegalityQuery PrepareMoveLegality(GameContext game, int entity)
         => new(game, entity);
     public static bool IsLegalMove(GameContext game, int entity, Vector2 destination)
-        => (game.Flow.SquadronProgress is { MaximumMoveDistance: >= 0 } progress && progress.Entity == entity
+        => game.IsOnBoard(entity) && (game.Flow.SquadronProgress is { MaximumMoveDistance: >= 0 } progress && progress.Entity == entity
                 ? Vector2.Distance(game.State.Poses[entity].Position, destination) <= progress.MaximumMoveDistance + 0.001f
                 : SquadronGeometry.CanReach(game.SquadronBase(entity), destination, Math.Clamp(EffectiveSpeed(game, entity), 0, 5)))
             && IsLegalMoveDestination(game, entity, destination);
@@ -275,11 +275,11 @@ public sealed class SquadronModule : IGameplayModule
         if (!float.IsFinite(destination.X) || !float.IsFinite(destination.Y)) return false;
         var circle = new Circle(destination, game.SquadronBase(entity).Radius);
         for (int ship = 0; ship < game.State.Ships.Length; ship++)
-            if (!game.Topology.Ships[ship].IsStation && !game.IsDestroyed(ship) && !game.IsReserved(ship) && Geometry2D.Overlaps(circle, game.ShipBase(ship))) return false;
+            if (!game.Topology.Ships[ship].IsStation && game.IsOnBoard(ship) && Geometry2D.Overlaps(circle, game.ShipBase(ship))) return false;
         for (int index = 0; index < game.State.Squadrons.Length; index++)
         {
             int other = game.State.Ships.Length + index;
-            if (other != entity && !game.IsDestroyed(other) && !game.IsReserved(other) && Geometry2D.Overlaps(circle, game.SquadronBase(other))) return false;
+            if (other != entity && game.IsOnBoard(other) && Geometry2D.Overlaps(circle, game.SquadronBase(other))) return false;
         }
         return true;
     }
@@ -294,7 +294,7 @@ public sealed class SquadronModule : IGameplayModule
         foreach (var other in game.Topology.Squadrons)
         {
             if (state.Destroyed) break;
-            if (other.Owner != game.State.Owners[entity] && !game.IsDestroyed(other.EntityIndex) && !game.IsReserved(other.EntityIndex)
+            if (other.Owner != game.State.Owners[entity] && game.IsOnBoard(other.EntityIndex)
                 && other.CatalogEntry.Definition.SquadronId == "phlac-arphocc-prototypes-droid-tri-fighter-squadron"
                 && Geometry2D.Distance(game.SquadronBase(entity), game.SquadronBase(other.EntityIndex)) <= TabletopMeasurements.DistanceOne) state.ApplyDamage(1);
         }
@@ -351,12 +351,12 @@ public sealed class SquadronModule : IGameplayModule
         return SquadronAbilityEngine.GetKeywordValue(definition, "AI ANTISQUADRON") > 0 || SquadronAbilityEngine.GetKeywordValue(definition, "AI BATTERY") > 0;
     }
     private static SquadronView View(GameContext game, int entity) => game.SquadronViews[game.SquadronIndex(entity)];
-    private static SquadronView[] ActiveViews(GameContext game) => game.SquadronViews.Where(s => !game.IsReserved(s.Index)).ToArray();
+    private static SquadronView[] ActiveViews(GameContext game) => game.SceneSquadronViews;
     private static string DefinitionId(GameContext game, int entity) => game.Topology.Squadrons[game.SquadronIndex(entity)].CatalogEntry.Definition.DisplayName;
     private static int CommandingShip(GameContext game, int entity)
     {
         var id = game.State.Squadrons[game.SquadronIndex(entity)].CommandingShipRuntimeId;
-        return id.Length > 0 && game.Topology.EntityByRuntimeId.TryGetValue(id, out var ship) && game.IsShip(ship) && !game.IsDestroyed(ship) ? ship : -1;
+        return id.Length > 0 && game.Topology.EntityByRuntimeId.TryGetValue(id, out var ship) && game.IsShip(ship) && game.IsOnBoard(ship) ? ship : -1;
     }
     private static GameDecision Forced(GameContext game, string label) => new(DecisionKind.Forced, 0, game.Flow.Phase, [new(new(GameActionKind.Pass), label)]);
     private static GameDecision Player(GameContext game, IReadOnlyList<GameActionOption> options) => new(DecisionKind.Player,

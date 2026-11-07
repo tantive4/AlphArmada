@@ -13,6 +13,7 @@ public sealed class SquadronMoveLegalityQuery
     private readonly float radius;
     private readonly float maximumDistance;
     private readonly bool restricted;
+    private readonly bool sourceOnBoard;
     private readonly PreparedRectangle[] ships;
     private readonly Circle[] squadrons;
     private readonly int shipCount;
@@ -22,6 +23,7 @@ public sealed class SquadronMoveLegalityQuery
     internal SquadronMoveLegalityQuery(GameContext game, int entity)
     {
         var source = game.SquadronBase(entity);
+        sourceOnBoard = game.IsOnBoard(entity);
         origin = source.Center; radius = source.Radius;
         EffectiveSpeed = Math.Clamp(SquadronModule.EffectiveSpeed(game, entity), 0, 5);
         if (game.Flow.SquadronProgress is { MaximumMoveDistance: >= 0 } progress && progress.Entity == entity)
@@ -29,19 +31,20 @@ public sealed class SquadronMoveLegalityQuery
         else maximumDistance = TabletopMeasurements.DistanceBand(EffectiveSpeed) + Geometry2D.DefaultTolerance;
         ships = new PreparedRectangle[game.State.Ships.Length];
         for (int ship = 0; ship < game.State.Ships.Length; ship++)
-            if (!game.Topology.Ships[ship].IsStation && !game.IsDestroyed(ship) && !game.IsReserved(ship))
+            if (!game.Topology.Ships[ship].IsStation && game.IsOnBoard(ship))
                 ships[shipCount++] = new(game.ShipBase(ship));
         squadrons = new Circle[game.State.Squadrons.Length];
         for (int index = 0; index < game.State.Squadrons.Length; index++)
         {
             int other = game.State.Ships.Length + index;
-            if (other != entity && !game.IsDestroyed(other) && !game.IsReserved(other))
+            if (other != entity && game.IsOnBoard(other))
                 squadrons[squadronCount++] = game.SquadronBase(other);
         }
     }
 
     public bool IsLegal(Vector2 destination)
     {
+        if (!sourceOnBoard) return false;
         // The unrestricted native ruler rejects nonfinite coordinates with an
         // argument error; the restricted path rejects them via its distance test.
         if (!restricted) Geometry2D.RequireFinite(destination, nameof(destination));

@@ -10,7 +10,20 @@ namespace Swarmada.Headless.Search;
 public sealed record PolicyChoice(string Id, string Label, int Entity = -1, int Code = -1);
 public sealed record PolicyDecision(DecisionKind Kind, int Actor, string Stage,
     IReadOnlyList<PolicyChoice> Choices, GamePhase Phase, TerminalOutcome? Outcome = null,
-    InvalidSetupResult? InvalidSetup = null);
+    InvalidSetupResult? InvalidSetup = null, IReadOnlyList<PolicyCandidateDescriptor>? Candidates = null);
+
+[Flags]
+public enum PolicyActionFields
+{
+    Kind = 1, Source = 2, Target = 4, FromZone = 8, ToZone = 16, Command = 32,
+    SpendMode = 64, Token = 128, Index = 256, Amount = 512, Position = 1024,
+    Yaw = 2048, Speed = 4096, Course = 8192, DiceIndices = 16384, Dice = 32768,
+    Ability = 65536, Flipped = 131072, All = 262143
+}
+
+/// <summary>Fields shared by every complete legal action represented by one
+/// conditional choice. Unselected arguments are masked, never guessed from an example.</summary>
+public sealed record PolicyCandidateDescriptor(GameAction Example, PolicyActionFields KnownFields, int CompleteActions);
 
 /// <summary>Recoverable conditional argument trie over exact legal native actions.
 /// Only Select at a complete leaf mutates the engine. This is worker-local state.
@@ -32,6 +45,7 @@ public sealed class DecisionAdapter
         public GameAction[]? PendingActions { get; set; }
         public GameAction[]? CatalogActions { get; set; }
         public ActionCodec? Codec { get; set; }
+        public PolicyCandidateDescriptor[]? CandidateDescriptors { get; set; }
         public int Depth { get; init; }
     }
     internal sealed record Field(string Stage, Func<GameAction, string> Value, Func<GameAction, int>? Entity = null);
@@ -150,6 +164,53 @@ public sealed class DecisionAdapter
             throw new InvalidOperationException("Only player decisions have a reusable argument descriptor.");
         return captured ??= new(native!, root!, cursor!, fields, prefix.ToArray(), AtomicActionCount,
             Game.Context.State.Ships.Length, Game.Context.Topology.EntityCount);
+    }
+
+    public IReadOnlyList<PolicyCandidateDescriptor> DescribeChoices()
+    {
+        _ = Current;
+        if (native!.Kind != DecisionKind.Player) return [];
+        var node = cursor!;
+        if (node.CandidateDescriptors is not null) return node.CandidateDescriptors;
+        return node.CandidateDescriptors = node.IndexedChildren!.Select(Describe).ToArray();
+    }
+
+    private static IEnumerable<GameAction> ActionsUnder(Node node)
+    {
+        if (node.Action is { } action) { yield return action; yield break; }
+        if (node.PendingActions is { } pending) { foreach (var item in pending) yield return item; yield break; }
+        foreach (var child in node.Children.Values) foreach (var item in ActionsUnder(child)) yield return item;
+    }
+
+    private static PolicyCandidateDescriptor Describe(Node node)
+    {
+        using var actions = ActionsUnder(node).GetEnumerator();
+        if (!actions.MoveNext()) throw new InvalidOperationException("Conditional candidate contains no native actions.");
+        var first = actions.Current; var mask = PolicyActionFields.All; int count = 1;
+        static bool Equal<T>(T[]? a, T[]? b) => a is null ? b is null : b is not null && a.SequenceEqual(b);
+        while (actions.MoveNext())
+        {
+            count++; var next = actions.Current;
+            if (first.Kind != next.Kind) mask &= ~PolicyActionFields.Kind;
+            if (first.Source != next.Source) mask &= ~PolicyActionFields.Source;
+            if (first.Target != next.Target) mask &= ~PolicyActionFields.Target;
+            if (first.FromZone != next.FromZone) mask &= ~PolicyActionFields.FromZone;
+            if (first.ToZone != next.ToZone) mask &= ~PolicyActionFields.ToZone;
+            if (first.Command != next.Command) mask &= ~PolicyActionFields.Command;
+            if (first.SpendMode != next.SpendMode) mask &= ~PolicyActionFields.SpendMode;
+            if (first.Token != next.Token) mask &= ~PolicyActionFields.Token;
+            if (first.Index != next.Index) mask &= ~PolicyActionFields.Index;
+            if (first.Amount != next.Amount) mask &= ~PolicyActionFields.Amount;
+            if (first.Position != next.Position) mask &= ~PolicyActionFields.Position;
+            if (BitConverter.SingleToInt32Bits(first.YawDegrees) != BitConverter.SingleToInt32Bits(next.YawDegrees)) mask &= ~PolicyActionFields.Yaw;
+            if (first.Speed != next.Speed) mask &= ~PolicyActionFields.Speed;
+            if (!Equal(first.Course, next.Course)) mask &= ~PolicyActionFields.Course;
+            if (!Equal(first.DiceIndices, next.DiceIndices)) mask &= ~PolicyActionFields.DiceIndices;
+            if (!Equal(first.Dice, next.Dice)) mask &= ~PolicyActionFields.Dice;
+            if (first.AbilityId != next.AbilityId) mask &= ~PolicyActionFields.Ability;
+            if (first.Flipped != next.Flipped) mask &= ~PolicyActionFields.Flipped;
+        }
+        return new(first.DeepClone(), mask, count);
     }
     public void BindDescriptor(DecisionDescriptor descriptor)
     {
@@ -300,6 +361,7 @@ public sealed class DecisionAdapter
         GamePhase.RevealCommand or GamePhase.ResolveCommand or GamePhase.Repair or GamePhase.SquadronCommand => "command_window",
         GamePhase.SelectShip => "activation",
         GamePhase.SelectAttack => "attack_declaration",
+        GamePhase.RollAttack or GamePhase.ModifyAttack => "attack_effects",
         GamePhase.SpendDefense or GamePhase.SpendAccuracy or GamePhase.EvadeDice or GamePhase.RedirectDamage => "defense",
         GamePhase.ResolveCritical or GamePhase.DealDamage or GamePhase.ChooseDamageCard => "damage",
         GamePhase.SelectCourse => "maneuver",

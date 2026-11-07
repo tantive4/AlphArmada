@@ -7,6 +7,8 @@ movement and tournament rules. It runs without Unity or a game window.
 ## Repository layout
 
 - `src/Swarmada.Headless`: rules, geometry, deterministic state recovery and MCTS.
+- `src/Swarmada.Headless/Learning`: visible state, spatial/candidate tensors, batch
+  collation, lossless replay transport and terminal auxiliary targets.
 - `src/Swarmada.Headless.Cli`: persistent JSON worker and diagnostic CLI.
 - `python/swarmada_headless`: Python client for the worker.
 - `data`: five runtime catalogs required by the engine.
@@ -43,9 +45,57 @@ and 2. The Python worker exposes the same game operations over JSON.
 MCTS uses caller-owned finite action domains, conditional static/pointer choices,
 root-copy-and-replay recovery, cached decision descriptors, compatible subtree
 reuse, and independent environment/CPU/inference scheduling. Unknown enemy dials
-use the accepted deferred-reveal UCT approximation. The included encoder and
-model are diagnostic mocks; production encoding, BigDeep and training integration
-remain unfinished.
+use non-neural UCT at reveal, their first simulated private look, or the first
+pre-reveal step whose legal effects depend on the dial. Simulated assignments
+stay separate from each player's legally seen dials. Already resolved dials stay
+fixed until an actual queue change; discarded tops expose a new slot rather than
+reusing the old value. The structured encoder is available through
+`ProductionSearchEncoder`; BigDeep and the optimizer/trainer remain separate
+work. `TensorRandomSearchModel` consumes real padded tensors and supplies
+untrained random policy/value outputs.
+
+Create a learning search explicitly (the legacy constructor default retains the
+small diagnostic encoder for existing tests):
+
+```csharp
+var encoder = new ProductionSearchEncoder(data);
+var environment = new NativeMctsEnvironment(game, knowledge[actor - 1],
+    SearchInformationMode.DeferredUctReveal, encoder: encoder,
+    observerKnowledge: knowledge);
+await using var inference = new InferenceBatcher(new TensorRandomSearchModel(),
+    maximumBatch: 32, maximumDelay: TimeSpan.FromMilliseconds(1));
+var result = await new MctsSearch(environment, inference,
+    new MctsOptions(Simulations: 200)).RunAsync();
+var samples = TrainingRecordCapture.Capture(game, knowledge, result, encoder);
+var action = NativeMctsEnvironment.ApplySelectedPath(game, result.SelectedPath,
+    knowledge);
+```
+
+Each environment owns its encoder/workspace; independent games share an inference
+batcher. Inputs use actual entity counts. The default encoder capacity profile is
+24 ships, 48 squadrons and 384 upgrades, configurable through `EncoderLimits`;
+overflow fails explicitly. Squadrons use coordinates/radii without headings or
+individual raster planes. Ships use position and sine/cosine heading. Physical
+relations and native legal candidate facts remain separate from the shared
+64-by-128 terrain raster.
+
+`EncoderManifest.Describe(encoder.Schema)` exports categorical tables, field
+layout and schema fingerprints for replay/checkpoint compatibility.
+`ReplayTensorCodec` transports actual-count tensors losslessly as raw or zlib
+records. `python/swarmada_headless/encoding.py` decodes them into byte-backed
+views and optional NumPy arrays/batches. Observations exclude unknown commands,
+unknown facedown identities, future deck order and RNG; authoritative game
+snapshots remain a separate recovery API. Conditional policy targets are exported
+per selected prefix; hidden-command UCT branches produce no policy targets.
+`TerminalTrainingTargets.FromTerminal` retains result, raw-score, ship-hull,
+game-round and squadron-hull supervision after a genuine terminal outcome.
+
+Search keeps simulated command assignments separate from legal observations.
+The eight-column command row ends with an explicit known-enemy-dial flag;
+internal materialization status is never a model feature (state schema v3).
+`SearchRecovery` checkpoints actual roots. Capturing a worker-managed simulation
+as a complete recovery checkpoint is rejected because its private continuation
+and materialization overlay are wrapper state; MCTS continues using root replay.
 
 ## Rules and coverage limits
 

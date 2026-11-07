@@ -450,7 +450,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         bool ship = game.IsShip(attacker);
         if (ship) options.AddRange(CommandModule.ActivationCommandOptions(game, GamePhase.SelectAttack));
         bool extraFlak = game.Flow.Flags.ContainsKey("combat.granted.flak");
-        bool mayAttack = !game.IsDestroyed(attacker) && !game.IsReserved(attacker);
+        bool mayAttack = game.IsOnBoard(attacker);
         HullZone? flak = ship ? FlakZone(game, attacker) : null;
         if (ship)
         {
@@ -465,7 +465,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         if (mayAttack && ship && !extraFlak && !flak.HasValue && game.Flow.ShipActivations[attacker].AttacksResolved == 0)
             for (int defender = 0; defender < game.State.Ships.Length; defender++)
             {
-                if (defender == attacker || Owner(game, defender) == Owner(game, attacker)) continue;
+                if (defender == attacker || Owner(game, defender) == Owner(game, attacker) || !game.IsOnBoard(defender)) continue;
                 foreach (var to in TargetZones(game, defender))
                     if (IgnitionAttackGeometry.TryMeasureAttack(game, attacker, defender, to, out var measure))
                         options.Add(Option(new(GameActionKind.Attack, attacker, defender, measure.AssociatedHullZone, to,
@@ -476,7 +476,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         if (mayAttack)
             for (int defender = 0; defender < game.Topology.EntityCount; defender++)
             {
-                if (defender == attacker || Owner(game, defender) == Owner(game, attacker) || game.IsDestroyed(defender) || game.IsReserved(defender)) continue;
+                if (defender == attacker || Owner(game, defender) == Owner(game, attacker) || !game.IsOnBoard(defender)) continue;
                 if (extraFlak && game.IsShip(defender)) continue;
                 if (flak.HasValue && (game.IsShip(defender) || game.Flow.Flags.ContainsKey(FlakBatchTargetKey(game, attacker, defender)))) continue;
                 foreach (var from in ship ? game.State.Ships[attacker].HullZones : new[] { HullZone.Front })
@@ -517,6 +517,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
     {
         using var scope = new GameScope(game);
         range = RangeBand.OutOfRange; obstructed = false; distance = float.PositiveInfinity;
+        if (!game.IsOnBoard(attacker) || !game.IsOnBoard(defender)) return false;
         Segment line;
         if (game.IsShip(attacker))
         {
@@ -549,25 +550,25 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
                 distance = target.Edges.ToArray().Min(edge => Math.Max(0, Vector2.Distance(attackerBase.Center, Geometry2D.ClosestPoint(edge, attackerBase.Center)) - attackerBase.Radius));
                 if (!Station(game, defender) && !HullGeometry.IsTargetZoneExposed(attackerBase.Center, target, game.ShipBase(defender))) return false;
                 line = new(attackerBase.Center, target.TargetingPoint);
-                if (!SquadronAbilityEngine.CanAttackShip(game.SquadronViews[game.SquadronIndex(attacker)], game.SquadronViews)) return false;
+                if (!SquadronAbilityEngine.CanAttackShip(game.SquadronViews[game.SquadronIndex(attacker)], game.SceneSquadronViews)) return false;
             }
             else
             {
                 distance = Geometry2D.Distance(attackerBase, game.SquadronBase(defender));
                 line = new(attackerBase.Center, game.SquadronBase(defender).Center);
                 if (!SquadronAbilityEngine.CanAttackSquadron(game.SquadronViews[game.SquadronIndex(attacker)],
-                    game.SquadronViews[game.SquadronIndex(defender)], game.SquadronViews,
+                    game.SquadronViews[game.SquadronIndex(defender)], game.SceneSquadronViews,
                     distance / TabletopMeasurements.MillimetresPerWorldUnit, out _)) return false;
             }
             var view = game.SquadronViews[game.SquadronIndex(attacker)];
-            float allowedRange = game.IsShip(defender) ? SquadronAbilityEngine.GetShipAttackDistance(view, game.SquadronViews)
+            float allowedRange = game.IsShip(defender) ? SquadronAbilityEngine.GetShipAttackDistance(view, game.SceneSquadronViews)
                 : SquadronAbilityEngine.GetSquadronAttackDistance(view);
             if (distance > TabletopMeasurements.FromWorldUnits(allowedRange)) return false;
             range = RangeBand.Close;
         }
         var blockers = new List<LineOfSightObstacle>();
         for (int ship = 0; ship < game.State.Ships.Length; ship++)
-            if (ship != attacker && ship != defender && !Station(game, ship) && !game.IsDestroyed(ship) && !game.IsReserved(ship)) blockers.Add(new(game.ShipBase(ship)));
+            if (ship != attacker && ship != defender && !Station(game, ship) && game.IsOnBoard(ship)) blockers.Add(new(game.ShipBase(ship)));
         for (int index = 0; index < game.State.SpatialObjects.Count; index++)
         {
             var item = game.State.SpatialObjects[index];
@@ -587,7 +588,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         if (!game.IsShip(attacker) && !game.IsShip(defender))
         {
             var source = game.SquadronViews[game.SquadronIndex(attacker)]; var target = game.SquadronViews[game.SquadronIndex(defender)];
-            obstructed |= CloneWarsSquadronRules.LuminaraObstructs(source, target, game.SquadronViews)
+            obstructed |= CloneWarsSquadronRules.LuminaraObstructs(source, target, game.SceneSquadronViews)
                 || SquadronUpgradeRules.JammingFieldSource(source, target) is not null;
         }
         if (game.IsShip(attacker) && UnitAbilityEngine.AttacksCannotBeObstructed(game.ShipViews[attacker])) obstructed = false;
@@ -681,7 +682,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         game.Flow.Attacks.Add(a); Enter(game, a, GamePhase.ModifyAttack, CombatWindow.BeforeRoll);
     }
 
-    private static DiceBattery Battery(GameContext game, int attacker, int defender, HullZone zone, RangeBand range, HullZone targetZone)
+    internal static DiceBattery Battery(GameContext game, int attacker, int defender, HullZone zone, RangeBand range, HullZone targetZone)
     {
         BatteryArmament printed;
         if (game.IsShip(attacker))
@@ -738,7 +739,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         else if (!game.IsShip(a.Defender))
         {
             var source = game.SquadronViews[game.SquadronIndex(a.Attacker)]; var target = game.SquadronViews[game.SquadronIndex(a.Defender)];
-            Add(AttackDieColor.Blue, SquadronAbilityEngine.GetBonusBlueDice(source, target, game.SquadronViews));
+            Add(AttackDieColor.Blue, SquadronAbilityEngine.GetBonusBlueDice(source, target, game.SceneSquadronViews));
             if (CommandUpgradeRules.GrantsFlightControllersBlueDie(source)) Add(AttackDieColor.Blue, 1);
         }
         a.Dice = [..a.Dice, ..added];
@@ -1142,8 +1143,8 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
             original.EffectFlags["response.counter.resolved"] = 1;
             var source = game.SquadronViews[game.SquadronIndex(original.Defender)];
             var target = game.SquadronViews[game.SquadronIndex(original.Attacker)];
-            blue = SquadronAbilityEngine.GetCounterValue(source, target, game.SquadronViews);
-            if (blue <= 0 || !SquadronAbilityEngine.CanCounterAttack(source, target, game.SquadronViews)) return false;
+            blue = SquadronAbilityEngine.GetCounterValue(source, target, game.SceneSquadronViews);
+            if (blue <= 0 || !SquadronAbilityEngine.CanCounterAttack(source, target, game.SceneSquadronViews)) return false;
             battery = new(0, blue, 0);
         }
         else if (game.IsShip(original.Defender) && original.Salvo && !game.IsDestroyed(original.Defender)
@@ -1176,7 +1177,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
             var source = game.SquadronViews[game.SquadronIndex(response.Attacker)]; var target = game.SquadronViews[game.SquadronIndex(response.Defender)];
             response.Obstructed = !CloneWarsSquadronRules.AttacksCannotBeObstructed(source)
                 && (SquadronAbilityEngine.TreatsDefenderAsObstructed(target) || TitleRules.StrongholdSource(target) is not null
-                    || SquadronUpgradeRules.JammingFieldSource(source, target) is not null || CloneWarsSquadronRules.LuminaraObstructs(source, target, game.SquadronViews));
+                    || SquadronUpgradeRules.JammingFieldSource(source, target) is not null || CloneWarsSquadronRules.LuminaraObstructs(source, target, game.SceneSquadronViews));
             response.MandatoryRemovals = response.Obstructed ? 1 : 0;
         }
         if (quadLaser)
@@ -1283,11 +1284,11 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         return 0;
     }
     private static IEnumerable<int> EngagingEnemies(GameContext game, int entity) => game.Topology.Squadrons
-        .Where(s => s.EntityIndex != entity && !game.IsDestroyed(s.EntityIndex) && !game.IsReserved(s.EntityIndex)
+        .Where(s => s.EntityIndex != entity && game.IsOnBoard(s.EntityIndex)
             && Owner(game, s.EntityIndex) != Owner(game, entity) && Keyword(game, s.EntityIndex, "HEAVY") == 0
             && Geometry2D.Distance(game.SquadronBase(entity), game.SquadronBase(s.EntityIndex)) <= TabletopMeasurements.FromWorldUnits(AttackResolver.SquadronEngagementDistance))
         .Select(s => s.EntityIndex);
-    private static bool Engaged(GameContext game, int entity) => EngagingEnemies(game, entity).Any();
+    private static bool Engaged(GameContext game, int entity) => game.IsOnBoard(entity) && EngagingEnemies(game, entity).Any();
     private static string FlakKey(GameContext game, int ship) => game.Flow.Flags.ContainsKey("combat.granted.flak")
         ? $"combat.granted.flak-sequence.{ship}" : $"combat.flak.{game.State.Round}.{ship}";
     private static string FlakTargetKey(GameContext game, int ship, int target, HullZone? zone = null)

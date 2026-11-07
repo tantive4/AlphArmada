@@ -14,6 +14,7 @@ public sealed class MctsSearch
         public readonly object? Descriptor = descriptor;
         public readonly string[] Actions = observation.LegalActionIds;
         public readonly int Actor = observation.Actor;
+        public readonly string Head = observation.Head;
         public readonly bool UseUct = observation.UseUct;
         public float[] Priors = [];
         public readonly int[] Visits = new int[observation.LegalActionIds.Length];
@@ -182,10 +183,12 @@ public sealed class MctsSearch
             var rootKey = cached is null ? new SearchTraversalKey(environment.Encode().InformationKey, 0) : cached.Inspect().Key;
             if (!roots.TryGetValue(rootKey, out var root))
                 throw new InvalidOperationException("Search root changed its visible decision during recovery.");
-            var selectedPath = new List<string>(); var choiceNode = root;
+            var selectedPath = new List<string>(); var selectedDecisions = new List<SearchDecisionStatistics>(); var choiceNode = root;
             while (true)
             {
                 if (cached is not null) cached.BindDecision(choiceNode.Descriptor!);
+                selectedDecisions.Add(new(choiceNode.Actor, choiceNode.Head, selectedPath.ToArray(),
+                    Statistics(choiceNode), choiceNode.UseUct));
                 int index = MostVisited(choiceNode); string id = choiceNode.Actions[index]; selectedPath.Add(id);
                 if (cached is null ? environment.Select(id) : cached.Select(index))
                 { choiceNode.Children.TryGetValue(index, out selectedSuccessors); break; }
@@ -199,10 +202,13 @@ public sealed class MctsSearch
                 new SearchActionStatistics(id, root.Priors[index], root.Visits[index], root.Values[index])).ToArray(),
                 nodeCount, slots, requests, decisionEdges, nativeActions, chanceSamples,
                 maximumNativeDepth, maximumPrefixDepth, limitEvaluations, timer.Elapsed.TotalMilliseconds, uctNodes,
-                inherited, newSimulations, cachedTraversals);
+                inherited, newSimulations, cachedTraversals, selectedDecisions.ToArray());
         }
         finally { cpuLease?.Dispose(); Volatile.Write(ref running, 0); }
     }
+
+    private static SearchActionStatistics[] Statistics(Node node) => node.Actions.Select((id, index) =>
+        new SearchActionStatistics(id, node.Priors[index], node.Visits[index], node.Values[index])).ToArray();
 
     private int Select(Node node)
     {

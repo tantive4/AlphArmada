@@ -1,11 +1,25 @@
 using Swarmada.Headless.Runtime;
+using Swarmada.Headless.Engine;
+using Swarmada.Headless.Learning;
 
 namespace Swarmada.Headless.Search;
 
 /// <summary>Owned, visible-only buffers. Decision context is separate so an eventual
 /// neural model can cache its board trunk across buffered argument choices.</summary>
 public sealed record SearchObservation(string Head, int Actor, ulong BoardKey, ulong InformationKey,
-    float[] BoardFeatures, float[] DecisionFeatures, string[] LegalActionIds, bool UseUct = false);
+    float[] BoardFeatures, float[] DecisionFeatures, string[] LegalActionIds, bool UseUct = false,
+    EncodedSearchInput? Encoded = null);
+
+/// <summary>One encoder belongs to one mutable search workspace. Returned observations
+/// own their buffers and remain valid while another environment fills an inference batch.</summary>
+public interface ISearchObservationEncoder
+{
+    string SchemaVersion { get; }
+    bool RequiresNativeCandidates => false;
+    void Invalidate();
+    SearchObservation Encode(GameSession position, SearchKnowledge knowledge, PolicyDecision decision,
+        IReadOnlyList<string> prefix, SearchKnowledge? hypothesisKnowledge = null);
+}
 
 public sealed record SearchPrediction(float[] Priors, float ObserverValue);
 
@@ -47,12 +61,15 @@ public sealed record MctsOptions(int Simulations = 200, double Exploration = 1.5
     int MaximumNativeActions = 96, int MaximumDecisionEdges = 2048);
 
 public sealed record SearchActionStatistics(string Id, float Prior, int Visits, double PlayerOneValueSum);
+public sealed record SearchDecisionStatistics(int Actor, string Head, string[] Prefix,
+    SearchActionStatistics[] Actions, bool HiddenHypothesis = false);
 
 public sealed record MctsResult(int Simulations, string[] SelectedPath,
     SearchActionStatistics[] RootActions, long Nodes, long ActionSlots, long ModelRequests,
     long DecisionEdges, long NativeActions, long ChanceSamples, int MaximumNativeDepth,
     int MaximumPrefixDepth, long DepthLimitEvaluations, double ElapsedMilliseconds, long UctNodes = 0,
-    int InheritedVisits = 0, int NewSimulations = 0, long CachedTraversals = 0);
+    int InheritedVisits = 0, int NewSimulations = 0, long CachedTraversals = 0,
+    SearchDecisionStatistics[]? SelectedDecisions = null);
 
 /// <summary>Stable little hash for reproducible mock outputs and local observation
 /// discrimination; not a canonical engine/transposition hash or security primitive.</summary>

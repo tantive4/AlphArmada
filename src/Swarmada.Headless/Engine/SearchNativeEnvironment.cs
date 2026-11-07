@@ -14,7 +14,8 @@ public enum SearchInformationMode
     /// determinization; does not claim complete information-set search.</summary>
     UniformRootSampling,
     /// <summary>Do not assign unknown enemy commands until reveal. Pure UCT treats
-    /// each reveal as an opponent-owned hypothetical choice, a pessimistic approximation.</summary>
+    /// each first reveal/private look as an opponent-owned hypothetical choice,
+    /// a pessimistic approximation. Previously seen slots remain fixed.</summary>
     DeferredUctReveal,
     /// <summary>Same delayed assignment, but uniformly average possible reveal outcomes.</summary>
     DeferredChanceReveal
@@ -28,8 +29,9 @@ public sealed record NativeSearchTimings(long Resets, double ResetMilliseconds,
 /// <summary>Small diagnostic encoder, deliberately not the production feature schema.
 /// It excludes future deck order, RNG, opponent unknown dials and private flow stores.
 /// Its hash is a local stochastic-outcome discriminator, not a transposition key.</summary>
-public sealed class MockSearchEncoder
+public sealed class MockSearchEncoder : ISearchObservationEncoder
 {
+    public string SchemaVersion => "diagnostic-mock-v1";
     private float[]? cachedBoard;
     private ulong cachedBoardKey;
     private long generation = -1;
@@ -209,18 +211,32 @@ public sealed class MockSearchEncoder
 
 public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
 {
+    // A private look is resolved outside the native action/policy space. Each
+    // unknown slot is selected once by pure UCT, then fixed for this continuation.
+    private sealed record PrivateCommandLook(int Observer, int Ship, int[] Slots, int Cursor = 0,
+        bool LegallyObserved = true);
+    private sealed record ObserverKnowledgePattern(int Observer, bool[][] Commands,
+        (int Ship, int Index)[] DamageSlots, (int Deck, int Count)[] DeckPrefixes);
     private sealed record CachedDecision(PolicyDecision Decision, DecisionAdapter.DecisionDescriptor? Native,
-        GameAction? Reveal, ShipCommand[]? Commands);
+        GameAction? Reveal, ShipCommand[]? Commands, PrivateCommandLook? Look);
     private readonly GameSession root, before;
     private readonly SearchKnowledge rootKnowledge;
     private readonly SearchInformationMode mode;
-    private readonly MockSearchEncoder encoder = new();
+    private readonly ISearchObservationEncoder encoder;
+    private readonly ObserverKnowledgePattern? opposingKnowledgePattern;
     private SearchKnowledge[] knowledge;
+    // Simulation world allocation is separate from legal observation. In
+    // particular, an owner's pre-reveal hypothesis must not become enemy seen.
+    private SearchKnowledge materializedCommands;
+    private readonly HashSet<int> handledPreRevealWindows = [];
     private GameDecision? settled;
     private long settledGeneration = -1, settledRevision = -1, keyGeneration = -1;
+    private long keyFirstKnowledgeVersion = -1, keySecondKnowledgeVersion = -1;
+    private int keyActor = -1;
     private PolicyDecision? current;
     private GameAction? hypotheticalReveal;
     private ShipCommand[]? hypotheticalCommands;
+    private PrivateCommandLook? pendingPrivateLook;
     private SearchTraversalKey baseKey;
     private bool prepared;
     private long keyBuilds, keyTicks, descriptorBindings;
@@ -235,14 +251,32 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
     private bool Deferred => mode is SearchInformationMode.DeferredUctReveal or SearchInformationMode.DeferredChanceReveal;
 
     public NativeMctsEnvironment(GameSession game, SearchKnowledge rootKnowledge,
-        SearchInformationMode mode, ActionCatalogProfile? profile = null)
+        SearchInformationMode mode, ActionCatalogProfile? profile = null, ISearchObservationEncoder? encoder = null,
+        IReadOnlyList<SearchKnowledge>? observerKnowledge = null)
     {
         ArgumentNullException.ThrowIfNull(game); ArgumentNullException.ThrowIfNull(rootKnowledge);
         if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
         game.GetDecision(); this.root = game.DeepClone(); this.rootKnowledge = rootKnowledge.DeepClone();
         this.mode = mode; Position = game.DeepClone(); before = game.DeepClone(); Adapter = new(Position, profile);
-        knowledge = [SearchKnowledge.For(Position, 1), SearchKnowledge.For(Position, 2)];
-        CompatibilityToken = SearchRecovery.TopologyStamp(game) + ":" + mode + ":" + RootObserver + ":" + (profile ?? new ActionCatalogProfile());
+        this.encoder = encoder ?? new MockSearchEncoder();
+        if (observerKnowledge is not null)
+        {
+            if (observerKnowledge.Count != 2 || observerKnowledge.Select(view => view.Observer).Distinct().Count() != 2)
+                throw new ArgumentException("Provide one knowledge history for each player.", nameof(observerKnowledge));
+            foreach (var view in observerKnowledge) view.Validate(game);
+            var other = observerKnowledge.Single(view => view.Observer != RootObserver).CaptureSnapshot();
+            // Preserve who has seen which slot, never their actual private values.
+            // Those values are rebound to the independently sampled search world.
+            opposingKnowledgePattern = new(other.Observer,
+                other.EnemyCommands.Select(stack => stack.Select(command => command.HasValue).ToArray()).ToArray(),
+                other.DamageCards.Select(card => (card.Ship, card.Index)).ToArray(),
+                other.DeckPrefixes.Select(prefix => (prefix.Deck, prefix.Cards.Length)).ToArray());
+        }
+        knowledge = CreateKnowledge(bindOpponent: false);
+        materializedCommands = this.rootKnowledge.DeepClone();
+        Position.Context.SuspendTimingWindow = SuspendPreRevealWindow;
+        CompatibilityToken = SearchRecovery.TopologyStamp(game) + ":" + mode + ":" + RootObserver + ":" +
+            (profile ?? new ActionCatalogProfile()) + ":" + this.encoder.SchemaVersion;
     }
     public PolicyDecision Current
     {
@@ -251,20 +285,29 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             long start = Stopwatch.GetTimestamp();
             Prepare();
             if (current is not null) return current;
-            var decision = Adapter.Current;
-            if (hypotheticalReveal is { } reveal)
+            PolicyDecision decision;
+            if (pendingPrivateLook is { } look)
+            {
+                var choices = RevealCommands(look.Ship).Select(command =>
+                    new PolicyChoice("hidden_command:" + (int)command, command.ToString())).ToArray();
+                decision = new(DecisionKind.Player, Position.Context.State.Owners[look.Ship],
+                    look.LegallyObserved ? "hidden_command/uct_private_look" : "hidden_command/uct_pre_reveal",
+                    choices, GamePhase.AbilityChoice);
+            }
+            else if (hypotheticalReveal is { } reveal)
             {
                 var choices = hypotheticalCommands!.Select(command =>
                     new PolicyChoice("hidden_command:" + (int)command, command.ToString())).ToArray();
                 decision = new(mode == SearchInformationMode.DeferredUctReveal ? DecisionKind.Player : DecisionKind.Chance,
-                    mode == SearchInformationMode.DeferredUctReveal ? Position.Context.State.Owners[reveal.Source] : 0,
+                    mode == SearchInformationMode.DeferredUctReveal ? RevealOwner(reveal) : 0,
                     mode == SearchInformationMode.DeferredUctReveal ? "hidden_command/uct_reveal" : "hidden_command/chance_reveal",
                     choices, GamePhase.RevealCommand);
             }
+            else decision = Adapter.Current;
             catalogTicks += Stopwatch.GetTimestamp() - start; return current = decision;
         }
     }
-    public bool InBufferedPrefix => Adapter.PrefixCount > 0;
+    public bool InBufferedPrefix => pendingPrivateLook is not null || Adapter.PrefixCount > 0;
     public NativeSearchTimings Timings => new(resets, Milliseconds(resetTicks), encodings, Milliseconds(encodeTicks),
         Milliseconds(catalogTicks), Milliseconds(applyTicks), Adapter.CandidatesValidated, Adapter.CatalogsBuilt,
         keyBuilds, Milliseconds(keyTicks), descriptorBindings);
@@ -275,15 +318,60 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
         if (mode != SearchInformationMode.PerfectInformationTest)
             SearchRootFactory.PopulateWorkspace(Position, root, rootKnowledge, simulationSeed, deferUnknownCommands: Deferred);
         else Position.CopyFrom(root);
-        knowledge = [SearchKnowledge.For(Position, 1), SearchKnowledge.For(Position, 2)];
-        knowledge[rootKnowledge.Observer - 1] = rootKnowledge.DeepClone();
+        knowledge = CreateKnowledge();
+        materializedCommands = rootKnowledge.DeepClone();
+        handledPreRevealWindows.Clear();
+        pendingPrivateLook = null;
         Adapter.ResetPrefix(); Invalidate(); resets++; resetTicks += Stopwatch.GetTimestamp() - start;
+    }
+    private SearchKnowledge[] CreateKnowledge(bool bindOpponent = true)
+    {
+        SearchKnowledge[] result = [SearchKnowledge.For(Position, 1, observePrivateCommandLooks: false),
+            SearchKnowledge.For(Position, 2, observePrivateCommandLooks: false)];
+        result[RootObserver - 1] = rootKnowledge.DeepClone();
+        if (!bindOpponent || opposingKnowledgePattern is not { } pattern) return result;
+        var other = result[pattern.Observer - 1];
+        for (int ship = 0; ship < pattern.Commands.Length; ship++)
+        {
+            var commands = Position.Context.State.Commands[ship].Stack;
+            if (pattern.Commands[ship].Length != commands.Count)
+                throw new SearchCoverageException("Opponent command-knowledge slots do not match this search root.");
+            for (int slot = 0; slot < commands.Count; slot++)
+                if (pattern.Commands[ship][slot]) other.RememberCommand(ship, slot, commands[slot]);
+        }
+        foreach (var slot in pattern.DamageSlots)
+        {
+            var cards = Position.Context.State.Ships[slot.Ship].DamageCards;
+            if ((uint)slot.Index >= (uint)cards.Count || cards[slot.Index].CriticalCard is not { } card)
+                throw new SearchCoverageException("Opponent damage-card knowledge has no corresponding sampled card.");
+            other.RememberDamageCard(slot.Ship, slot.Index, card);
+        }
+        foreach (var prefix in pattern.DeckPrefixes)
+        {
+            var deck = Position.Context.State.Decks[prefix.Deck];
+            if (prefix.Count > deck.Remaining)
+                throw new SearchCoverageException("Opponent private deck peek exceeds the sampled deck.");
+            other.RememberDeckPrefix(prefix.Deck, deck.PeekTop(prefix.Count));
+        }
+        return result;
     }
     public SearchObservation Encode()
     {
         long start = Stopwatch.GetTimestamp(); var decision = Current;
+        if (decision.Stage.StartsWith("hidden_command/uct_", StringComparison.Ordinal))
+        {
+            // Hypothesis choices are search mechanics, never production encoder
+            // inputs, neural requests, replay policy targets or real game actions.
+            var key = Inspect().Key;
+            encodings++; encodeTicks += Stopwatch.GetTimestamp() - start;
+            return new("hidden_command", decision.Actor, key.Rules,
+                SearchHash.Add(key.Knowledge, key.Rules), [], [],
+                decision.Choices.Select(choice => choice.Id).ToArray(), UseUct: true);
+        }
+        if (encoder.RequiresNativeCandidates)
+            decision = decision with { Candidates = Adapter.DescribeChoices() };
         var result = encoder.Encode(Position, knowledge[decision.Actor - 1], decision, Adapter.Prefix,
-            Deferred ? knowledge[RootObserver - 1] : null);
+            Deferred ? materializedCommands : null);
         encodings++; encodeTicks += Stopwatch.GetTimestamp() - start; return result;
     }
     public bool Select(string semanticId)
@@ -297,6 +385,12 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
     {
         long start = Stopwatch.GetTimestamp(); var decision = Current;
         if ((uint)index >= (uint)decision.Choices.Count) throw new ArgumentOutOfRangeException(nameof(index));
+        if (pendingPrivateLook is { } look)
+        {
+            ApplyPrivateLookHypothesis(look, RevealCommands(look.Ship)[index]);
+            applyTicks += Stopwatch.GetTimestamp() - start;
+            return false;
+        }
         if (hypotheticalReveal is { } reveal)
         {
             before.CopyFrom(Position);
@@ -307,8 +401,13 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
         if (committed)
         {
             var action = Adapter.LastCommittedAction ?? throw new InvalidOperationException("Adapter did not expose its committed action.");
+            ObserveMaterializedTransition(action);
             Invalidate(); GetSettled();
-            foreach (var observer in knowledge) observer.ObserveTransition(before, action, Position);
+            foreach (var observer in knowledge) observer.ObserveTransition(before, action, Position,
+                observePrivateCommandLook: !Deferred);
+            if (Deferred && action.AbilityId == CommandRevealEffects.IsardAction)
+                BeginPrivateLook(Position.Context.State.Owners[action.Source], action.Target,
+                    Enumerable.Range(0, Position.Context.State.Commands[action.Target].Count).ToArray());
         }
         else current = null;
         applyTicks += Stopwatch.GetTimestamp() - start; return committed;
@@ -321,46 +420,66 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             before.CopyFrom(Position); var commands = RevealCommands(reveal.Source);
             ApplyReveal(reveal, commands[random.NextInt(commands.Length)]); return;
         }
-        before.CopyFrom(Position); var action = Position.SampleChance(ref random); Invalidate(); GetSettled();
-        foreach (var observer in knowledge) observer.ObserveTransition(before, action, Position);
+        before.CopyFrom(Position); var action = Position.SampleChance(ref random);
+        ObserveMaterializedTransition(action); Invalidate(); GetSettled();
+        foreach (var observer in knowledge) observer.ObserveTransition(before, action, Position,
+            observePrivateCommandLook: !Deferred);
         Adapter.ResetPrefix();
     }
 
     public SearchTraversalState Inspect()
     {
         Prepare(); var native = GetSettled();
-        if (keyGeneration != Position.PositionGeneration)
+        if (keyGeneration != Position.PositionGeneration || keyActor != native.Player ||
+            keyFirstKnowledgeVersion != knowledge[0].Version || keySecondKnowledgeVersion != knowledge[1].Version)
         {
             long start = Stopwatch.GetTimestamp();
-            baseKey = SearchRuleKey.Create(Position, knowledge, RootObserver, Array.Empty<string>());
+            baseKey = SearchRuleKey.Create(Position, knowledge, RootObserver, Array.Empty<string>(), native.Player);
             keyGeneration = Position.PositionGeneration;
+            keyActor = native.Player;
+            keyFirstKnowledgeVersion = knowledge[0].Version; keySecondKnowledgeVersion = knowledge[1].Version;
             keyBuilds++; keyTicks += Stopwatch.GetTimestamp() - start;
         }
         ulong prefixKey = baseKey.Knowledge;
+        if (Deferred) prefixKey = materializedCommands.AddCommandMaterializationHash(prefixKey);
         foreach (string part in Adapter.Prefix) prefixKey = SearchHash.Add(prefixKey, part);
-        var kind = hypotheticalReveal is null ? native.Kind :
+        if (pendingPrivateLook is { } look)
+        {
+            prefixKey = SearchHash.Add(prefixKey, "private-command-look");
+            prefixKey = SearchHash.Add(prefixKey, (ulong)look.Observer);
+            prefixKey = SearchHash.Add(prefixKey, (ulong)look.Ship);
+            prefixKey = SearchHash.Add(prefixKey, (ulong)look.Cursor);
+            prefixKey = SearchHash.Add(prefixKey, look.LegallyObserved ? 1UL : 0UL);
+            foreach (int slot in look.Slots) prefixKey = SearchHash.Add(prefixKey, (ulong)slot);
+        }
+        var kind = pendingPrivateLook is not null ? DecisionKind.Player : hypotheticalReveal is null ? native.Kind :
             mode == SearchInformationMode.DeferredUctReveal ? DecisionKind.Player : DecisionKind.Chance;
-        int actor = hypotheticalReveal is null ? native.Player :
-            mode == SearchInformationMode.DeferredUctReveal ? Position.Context.State.Owners[hypotheticalReveal.Source] : 0;
+        int actor = pendingPrivateLook is { } privateLook ? Position.Context.State.Owners[privateLook.Ship] : hypotheticalReveal is null ? native.Player :
+            mode == SearchInformationMode.DeferredUctReveal ? RevealOwner(hypotheticalReveal) : 0;
         return new(new(baseKey.Rules, prefixKey), kind, actor, native.Outcome);
     }
     public object CaptureDecision() => new CachedDecision(Current,
-        hypotheticalReveal is null ? Adapter.CaptureDescriptor() : null, hypotheticalReveal, hypotheticalCommands);
+        hypotheticalReveal is null && pendingPrivateLook is null ? Adapter.CaptureDescriptor() : null,
+        hypotheticalReveal, hypotheticalCommands, pendingPrivateLook);
     public void BindDecision(object descriptor)
     {
         if (descriptor is not CachedDecision saved) throw new ArgumentException("Descriptor belongs to another environment type.", nameof(descriptor));
         current = saved.Decision; hypotheticalReveal = saved.Reveal; hypotheticalCommands = saved.Commands;
+        pendingPrivateLook = saved.Look;
         if (saved.Native is not null) Adapter.BindDescriptor(saved.Native);
         descriptorBindings++;
     }
     private GameDecision GetSettled()
     {
+        materializedCommands.SynchronizeCommandCounts(Position);
         if (settled is null || settledGeneration != Position.PositionGeneration || settledRevision != Position.Context.State.Revision)
         {
             settled = Position.GetDecision(); settledGeneration = Position.PositionGeneration;
             settledRevision = Position.Context.State.Revision;
         }
-        foreach (var observer in knowledge) observer.ObserveDecision(Position, settled);
+        materializedCommands.SynchronizeCommandCounts(Position);
+        foreach (var observer in knowledge) observer.ObserveDecision(Position, settled,
+            observePrivateCommandLooks: !Deferred);
         return settled;
     }
     private void Prepare()
@@ -371,8 +490,17 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
         GetSettled();
         if (Deferred)
         {
+            if (pendingPrivateLook is not null) { prepared = true; return; }
             SettleDeferredProgramming();
-            SearchRootFactory.ValidateDeferredDecision(Position, knowledge[RootObserver - 1], GetSettled());
+            if (Position.Context.Flow.Continuations.LastOrDefault() is
+                { Rule: "movement-choice.slicer", Source: >= 0, Target: >= 0 } slicer &&
+                Position.Context.State.Commands[slicer.Target].Count > 0)
+            {
+                BeginPrivateLook(Position.Context.State.Owners[slicer.Source], slicer.Target, [0]);
+                if (pendingPrivateLook is not null) { prepared = true; return; }
+            }
+            SearchRootFactory.ValidateDeferredDecision(Position, materializedCommands, GetSettled(),
+                handledPreRevealWindows.Contains(Position.Context.Flow.ActiveShip));
             hypotheticalReveal = UnknownReveal();
             hypotheticalCommands = hypotheticalReveal is { } reveal ? RevealCommands(reveal.Source) : null;
         }
@@ -387,20 +515,73 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
 
     private GameAction? UnknownReveal()
     {
+        if (Position.Context.Flow.Continuations.LastOrDefault() is { Rule: OfficialAssaultObjectives.SurpriseRevealRule } &&
+            RootObserver != OfficialObjectives.SecondPlayer(Position.Context) &&
+            !OfficialObjectives.State(Position.Context)!.Flags.ContainsKey("surprise.revealed." + (Position.Context.State.Round - 1)))
+            return GetSettled().Actions.Single(option => option.Template.AbilityId == OfficialAssaultObjectives.SurpriseRevealAction).Template;
         if (Position.Context.Flow.Phase != GamePhase.RevealCommand) return null;
         int ship = Position.Context.Flow.ActiveShip;
         if (ship < 0 || Position.Context.State.Owners[ship] == RootObserver) return null;
-        var commands = knowledge[RootObserver - 1].CommandsFor(Position, ship);
+        var commands = materializedCommands.CommandsFor(Position, ship);
         if (commands.Length == 0 || commands[0].HasValue) return null;
         return GetSettled().Actions.FirstOrDefault(option => option.Template.Kind == GameActionKind.RevealCommand)?.Template;
     }
     private ShipCommand[] RevealCommands(int ship)
-        => Enum.GetValues<ShipCommand>().Where(command => CommandModule.CommandAllowed(Position.Context, ship, command)).ToArray();
+        => Enum.GetValues<ShipCommand>().Where(command => ship < 0 || CommandModule.CommandAllowed(Position.Context, ship, command)).ToArray();
+    private int RevealOwner(GameAction reveal) => reveal.AbilityId == OfficialAssaultObjectives.SurpriseRevealAction
+        ? OfficialObjectives.SecondPlayer(Position.Context) : Position.Context.State.Owners[reveal.Source];
+    private void BeginPrivateLook(int observer, int ship, int[] slots)
+    {
+        var resolved = materializedCommands.CommandsFor(Position, ship);
+        var unresolved = slots.Where(slot => !resolved[slot].HasValue).ToArray();
+        foreach (int slot in slots.Where(slot => resolved[slot].HasValue))
+            knowledge[observer - 1].RememberCommand(ship, slot, resolved[slot]!.Value);
+        if (unresolved.Length > 0)
+        {
+            pendingPrivateLook = new(observer, ship, unresolved);
+            current = null; keyGeneration = -1; encoder.Invalidate();
+        }
+    }
+    private bool SuspendPreRevealWindow(GameContinuation window)
+    {
+        if (!Deferred) return false;
+        if (window.Rule == "effects.window" && window.Text is ("start-activation" or "before-command-reveal" or "before-reveal-command") &&
+            Position.Context.IsShip(window.Source)) handledPreRevealWindows.Add(window.Source);
+        if (!SearchRootFactory.HasPreRevealCommandDependency(Position.Context, window) ||
+            Position.Context.State.Owners[window.Source] == RootObserver) return false;
+        materializedCommands.SynchronizeCommandCounts(Position);
+        var commands = materializedCommands.CommandsFor(Position, window.Source);
+        if (commands.Length == 0 || commands[0].HasValue) return false;
+        if (pendingPrivateLook is null)
+            pendingPrivateLook = new(Position.Context.State.Owners[window.Source], window.Source, [0], LegallyObserved: false);
+        return true;
+    }
+    private void ObserveMaterializedTransition(GameAction action)
+        => materializedCommands.ObserveTransition(before, action, Position,
+            observePrivateCommandLook: false, commandCountsAlreadySynchronized: true);
+    private void ApplyPrivateLookHypothesis(PrivateCommandLook look, ShipCommand command)
+    {
+        int slot = look.Slots[look.Cursor];
+        Position.Context.State.Commands[look.Ship].ReplaceAt(slot, command);
+        // Materialization fixes this simulation's value. Only a legal private
+        // look also updates observation memory; a pre-reveal owner hypothesis
+        // remains unseen by the other player until a later public/private event.
+        materializedCommands.RememberCommand(look.Ship, slot, command);
+        if (look.LegallyObserved) knowledge[look.Observer - 1].RememberCommand(look.Ship, slot, command);
+        pendingPrivateLook = look.Cursor + 1 < look.Slots.Length ? look with { Cursor = look.Cursor + 1 } : null;
+        Adapter.ResetPrefix(); Invalidate();
+    }
     private void ApplyReveal(GameAction reveal, ShipCommand command)
     {
-        Position.Context.State.Commands[reveal.Source].ReplaceTop(command);
-        Adapter.ResetPrefix(); Position.Apply(reveal); Invalidate(); GetSettled();
-        foreach (var observer in knowledge) observer.ObserveTransition(before, reveal, Position);
+        if (reveal.AbilityId == OfficialAssaultObjectives.SurpriseRevealAction)
+        {
+            OfficialObjectives.State(Position.Context)!.Flags["surprise.dial." + (Position.Context.State.Round - 1)] = (int)command;
+            reveal = reveal with { Command = command };
+        }
+        else Position.Context.State.Commands[reveal.Source].ReplaceTop(command);
+        Adapter.ResetPrefix(); Position.Apply(reveal); ObserveMaterializedTransition(reveal); Invalidate(); GetSettled();
+        foreach (var observer in knowledge) observer.ObserveTransition(before, reveal, Position,
+            observePrivateCommandLook: !Deferred);
         Adapter.ResetPrefix();
     }
     private void SettleDeferredProgramming()
@@ -414,8 +595,9 @@ public sealed class NativeMctsEnvironment : ICachedMctsEnvironment
             if (decision.Actions.Any(option => option.Template.Kind != GameActionKind.AssignCommand || option.Template.AbilityId.Length != 0))
                 throw new SearchCoverageException("Deferred command programming needs a registered private-card interaction.");
             before.CopyFrom(Position); var placeholder = decision.Actions[0].Template;
-            Position.Apply(placeholder); Invalidate(); GetSettled();
-            foreach (var observer in knowledge) observer.ObserveTransition(before, placeholder, Position);
+            Position.Apply(placeholder); ObserveMaterializedTransition(placeholder); Invalidate(); GetSettled();
+            foreach (var observer in knowledge) observer.ObserveTransition(before, placeholder, Position,
+                observePrivateCommandLook: !Deferred);
             Adapter.ResetPrefix();
         }
         throw new SearchCoverageException("Deferred command programming did not settle within its explicit bound.");

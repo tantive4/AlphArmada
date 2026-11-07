@@ -168,6 +168,9 @@ public sealed partial class GameContext
     public MatchTopology Topology { get; }
     public BattleState State { get; }
     public GameFlowState Flow { get; private set; }
+    // Optional worker-local rule-query boundary. It is deliberately absent from
+    // snapshots/CopyFrom/DeepClone; authoritative games leave it unset.
+    internal Func<GameContinuation, bool>? SuspendTimingWindow { get; set; }
     public GameContext(PreparedMatch prepared)
     {
         Topology = prepared.Topology; State = prepared.CreateState();

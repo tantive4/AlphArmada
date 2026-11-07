@@ -6,6 +6,7 @@ public static class PortStatus
     public const string UpstreamVersion = "0.2.7";
     public static bool HeadlessMatchReady => true;
     public static bool BranchReplayReady => true;
+    public static bool StructuredEncoderReady => true;
     public static int ExecutableOfficialObjectiveCount => Engine.OfficialObjectives.SupportedIds.Length;
     // Conservative official-parity flags include deferred deck behavior and validation limits.
     public static bool FullGameReady => false;
@@ -20,6 +21,7 @@ public static class PortStatus
         "Discrete action IDs and candidates are caller-owned. The engine masks supplied actions and applies the selected ID without generating, ranking or substituting moves.",
         "Obstacle and map-token relocation defaults off. Initial setup and newly placed mine/ignition markers remain separate spatial choices; no universal candidate-count cap is claimed.",
         "Obstacle minimum progress and fallback preferences are caller policy under an explicit rules variation; continuous destination optimization and its proof cache are removed.",
-        "Native MCTS and diagnostic encoder/model plumbing are included. Production encoding, the full per-card policy registry, BigDeep and training integration remain unfinished."
+        "Native MCTS, structured visible-state/spatial/policy tensors, batched random-model validation and lossless replay transport are implemented. BigDeep, optimizer/trainer and the complete per-card policy registry remain unfinished.",
+        "Pre-reveal command-dependent officers use first-dependency UCT without exposing hypothetical assignments to the other player. Search still rejects unsupported private commander stores (Thrawn, Trench, Draven, Bail). Encoder coverage errors are explicit; full unrestricted self-play readiness is not claimed."
     ];
 }
