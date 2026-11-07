@@ -43,7 +43,7 @@ public sealed class PolicyEncoding
 
 public static class PolicyEncoder
 {
-    public const string Version = "conditional-policy-v2";
+    public const string Version = "conditional-policy-v3";
     private static readonly string[] heads = ["activation", "command_programming", "command_window", "attack_declaration",
         "defense", "damage", "maneuver", "squadron", "timing_window", "boundary_window", "ship_pointer", "squadron_pointer",
         "entity_pointer", "command", "payment", "zone", "token_pointer", "amount", "speed", "spatial", "heading", "face",
@@ -106,6 +106,16 @@ public static class PolicyEncoder
 
     private static void Append(string identity, List<int> symbols, List<float> numbers, List<int> offsets, GameContext game, int observer)
     {
+        if (TryIntelTarget(identity, game, out var intel, out int entity, out int effectStart))
+        {
+            // The canonical native ID transports a public RuntimeUnitId as
+            // base64url. That transport is neither a categorical rule symbol nor
+            // a numeric model feature. Keep the public target/token arguments,
+            // replacing only the opaque ID with its exact topology entity index.
+            // This also handles effect-prefixed identities buffered by a caller.
+            identity = identity[..effectStart] + UnitAbilityEngine.IntelOfficerActionPrefix
+                + FormattableString.Invariant($"target:{(int)intel.UnitKind}:{entity}:{(int)intel.Token.Token}:{intel.Token.Slot}:{(intel.Token.Exhausted ? 1 : 0)}");
+        }
         var encoded = EncoderSymbols.Encode(identity);
         // Public semantic identities retain exact engine coordinates outside the
         // tensors. Their numeric model channels use the same observer frame as
@@ -126,6 +136,31 @@ public static class PolicyEncoder
                 encoded.Numbers[i] = ((degrees % 360 + 540) % 360 - 180) / 180;
             }
         symbols.AddRange(encoded.Symbols); numbers.AddRange(encoded.Numbers); offsets.Add(symbols.Count);
+    }
+
+    private static bool TryIntelTarget(string identity, GameContext game, out IntelOfficerTokenTarget target,
+        out int entity, out int effectStart)
+    {
+        target = default; entity = -1;
+        effectStart = identity.IndexOf(UnitAbilityEngine.IntelOfficerActionPrefix, StringComparison.Ordinal);
+        if (effectStart < 0) return false;
+        string effect = identity[effectStart..];
+        if (effect == UnitAbilityEngine.IntelOfficerSkipAction) return false;
+        if (!IntelOfficerTargetRules.TryParseChoiceId(effect, UnitAbilityEngine.IntelOfficerActionPrefix, out target))
+            throw new SearchCoverageException("Intel Officer policy identity is not a canonical native target choice.");
+        if (target.UnitKind == RuntimeUnitKind.Ship)
+        {
+            foreach (var ship in game.Topology.Ships)
+                if (StringComparer.Ordinal.Equals(ship.RuntimeId, target.UnitId.Value)) { entity = ship.EntityIndex; break; }
+        }
+        else
+        {
+            foreach (var squadron in game.Topology.Squadrons)
+                if (StringComparer.Ordinal.Equals(squadron.RuntimeId, target.UnitId.Value)) { entity = squadron.EntityIndex; break; }
+        }
+        if (entity < 0)
+            throw new SearchCoverageException("Intel Officer policy target is absent from its typed topology.");
+        return true;
     }
 
     private static void WriteArrays(int candidate, PolicyCandidateDescriptor descriptor, List<float> values, List<int> references)
@@ -157,6 +192,14 @@ public static class PolicyEncoder
         if (Has(PolicyActionFields.Kind)) { row[2 + (int)a.Kind] = 1; refs[4] = (int)a.Kind; }
         if (Has(PolicyActionFields.Source)) refs[1] = a.Source;
         if (Has(PolicyActionFields.Target)) refs[2] = a.Target;
+        if (Has(PolicyActionFields.Ability) && TryIntelTarget(a.AbilityId, game, out _, out int intelEntity, out _))
+        {
+            // Native Intel Officer offers explicitly target the defender. Do not
+            // silently encode an ID/typed-reference mismatch as another action.
+            if (!Has(PolicyActionFields.Target) || a.Target != intelEntity)
+                throw new SearchCoverageException("Intel Officer native target differs from its encoded public target.");
+            refs[2] = intelEntity;
+        }
         if (Has(PolicyActionFields.Index)) refs[3] = a.Index;
         if (Has(PolicyActionFields.Command)) row[43 + (int)a.Command] = 1;
         if (Has(PolicyActionFields.FromZone)) row[47 + (int)a.FromZone] = 1;

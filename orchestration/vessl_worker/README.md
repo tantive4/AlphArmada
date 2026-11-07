@@ -104,8 +104,12 @@ data. Any READY shards still unpublished at shutdown are reported explicitly.
 
 Replay READY bundles use
 `NAMESPACE/replay/RUN_ID/worker-NN/SHARD_ID/`; log READY bundles use
-`ARTIFACT_PREFIX/logs/chunk-NNNNNN/`. Log payload names end in
-`.offset-BYTE` and must be reconstructed by their byte offset. The final
+`ARTIFACT_PREFIX/logs/chunk-NNNNNN/`. Each chunk contains short flat
+`fragment-NNNN.bin` files plus a `fragments.json` map with format
+`swarmada.worker-log-fragments.v1`. Map entries provide `file`, original
+`source`, byte `offset`, and `bytes`; reconstruct each source by offset
+rather than parsing fragments as independent JSON. Flat names avoid long
+nested Windows paths. The final
 parseable report is `ARTIFACT_PREFIX/final/runtime-summary.json`.
 Completion health points to that final bundle and records its transfer
 separately, avoiding a self-referential size total inside its own payload.
@@ -138,3 +142,38 @@ requires an operator to review the unresolved intent first. Existing terminal
 slots need `--replace-terminal`. At most twenty matching workers may be active;
 there is no compensating trainer or twenty-first slot. Pending capacity still
 consumes the same absolute session budget. No monetary cost rate is assumed.
+
+## Offline experiment report
+
+After verified artifact fetch, summarize the experiment without cloud access:
+
+```powershell
+python orchestration/vessl_worker/report.py .local/vessl-worker/NAMESPACE/artifacts --output .local/reports/experiment.json --csv-prefix .local/reports/experiment --health .local/vessl-worker/NAMESPACE/health.json
+```
+
+The command writes JSON plus `.cells.csv`, `.games.csv`, `.transfers.csv`,
+`.runs.csv` and `.transferTotals.csv`. Multiple input directories are allowed.
+It rechecks READY, manifest and payload hashes, deduplicates fetched copies
+by manifest and run/cell/game identity, and reports conflicting or incomplete
+artifacts. `--no-logs` uses final reports only. Optional
+`--reconstruct .local/reports/reconstructed` writes flat source-log files
+and a source mapping, reconstructing `fragments.json` entries safely.
+
+Completed-game wall times have average, median and p95 statistics. Nonterminal
+games are recorded as censored and excluded from those completed-game timing
+quantiles. Throughput divides completed games, searches, actions and published
+records by the native cell's active wall time, not the sum of concurrently
+running games. The supervisor's enclosing cell duration is also retained.
+Missing finals can be recovered from verified native log summaries; when
+only partial game logs survive, the report marks incompleteness and does not
+invent a throughput denominator.
+
+Reports separate attempted records from published terminal-game records, raw
+and compressed tensor bytes from logical replay shard bytes, and confirmed
+transfer receipts from those logical sizes. Replay/model/log/final transfers
+remain separate; any explicitly synthetic transfer stays labelled synthetic.
+Pass the downloaded controller health JSON to include the final report's own
+transfer receipt. Search-latency p95 requires surviving search log events;
+per-game average search time remains available in native summaries. The
+measurements describe the CPU random model and make no neural GPU inference
+or playing-strength claim.

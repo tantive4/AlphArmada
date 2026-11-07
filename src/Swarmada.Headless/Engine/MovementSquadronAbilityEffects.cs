@@ -146,7 +146,13 @@ public static partial class MovementAbilityEffects
                 return new(DecisionKind.Player, game.State.Owners[frame.Source], GamePhase.AbilityChoice, options);
             default: return null;
         }
-        options.Add(new(new(GameActionKind.Pass, frame.Source), frame.Rule == "movement-choice.hera" ? "Confirm Rogue recipients" : "Cancel or skip"));
+        // Selecting Jendon commits the attack alternative. A UI back button here
+        // would create a zero-progress use/cancel loop in the native action tree;
+        // the outer activation already permits choosing a different action.
+        bool committedJendon = frame.Rule == "movement-choice.squadron-target"
+            && frame.Text == SquadronAbilityEngine.JendonAttackAction && options.Count > 0;
+        if (!committedJendon)
+            options.Add(new(new(GameActionKind.Pass, frame.Source), frame.Rule == "movement-choice.hera" ? "Confirm Rogue recipients" : "Cancel or skip"));
         return new(options.Count == 1 ? DecisionKind.Forced : DecisionKind.Player, options.Count == 1 ? 0 : game.State.Owners[frame.Source], GamePhase.AbilityChoice, options);
     }
 
@@ -234,7 +240,10 @@ public static partial class MovementAbilityEffects
                 if (frame.Text == SquadronAbilityEngine.JendonAttackAction)
                 {
                     ReturnSquadronChoice(game, frame);
-                    QueueSquadronGrant(game, action.Target, null, null, true, frame.Stage, true); return true;
+                    // The other squadron may decline its attack; Jendon still
+                    // spent his own attack by choosing the recipient instead.
+                    ConsumeSquadronAttack(game);
+                    QueueSquadronGrant(game, action.Target, null, null, false, frame.Stage, true); return true;
                 }
                 var targetState = game.State.Squadrons[game.SquadronIndex(action.Target)];
                 if (!targetState.Activated)

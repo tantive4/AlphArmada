@@ -80,12 +80,12 @@ def run(command: list[str], deadline: float, *, cwd: Path | None = None, capture
             os.killpg(process.pid, signal.SIGKILL)
             process.wait(timeout=1)
         raise TimeoutError("Worker command stopped at its absolute deadline")
+    if capture and output:
+        print(output, end="", flush=True)
     if process.returncode:
         _children.discard(process)
         raise RuntimeError(f"Worker command failed with exit code {process.returncode}: {command[0]}")
     _children.discard(process)
-    if capture and output:
-        print(output, end="", flush=True)
     return output or ""
 
 
@@ -148,7 +148,8 @@ def main() -> int:
         if sha256(ops / name) != digest:
             raise ValueError("Embedded worker operations checksum mismatch")
     os.environ.update(VESSL_DATA_COLLECTION_OPT_OUT="true", ENABLE_SENTRY="false", VESSL_SAVE_CONFIG="false",
-        PYTHONUNBUFFERED="1", DOTNET_CLI_TELEMETRY_OPTOUT="1", DOTNET_NOLOGO="1", DEBIAN_FRONTEND="noninteractive")
+        PYTHONUNBUFFERED="1", DOTNET_CLI_TELEMETRY_OPTOUT="1", DOTNET_NOLOGO="1", DEBIAN_FRONTEND="noninteractive",
+        DOTNET_SYSTEM_GLOBALIZATION_INVARIANT="1")
     threads = str(config.get("threads_per_worker", 10))
     os.environ.update(OMP_NUM_THREADS=threads, OPENBLAS_NUM_THREADS=threads)
     work = Path("/root/headless-worker")
