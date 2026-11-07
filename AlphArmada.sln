@@ -6,6 +6,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Swarmada.Headless", "src\Sw
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Swarmada.Headless.Cli", "src\Swarmada.Headless.Cli\Swarmada.Headless.Cli.csproj", "{B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Swarmada.Headless.Worker", "src\Swarmada.Headless.Worker\Swarmada.Headless.Worker.csproj", "{2713490B-9DF2-4BA8-AB6A-C764AC020C99}"
+EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|Any CPU = Debug|Any CPU
@@ -20,5 +22,9 @@ Global
         {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
         {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
         {B98D27C8-BAE1-49FB-88DA-EED7B88F79BC}.Release|Any CPU.Build.0 = Release|Any CPU
+        {2713490B-9DF2-4BA8-AB6A-C764AC020C99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {2713490B-9DF2-4BA8-AB6A-C764AC020C99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {2713490B-9DF2-4BA8-AB6A-C764AC020C99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {2713490B-9DF2-4BA8-AB6A-C764AC020C99}.Release|Any CPU.Build.0 = Release|Any CPU
     EndGlobalSection
 EndGlobal

@@ -1,0 +1,33 @@
+{
+  "worker_only": true,
+  "integration_reviewed": false,
+  "workers": 20,
+  "organization": "snu-eng-gtx1080",
+  "project": "alpharmada",
+  "cluster": "snu-eng-gtx1080",
+  "preset": "gpu-1",
+  "image": "pytorch/pytorch:2.5.1-cuda12.1-cudnn9-devel",
+  "storage": "vessl-storage",
+  "volume": "alpharmada-headless-REPLACE-WITH-FRESH-LOWERCASE-ID",
+  "namespace": "headless-REPLACE-WITH-FRESH-LOWERCASE-ID",
+  "repository_url": "https://github.com/tantive4/AlphArmada.git",
+  "repository_commit": "REPLACE_WITH_EXACT_40_CHARACTER_COMMIT",
+  "runtime_package": ".local/remote/runtime.tar.gz",
+  "runtime_sha256": "REPLACE_WITH_EXACT_64_CHARACTER_ARCHIVE_SHA256",
+  "runtime_entry": "runtime.py",
+  "runtime_arguments": [],
+  "mock_model_prefix": "headless-REPLACE-WITH-FRESH-LOWERCASE-ID/models/mock-v1",
+  "matrix_by_slot": {},
+  "started_unix": 0,
+  "deadline_unix": 0,
+  "per_run_seconds": 14400,
+  "dotnet_sdk_version": "9.0.315",
+  "dotnet_projects": [
+    "src/Swarmada.Headless.Cli/Swarmada.Headless.Cli.csproj",
+    "src/Swarmada.Headless.Worker/Swarmada.Headless.Worker.csproj"
+  ],
+  "dotnet_command": "dotnet",
+  "native_memory_limit_mb": 10240,
+  "native_command": [],
+  "threads_per_worker": 10
+}

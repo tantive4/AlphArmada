@@ -10,7 +10,9 @@ movement and tournament rules. It runs without Unity or a game window.
 - `src/Swarmada.Headless/Learning`: visible state, spatial/candidate tensors, batch
   collation, lossless replay transport and terminal auxiliary targets.
 - `src/Swarmada.Headless.Cli`: persistent JSON worker and diagnostic CLI.
+- `src/Swarmada.Headless.Worker`: bounded native self play, replay shards and telemetry.
 - `python/swarmada_headless`: Python client for the worker.
+- `orchestration/vessl_worker`: worker-only VESSL bootstrap and test supervision.
 - `data`: five runtime catalogs required by the engine.
 
 The previous Python/Cython AlphArmada project is preserved on the
@@ -89,6 +91,22 @@ snapshots remain a separate recovery API. Conditional policy targets are exporte
 per selected prefix; hidden-command UCT branches produce no policy targets.
 `TerminalTrainingTargets.FromTerminal` retains result, raw-score, ship-hull,
 game-round and squadron-hull supervision after a genuine terminal outcome.
+
+The native self-play worker runs real MCTS and production encoding with the
+explicit `TensorRandomSearchModel` substitute. It streams compressed observations
+and sparse conditional visit targets to disk, publishes a replay shard only after
+a genuine terminal outcome, and records search, batching, memory, game-length and
+transfer statistics. Limits and cancellation leave diagnostics without terminal
+training labels. Optional exact action replay is available for verification.
+
+```powershell
+dotnet src/Swarmada.Headless.Worker/bin/Release/net9.0/Swarmada.Headless.Worker.dll run --data data --output .local/worker --games 2 --preset small --simulations 200 --concurrency 2 --cpu-workers 2
+```
+
+See [worker storage](python/swarmada_headless/WORKER_STORAGE.md) for the immutable
+READY/checksum protocol and [VESSL workers](orchestration/vessl_worker/README.md)
+for bounded deployment and retrieval. Cloud authentication remains outside source
+and deployment configuration. The worker test path contains no trainer.
 
 Search keeps simulated command assignments separate from legal observations.
 The eight-column command row ends with an explicit known-enemy-dial flag;
