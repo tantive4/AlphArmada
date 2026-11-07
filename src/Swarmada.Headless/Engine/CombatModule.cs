@@ -804,7 +804,7 @@ public sealed partial class CombatModule : IChanceGameplayModule, IVerifiedDecis
         if (token.Exhausted && a.EffectFlags.GetValueOrDefault("avenger") != 0 && a.EffectFlags.GetValueOrDefault("exhausted-token-spends") > 0) return false;
         if (game.IsShip(a.Attacker) && a.SpentTokenTypes.Length > 0
             && TitleRules.LimitsDefenseTokens(game.ShipViews[a.Attacker],
-                (game.Flow.ShipActivations[a.Attacker].ResolvedCommands & (1 << (int)ShipCommand.ConcentrateFire)) != 0)) return false;
+                a.EffectFlags.ContainsKey(ConcentrateFireMode))) return false;
         if (game.IsShip(a.Defender) && a.SpentTokenTypes.Length > 0
             && game.ShipViews[a.Defender].Loadout.Find("jedi-hostage") is { Active: true, Exhausted: true }) return false;
         if (token.Token == DefenseTokenType.Salvo && (a.IsSalvoAttack || a.Counter || !IgnitionDefenseRules.AllowsSalvo(a.IgnitionAttack))) return false;
