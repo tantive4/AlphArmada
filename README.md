@@ -110,7 +110,7 @@ and deployment configuration. The worker test path contains no trainer.
 
 Search keeps simulated command assignments separate from legal observations.
 The eight-column command row ends with an explicit known-enemy-dial flag;
-internal materialization status is never a model feature (state schema v3).
+internal materialization status is never a model feature (state schema v4).
 `SearchRecovery` checkpoints actual roots. Capturing a worker-managed simulation
 as a complete recovery checkpoint is rejected because its private continuation
 and materialization overlay are wrapper state; MCTS continues using root replay.
