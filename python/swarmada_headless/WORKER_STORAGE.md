@@ -18,7 +18,8 @@ Native workers create `output/shards/<gameId>/` only for terminal games:
   Offsets point to record payloads, after their length fields. `terminalTargets`
   contains winner, two raw scores, final ship/squadron hull fractions and round.
 - `game.json`: game configuration, genuine outcome and worker measurements.
-- `encoder-manifest.json`: categorical vocabularies and feature/schema metadata.
+- `encoder-manifest.json.gz`: compressed categorical vocabularies and
+  feature/schema metadata. Earlier shards may contain `encoder-manifest.json`.
 - `manifest.json`: format `swarmada.worker-shard.v1`, `runId`, `workerId`,
   `shardId`, creation time, version registry, terminal game registry and payload
   files. Each file has a relative POSIX `path`, exact `bytes` and SHA-256.
