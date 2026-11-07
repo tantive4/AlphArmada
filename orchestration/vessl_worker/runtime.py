@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import atexit
 import hashlib
+import gzip
 import json
 import os
 from pathlib import Path
@@ -18,6 +19,26 @@ import subprocess
 import sys
 import threading
 import time
+
+
+class LogSources:
+    """Keep rotated native log generations separate while following renames."""
+    def __init__(self):
+        self.identities = {}
+        self.sequence = 0
+
+    def source(self, path: Path, root: Path, offsets: dict[str, int]) -> str:
+        relative = path.relative_to(root).as_posix()
+        if "logs" not in path.relative_to(root).parts:
+            return relative
+        status = path.stat()
+        key = (status.st_dev, status.st_ino)
+        source = self.identities.get(key)
+        if source is None or offsets.get(source, 0) > status.st_size:
+            self.sequence += 1
+            source = relative + f".generation-{self.sequence:06d}"
+            self.identities[key] = source
+        return source
 
 
 def default_cells(slot: int) -> list[dict]:
@@ -75,6 +96,7 @@ def main() -> int:
     stop = threading.Event()
     active: list[subprocess.Popen] = []
     log_offsets: dict[str, int] = {}
+    log_sources = LogSources()
     log_sequence = 0
     start = time.time()
 
@@ -114,7 +136,7 @@ def main() -> int:
             event("health-upload-failed", errorType=type(error).__name__)
 
     def log_files() -> list[Path]:
-        return [log_path, *work.glob("cells/*/console.jsonl"), *work.glob("cells/*/logs/*"),
+        return [log_path, *work.glob("cells/*/logs/*"),
                 *work.glob("cells/*/summaries/*"), *work.glob("cells/*/failures/*")]
 
     def upload_logs(final: bool = False, targets: dict[str, int] | None = None) -> bool:
@@ -125,7 +147,7 @@ def main() -> int:
         for path in sorted(set(files)):
             if not path.is_file():
                 continue
-            name = path.relative_to(work).as_posix()
+            name = log_sources.source(path, work, log_offsets)
             if targets is not None and name not in targets:
                 continue
             offset = log_offsets.get(name, 0)
@@ -148,10 +170,12 @@ def main() -> int:
         bundle.mkdir(parents=True, exist_ok=False)
         fragments = []
         for index, (name, offset, data) in enumerate(pieces):
-            part = f"fragment-{index:04d}.bin"
+            part = f"fragment-{index:04d}.bin.gz"
             target = bundle / part
-            target.write_bytes(data)
-            fragments.append(dict(file=part, source=name, offset=offset, bytes=len(data)))
+            compressed = gzip.compress(data, compresslevel=1, mtime=0)
+            target.write_bytes(compressed)
+            fragments.append(dict(file=part, source=name, offset=offset, bytes=len(data),
+                storedBytes=len(compressed), codec="gzip"))
         atomic_json(bundle / "fragments.json", dict(format="swarmada.worker-log-fragments.v1", fragments=fragments))
         receipt = publish_bundle(store, bundle, f"{artifact_prefix}/logs/{bundle.name}", dict(
             kind="logs", runId=run_id, workerId=worker, bundleId=bundle.name,
@@ -170,7 +194,8 @@ def main() -> int:
 
     def safe_upload_logs(final: bool = False) -> None:
         try:
-            targets = {p.relative_to(work).as_posix(): p.stat().st_size for p in log_files() if p.is_file()} if final else None
+            targets = {log_sources.source(p, work, log_offsets): p.stat().st_size
+                       for p in log_files() if p.is_file()} if final else None
             while time.time() < deadline - 30:
                 if not upload_logs(final=final, targets=targets) or not final:
                     break
@@ -290,6 +315,14 @@ def main() -> int:
             process.wait(timeout=10)
         active.remove(process)
         console.close()
+        if process.returncode:
+            # Native JSONL already preserves ordinary stdout events. Keep the
+            # fatal stdout/stderr tail without uploading a duplicate full log.
+            failure_logs = output / "failures"
+            failure_logs.mkdir(exist_ok=True)
+            with (output / "console.jsonl").open("rb") as source:
+                source.seek(max(0, source.seek(0, 2) - 1024 * 1024))
+                (failure_logs / "console-tail.txt").write_bytes(source.read())
         pump(spool)
         summaries = []
         for path in output.glob("summaries/*.json"):

@@ -141,6 +141,13 @@ def prepare(config, config_path):
 
 
 def launch(config, args):
+    requested = getattr(args, "slots", None)
+    if requested is not None and (not requested or len(set(requested)) != len(requested)
+            or any(type(slot) is not int or not 1 <= slot <= 20 for slot in requested)):
+        raise ValueError("--slots must name distinct worker slots between 1 and 20")
+    if args.command == "pilot" and requested not in (None, [1]):
+        raise ValueError("The pilot uses worker slot 1 only")
+    slots = [1] if args.command == "pilot" else sorted(requested or range(1, 21))
     if config["deadline_unix"] - time.time() < 180:
         raise ValueError("Fewer than three minutes remain before the global deadline; no new run is started")
     if args.command == "launch" and not args.pilot_reviewed:
@@ -163,7 +170,6 @@ def launch(config, args):
         raise RuntimeError("Duplicate or excess active workers detected; refusing additional creation")
     encoded, bundle_hash, manifest = ops_bundle(config)
     atomic_json(directory(config) / "ops-manifest.json", manifest)
-    slots = [1] if args.command == "pilot" else list(range(1, 21))
     for slot in slots:
         if time.time() >= config["deadline_unix"] - 180:
             print("Absolute deadline is near; stopped launching additional slots")
@@ -233,6 +239,7 @@ def main() -> int:
         command.add_argument("--retry-missing-intents", action="store_true")
         command.add_argument("--pilot-reviewed", action="store_true")
         command.add_argument("--compatibility", action="store_true")
+        command.add_argument("--slots", nargs="+", type=int)
     commands.add_parser("status")
     commands.add_parser("health")
     command = commands.add_parser("logs")

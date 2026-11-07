@@ -35,7 +35,7 @@ public sealed class StateEncoderSchema
 {
     private static readonly ConditionalWeakTable<FleetData, StateEncoderSchema> Cache = new();
     public static StateEncoderSchema For(FleetData data) => Cache.GetValue(data, static value => new(value));
-    public const string Version = "swarmada-headless.state-encoder.v3";
+    public const string Version = "swarmada-headless.state-encoder.v4";
     public EncoderVocabulary Ships { get; }
     public EncoderVocabulary Squadrons { get; }
     public EncoderVocabulary Upgrades { get; }

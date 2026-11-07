@@ -43,7 +43,7 @@ public sealed class PolicyEncoding
 
 public static class PolicyEncoder
 {
-    public const string Version = "conditional-policy-v3";
+    public const string Version = "conditional-policy-v4";
     private static readonly string[] heads = ["activation", "command_programming", "command_window", "attack_declaration",
         "defense", "damage", "maneuver", "squadron", "timing_window", "boundary_window", "ship_pointer", "squadron_pointer",
         "entity_pointer", "command", "payment", "zone", "token_pointer", "amount", "speed", "spatial", "heading", "face",
@@ -66,6 +66,16 @@ public static class PolicyEncoder
         var references = new int[decision.Choices.Count * PolicyEncoding.ReferenceWidth]; Array.Fill(references, -1);
         var prefixSymbols = new List<int>(); var prefixNumbers = new List<float>(); var prefixOffsets = new List<int> { 0 };
         foreach (string identity in new[] { decision.Stage }.Concat(prefix)) Append(identity, prefixSymbols, prefixNumbers, prefixOffsets, position.Context, decision.Actor);
+        // A unique static family may collapse before a provider/token pointer.
+        // Retain the same public family context even when no static edge was
+        // needed; the provider argument never replaces native combatants.
+        string? commonFamily = null;
+        if (decision.Candidates is { Count: > 0 } candidates)
+        {
+            commonFamily = Provider(position.Context, candidates[0])?.Family;
+            if (commonFamily is not null && candidates.Any(candidate => Provider(position.Context, candidate)?.Family != commonFamily)) commonFamily = null;
+        }
+        if (commonFamily is not null) Append("effect:" + commonFamily, prefixSymbols, prefixNumbers, prefixOffsets, position.Context, decision.Actor);
         var symbols = new List<int>(); var numbers = new List<float>(); var offsets = new List<int> { 0 };
         var arrayValues = new List<float>(); var arrayReferences = new List<int>();
         for (int index = 0; index < decision.Choices.Count; index++)
@@ -75,6 +85,8 @@ public static class PolicyEncoder
             var refs = references.AsSpan(index * PolicyEncoding.ReferenceWidth, PolicyEncoding.ReferenceWidth);
             row[0] = 1; refs[0] = choice.Entity;
             var descriptor = decision.Candidates?[index];
+            if (descriptor is not null && descriptor.Provider is null && Provider(position.Context, descriptor) is { } provider)
+                descriptor = descriptor with { Provider = provider };
             if (descriptor is not null)
             {
                 WriteNative(position, decision.Actor, descriptor, row, refs);
@@ -106,6 +118,7 @@ public static class PolicyEncoder
 
     private static void Append(string identity, List<int> symbols, List<float> numbers, List<int> offsets, GameContext game, int observer)
     {
+        identity = PublicProviderArguments.NormalizeIdentity(game, identity);
         if (TryIntelTarget(identity, game, out var intel, out int entity, out int effectStart))
         {
             // The canonical native ID transports a public RuntimeUnitId as
@@ -138,6 +151,10 @@ public static class PolicyEncoder
         symbols.AddRange(encoded.Symbols); numbers.AddRange(encoded.Numbers); offsets.Add(symbols.Count);
     }
 
+    private static PublicProviderArgument? Provider(GameContext game, PolicyCandidateDescriptor descriptor)
+        => descriptor.Provider ?? ((descriptor.KnownFields & PolicyActionFields.Ability) != 0
+            && PublicProviderArguments.TryResolve(game, descriptor.Example.AbilityId, out var provider) ? provider : null);
+
     private static bool TryIntelTarget(string identity, GameContext game, out IntelOfficerTokenTarget target,
         out int entity, out int effectStart)
     {
@@ -167,6 +184,15 @@ public static class PolicyEncoder
     {
         bool Has(PolicyActionFields field) => (descriptor.KnownFields & field) != 0;
         var action = descriptor.Example;
+        if (descriptor.Provider is { } provider)
+        {
+            // Kind 3 uses an explicit provider reference, distinct from native
+            // source/target/index. Masks remain valid when arguments still vary.
+            references.AddRange([candidate, 3, provider.ProviderEntity, (int)provider.ProviderKind]);
+            var row = new float[12]; row[0] = provider.ProviderEntity >= 0 ? 1 : 0;
+            if (provider.TokenType is { } token) { row[1] = 1; row[2 + (int)token] = 1; }
+            values.AddRange(row);
+        }
         if (Has(PolicyActionFields.Course) && action.Course is { } course)
             for (int i = 0; i < course.Length; i++)
             {

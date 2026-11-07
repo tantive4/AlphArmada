@@ -43,6 +43,10 @@ python orchestration/vessl_worker/control.py --config .local/remote/config.json 
 python orchestration/vessl_worker/control.py --config .local/remote/config.json stop
 ```
 
+`launch --slots 3 4 --pilot-reviewed --replace-terminal` replaces only the named
+terminal worker slots. Other active or terminal slots are left alone, and the
+twenty-active-worker limit still applies across the entire namespace.
+
 `prepare` uploads the runtime archive using the storage module's runtime bundle
 format: payload, checksum manifest, then the hashed READY commit marker.
 The operations bundle embeds bootstrap, settings, pinned requirements,
@@ -105,10 +109,12 @@ data. Any READY shards still unpublished at shutdown are reported explicitly.
 Replay READY bundles use
 `NAMESPACE/replay/RUN_ID/worker-NN/SHARD_ID/`; log READY bundles use
 `ARTIFACT_PREFIX/logs/chunk-NNNNNN/`. Each chunk contains short flat
-`fragment-NNNN.bin` files plus a `fragments.json` map with format
+`fragment-NNNN.bin.gz` files plus a `fragments.json` map with format
 `swarmada.worker-log-fragments.v1`. Map entries provide `file`, original
 `source`, byte `offset`, and `bytes`; reconstruct each source by offset
-rather than parsing fragments as independent JSON. Flat names avoid long
+rather than parsing fragments as independent JSON. `codec="gzip"` and
+`storedBytes` describe compressed storage; `bytes` retains the exact decoded
+length. Earlier raw `.bin` fragments remain readable. Flat names avoid long
 nested Windows paths. The final
 parseable report is `ARTIFACT_PREFIX/final/runtime-summary.json`.
 Completion health points to that final bundle and records its transfer
@@ -177,3 +183,19 @@ transfer receipt. Search-latency p95 requires surviving search log events;
 per-game average search time remains available in native summaries. The
 measurements describe the CPU random model and make no neural GPU inference
 or playing-strength claim.
+
+Current workers gzip each log fragment and upload native JSONL once; fatal
+stdout/stderr tails remain available. The fragment map binds compressed file
+lengths to exact uncompressed source offsets. Rotated log generations retain
+separate identities, so replacement files cannot overwrite earlier log bytes.
+The reporter also accepts earlier raw fragments.
+
+Verified supervisor log events also supply per-worker/execution hardware:
+CPU model, reported logical CPUs, affinity count, allocated GPU description,
+platform, and raw cgroup CPU/RAM quotas. CPU quota cores and RAM bytes are
+reported separately from host-visible CPU counts. Runs and cells retain an
+explicit hardware profile; differing or conflicting observations are not
+silently combined. `endToEndCompletedGamesPerHour` uses the enclosing
+supervisor cell duration, while `completedGamesPerHour` uses native active
+cell time. Hardware fields remain unknown when those log events are absent
+or `--no-logs` is used.

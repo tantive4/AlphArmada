@@ -76,6 +76,17 @@ public sealed partial class StateEncoder
             int source = (int)(value >> 4), command = (int)((value >> 1) & 7); bool stored = (value & 1) != 0;
             var token = Effect(kind, "token.pending", source: source, aux: command, parent: parent); token.B(true); token.B(stored); return;
         }
+        if (key.StartsWith("used.", StringComparison.Ordinal)
+            && PublicProviderArguments.TryResolve(game, key[5..], out var provider))
+        {
+            // Decode before extracting any numbers: a match ID/GUID is opaque,
+            // and its digits must never become inferred entity/token references.
+            if (value is < int.MinValue or > int.MaxValue)
+            { issues.Add(new("unregistered-flag-payload", provider.Family, "Provider flag value requires an explicit codec.")); return; }
+            var flag = Effect(kind, "used." + provider.Family, source: provider.ProviderEntity, parent: parent, aux: (int)value);
+            flag.B(true); flag.B(true); flag.Hot(3, (int)provider.ProviderKind); flag.B(provider.TokenType.HasValue);
+            flag.Hot(6, provider.TokenType.HasValue ? (int)provider.TokenType.Value : -1); return;
+        }
         int[] numbers = HasDigit(key) ? IntegerSegments().Matches(key).Select(match => int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int number) ? number : -1).ToArray() : [];
         int sourceIndex = numbers.Length > 0 ? numbers[0] : -1, targetIndex = numbers.Length > 1 ? numbers[1] : -1, slotIndex = numbers.Length > 2 ? numbers[2] : -1;
         if (key.StartsWith("effects.used.", StringComparison.Ordinal) && numbers.Length > 0)

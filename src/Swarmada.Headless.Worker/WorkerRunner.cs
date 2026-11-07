@@ -185,11 +185,13 @@ public sealed class WorkerRunner
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.CancelGames);
         cancellation.CancelAfter(TimeSpan.FromSeconds(options.MaxGameSeconds)); var token = cancellation.Token;
         GameRecordSpool? spool = null;
+        PreparedWorkerGame? preparedForDebug = null; GameDecision? rootDecisionForDebug = null;
         log.Write("game_started", new { gameId = id, index, seed, options.Preset, options.Simulations });
         try
         {
             PreparedWorkerGame prepared;
             using (await scheduler.EnterAsync(token)) prepared = factory.Create(id, seed, token);
+            preparedForDebug = prepared;
             metrics.SetupMilliseconds = timer.Elapsed.TotalMilliseconds;
             var game = prepared.Game; var before = game.DeepClone(); var replay = options.Replay ? game.DeepClone() : null;
             SearchKnowledge[] knowledge = [SearchKnowledge.For(game, 1), SearchKnowledge.For(game, 2)];
@@ -207,6 +209,7 @@ public sealed class WorkerRunner
                 using (await scheduler.EnterAsync(token))
                 {
                     decision = game.GetDecision(); metrics.Round = game.Context.State.Round; metrics.Phase = decision.Phase.ToString();
+                    rootDecisionForDebug = decision;
                     metrics.Phases[metrics.Phase] = metrics.Phases.GetValueOrDefault(metrics.Phase) + 1;
                     if (decision.Kind == DecisionKind.InvalidSetup) throw new InvalidSetupException(decision.InvalidSetup!);
                     if (decision.Kind == DecisionKind.Terminal)
@@ -300,7 +303,11 @@ public sealed class WorkerRunner
         { metrics.Status = error.Status; metrics.Error = error.Message; if (error.Status == "output-limit") lifetime.RequestStop(error.Status, immediate: true); }
         catch (OutOfMemoryException)
         { metrics.Status = "out-of-memory"; metrics.Error = "Managed allocation failed; no READY data published."; lifetime.RequestStop(metrics.Status, immediate: true); }
-        catch (Exception error) { metrics.Status = "error"; metrics.Error = error.ToString()[..Math.Min(error.ToString().Length, 16000)]; }
+        catch (Exception error)
+        {
+            metrics.Status = "error"; metrics.Error = error.ToString()[..Math.Min(error.ToString().Length, 16000)];
+            CaptureFailureContext(id, metrics, versions, preparedForDebug, rootDecisionForDebug, live.SearchEnvironment);
+        }
         finally
         {
             live.SearchEnvironment = null; live.SearchStarted = 0; metrics.ElapsedMilliseconds = timer.Elapsed.TotalMilliseconds;
@@ -335,6 +342,57 @@ public sealed class WorkerRunner
     }
     private static string SnapshotHash(GameSession game)
         => Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(game.CaptureSnapshot(), WorkerOptions.Json)));
+    private void CaptureFailureContext(string id, GameMetrics metrics, WorkerVersions versions, PreparedWorkerGame? prepared,
+        GameDecision? rootDecision, NativeMctsEnvironment? environment)
+    {
+        string directory = Path.Combine(options.Output, "failures");
+        string path = Path.Combine(directory, id + ".context.json"), temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            Directory.CreateDirectory(directory);
+            var debug = new { format = "swarmada.worker-failure-context.v1", gameId = id, options.RunId, options.WorkerId,
+                options.CellId, versions, metrics.Seed, metrics.Round, metrics.Phase,
+                trainingDataPublished = false,
+                scope = "Mechanical debugging only. The simulated snapshot omits search-wrapper materialized hypotheses and pending UCT state; it is not a complete MCTS recovery checkpoint.",
+                match = prepared?.Match, rootDecision,
+                actualRootSnapshot = prepared?.Game.CaptureSnapshot(),
+                simulatedDebugSnapshot = environment?.Position.CaptureSnapshot(),
+                searchCompatibilityToken = environment?.CompatibilityToken, rootObserver = environment?.RootObserver,
+                searchTimings = environment?.Timings };
+            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+            {
+                using var bounded = new BoundedDiagnosticStream(file, 2 * 1024 * 1024);
+                JsonSerializer.Serialize(bounded, debug, WorkerOptions.Json); bounded.Flush(); file.Flush(true);
+            }
+            File.Move(temporary, path);
+            log.Write("failure_context_saved", new { gameId = id, path, bytes = new FileInfo(path).Length,
+                trainingDataPublished = false, completeSearchRecovery = false });
+        }
+        catch (Exception error)
+        {
+            try { if (File.Exists(temporary)) File.Delete(temporary); } catch { }
+            log.Write("failure_context_error", new { gameId = id, error = error.Message, trainingDataPublished = false });
+        }
+    }
+    private sealed class BoundedDiagnosticStream(Stream inner, long maximumBytes) : Stream
+    {
+        private long written;
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => written;
+        public override long Position { get => written; set => throw new NotSupportedException(); }
+        public override void Flush() => inner.Flush();
+        public override void Write(byte[] buffer, int offset, int count) => Write(buffer.AsSpan(offset, count));
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length > maximumBytes - written) throw new InvalidDataException("Failure diagnostic exceeds its 2 MiB limit.");
+            inner.Write(buffer); written += buffer.Length;
+        }
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+    }
     private static void WriteAtomicJson(string path, object value)
     {
         string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";

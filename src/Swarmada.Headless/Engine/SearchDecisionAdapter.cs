@@ -23,7 +23,8 @@ public enum PolicyActionFields
 
 /// <summary>Fields shared by every complete legal action represented by one
 /// conditional choice. Unselected arguments are masked, never guessed from an example.</summary>
-public sealed record PolicyCandidateDescriptor(GameAction Example, PolicyActionFields KnownFields, int CompleteActions);
+public sealed record PolicyCandidateDescriptor(GameAction Example, PolicyActionFields KnownFields, int CompleteActions,
+    PublicProviderArgument? Provider = null);
 
 /// <summary>Recoverable conditional argument trie over exact legal native actions.
 /// Only Select at a complete leaf mutates the engine. This is worker-local state.
@@ -46,6 +47,7 @@ public sealed class DecisionAdapter
         public GameAction[]? CatalogActions { get; set; }
         public ActionCodec? Codec { get; set; }
         public PolicyCandidateDescriptor[]? CandidateDescriptors { get; set; }
+        public IReadOnlyDictionary<GameAction, PublicProviderArgument>? ProviderArguments { get; init; }
         public int Depth { get; init; }
     }
     internal sealed record Field(string Stage, Func<GameAction, string> Value, Func<GameAction, int>? Entity = null);
@@ -187,10 +189,12 @@ public sealed class DecisionAdapter
         using var actions = ActionsUnder(node).GetEnumerator();
         if (!actions.MoveNext()) throw new InvalidOperationException("Conditional candidate contains no native actions.");
         var first = actions.Current; var mask = PolicyActionFields.All; int count = 1;
+        PublicProviderArgument? provider = node.ProviderArguments?.GetValueOrDefault(first);
         static bool Equal<T>(T[]? a, T[]? b) => a is null ? b is null : b is not null && a.SequenceEqual(b);
         while (actions.MoveNext())
         {
             count++; var next = actions.Current;
+            provider = PublicProviderArgument.Merge(provider, node.ProviderArguments?.GetValueOrDefault(next));
             if (first.Kind != next.Kind) mask &= ~PolicyActionFields.Kind;
             if (first.Source != next.Source) mask &= ~PolicyActionFields.Source;
             if (first.Target != next.Target) mask &= ~PolicyActionFields.Target;
@@ -210,7 +214,7 @@ public sealed class DecisionAdapter
             if (first.AbilityId != next.AbilityId) mask &= ~PolicyActionFields.Ability;
             if (first.Flipped != next.Flipped) mask &= ~PolicyActionFields.Flipped;
         }
-        return new(first.DeepClone(), mask, count);
+        return new(first.DeepClone(), mask, count, provider);
     }
     public void BindDescriptor(DecisionDescriptor descriptor)
     {
@@ -248,21 +252,25 @@ public sealed class DecisionAdapter
         if (native.Kind == DecisionKind.Player)
         {
             var actions = catalog.Build(Game, native); AtomicActionCount = actions.Count;
-            fields = Fields(actions).ToArray(); var candidates = actions.ToArray(); root = Build(candidates, 0); cursor = root;
+            Dictionary<GameAction, PublicProviderArgument>? providers = null;
+            foreach (var action in actions)
+                if (PublicProviderArguments.TryResolve(Game.Context, action.AbilityId, out var provider))
+                    (providers ??= new(ExactGameActionComparer.Instance)).Add(action, provider);
+            fields = Fields(actions, providers).ToArray(); var candidates = actions.ToArray(); root = Build(candidates, 0, providers); cursor = root;
             if (root.Action is { } only)
             {
-                root = new(Family(native.Phase) + "/select_action");
-                root.Children.Add(Operation(only), new("commit") { Action = only }); cursor = root;
+                root = new(Family(native.Phase) + "/select_action") { ProviderArguments = providers };
+                root.Children.Add(Operation(only), new("commit") { Action = only, ProviderArguments = providers }); cursor = root;
             }
             root.CatalogActions = candidates;
         }
         revision = Game.Context.State.Revision; generation = Game.PositionGeneration;
     }
 
-    private Node Build(GameAction[] actions, int depth)
+    private Node Build(GameAction[] actions, int depth, IReadOnlyDictionary<GameAction, PublicProviderArgument>? providers)
     {
-        if (actions.Length == 1) return new("commit") { Action = actions[0] };
-        return new("pending") { PendingActions = actions, Depth = depth };
+        if (actions.Length == 1) return new("commit") { Action = actions[0], ProviderArguments = providers };
+        return new("pending") { PendingActions = actions, Depth = depth, ProviderArguments = providers };
     }
 
     private void Materialize(Node node)
@@ -287,7 +295,7 @@ public sealed class DecisionAdapter
             node.Stage = stage;
             foreach (var group in groups)
             {
-                var entries = group.ToArray(); node.Children.Add(group.Key, Build(entries, depth + 1));
+                var entries = group.ToArray(); node.Children.Add(group.Key, Build(entries, depth + 1, node.ProviderArguments));
                 if (field.Entity is not null) node.Entities.Add(group.Key, field.Entity(entries[0]));
             }
             node.PendingActions = null; return;
@@ -295,7 +303,7 @@ public sealed class DecisionAdapter
         throw new SearchCoverageException("Distinct native actions alias the same complete argument sequence.");
     }
 
-    private List<Field> Fields(IReadOnlyList<GameAction> actions)
+    private List<Field> Fields(IReadOnlyList<GameAction> actions, IReadOnlyDictionary<GameAction, PublicProviderArgument>? providers)
     {
         string family = Family(native!.Phase);
         // Freeze only the timing discriminator. Cached selectors must not consult
@@ -316,10 +324,15 @@ public sealed class DecisionAdapter
         Add("ship_pointer/select_source", a => a.Source, a => "source:" + a.Source, a => a.Source);
         Add("command/select_command", a => a.Command, a => "command:" + (int)a.Command);
         Add("ship_pointer/select_target", a => a.Target, a => "target:" + a.Target, a => a.Target);
+        if (providers is not null)
+            Add("entity_pointer/select_target", a => providers.GetValueOrDefault(a)?.ProviderEntity ?? -1,
+                a => "target:" + (providers.GetValueOrDefault(a)?.ProviderEntity ?? -1),
+                a => providers.GetValueOrDefault(a)?.ProviderEntity ?? -1);
         Add("payment/select_mode", a => a.SpendMode, a => "payment:" + (int)a.SpendMode);
         Add("zone/select_source_zone", a => a.FromZone, a => "from_zone:" + (int)a.FromZone);
         Add("zone/select_target_zone", a => a.ToZone, a => "to_zone:" + (int)a.ToZone);
-        Add("token_pointer/select_token_type", a => a.Token, a => "token:" + (int)a.Token);
+        int Token(GameAction action) => providers?.GetValueOrDefault(action)?.TokenType is { } token ? (int)token : (int)action.Token;
+        Add("token_pointer/select_token_type", Token, a => "token:" + Token(a));
         Add("amount/select_amount", a => a.Amount, a => "amount:" + a.Amount);
         Add("speed/select_speed", a => a.Speed, a => "speed:" + a.Speed);
         Add("spatial/select_destination", a => a.Position, a => "position:" + Position(a.Position));
@@ -350,6 +363,7 @@ public sealed class DecisionAdapter
     private static string Operation(GameAction action, bool commNoise)
     {
         if (action.AbilityId.StartsWith("reveal.comms-net.", StringComparison.Ordinal)) return "use:comms-net";
+        if (PublicProviderArguments.TryFamily(action.AbilityId, out string family)) return "effect:" + action.Kind + ":" + family;
         if (commNoise)
             return action.Kind switch { GameActionKind.ChangeSpeed => "comm-noise:reduce-speed", GameActionKind.ChooseCommand => "comm-noise:replace-dial", _ => "comm-noise:decline" };
         return action.AbilityId.Length == 0 ? "action:" + action.Kind : "effect:" + action.Kind + ":" + action.AbilityId;

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict
 import csv
+import gzip
 import hashlib
 import json
 import math
@@ -18,6 +19,7 @@ from swarmada_headless.worker_storage import validate_ready_artifact
 
 RUNTIME = "swarmada.worker-runtime-summary.v1"
 NATIVE = "swarmada.worker-run.v1"
+MAX_FRAGMENT_BYTES = 16 * 1024 * 1024
 
 
 def canonical(value) -> str:
@@ -87,6 +89,23 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+def read_fragment(path: Path, size: int, codec: str) -> bytes:
+    """Read at most the declared uncompressed chunk plus one overflow byte.
+
+    Stored bytes are already checksum-bound by the artifact manifest. Reading
+    through EOF also validates gzip CRC/trailers; concatenated members cannot
+    expand past this same bound or silently add bytes to reconstructed offsets.
+    """
+    if type(size) is not int or not 0 <= size <= MAX_FRAGMENT_BYTES or codec not in {"raw", "gzip"}:
+        raise ValueError("Unsupported or oversized log fragment")
+    opener = gzip.open if codec == "gzip" else open
+    with opener(path, "rb") as stream:
+        data = stream.read(size + 1)
+    if len(data) != size:
+        raise ValueError("Log fragment decompressed length differs from its byte range")
+    return data
+
+
 def build_report(roots, *, health_files=(), reconstruct: Path | None = None, include_logs=True) -> dict:
     issues, artifacts, manifest_seen = [], [], {}
     roots = [Path(root).resolve() for root in roots]
@@ -113,6 +132,10 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
             issues.append(dict(kind="invalid-artifact", path=str(directory), errorType=type(error).__name__))
 
     runtime, native, events = {}, {}, {}
+    supervisor_transfers = []
+    supervisor_cells = {}
+    hardware_values = defaultdict(lambda: defaultdict(dict))
+    hardware_run_links = defaultdict(set)
     fragments = defaultdict(list)
     health_records = []
     def register(table, identity, value, priority, source):
@@ -136,9 +159,27 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
         identity = (value.get("runId", ""), value.get("workerId", ""), value.get("cellId", ""), value.get("executionId", ""))
         record = dict(summary=value, runtimeIdentity=runtime_identity, supervisorCell=supervisor_cell)
         register(native, identity, record, priority, source)
-    def observe(value, source, priority=1):
+    def observe(value, source, priority=1, runtime_hint=None):
         if not isinstance(value, dict):
             return
+        owner = (value.get("worker", ""), str(value.get("execution", "")))
+        event = value.get("event")
+        # These rows are observed only after the containing artifact checksum and
+        # complete fragment coverage have passed. Runtime summaries can be absent
+        # after a controlled rolling stop; their confirmed transfers remain real.
+        transfer_kinds = {"logs-uploaded": "logs", "model-downloaded": "mock-model",
+                          "replay-roundtrip": "replay-validation-download"}
+        if all(owner):
+            if event == "storage" and value.get("sourceEvent") == "shard-uploaded":
+                supervisor_transfers.append((value, owner, "replay"))
+            elif event in transfer_kinds:
+                supervisor_transfers.append((value, owner, transfer_kinds[event]))
+            elif event == "worker-finished" and value.get("finalReceipt"):
+                supervisor_transfers.append((value["finalReceipt"], owner, "final"))
+            if runtime_hint and all(runtime_hint):
+                hardware_run_links[runtime_hint].add(owner)
+            if event == "cell-finished" and value.get("cell"):
+                register(supervisor_cells, (*owner, value["cell"]), value, priority, source)
         if value.get("format") == RUNTIME:
             runtime_record(value, priority, source)
         elif value.get("format") == NATIVE:
@@ -146,6 +187,24 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
         elif value.get("event") == "cell-finished":
             for summary in value.get("summaries", []):
                 native_record(summary, priority, source, supervisor_cell=value)
+        elif value.get("event") in {"worker-start", "cpu-model", "allocated-gpu", "resource-quota"}:
+            owner = (value.get("worker", ""), str(value.get("execution", "")))
+            if not all(owner):
+                return
+            if runtime_hint and all(runtime_hint):
+                hardware_run_links[runtime_hint].add(owner)
+            fields = {}
+            if value["event"] == "worker-start":
+                fields = {name: value.get(name) for name in ("cpu_count", "affinity", "platform", "python") if value.get(name) is not None}
+            elif value["event"] == "cpu-model":
+                fields["cpuModel"] = value.get("model")
+            elif value["event"] == "allocated-gpu":
+                fields["allocatedGpu"] = value.get("description")
+            elif value.get("resource") in {"cpu.max", "memory.max"}:
+                fields[value["resource"]] = value.get("value")
+            for field, item in fields.items():
+                if item is not None:
+                    hardware_values[owner][field][canonical(item)] = item
         elif value.get("eventType"):
             digest = hashlib.sha256(canonical(value).encode()).hexdigest()
             events.setdefault(digest, value)
@@ -174,10 +233,14 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
                 if file.as_posix() not in payloads:
                     raise ValueError("Fragment is absent from verified payload registry")
                 offset, size = item["offset"], item["bytes"]
-                if type(offset) is not int or type(size) is not int or offset < 0 or size < 0 or (directory / file).stat().st_size != size:
+                codec = item.get("codec", "raw")
+                stored = item.get("storedBytes", size) if codec == "raw" else item.get("storedBytes")
+                if (type(offset) is not int or type(size) is not int or offset < 0 or not 0 <= size <= MAX_FRAGMENT_BYTES
+                    or codec not in {"raw", "gzip"} or type(stored) is not int or stored < 0
+                    or codec == "raw" and stored != size or (directory / file).stat().st_size != stored):
                     raise ValueError("Invalid log fragment byte range")
                 identity = (manifest.get("runId", ""), manifest.get("workerId", ""), source.as_posix())
-                fragments[identity].append((offset, size, directory / file))
+                fragments[identity].append((offset, size, directory / file, codec))
         except Exception as error:
             issues.append(dict(kind="invalid-fragment-map", path=str(directory), errorType=type(error).__name__))
 
@@ -191,8 +254,8 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
             coverage, gaps, conflict = 0, [], False
             try:
                 with target.open("w+b") as output:
-                    for offset, size, piece in sorted(pieces, key=lambda item: (item[0], item[1])):
-                        data = piece.read_bytes()
+                    for offset, size, piece, codec in sorted(pieces, key=lambda item: (item[0], item[1])):
+                        data = read_fragment(piece, size, codec)
                         if offset > coverage:
                             gaps.append([coverage, offset])
                         overlap = min(size, max(0, coverage - offset))
@@ -214,12 +277,12 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
                     issues.append(dict(kind="missing-log-fragments", source=list(identity), gaps=gaps))
                     continue
                 if extension == ".json":
-                    observe(read_json(target), "verified-log:" + "/".join(identity), 2)
+                    observe(read_json(target), "verified-log:" + "/".join(identity), 2, identity[:2])
                 else:
                     with target.open("r", encoding="utf-8-sig", errors="replace") as source:
                         for line in source:
                             try:
-                                observe(json.loads(line), "verified-log:" + "/".join(identity))
+                                observe(json.loads(line), "verified-log:" + "/".join(identity), runtime_hint=identity[:2])
                             except (ValueError, TypeError):
                                 # A killed process can leave one incomplete JSONL tail.
                                 continue
@@ -235,6 +298,46 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
             health_records.extend(record for record in records if isinstance(record, dict))
         except Exception as error:
             issues.append(dict(kind="invalid-health-json", path=str(path), errorType=type(error).__name__))
+
+    hardware = {}
+    for owner, fields in sorted(hardware_values.items()):
+        values = {field: next(iter(items.values())) if len(items) == 1 else None for field, items in fields.items()}
+        conflicts = {field: list(items.values()) for field, items in fields.items() if len(items) > 1}
+        row = dict(cpuModel=values.get("cpuModel"), allocatedGpu=values.get("allocatedGpu"), platform=values.get("platform"),
+            reportedCpuCount=values.get("cpu_count"), affinityCount=values.get("affinity"), python=values.get("python"),
+            cpuMax=values.get("cpu.max"), memoryMax=values.get("memory.max"), conflicting=bool(conflicts), variants=conflicts)
+        row["cpuQuotaCores"] = None
+        row["memoryLimitBytes"] = None
+        try:
+            quota, period = str(row["cpuMax"]).split()
+            if quota != "max" and int(period) > 0:
+                row["cpuQuotaCores"] = int(quota) / int(period)
+        except (TypeError, ValueError):
+            pass
+        try:
+            if row["memoryMax"] != "max" and int(row["memoryMax"]) >= 0:
+                row["memoryLimitBytes"] = int(row["memoryMax"])
+        except (TypeError, ValueError):
+            pass
+        # Every observed field, including unavailable/conflicting values, is part
+        # of the profile. Similar presets do not imply identical hardware.
+        row["profileId"] = hashlib.sha256(canonical(row).encode()).hexdigest()[:20]
+        hardware[owner] = row
+        if conflicts:
+            issues.append(dict(kind="conflicting-hardware-observations", worker=owner[0], execution=owner[1], fields=list(conflicts)))
+
+    def hardware_for(identity, record):
+        runtime_identity = record.get("runtimeIdentity")
+        if runtime_identity:
+            owner = (runtime_identity[1], runtime_identity[2])
+            return owner, hardware.get(owner)
+        owners = hardware_run_links.get(identity[:2], set())
+        if len(owners) == 1:
+            owner = next(iter(owners))
+            return owner, hardware.get(owner)
+        if len(owners) > 1:
+            issues.append(dict(kind="ambiguous-hardware-run-link", runId=identity[0], worker=identity[1]))
+        return None, None
 
     event_groups = defaultdict(list)
     for value in events.values():
@@ -291,6 +394,8 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
     for value, _, _ in runtime.values():
         for receipt in value.get("transfers", []):
             add_transfer(receipt, (value.get("worker", ""), value.get("execution", "")))
+    for receipt, owner, kind in supervisor_transfers:
+        add_transfer(receipt, owner, kind)
     for value in health_records:
         slot = value.get("slot")
         owner = (value.get("worker") or (f"worker-{slot:02d}" if type(slot) is int else "unknown"), str(value.get("execution", value.get("run_id", ""))))
@@ -339,7 +444,13 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
         ending = summary.get("endingMemory", {})
         peak = max([number(ending.get("peakRssBytes"))] + [number(row.get("data", {}).get("process", {}).get("peakRssBytes")) for row in group_events])
         inference = summary.get("inference", {})
+        hardware_owner, machine = hardware_for(identity, record)
+        if not supervisor and hardware_owner:
+            recovered_supervisor = supervisor_cells.get((*hardware_owner, identity[2]))
+            if recovered_supervisor:
+                supervisor = recovered_supervisor[0]
         row = dict(runId=identity[0], worker=identity[1], cell=identity[2], nativeExecution=identity[3], source=source,
+            runtimeExecution=hardware_owner[1] if hardware_owner else None, hardware=machine,
             preset=config.get("preset"), budget=config.get("simulations"), concurrency=config.get("concurrency"), cpuWorkers=config.get("cpuWorkers"),
             batchSize=config.get("batchSize"), batchDelayMs=config.get("batchDelayMs"), replayEnabled=config.get("replay"),
             observedGames=len(metrics), completedGames=len(terminal), abortedGames=sum(counts[status] for status in ("time-limit", "canceled")),
@@ -348,6 +459,7 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
             unstartedGames=max(0, int(config.get("games", 0)) - len(metrics)) if config.get("games", 0) else None,
             incompleteSummary=bool(summary.get("incompleteSummary")), statusCounts=dict(counts), stopReason=summary.get("stopReason"),
             activeSeconds=active_seconds, supervisorCellSeconds=supervisor.get("elapsedSeconds"),
+            endToEndCompletedGamesPerHour=ratio(len(terminal) * 3600, number(supervisor.get("elapsedSeconds"))),
             completedGamesPerHour=ratio(len(terminal) * 3600, active_seconds), searchesPerSecond=ratio(total("searches"), active_seconds),
             simulationsPerSecond=ratio(total("simulations"), active_seconds), nativeActionsPerSecond=ratio(total("actualNativeActions"), active_seconds),
             publishedRecordsPerSecond=ratio(records, active_seconds),
@@ -374,22 +486,35 @@ def build_report(roots, *, health_files=(), reconstruct: Path | None = None, inc
         runs_table.append(dict(commit=identity[0], worker=identity[1], execution=identity[2], source=source,
             finalPresent=True, cells=len(value.get("cells", [])), elapsedSeconds=value.get("elapsedSeconds"),
             failures=value.get("failures", []), failureCount=len(value.get("failures", [])), replayRoundtripValidated=value.get("replayRoundtripValidated"),
-            mockModel=value.get("mockModel"), gpuCompute=value.get("gpuCompute"), storeCounters=value.get("storeCounters", {})))
+            mockModel=value.get("mockModel"), gpuCompute=value.get("gpuCompute"), storeCounters=value.get("storeCounters", {}),
+            hardware=hardware.get((identity[1], identity[2]))))
     for identity, (record, _, _) in native.items():
         if not any(value[0].get("worker") == identity[1] and any(summary.get("runId") == identity[0]
             for cell in value[0].get("cells", []) for summary in cell.get("summaries", [])) for value in runtime.values()):
             key = (identity[0], identity[1])
             if not any(row.get("recoveredRunId") == key[0] and row["worker"] == key[1] for row in runs_table):
-                runs_table.append(dict(recoveredRunId=key[0], worker=key[1], finalPresent=False, source="verified-log-recovery"))
+                owner, machine = hardware_for(identity, record)
+                runs_table.append(dict(recoveredRunId=key[0], worker=key[1], execution=owner[1] if owner else None,
+                    finalPresent=False, source="verified-log-recovery", hardware=machine))
+    for owner, machine in hardware.items():
+        if not any((row.get("worker"), row.get("execution")) == owner for row in runs_table):
+            runs_table.append(dict(worker=owner[0], execution=owner[1], finalPresent=False,
+                source="verified-supervisor-hardware", hardware=machine))
     transfer_totals = []
     for kind, direction, synthetic in sorted({(item["kind"], item["direction"], item["synthetic"]) for item in transfers}):
         rows = [item for item in transfers if (item["kind"], item["direction"], item["synthetic"]) == (kind, direction, synthetic)]
         transfer_totals.append(dict(kind=kind, direction=direction, synthetic=synthetic, operations=len(rows),
             confirmedBytes=sum(item["confirmedBytes"] for item in rows), elapsedSeconds=sum(item["elapsedSeconds"] for item in rows),
             payloadBytes=sum(item["payloadBytes"] for item in rows), metadataBytes=sum(item["metadataBytes"] for item in rows)))
-    return dict(format="swarmada.worker-experiment-report.v1", scope="Offline checksum-verified worker artifacts. CPU tensor-reading random policy/value only; no trained model, neural GPU throughput or playing-strength claim. Throughput uses each native cell's active wall time, never summed concurrent game durations. Nonterminal games are censored and excluded from completed-game duration quantiles.",
+    hardware_profiles = []
+    for profile in sorted({row["profileId"] for row in hardware.values()}):
+        owners = [owner for owner, row in hardware.items() if row["profileId"] == profile]
+        hardware_profiles.append(dict(profileId=profile, hardware=hardware[owners[0]],
+            workers=[dict(worker=owner[0], execution=owner[1]) for owner in owners]))
+    return dict(format="swarmada.worker-experiment-report.v1", scope="Offline checksum-verified worker artifacts. CPU tensor-reading random policy/value only; no trained model, neural GPU throughput or playing-strength claim. Native throughput uses each cell's active wall time; end-to-end cell throughput separately uses supervisor cell time. Neither uses summed concurrent game durations. Nonterminal games are censored and excluded from completed-game duration quantiles. Hardware profiles are explicit and heterogeneous machines are never combined into one performance row.",
         verifiedArtifacts=len(artifacts), duplicateArtifactCopies=duplicate_artifacts, recoveredLogSources=len(reconstructed),
-        runs=runs_table, cells=cells_table, games=games_table, transfers=transfers, transferTotals=transfer_totals, issues=issues)
+        runs=runs_table, cells=cells_table, games=games_table, transfers=transfers, transferTotals=transfer_totals,
+        hardwareProfiles=hardware_profiles, issues=issues)
 
 
 def flatten(value, prefix="") -> dict:
@@ -420,7 +545,7 @@ def compact_cells(rows):
     base = ("runId", "worker", "cell", "nativeExecution", "preset", "budget", "concurrency", "cpuWorkers",
         "batchSize", "batchDelayMs", "replayEnabled", "observedGames", "completedGames", "abortedGames", "errorGames",
         "censoredGames", "unstartedGames", "incompleteSummary", "stopReason", "activeSeconds", "supervisorCellSeconds",
-        "completedGamesPerHour", "searchesPerSecond", "simulationsPerSecond", "nativeActionsPerSecond", "publishedRecordsPerSecond",
+        "completedGamesPerHour", "endToEndCompletedGamesPerHour", "searchesPerSecond", "simulationsPerSecond", "nativeActionsPerSecond", "publishedRecordsPerSecond",
         "actions", "searches", "simulations", "attemptedTrainingRecords", "publishedTrainingRecords", "peakRssBytes", "cpuSeconds",
         "averageCpuCores", "publishedRawTensorBytes", "publishedCompressedTensorBytes", "logicalReplayUploadBytes",
         "rawBytesPerPublishedGame", "compressedBytesPerPublishedGame", "logicalUploadBytesPerPublishedGame",
@@ -433,6 +558,8 @@ def compact_cells(rows):
                 result[key + "." + field] = row.get(key, {}).get(field)
         for field in ("requests", "batches", "averageBatch", "maximumBatch", "averageQueueMilliseconds", "modelMilliseconds"):
             result["inference." + field] = row.get("inference", {}).get(field)
+        for field in ("profileId", "cpuModel", "allocatedGpu", "platform", "reportedCpuCount", "affinityCount", "cpuMax", "cpuQuotaCores", "memoryMax", "memoryLimitBytes", "conflicting"):
+            result["hardware." + field] = (row.get("hardware") or {}).get(field)
         yield result
 
 

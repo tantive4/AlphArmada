@@ -100,12 +100,17 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
         Begin(a, "thermal-offer", "thermal-shields.pre-roll", game.State.Owners[a.Defender], [], 1, 1); return true;
     }
 
+    private static bool RequiresDefenseDie(string id) => id is "defense.upgrade.captain-brunson"
+        or "defense.upgrade.point-defense-ion-cannons" or "defense.upgrade.lando-calrissian"
+        || id.StartsWith("defense.upgrade.admonition.", StringComparison.Ordinal);
+
     public IEnumerable<GameActionOption> GetActions(GameContext game, AttackState a, CombatWindow window)
     {
         if (HasPendingChoice(game, a)) return ChoiceActions(game, a).ToArray();
         var result = new List<GameActionOption>();
         foreach (var source in QueryActions(game, a, window))
         {
+            if (RequiresDefenseDie(source.AbilityId) && !MissingSquadronCombatEffects.HasModifiableDice(a)) continue;
             if (Used(a, source.AbilityId) && source.AbilityId != "defense.upgrade.targeting-scrambler") continue;
             if (source.AbilityId.StartsWith("defense.upgrade.electronic-countermeasures.", StringComparison.Ordinal)
                 && (!ForcedDefenseTokenDiscardRules.TryParseChoiceId(source.AbilityId, "defense.upgrade.electronic-countermeasures.", out var forced)
@@ -372,6 +377,9 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
     {
         if (HasPendingChoice(game, a)) return ApplyChoice(game, a, action);
         string id = action.AbilityId;
+        // A mandatory die choice must remain possible before paying its cost.
+        // Evade/Scatter or an earlier cancel can leave the attack pool empty.
+        if (RequiresDefenseDie(id) && !MissingSquadronCombatEffects.HasModifiableDice(a)) return false;
         if (TryApplyAssaultCombat(game, a, action)) return true;
         if (id.StartsWith("mine-attack.ltt.", StringComparison.Ordinal))
         { if (!Card(game, a.Attacker, "linked-turbolaser-towers").Exhaust()) return false; return AddRolled(game, a, (AttackDieColor)SuffixInt(id), 2); }
@@ -446,7 +454,7 @@ public sealed partial class SourceCombatEffects : ICombatEffectHooks
                 Begin(a, "reroll", id, owner, all, 1, SquadronAbilityEngine.GetDodgeValue(game.SquadronViews[game.SquadronIndex(a.Defender)],
                     game.IsShip(a.Attacker) ? null : game.SquadronViews[game.SquadronIndex(a.Attacker)], game.SceneSquadronViews)); return true;
             case "defense.upgrade.point-defense-ion-cannons": Begin(a, "reroll", id, owner, all, 1, 1); return true;
-            case "defense.upgrade.targeting-scrambler": Begin(a, "reroll", id, owner, all, 1, 4); return true;
+            case "defense.upgrade.targeting-scrambler": Begin(a, "reroll", id, owner, all, 0, 4); return true;
             case "defense.upgrade.lando-calrissian": Begin(a, "reroll", id, owner, all, 1, all.Length); return true;
             case "defense.upgrade.captain-brunson": Begin(a, "remove", id, owner, all, 1, 1); return true;
             case "defense.upgrade.major-derlin.reduce-damage":
